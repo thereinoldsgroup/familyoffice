@@ -307,6 +307,72 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+  /* ── OWNERSHIP MODULE ── */
+  .ownership-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
+  .ownership-panel { background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+  .ownership-panel-header { padding: 14px 20px; background: var(--navy); display: flex; align-items: center; justify-content: space-between; }
+  .ownership-panel-title { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 600; color: var(--gold-light); }
+  .ownership-panel-body { padding: 20px; }
+
+  .rel-card { border: 1px solid var(--border-light); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px; background: var(--section-bg); transition: box-shadow 0.15s; position: relative; }
+  .rel-card:hover { box-shadow: var(--shadow-sm); }
+  .rel-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .rel-card-title { font-weight: 500; color: var(--navy); font-size: 13.5px; line-height: 1.4; }
+  .rel-card-sub { font-size: 12px; color: var(--text-light); margin-top: 3px; }
+  .rel-card-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .rel-badge { font-size: 11px; padding: 2px 9px; border-radius: 10px; font-weight: 500; }
+  .badge-ownership { background: rgba(184,150,90,0.15); color: #8a6a2a; }
+  .badge-loan { background: rgba(52,152,219,0.15); color: #2471a3; }
+  .badge-mgmt { background: rgba(39,174,96,0.15); color: #1e8449; }
+  .badge-service { background: rgba(155,89,182,0.15); color: #7d3c98; }
+  .badge-investment { background: rgba(230,126,34,0.15); color: #a04000; }
+  .badge-custom { background: rgba(127,140,141,0.15); color: #566573; }
+  .badge-eliminate { background: rgba(192,57,43,0.12); color: #922b21; }
+
+  .elim-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--gold-pale); border-radius: var(--radius); margin-top: 8px; border: 1px solid var(--border); }
+  .elim-toggle-label { font-size: 12.5px; font-weight: 500; color: var(--navy); }
+  .toggle-switch { position: relative; width: 40px; height: 22px; }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: var(--border); border-radius: 22px; transition: 0.2s; }
+  .toggle-slider:before { content:''; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.2s; }
+  .toggle-switch input:checked + .toggle-slider { background: var(--gold); }
+  .toggle-switch input:checked + .toggle-slider:before { transform: translateX(18px); }
+
+  .ownership-tree { padding: 8px 0; }
+  .tree-node { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius); transition: background 0.12s; }
+  .tree-node:hover { background: var(--gold-pale); }
+  .tree-node-indent { padding-left: 28px; border-left: 2px solid var(--border-light); margin-left: 16px; }
+  .tree-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .tree-icon-company { background: rgba(15,31,56,0.08); color: var(--navy); }
+  .tree-icon-person { background: rgba(184,150,90,0.15); color: #8a6a2a; }
+  .tree-node-name { font-size: 13.5px; font-weight: 500; color: var(--navy); flex: 1; }
+  .tree-node-pct { font-size: 12px; color: var(--text-light); font-family: monospace; }
+
+  .add-rel-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border: 2px dashed var(--border); border-radius: var(--radius); background: transparent; color: var(--text-light); font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; width: 100%; transition: all 0.2s; margin-top: 12px; }
+  .add-rel-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-pale); }
+
+  /* Modal */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(15,31,56,0.55); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: var(--white); border-radius: var(--radius-lg); width: 100%; max-width: 560px; box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto; }
+  .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--white); z-index: 1; }
+  .modal-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--navy); }
+  .modal-close { background: none; border: none; font-size: 22px; color: var(--text-light); cursor: pointer; line-height: 1; padding: 0; }
+  .modal-close:hover { color: var(--navy); }
+  .modal-body { padding: 24px; }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border-light); display: flex; justify-content: flex-end; gap: 10px; }
+
+  .elim-summary { background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); margin-top: 24px; }
+  .elim-summary-header { padding: 14px 20px; background: var(--navy); }
+  .elim-summary-title { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 600; color: var(--gold-light); }
+  .elim-table { width: 100%; border-collapse: collapse; }
+  .elim-table th { padding: 10px 16px; background: var(--section-bg); font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-light); text-align: left; border-bottom: 1px solid var(--border-light); }
+  .elim-table td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid var(--border-light); vertical-align: top; }
+  .elim-table tr:last-child td { border-bottom: none; }
+  .elim-table tr:hover td { background: var(--gold-pale); }
+  .elim-on { color: var(--success); font-weight: 500; }
+  .elim-off { color: var(--text-light); }
 </style>
 </head>
 <body>
@@ -329,8 +395,8 @@
     </div>
   </div>
   <nav class="topbar-nav">
-    <button class="topbar-nav-btn active">Companies</button>
-    <button class="topbar-nav-btn" onclick="comingSoon()">Ownership</button>
+    <button class="topbar-nav-btn active" id="nav-companies" onclick="switchModule('companies')">Companies</button>
+    <button class="topbar-nav-btn" id="nav-ownership" onclick="switchModule('ownership')">Ownership</button>
     <button class="topbar-nav-btn" onclick="comingSoon()">Financials</button>
     <button class="topbar-nav-btn" onclick="comingSoon()">Tax</button>
     <button class="topbar-nav-btn" onclick="comingSoon()">Documents</button>
@@ -395,6 +461,206 @@
           <div>Actions</div>
         </div>
         <div id="dashTableBody"></div>
+      </div>
+    </div><!-- /view-dashboard -->
+
+    <!-- OWNERSHIP MODULE -->
+    <div id="view-ownership" class="panel">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Ownership &amp; Relationships</div>
+          <div class="page-subtitle">Entity ownership structure, intercompany relationships, and consolidation eliminations</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn-primary" onclick="openOwnershipModal()">+ Add Ownership</button>
+          <button class="btn-save" onclick="openRelationshipModal()">+ Add Relationship</button>
+        </div>
+      </div>
+      <div class="inner-tabs">
+        <button class="inner-tab active" id="own-tab-btn-structure" onclick="switchOwnershipTab(this,'own-tab-structure')">Ownership Structure</button>
+        <button class="inner-tab" id="own-tab-btn-relationships" onclick="switchOwnershipTab(this,'own-tab-relationships')">Intercompany Relationships</button>
+        <button class="inner-tab" id="own-tab-btn-eliminations" onclick="switchOwnershipTab(this,'own-tab-eliminations')">Consolidation Eliminations</button>
+      </div>
+
+      <!-- Ownership Structure -->
+      <div id="own-tab-structure" class="panel active">
+        <div class="ownership-grid">
+          <div class="ownership-panel">
+            <div class="ownership-panel-header"><span class="ownership-panel-title">Ownership Tree</span></div>
+            <div class="ownership-panel-body">
+              <div class="ownership-tree" id="ownershipTree">
+                <div style="text-align:center;padding:24px;color:var(--text-light);font-size:13px;">No ownership records yet.</div>
+              </div>
+            </div>
+          </div>
+          <div class="ownership-panel">
+            <div class="ownership-panel-header"><span class="ownership-panel-title">Ownership Records</span></div>
+            <div class="ownership-panel-body">
+              <div id="ownershipList"><div style="text-align:center;padding:24px;color:var(--text-light);font-size:13px;">No ownership records yet.</div></div>
+              <button class="add-rel-btn" onclick="openOwnershipModal()">+ Add Ownership Record</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Relationships -->
+      <div id="own-tab-relationships" class="panel">
+        <div class="form-section">
+          <div class="form-section-header" onclick="toggleSection(this)">
+            <span class="section-icon">🔗</span>
+            <span class="form-section-title">Intercompany Relationships</span>
+            <span class="form-section-toggle">▾</span>
+          </div>
+          <div class="form-section-body">
+            <div id="relationshipsList"><div style="text-align:center;padding:24px;color:var(--text-light);font-size:13px;">No relationships defined yet.</div></div>
+            <button class="add-rel-btn" onclick="openRelationshipModal()">+ Add Intercompany Relationship</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Eliminations -->
+      <div id="own-tab-eliminations" class="panel">
+        <div class="form-section">
+          <div class="form-section-header" onclick="toggleSection(this)">
+            <span class="section-icon">⚖️</span>
+            <span class="form-section-title">Consolidation Elimination Settings</span>
+            <span class="form-section-toggle">▾</span>
+          </div>
+          <div class="form-section-body">
+            <p style="font-size:13px;color:var(--text-mid);margin-bottom:20px;line-height:1.6;">Toggle eliminations on or off per relationship. Enabled items will be cancelled out when compiling a consolidated financial package.</p>
+            <div class="elim-summary">
+              <div class="elim-summary-header"><span class="elim-summary-title">Elimination Schedule</span></div>
+              <table class="elim-table">
+                <thead><tr>
+                  <th>From Entity</th><th>To Entity</th><th>Type</th><th>Description</th><th>Amount</th><th>Eliminate</th>
+                </tr></thead>
+                <tbody id="eliminationsTable"><tr><td colspan="6" style="text-align:center;color:var(--text-light);padding:24px;">No intercompany relationships defined yet.</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /view-ownership -->
+
+    <!-- OWNERSHIP MODAL -->
+    <div class="modal-overlay" id="ownershipModal">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title">Add Ownership Record</span>
+          <button class="modal-close" onclick="closeModal('ownershipModal')">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="field-group col-span-2">
+              <label class="field-label required">Owned Company</label>
+              <select class="field-select" id="own-ownedCompany"></select>
+            </div>
+            <div class="field-group col-span-2">
+              <label class="field-label required">Owner Type</label>
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="ownerType" value="individual" checked onchange="toggleOwnerType(this)"> Individual (Officer/Person)</label>
+                <label class="radio-option"><input type="radio" name="ownerType" value="entity" onchange="toggleOwnerType(this)"> Entity (Company)</label>
+              </div>
+            </div>
+            <div class="field-group col-span-2" id="own-individualField">
+              <label class="field-label required">Individual Owner</label>
+              <select class="field-select" id="own-ownerIndividual"></select>
+            </div>
+            <div class="field-group col-span-2" id="own-entityField" style="display:none;">
+              <label class="field-label required">Owning Entity</label>
+              <select class="field-select" id="own-ownerEntity"></select>
+            </div>
+            <div class="field-group">
+              <label class="field-label required">Ownership %</label>
+              <input type="text" class="field-input" id="own-pct" placeholder="0.0000" oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Effective Date</label>
+              <input type="date" class="field-input" id="own-effDate">
+            </div>
+            <div class="field-group col-span-2">
+              <label class="field-label">Notes</label>
+              <textarea class="field-textarea" id="own-notes" placeholder="Any additional notes…" style="min-height:60px;"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closeModal('ownershipModal')">Cancel</button>
+          <button class="btn-save" onclick="saveOwnership()">Save Ownership</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RELATIONSHIP MODAL -->
+    <div class="modal-overlay" id="relationshipModal">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title">Add Intercompany Relationship</span>
+          <button class="modal-close" onclick="closeModal('relationshipModal')">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="field-group">
+              <label class="field-label required">From Entity</label>
+              <select class="field-select" id="rel-fromCompany"></select>
+            </div>
+            <div class="field-group">
+              <label class="field-label required">To Entity</label>
+              <select class="field-select" id="rel-toCompany"></select>
+            </div>
+            <div class="field-group col-span-2">
+              <label class="field-label required">Relationship Type</label>
+              <select class="field-select" id="rel-type" onchange="toggleCustomType(this)">
+                <option value="">— Select —</option>
+                <option value="loan">Loan / Note Receivable</option>
+                <option value="management_fee">Management Fee</option>
+                <option value="service_agreement">Service Agreement</option>
+                <option value="investment">Investment / Capital Contribution</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+            <div class="field-group col-span-2" id="rel-customTypeField" style="display:none;">
+              <label class="field-label required">Custom Relationship Label</label>
+              <input type="text" class="field-input" id="rel-customLabel" placeholder="Describe the relationship type">
+            </div>
+            <div class="field-group col-span-2">
+              <label class="field-label">Description</label>
+              <textarea class="field-textarea" id="rel-description" placeholder="Details of the relationship…" style="min-height:60px;"></textarea>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Amount ($)</label>
+              <input type="text" class="field-input" id="rel-amount" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Effective Date</label>
+              <input type="date" class="field-input" id="rel-effDate">
+            </div>
+            <div class="field-group col-span-2">
+              <label class="field-label required">Elimination Category</label>
+              <select class="field-select" id="rel-elimCategory">
+                <option value="">— Select —</option>
+                <option value="receivable_payable">Intercompany Receivable / Payable</option>
+                <option value="income_expense">Intercompany Income / Expense</option>
+                <option value="investment">Intercompany Investment</option>
+                <option value="all">All of the Above</option>
+                <option value="none">Not Subject to Elimination</option>
+              </select>
+            </div>
+            <div class="field-group col-span-2">
+              <div class="elim-toggle-row">
+                <span class="elim-toggle-label">Eliminate in Consolidated Financials</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="rel-eliminate">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closeModal('relationshipModal')">Cancel</button>
+          <button class="btn-save" onclick="saveRelationship()">Save Relationship</button>
+        </div>
       </div>
     </div>
 
@@ -882,9 +1148,11 @@ function renderSidebar(companies) {
 // ═══════════════════════════════════════════════════
 function showDashboard() {
   currentCompanyId = null;
+  ['view-dashboard','view-company-detail','view-ownership'].forEach(id => document.getElementById(id)?.classList.remove('active'));
   document.getElementById('view-dashboard').classList.add('active');
-  document.getElementById('view-company-detail').classList.remove('active');
   document.getElementById('sidebarDashBtn').classList.add('active');
+  document.getElementById('nav-companies')?.classList.add('active');
+  document.getElementById('nav-ownership')?.classList.remove('active');
   loadDashboard();
 }
 
@@ -1276,6 +1544,288 @@ function buildOfficerCard(data) {
 
   document.getElementById('officersList').appendChild(card);
   card.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+// ═══════════════════════════════════════════════════
+//  MODULE SWITCHING
+// ═══════════════════════════════════════════════════
+function switchModule(module) {
+  document.querySelectorAll('.topbar-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav-' + module)?.classList.add('active');
+  ['view-dashboard','view-company-detail','view-ownership'].forEach(id => {
+    document.getElementById(id)?.classList.remove('active');
+  });
+  if (module === 'companies') {
+    showDashboard();
+  } else if (module === 'ownership') {
+    document.getElementById('view-ownership').classList.add('active');
+    loadOwnershipModule();
+  }
+}
+
+function switchOwnershipTab(btn, tabId) {
+  document.querySelectorAll('#view-ownership .inner-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  ['own-tab-structure','own-tab-relationships','own-tab-eliminations'].forEach(id => {
+    document.getElementById(id)?.classList.remove('active');
+  });
+  document.getElementById(tabId).classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════
+//  OWNERSHIP MODULE
+// ═══════════════════════════════════════════════════
+let allCompanies = [];
+let allOfficers  = [];
+
+async function loadOwnershipModule() {
+  const { data: companies } = await sb.from('companies').select('id,legal_name,structure').order('legal_name');
+  const { data: officers }  = await sb.from('officers').select('id,name,company_id').order('name');
+  allCompanies = companies || [];
+  allOfficers  = officers  || [];
+  await renderOwnershipList();
+  await renderRelationshipsList();
+  await renderEliminationsTable();
+  renderOwnershipTree();
+}
+
+async function renderOwnershipList() {
+  const { data: records } = await sb.from('ownership').select('*').order('created_at');
+  const container = document.getElementById('ownershipList');
+  if (!records || records.length === 0) {
+    container.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-light);font-size:13px;">No ownership records yet.</div>`;
+    return;
+  }
+  container.innerHTML = '';
+  records.forEach(r => {
+    const ownedCo     = allCompanies.find(c => c.id === r.owned_company_id);
+    const ownerCo     = allCompanies.find(c => c.id === r.owner_entity_id);
+    const ownerPerson = allOfficers.find(o => o.id === r.owner_individual_id);
+    const ownerName   = r.owner_type === 'entity' ? (ownerCo?.legal_name || '—') : (ownerPerson?.name || '—');
+    const pct         = r.ownership_pct != null ? parseFloat(r.ownership_pct).toFixed(2) + '%' : '—';
+    const card = document.createElement('div');
+    card.className = 'rel-card';
+    card.innerHTML = `
+      <div class="rel-card-header">
+        <div>
+          <div class="rel-card-title">${ownerName} → ${ownedCo?.legal_name || '—'}</div>
+          <div class="rel-card-sub">${r.owner_type === 'entity' ? 'Entity Owner' : 'Individual Owner'} · ${pct}${r.effective_date ? ' · Effective ' + r.effective_date : ''}</div>
+          ${r.notes ? `<div class="rel-card-sub" style="margin-top:4px;font-style:italic;">${r.notes}</div>` : ''}
+        </div>
+        <button onclick="deleteOwnership('${r.id}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:20px;line-height:1;padding:0;">×</button>
+      </div>
+      <div class="rel-card-badges">
+        <span class="rel-badge badge-ownership">${pct} Owned</span>
+        <span class="rel-badge ${r.owner_type === 'entity' ? 'badge-investment' : 'badge-custom'}">${r.owner_type === 'entity' ? 'Entity Owner' : 'Individual'}</span>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+async function renderRelationshipsList() {
+  const { data: records } = await sb.from('intercompany_relationships').select('*').order('created_at');
+  const container = document.getElementById('relationshipsList');
+  if (!records || records.length === 0) {
+    container.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-light);font-size:13px;">No relationships defined yet.</div>`;
+    return;
+  }
+  const typeBadge = { loan:'badge-loan', management_fee:'badge-mgmt', service_agreement:'badge-service', investment:'badge-investment', custom:'badge-custom' };
+  const typeLabel = { loan:'Loan', management_fee:'Management Fee', service_agreement:'Service Agreement', investment:'Investment', custom:'Custom' };
+  container.innerHTML = '';
+  records.forEach(r => {
+    const fromCo = allCompanies.find(c => c.id === r.from_company_id);
+    const toCo   = allCompanies.find(c => c.id === r.to_company_id);
+    const label  = r.relationship_type === 'custom' ? (r.custom_type_label || 'Custom') : (typeLabel[r.relationship_type] || r.relationship_type);
+    const amt    = r.amount ? '$' + parseFloat(r.amount).toLocaleString('en-US',{minimumFractionDigits:2}) : '';
+    const card = document.createElement('div');
+    card.className = 'rel-card';
+    card.innerHTML = `
+      <div class="rel-card-header">
+        <div>
+          <div class="rel-card-title">${fromCo?.legal_name || '—'} → ${toCo?.legal_name || '—'}</div>
+          <div class="rel-card-sub">${label}${amt ? ' · ' + amt : ''}${r.effective_date ? ' · Effective ' + r.effective_date : ''}</div>
+          ${r.description ? `<div class="rel-card-sub" style="margin-top:4px;font-style:italic;">${r.description}</div>` : ''}
+        </div>
+        <button onclick="deleteRelationship('${r.id}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:20px;line-height:1;padding:0;">×</button>
+      </div>
+      <div class="rel-card-badges">
+        <span class="rel-badge ${typeBadge[r.relationship_type] || 'badge-custom'}">${label}</span>
+        ${r.eliminate_in_consolidation ? '<span class="rel-badge badge-eliminate">Eliminate in Consolidation</span>' : ''}
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+async function renderEliminationsTable() {
+  const { data: records } = await sb.from('intercompany_relationships').select('*').order('created_at');
+  const tbody = document.getElementById('eliminationsTable');
+  if (!records || records.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-light);padding:24px;">No intercompany relationships defined yet.</td></tr>`;
+    return;
+  }
+  const elimLabels = { receivable_payable:'Receivable/Payable', income_expense:'Income/Expense', investment:'Investment', all:'All Categories', none:'N/A' };
+  const typeLabel  = { loan:'Loan', management_fee:'Management Fee', service_agreement:'Service Agreement', investment:'Investment', custom:'Custom' };
+  tbody.innerHTML = '';
+  records.forEach(r => {
+    const fromCo = allCompanies.find(c => c.id === r.from_company_id);
+    const toCo   = allCompanies.find(c => c.id === r.to_company_id);
+    const label  = r.relationship_type === 'custom' ? (r.custom_type_label || 'Custom') : (typeLabel[r.relationship_type] || r.relationship_type);
+    const amt    = r.amount ? '$' + parseFloat(r.amount).toLocaleString('en-US',{minimumFractionDigits:2}) : '—';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${fromCo?.legal_name || '—'}</td>
+      <td>${toCo?.legal_name || '—'}</td>
+      <td>${label}</td>
+      <td style="color:var(--text-mid);">${r.description || '—'}</td>
+      <td style="font-family:monospace;">${amt}</td>
+      <td>
+        <label class="toggle-switch">
+          <input type="checkbox" ${r.eliminate_in_consolidation ? 'checked' : ''} onchange="toggleElimination('${r.id}',this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+        <div style="font-size:11px;color:var(--text-light);margin-top:4px;">${elimLabels[r.elimination_category] || '—'}</div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderOwnershipTree() {
+  const tree = document.getElementById('ownershipTree');
+  if (allCompanies.length === 0) {
+    tree.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-light);font-size:13px;">No companies in the system.</div>`;
+    return;
+  }
+  tree.innerHTML = '';
+  allCompanies.forEach(c => {
+    const node = document.createElement('div');
+    node.className = 'tree-node';
+    node.innerHTML = `
+      <div class="tree-icon tree-icon-company">🏢</div>
+      <div class="tree-node-name">${c.legal_name}</div>
+      <div class="tree-node-pct" style="font-size:11px;">${c.structure || ''}</div>`;
+    tree.appendChild(node);
+  });
+}
+
+async function toggleElimination(id, value) {
+  await sb.from('intercompany_relationships').update({ eliminate_in_consolidation: value }).eq('id', id);
+  showToast(value ? '✓ Elimination enabled' : 'Elimination disabled');
+  renderRelationshipsList();
+}
+
+// ── MODALS ──
+function openOwnershipModal() {
+  populateCompanyDropdowns();
+  // Reset fields
+  document.getElementById('own-pct').value = '';
+  document.getElementById('own-effDate').value = '';
+  document.getElementById('own-notes').value = '';
+  document.querySelector('input[name="ownerType"][value="individual"]').checked = true;
+  document.getElementById('own-individualField').style.display = '';
+  document.getElementById('own-entityField').style.display = 'none';
+  document.getElementById('ownershipModal').classList.add('show');
+}
+function openRelationshipModal() {
+  populateCompanyDropdowns();
+  document.getElementById('rel-amount').value = '';
+  document.getElementById('rel-effDate').value = '';
+  document.getElementById('rel-description').value = '';
+  document.getElementById('rel-type').value = '';
+  document.getElementById('rel-elimCategory').value = '';
+  document.getElementById('rel-eliminate').checked = false;
+  document.getElementById('rel-customTypeField').style.display = 'none';
+  document.getElementById('rel-customLabel').value = '';
+  document.getElementById('relationshipModal').classList.add('show');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+function populateCompanyDropdowns() {
+  const coOpts = `<option value="">— Select —</option>` + allCompanies.map(c => `<option value="${c.id}">${c.legal_name}</option>`).join('');
+  const ofOpts = `<option value="">— Select —</option>` + allOfficers.map(o => {
+    const co = allCompanies.find(c => c.id === o.company_id);
+    return `<option value="${o.id}">${o.name}${co ? ' ('+co.legal_name+')' : ''}</option>`;
+  }).join('');
+  ['own-ownedCompany','own-ownerEntity','rel-fromCompany','rel-toCompany'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.innerHTML = coOpts;
+  });
+  const ind = document.getElementById('own-ownerIndividual'); if (ind) ind.innerHTML = ofOpts;
+}
+
+function toggleOwnerType(radio) {
+  document.getElementById('own-individualField').style.display = radio.value === 'individual' ? '' : 'none';
+  document.getElementById('own-entityField').style.display     = radio.value === 'entity'     ? '' : 'none';
+}
+function toggleCustomType(sel) {
+  document.getElementById('rel-customTypeField').style.display = sel.value === 'custom' ? '' : 'none';
+}
+
+async function saveOwnership() {
+  const ownerType = document.querySelector('input[name="ownerType"]:checked')?.value;
+  const ownedCo   = document.getElementById('own-ownedCompany').value;
+  const ownerInd  = document.getElementById('own-ownerIndividual').value;
+  const ownerEnt  = document.getElementById('own-ownerEntity').value;
+  const pct       = document.getElementById('own-pct').value;
+  if (!ownedCo || !(ownerInd || ownerEnt) || !pct) { showToast('⚠ Please fill in all required fields', true); return; }
+  showLoading('Saving…');
+  const { error } = await sb.from('ownership').insert({
+    id: 'own-' + Date.now(),
+    owner_type: ownerType,
+    owner_individual_id: ownerType === 'individual' ? ownerInd : null,
+    owner_entity_id:     ownerType === 'entity'     ? ownerEnt : null,
+    owned_company_id: ownedCo,
+    ownership_pct: parseFloat(pct),
+    effective_date: document.getElementById('own-effDate').value || null,
+    notes: document.getElementById('own-notes').value,
+  });
+  hideLoading();
+  if (error) { showToast('Save failed: ' + error.message, true); return; }
+  closeModal('ownershipModal');
+  showToast('✓ Ownership record saved');
+  await renderOwnershipList();
+  renderOwnershipTree();
+}
+
+async function saveRelationship() {
+  const fromCo  = document.getElementById('rel-fromCompany').value;
+  const toCo    = document.getElementById('rel-toCompany').value;
+  const relType = document.getElementById('rel-type').value;
+  if (!fromCo || !toCo || !relType) { showToast('⚠ Please fill in all required fields', true); return; }
+  if (fromCo === toCo) { showToast('⚠ From and To entities cannot be the same', true); return; }
+  showLoading('Saving…');
+  const amt = document.getElementById('rel-amount').value;
+  const { error } = await sb.from('intercompany_relationships').insert({
+    id: 'rel-' + Date.now(),
+    from_company_id: fromCo,
+    to_company_id: toCo,
+    relationship_type: relType,
+    custom_type_label: document.getElementById('rel-customLabel').value,
+    description: document.getElementById('rel-description').value,
+    amount: amt ? parseFloat(amt) : null,
+    effective_date: document.getElementById('rel-effDate').value || null,
+    eliminate_in_consolidation: document.getElementById('rel-eliminate').checked,
+    elimination_category: document.getElementById('rel-elimCategory').value || null,
+  });
+  hideLoading();
+  if (error) { showToast('Save failed: ' + error.message, true); return; }
+  closeModal('relationshipModal');
+  showToast('✓ Relationship saved');
+  await renderRelationshipsList();
+  await renderEliminationsTable();
+}
+
+async function deleteOwnership(id) {
+  if (!confirm('Remove this ownership record?')) return;
+  await sb.from('ownership').delete().eq('id', id);
+  showToast('Ownership record removed');
+  await renderOwnershipList();
+  renderOwnershipTree();
+}
+async function deleteRelationship(id) {
+  if (!confirm('Remove this relationship?')) return;
+  await sb.from('intercompany_relationships').delete().eq('id', id);
+  showToast('Relationship removed');
+  await renderRelationshipsList();
+  await renderEliminationsTable();
 }
 
 // ═══════════════════════════════════════════════════
