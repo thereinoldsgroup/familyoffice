@@ -373,6 +373,75 @@
   .elim-table tr:hover td { background: var(--gold-pale); }
   .elim-on { color: var(--success); font-weight: 500; }
   .elim-off { color: var(--text-light); }
+
+  /* ── ACCOUNTING MODULE ── */
+  .acct-layout { display: flex; gap: 0; min-height: calc(100vh - 180px); }
+  .acct-sidebar { width: 220px; flex-shrink: 0; background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 8px 0; box-shadow: var(--shadow-sm); height: fit-content; position: sticky; top: 80px; }
+  .acct-sidebar-section { font-size: 10px; font-weight: 600; letter-spacing: 0.10em; text-transform: uppercase; color: var(--text-light); padding: 14px 16px 6px; }
+  .acct-sidebar-btn { display: flex; align-items: center; gap: 9px; padding: 8px 16px; font-size: 13px; color: var(--text-mid); cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-family: 'DM Sans', sans-serif; border-left: 3px solid transparent; transition: all 0.15s; }
+  .acct-sidebar-btn:hover { background: var(--gold-pale); color: var(--navy); }
+  .acct-sidebar-btn.active { color: var(--navy); font-weight: 500; background: var(--gold-pale); border-left-color: var(--gold); }
+  .acct-sidebar-btn .acct-icon { width: 22px; text-align: center; font-size: 14px; }
+  .acct-content { flex: 1; padding-left: 28px; min-width: 0; }
+
+  .entity-selector { display: flex; align-items: center; gap: 12px; background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 12px 20px; margin-bottom: 24px; box-shadow: var(--shadow-sm); }
+  .entity-selector-label { font-size: 12px; font-weight: 500; color: var(--text-light); letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap; }
+  .entity-selector select { flex: 1; height: 34px; padding: 0 10px; border: 1px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13.5px; color: var(--text-dark); cursor: pointer; }
+  .entity-selector select:focus { outline: none; border-color: var(--gold); }
+  .consolidated-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-mid); cursor: pointer; white-space: nowrap; }
+
+  /* COA Table */
+  .acct-table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); }
+  .acct-table thead tr { background: var(--navy); }
+  .acct-table thead th { padding: 11px 16px; font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--gold-light); text-align: left; white-space: nowrap; }
+  .acct-table tbody tr { border-bottom: 1px solid var(--border-light); transition: background 0.1s; }
+  .acct-table tbody tr:last-child { border-bottom: none; }
+  .acct-table tbody tr:hover { background: var(--gold-pale); }
+  .acct-table td { padding: 11px 16px; font-size: 13px; color: var(--text-dark); vertical-align: middle; }
+  .acct-table td.number { font-family: monospace; color: var(--text-mid); }
+  .acct-table td.amount { font-family: monospace; text-align: right; }
+  .acct-table td.amount.negative { color: var(--error); }
+  .acct-type-pill { display: inline-block; padding: 2px 8px; border-radius: 8px; font-size: 11px; font-weight: 500; }
+  .type-asset     { background: rgba(52,152,219,0.12); color: #1a6fa8; }
+  .type-liability { background: rgba(192,57,43,0.12); color: #922b21; }
+  .type-equity    { background: rgba(39,174,96,0.12); color: #1e8449; }
+  .type-income    { background: rgba(184,150,90,0.15); color: #7a5c1e; }
+  .type-expense   { background: rgba(127,140,141,0.15); color: #4d5656; }
+
+  /* JE Form */
+  .je-lines-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+  .je-lines-table th { padding: 8px 10px; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-light); background: var(--section-bg); border-bottom: 1px solid var(--border-light); text-align: left; }
+  .je-lines-table td { padding: 6px 6px; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
+  .je-lines-table td input, .je-lines-table td select { height: 32px; padding: 0 8px; border: 1px solid var(--border); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 13px; width: 100%; }
+  .je-lines-table td input:focus, .je-lines-table td select:focus { outline: none; border-color: var(--gold); }
+  .je-totals-row { display: flex; justify-content: flex-end; gap: 32px; padding: 12px 16px; background: var(--section-bg); border-top: 2px solid var(--border); border-radius: 0 0 var(--radius) var(--radius); }
+  .je-total-item { text-align: right; }
+  .je-total-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-light); }
+  .je-total-value { font-family: monospace; font-size: 16px; font-weight: 500; color: var(--navy); margin-top: 2px; }
+  .je-total-value.unbalanced { color: var(--error); }
+  .je-add-line-btn { background: none; border: 1px dashed var(--border); border-radius: var(--radius); padding: 7px 16px; font-size: 12.5px; color: var(--text-light); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; margin-top: 8px; }
+  .je-add-line-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-pale); }
+
+  /* Reports */
+  .report-header { background: var(--navy); color: var(--white); border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 20px 28px; }
+  .report-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--gold-light); }
+  .report-subtitle { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+  .report-body { background: var(--white); border: 1px solid var(--border-light); border-top: none; border-radius: 0 0 var(--radius-lg) var(--radius-lg); padding: 0; box-shadow: var(--shadow-sm); overflow: hidden; }
+  .report-section-row { padding: 10px 28px; background: var(--section-bg); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--navy); border-bottom: 1px solid var(--border-light); }
+  .report-data-row { display: flex; justify-content: space-between; padding: 9px 28px 9px 40px; border-bottom: 1px solid var(--border-light); font-size: 13px; transition: background 0.1s; }
+  .report-data-row:hover { background: var(--gold-pale); }
+  .report-data-row.indent2 { padding-left: 56px; }
+  .report-subtotal-row { display: flex; justify-content: space-between; padding: 9px 28px; font-size: 13px; font-weight: 500; color: var(--navy); border-bottom: 1px solid var(--border); background: rgba(184,150,90,0.06); }
+  .report-total-row { display: flex; justify-content: space-between; padding: 12px 28px; font-size: 14px; font-weight: 600; color: var(--navy); background: var(--gold-pale); border-top: 2px solid var(--gold); }
+  .report-amount { font-family: monospace; font-size: 13px; }
+  .report-amount.neg { color: var(--error); }
+  .report-filters { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding: 14px 20px; background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); }
+  .report-filters label { font-size: 12px; font-weight: 500; color: var(--text-mid); }
+  .report-filters input[type=date], .report-filters select { height: 32px; padding: 0 10px; border: 1px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13px; }
+  .report-filters input[type=date]:focus, .report-filters select:focus { outline: none; border-color: var(--gold); }
+  .report-run-btn { padding: 7px 18px; background: var(--navy); color: var(--gold-light); border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+  .report-run-btn:hover { background: var(--navy-mid); }
+  .coa-group-header { padding: 8px 16px; background: var(--navy); color: var(--gold-light); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 </style>
 </head>
 <body>
@@ -397,7 +466,7 @@
   <nav class="topbar-nav">
     <button class="topbar-nav-btn active" id="nav-companies" onclick="switchModule('companies')">Companies</button>
     <button class="topbar-nav-btn" id="nav-ownership" onclick="switchModule('ownership')">Ownership</button>
-    <button class="topbar-nav-btn" onclick="comingSoon()">Financials</button>
+    <button class="topbar-nav-btn" id="nav-financials" onclick="switchModule('financials')">Financials</button>
     <button class="topbar-nav-btn" onclick="comingSoon()">Tax</button>
     <button class="topbar-nav-btn" onclick="comingSoon()">Documents</button>
     <button class="topbar-nav-btn" onclick="comingSoon()">Reports</button>
@@ -541,6 +610,214 @@
         </div>
       </div>
     </div><!-- /view-ownership -->
+
+    <!-- ═══════════════════════════════════════════
+         FINANCIALS / ACCOUNTING MODULE
+    ═══════════════════════════════════════════ -->
+    <div id="view-financials" class="panel">
+      <div class="page-header">
+        <div>
+          <div class="page-title" id="acctPageTitle">Accounting</div>
+          <div class="page-subtitle" id="acctPageSubtitle">General Ledger · Chart of Accounts · Journal Entries · Reports</div>
+        </div>
+        <div class="page-actions" id="acctPageActions"></div>
+      </div>
+
+      <!-- Entity Selector Bar -->
+      <div class="entity-selector">
+        <span class="entity-selector-label">Active Entity</span>
+        <select id="acctEntitySelect" onchange="onEntityChange()">
+          <option value="">— Select a company —</option>
+        </select>
+        <label class="consolidated-toggle">
+          <input type="checkbox" id="acctConsolidated" style="accent-color:var(--gold);" onchange="onEntityChange()">
+          Consolidated View
+        </label>
+        <span id="acctBasisBadge" style="font-size:11px;padding:3px 10px;border-radius:10px;background:rgba(184,150,90,0.15);color:#7a5c1e;font-weight:500;display:none;"></span>
+      </div>
+
+      <div class="acct-layout">
+        <!-- Left nav -->
+        <div class="acct-sidebar">
+          <div class="acct-sidebar-section">Ledger</div>
+          <button class="acct-sidebar-btn active" id="acct-nav-coa"       onclick="showAcctView('coa')">       <span class="acct-icon">📋</span> Chart of Accounts</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-je"        onclick="showAcctView('je')">        <span class="acct-icon">✏️</span> Journal Entries</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-gl"        onclick="showAcctView('gl')">        <span class="acct-icon">📒</span> General Ledger</button>
+          <div class="acct-sidebar-section">Reports</div>
+          <button class="acct-sidebar-btn"         id="acct-nav-tb"        onclick="showAcctView('tb')">        <span class="acct-icon">⚖️</span> Trial Balance</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-pl"        onclick="showAcctView('pl')">        <span class="acct-icon">📈</span> Profit &amp; Loss</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-bs"        onclick="showAcctView('bs')">        <span class="acct-icon">🏦</span> Balance Sheet</button>
+        </div>
+
+        <!-- Content area -->
+        <div class="acct-content">
+
+          <!-- CHART OF ACCOUNTS -->
+          <div id="acct-view-coa" class="acct-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Chart of Accounts</div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-secondary" onclick="seedDefaultCOA()" id="seedCOABtn">Load Default COA</button>
+                <button class="btn-save" onclick="openAccountModal()">+ New Account</button>
+              </div>
+            </div>
+            <div id="coaContent"><div class="empty-state"><div class="empty-state-title">No accounts yet</div>Select a company and click "Load Default COA" to get started.</div></div>
+          </div>
+
+          <!-- JOURNAL ENTRIES LIST -->
+          <div id="acct-view-je" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Journal Entries</div>
+              <button class="btn-save" onclick="openJEModal()">+ New Journal Entry</button>
+            </div>
+            <div id="jeListContent"><div class="empty-state"><div class="empty-state-title">No journal entries</div>Create your first journal entry above.</div></div>
+          </div>
+
+          <!-- GENERAL LEDGER -->
+          <div id="acct-view-gl" class="acct-panel" style="display:none;">
+            <div class="report-filters">
+              <label>From</label><input type="date" id="gl-dateFrom">
+              <label>To</label><input type="date" id="gl-dateTo">
+              <label>Account</label>
+              <select id="gl-account" style="min-width:180px;"><option value="">All Accounts</option></select>
+              <button class="report-run-btn" onclick="runGeneralLedger()">Run Report</button>
+            </div>
+            <div id="glContent"><div class="empty-state"><div class="empty-state-title">Select date range and run report</div></div></div>
+          </div>
+
+          <!-- TRIAL BALANCE -->
+          <div id="acct-view-tb" class="acct-panel" style="display:none;">
+            <div class="report-filters">
+              <label>As of Date</label><input type="date" id="tb-asof">
+              <button class="report-run-btn" onclick="runTrialBalance()">Run Report</button>
+            </div>
+            <div id="tbContent"><div class="empty-state"><div class="empty-state-title">Select a date and run report</div></div></div>
+          </div>
+
+          <!-- PROFIT & LOSS -->
+          <div id="acct-view-pl" class="acct-panel" style="display:none;">
+            <div class="report-filters">
+              <label>From</label><input type="date" id="pl-dateFrom">
+              <label>To</label><input type="date" id="pl-dateTo">
+              <button class="report-run-btn" onclick="runPL()">Run Report</button>
+            </div>
+            <div id="plContent"><div class="empty-state"><div class="empty-state-title">Select date range and run report</div></div></div>
+          </div>
+
+          <!-- BALANCE SHEET -->
+          <div id="acct-view-bs" class="acct-panel" style="display:none;">
+            <div class="report-filters">
+              <label>As of Date</label><input type="date" id="bs-asof">
+              <button class="report-run-btn" onclick="runBalanceSheet()">Run Report</button>
+            </div>
+            <div id="bsContent"><div class="empty-state"><div class="empty-state-title">Select a date and run report</div></div></div>
+          </div>
+
+        </div><!-- /acct-content -->
+      </div><!-- /acct-layout -->
+    </div><!-- /view-financials -->
+
+    <!-- ACCOUNT MODAL -->
+    <div class="modal-overlay" id="accountModal">
+      <div class="modal" style="max-width:480px;">
+        <div class="modal-header">
+          <span class="modal-title" id="accountModalTitle">New Account</span>
+          <button class="modal-close" onclick="closeModal('accountModal')">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="field-group">
+              <label class="field-label required">Account Number</label>
+              <input type="text" class="field-input" id="acct-number" placeholder="e.g. 1010">
+            </div>
+            <div class="field-group">
+              <label class="field-label required">Account Type</label>
+              <select class="field-select" id="acct-type" onchange="updateSubtypes()">
+                <option value="">— Select —</option>
+                <option>Asset</option><option>Liability</option><option>Equity</option>
+                <option>Income</option><option>Expense</option>
+              </select>
+            </div>
+            <div class="field-group col-span-2">
+              <label class="field-label required">Account Name</label>
+              <input type="text" class="field-input" id="acct-name" placeholder="Account name">
+            </div>
+            <div class="field-group col-span-2">
+              <label class="field-label">Account Subtype</label>
+              <select class="field-select" id="acct-subtype"></select>
+            </div>
+            <div class="field-group col-span-2">
+              <label class="field-label">Description</label>
+              <input type="text" class="field-input" id="acct-desc" placeholder="Optional description">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closeModal('accountModal')">Cancel</button>
+          <button class="btn-save" onclick="saveAccount()">Save Account</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- JOURNAL ENTRY MODAL -->
+    <div class="modal-overlay" id="jeModal">
+      <div class="modal" style="max-width:860px;">
+        <div class="modal-header">
+          <span class="modal-title" id="jeModalTitle">New Journal Entry</span>
+          <button class="modal-close" onclick="closeModal('jeModal')">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid" style="margin-bottom:20px;">
+            <div class="field-group">
+              <label class="field-label required">Date</label>
+              <input type="date" class="field-input" id="je-date">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Reference #</label>
+              <input type="text" class="field-input" id="je-ref" placeholder="e.g. JE-001">
+            </div>
+            <div class="field-group col-span-2">
+              <label class="field-label">Description / Memo</label>
+              <input type="text" class="field-input" id="je-desc" placeholder="Purpose of this entry">
+            </div>
+          </div>
+          <div style="border:1px solid var(--border-light);border-radius:var(--radius);overflow:hidden;">
+            <table class="je-lines-table">
+              <thead><tr>
+                <th style="width:35%;">Account</th>
+                <th>Description</th>
+                <th style="width:120px;">Debit</th>
+                <th style="width:120px;">Credit</th>
+                <th style="width:36px;"></th>
+              </tr></thead>
+              <tbody id="jeLinesTbody"></tbody>
+            </table>
+            <div style="padding:8px 10px;background:var(--section-bg);border-top:1px solid var(--border-light);">
+              <button class="je-add-line-btn" onclick="addJELine()">+ Add Line</button>
+            </div>
+          </div>
+          <div class="je-totals-row">
+            <div class="je-total-item">
+              <div class="je-total-label">Total Debits</div>
+              <div class="je-total-value" id="jeTotalDebits">0.00</div>
+            </div>
+            <div class="je-total-item">
+              <div class="je-total-label">Total Credits</div>
+              <div class="je-total-value" id="jeTotalCredits">0.00</div>
+            </div>
+            <div class="je-total-item">
+              <div class="je-total-label">Difference</div>
+              <div class="je-total-value" id="jeDifference">0.00</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closeModal('jeModal')">Cancel</button>
+          <button class="btn-secondary" onclick="saveJE('draft')">Save as Draft</button>
+          <button class="btn-save" onclick="saveJE('posted')">Post Entry</button>
+        </div>
+      </div>
+    </div>
 
     <!-- OWNERSHIP MODAL -->
     <div class="modal-overlay" id="ownershipModal">
@@ -1148,11 +1425,12 @@ function renderSidebar(companies) {
 // ═══════════════════════════════════════════════════
 function showDashboard() {
   currentCompanyId = null;
-  ['view-dashboard','view-company-detail','view-ownership'].forEach(id => document.getElementById(id)?.classList.remove('active'));
+  ['view-dashboard','view-company-detail','view-ownership','view-financials'].forEach(id => document.getElementById(id)?.classList.remove('active'));
   document.getElementById('view-dashboard').classList.add('active');
   document.getElementById('sidebarDashBtn').classList.add('active');
   document.getElementById('nav-companies')?.classList.add('active');
   document.getElementById('nav-ownership')?.classList.remove('active');
+  document.getElementById('nav-financials')?.classList.remove('active');
   loadDashboard();
 }
 
@@ -1552,7 +1830,7 @@ function buildOfficerCard(data) {
 function switchModule(module) {
   document.querySelectorAll('.topbar-nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('nav-' + module)?.classList.add('active');
-  ['view-dashboard','view-company-detail','view-ownership'].forEach(id => {
+  ['view-dashboard','view-company-detail','view-ownership','view-financials'].forEach(id => {
     document.getElementById(id)?.classList.remove('active');
   });
   if (module === 'companies') {
@@ -1560,6 +1838,9 @@ function switchModule(module) {
   } else if (module === 'ownership') {
     document.getElementById('view-ownership').classList.add('active');
     loadOwnershipModule();
+  } else if (module === 'financials') {
+    document.getElementById('view-financials').classList.add('active');
+    loadFinancialsModule();
   }
 }
 
@@ -1829,8 +2110,632 @@ async function deleteRelationship(id) {
 }
 
 // ═══════════════════════════════════════════════════
-//  INIT
+//  ACCOUNTING MODULE
 // ═══════════════════════════════════════════════════
+let acctCompanyId   = null;
+let acctConsolidated = false;
+let acctAccounts    = [];
+let editingAccountId = null;
+let editingJEId      = null;
+
+// ── DEFAULT CHART OF ACCOUNTS ──
+const DEFAULT_COA = [
+  // ASSETS
+  {n:'1000',name:'Cash & Cash Equivalents',      type:'Asset',     sub:'Current Asset'},
+  {n:'1010',name:'Checking Account',             type:'Asset',     sub:'Current Asset'},
+  {n:'1020',name:'Savings Account',              type:'Asset',     sub:'Current Asset'},
+  {n:'1030',name:'Petty Cash',                   type:'Asset',     sub:'Current Asset'},
+  {n:'1100',name:'Accounts Receivable',          type:'Asset',     sub:'Current Asset'},
+  {n:'1110',name:'Allowance for Doubtful Accounts',type:'Asset',   sub:'Current Asset'},
+  {n:'1200',name:'Inventory',                    type:'Asset',     sub:'Current Asset'},
+  {n:'1300',name:'Prepaid Expenses',             type:'Asset',     sub:'Current Asset'},
+  {n:'1400',name:'Other Current Assets',         type:'Asset',     sub:'Current Asset'},
+  {n:'1500',name:'Property & Equipment',         type:'Asset',     sub:'Fixed Asset'},
+  {n:'1510',name:'Accumulated Depreciation',     type:'Asset',     sub:'Fixed Asset'},
+  {n:'1600',name:'Intangible Assets',            type:'Asset',     sub:'Other Asset'},
+  {n:'1700',name:'Deposits',                     type:'Asset',     sub:'Other Asset'},
+  {n:'1800',name:'Intercompany Receivable',      type:'Asset',     sub:'Current Asset'},
+  // LIABILITIES
+  {n:'2000',name:'Accounts Payable',             type:'Liability', sub:'Current Liability'},
+  {n:'2100',name:'Accrued Liabilities',          type:'Liability', sub:'Current Liability'},
+  {n:'2200',name:'Sales Tax Payable',            type:'Liability', sub:'Current Liability'},
+  {n:'2300',name:'Payroll Liabilities',          type:'Liability', sub:'Current Liability'},
+  {n:'2400',name:'Short-Term Notes Payable',     type:'Liability', sub:'Current Liability'},
+  {n:'2500',name:'Deferred Revenue',             type:'Liability', sub:'Current Liability'},
+  {n:'2600',name:'Intercompany Payable',         type:'Liability', sub:'Current Liability'},
+  {n:'2700',name:'Long-Term Notes Payable',      type:'Liability', sub:'Long-Term Liability'},
+  {n:'2800',name:'Mortgage Payable',             type:'Liability', sub:'Long-Term Liability'},
+  // EQUITY
+  {n:'3000',name:'Owner\'s Equity',              type:'Equity',    sub:'Equity'},
+  {n:'3100',name:'Common Stock',                 type:'Equity',    sub:'Equity'},
+  {n:'3200',name:'Additional Paid-In Capital',   type:'Equity',    sub:'Equity'},
+  {n:'3300',name:'Retained Earnings',            type:'Equity',    sub:'Equity'},
+  {n:'3400',name:'Owner\'s Draw',                type:'Equity',    sub:'Equity'},
+  {n:'3500',name:'Distributions',               type:'Equity',    sub:'Equity'},
+  // INCOME
+  {n:'4000',name:'Revenue',                      type:'Income',    sub:'Operating Income'},
+  {n:'4100',name:'Sales',                        type:'Income',    sub:'Operating Income'},
+  {n:'4200',name:'Service Revenue',              type:'Income',    sub:'Operating Income'},
+  {n:'4300',name:'Rental Income',                type:'Income',    sub:'Operating Income'},
+  {n:'4400',name:'Interest Income',              type:'Income',    sub:'Other Income'},
+  {n:'4500',name:'Other Income',                 type:'Income',    sub:'Other Income'},
+  {n:'4600',name:'Intercompany Income',          type:'Income',    sub:'Other Income'},
+  // EXPENSES
+  {n:'5000',name:'Cost of Goods Sold',           type:'Expense',   sub:'Cost of Sales'},
+  {n:'5100',name:'Cost of Services',             type:'Expense',   sub:'Cost of Sales'},
+  {n:'6000',name:'Salaries & Wages',             type:'Expense',   sub:'Operating Expense'},
+  {n:'6010',name:'Payroll Taxes',                type:'Expense',   sub:'Operating Expense'},
+  {n:'6020',name:'Employee Benefits',            type:'Expense',   sub:'Operating Expense'},
+  {n:'6100',name:'Rent Expense',                 type:'Expense',   sub:'Operating Expense'},
+  {n:'6110',name:'Utilities',                    type:'Expense',   sub:'Operating Expense'},
+  {n:'6120',name:'Office Supplies',              type:'Expense',   sub:'Operating Expense'},
+  {n:'6130',name:'Telephone & Internet',         type:'Expense',   sub:'Operating Expense'},
+  {n:'6200',name:'Professional Fees',            type:'Expense',   sub:'Operating Expense'},
+  {n:'6210',name:'Legal Fees',                   type:'Expense',   sub:'Operating Expense'},
+  {n:'6220',name:'Accounting Fees',              type:'Expense',   sub:'Operating Expense'},
+  {n:'6300',name:'Insurance Expense',            type:'Expense',   sub:'Operating Expense'},
+  {n:'6400',name:'Depreciation Expense',         type:'Expense',   sub:'Operating Expense'},
+  {n:'6500',name:'Interest Expense',             type:'Expense',   sub:'Operating Expense'},
+  {n:'6600',name:'Travel & Entertainment',       type:'Expense',   sub:'Operating Expense'},
+  {n:'6700',name:'Advertising & Marketing',      type:'Expense',   sub:'Operating Expense'},
+  {n:'6800',name:'Bank Charges & Fees',          type:'Expense',   sub:'Operating Expense'},
+  {n:'6900',name:'Repairs & Maintenance',        type:'Expense',   sub:'Operating Expense'},
+  {n:'7000',name:'Other Operating Expenses',     type:'Expense',   sub:'Operating Expense'},
+  {n:'7100',name:'Intercompany Expense',         type:'Expense',   sub:'Operating Expense'},
+  {n:'7200',name:'Income Tax Expense',           type:'Expense',   sub:'Other Expense'},
+];
+
+const SUBTYPES = {
+  Asset:     ['Current Asset','Fixed Asset','Other Asset'],
+  Liability: ['Current Liability','Long-Term Liability'],
+  Equity:    ['Equity'],
+  Income:    ['Operating Income','Other Income'],
+  Expense:   ['Cost of Sales','Operating Expense','Other Expense'],
+};
+
+function normalBalance(type) {
+  return (type === 'Asset' || type === 'Expense') ? 'debit' : 'credit';
+}
+
+// ── MODULE LOAD ──
+async function loadFinancialsModule() {
+  const { data: companies } = await sb.from('companies').select('id,legal_name,acct_method_gl').order('legal_name');
+  const sel = document.getElementById('acctEntitySelect');
+  sel.innerHTML = '<option value="">— Select a company —</option>' +
+    (companies||[]).map(c=>`<option value="${c.id}" data-basis="${c.acct_method_gl||''}">${c.legal_name}</option>`).join('');
+  // Default to first company if available
+  if (companies && companies.length > 0) {
+    sel.value = companies[0].id;
+    onEntityChange();
+  }
+}
+
+function onEntityChange() {
+  const sel  = document.getElementById('acctEntitySelect');
+  const cons = document.getElementById('acctConsolidated').checked;
+  acctConsolidated = cons;
+  acctCompanyId    = cons ? null : sel.value;
+  const basis = sel.options[sel.selectedIndex]?.dataset?.basis || '';
+  const badge = document.getElementById('acctBasisBadge');
+  if (basis) { badge.textContent = basis + ' Basis'; badge.style.display = ''; }
+  else { badge.style.display = 'none'; }
+  if (acctCompanyId || acctConsolidated) loadCOA();
+}
+
+function showAcctView(view) {
+  document.querySelectorAll('.acct-panel').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('.acct-sidebar-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('acct-view-' + view).style.display = '';
+  document.getElementById('acct-nav-' + view)?.classList.add('active');
+  if (view === 'coa') loadCOA();
+  if (view === 'je')  loadJEList();
+  if (view === 'gl')  populateGLAccountSelect();
+}
+
+// ── CHART OF ACCOUNTS ──
+async function loadCOA() {
+  if (!acctCompanyId && !acctConsolidated) return;
+  let query = sb.from('accounts').select('*').order('account_number');
+  if (!acctConsolidated) query = query.eq('company_id', acctCompanyId);
+  const { data: accounts } = await query;
+  acctAccounts = accounts || [];
+  renderCOA(acctAccounts);
+}
+
+function renderCOA(accounts) {
+  const container = document.getElementById('coaContent');
+  if (!accounts.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-title">No accounts yet</div>Click "Load Default COA" to populate a standard chart of accounts, or add accounts manually.</div>`;
+    return;
+  }
+  const groups = ['Asset','Liability','Equity','Income','Expense'];
+  let html = `<table class="acct-table"><thead><tr><th>Number</th><th>Account Name</th><th>Type</th><th>Subtype</th><th>Normal Balance</th><th>Status</th><th></th></tr></thead><tbody>`;
+  groups.forEach(g => {
+    const grpAccts = accounts.filter(a => a.account_type === g).sort((a,b)=>(a.account_number||'').localeCompare(b.account_number||''));
+    if (!grpAccts.length) return;
+    html += `<tr><td colspan="7" class="coa-group-header">${g}s</td></tr>`;
+    grpAccts.forEach(a => {
+      const typeCls = 'type-'+g.toLowerCase();
+      html += `<tr>
+        <td class="number">${a.account_number||'—'}</td>
+        <td><strong>${a.account_name}</strong>${a.description?`<div style="font-size:11px;color:var(--text-light)">${a.description}</div>`:''}</td>
+        <td><span class="acct-type-pill ${typeCls}">${a.account_type}</span></td>
+        <td style="color:var(--text-mid);font-size:12.5px;">${a.account_subtype||'—'}</td>
+        <td style="color:var(--text-mid);font-size:12.5px;text-transform:capitalize;">${a.normal_balance||normalBalance(a.account_type)}</td>
+        <td><span class="status-pill ${a.is_active?'status-active':''}" style="${a.is_active?'':'background:rgba(0,0,0,0.05);color:var(--text-light);'}">${a.is_active?'Active':'Inactive'}</span></td>
+        <td><button onclick="editAccount('${a.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button>${!a.is_system?`<button onclick="deleteAccount('${a.id}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:12px;margin-left:6px;font-family:'DM Sans',sans-serif;">Del</button>`:''}</td>
+      </tr>`;
+    });
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+async function seedDefaultCOA() {
+  if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
+  const { data: existing } = await sb.from('accounts').select('id').eq('company_id', acctCompanyId);
+  if (existing && existing.length > 0) {
+    if (!confirm('This company already has accounts. Add missing default accounts?')) return;
+  }
+  showLoading('Loading default chart of accounts…');
+  const rows = DEFAULT_COA.map(a => ({
+    id:              'acct-' + acctCompanyId.slice(-6) + '-' + a.n,
+    company_id:      acctCompanyId,
+    account_number:  a.n,
+    account_name:    a.name,
+    account_type:    a.type,
+    account_subtype: a.sub,
+    normal_balance:  normalBalance(a.type),
+    is_active:       true,
+    is_system:       false,
+  }));
+  const { error } = await sb.from('accounts').upsert(rows, { onConflict: 'id' });
+  hideLoading();
+  if (error) { showToast('Error: ' + error.message, true); return; }
+  showToast('✓ Default chart of accounts loaded — ' + rows.length + ' accounts');
+  document.getElementById('seedCOABtn').style.display = 'none';
+  loadCOA();
+}
+
+function openAccountModal(id=null) {
+  editingAccountId = id;
+  document.getElementById('accountModalTitle').textContent = id ? 'Edit Account' : 'New Account';
+  if (!id) {
+    document.getElementById('acct-number').value = '';
+    document.getElementById('acct-name').value = '';
+    document.getElementById('acct-type').value = '';
+    document.getElementById('acct-subtype').innerHTML = '';
+    document.getElementById('acct-desc').value = '';
+  } else {
+    const a = acctAccounts.find(x => x.id === id);
+    if (!a) return;
+    document.getElementById('acct-number').value = a.account_number || '';
+    document.getElementById('acct-name').value   = a.account_name;
+    document.getElementById('acct-type').value   = a.account_type;
+    updateSubtypes();
+    document.getElementById('acct-subtype').value = a.account_subtype || '';
+    document.getElementById('acct-desc').value    = a.description || '';
+  }
+  document.getElementById('accountModal').classList.add('show');
+}
+
+function editAccount(id) { openAccountModal(id); }
+
+function updateSubtypes() {
+  const type = document.getElementById('acct-type').value;
+  const subs = SUBTYPES[type] || [];
+  document.getElementById('acct-subtype').innerHTML =
+    `<option value="">— Select —</option>` + subs.map(s=>`<option>${s}</option>`).join('');
+}
+
+async function saveAccount() {
+  const num  = document.getElementById('acct-number').value.trim();
+  const name = document.getElementById('acct-name').value.trim();
+  const type = document.getElementById('acct-type').value;
+  if (!name || !type) { showToast('⚠ Account name and type are required', true); return; }
+  if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
+  showLoading('Saving…');
+  const record = {
+    id:              editingAccountId || ('acct-' + Date.now()),
+    company_id:      acctCompanyId,
+    account_number:  num,
+    account_name:    name,
+    account_type:    type,
+    account_subtype: document.getElementById('acct-subtype').value,
+    description:     document.getElementById('acct-desc').value,
+    normal_balance:  normalBalance(type),
+    is_active:       true,
+    is_system:       false,
+  };
+  const { error } = await sb.from('accounts').upsert(record);
+  hideLoading();
+  if (error) { showToast('Error: ' + error.message, true); return; }
+  closeModal('accountModal');
+  showToast('✓ Account saved');
+  loadCOA();
+}
+
+async function deleteAccount(id) {
+  if (!confirm('Delete this account? This cannot be undone.')) return;
+  const { error } = await sb.from('accounts').delete().eq('id', id);
+  if (error) { showToast('Cannot delete: ' + error.message, true); return; }
+  showToast('Account deleted');
+  loadCOA();
+}
+
+// ── JOURNAL ENTRIES ──
+async function loadJEList() {
+  if (!acctCompanyId && !acctConsolidated) { document.getElementById('jeListContent').innerHTML = `<div class="empty-state"><div class="empty-state-title">Select a company first</div></div>`; return; }
+  let query = sb.from('journal_entries').select('*').order('entry_date', {ascending:false});
+  if (!acctConsolidated) query = query.eq('company_id', acctCompanyId);
+  const { data: entries } = await query;
+  const container = document.getElementById('jeListContent');
+  if (!entries || !entries.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-title">No journal entries yet</div>Click "+ New Journal Entry" to create one.</div>`;
+    return;
+  }
+  const statusColors = { posted:'status-active', draft:'background:rgba(230,126,34,0.12);color:#a04000;', void:'background:rgba(127,140,141,0.15);color:#566573;' };
+  let html = `<table class="acct-table"><thead><tr><th>Date</th><th>Ref #</th><th>Description</th><th>Status</th><th style="text-align:right;">Debits</th><th style="text-align:right;">Credits</th><th></th></tr></thead><tbody>`;
+  for (const e of entries) {
+    const { data: lines } = await sb.from('journal_entry_lines').select('debit,credit').eq('journal_entry_id', e.id);
+    const totalDr = (lines||[]).reduce((s,l)=>s+parseFloat(l.debit||0),0);
+    const totalCr = (lines||[]).reduce((s,l)=>s+parseFloat(l.credit||0),0);
+    const sCls = e.status === 'posted' ? 'status-active' : '';
+    const sBg  = e.status === 'draft'  ? 'background:rgba(230,126,34,0.12);color:#a04000;' : e.status === 'void' ? 'background:rgba(127,140,141,0.15);color:#566573;' : '';
+    html += `<tr>
+      <td>${e.entry_date}</td>
+      <td style="font-family:monospace;color:var(--text-mid);">${e.reference_number||'—'}</td>
+      <td>${e.description||'—'}</td>
+      <td><span class="status-pill ${sCls}" style="${sBg}">${e.status||'posted'}</span></td>
+      <td class="amount">$${totalDr.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+      <td class="amount">$${totalCr.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+      <td>
+        <button onclick="editJE('${e.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button>
+        <button onclick="voidJE('${e.id}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Void</button>
+      </td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+function openJEModal() {
+  if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
+  editingJEId = null;
+  document.getElementById('jeModalTitle').textContent = 'New Journal Entry';
+  document.getElementById('je-date').value = new Date().toISOString().slice(0,10);
+  document.getElementById('je-ref').value  = '';
+  document.getElementById('je-desc').value = '';
+  const tbody = document.getElementById('jeLinesTbody');
+  tbody.innerHTML = '';
+  addJELine(); addJELine(); addJELine(); // start with 3 lines
+  updateJETotals();
+  document.getElementById('jeModal').classList.add('show');
+}
+
+async function editJE(id) {
+  if (!acctCompanyId) return;
+  showLoading('Loading entry…');
+  const { data: entry } = await sb.from('journal_entries').select('*').eq('id', id).single();
+  const { data: lines  } = await sb.from('journal_entry_lines').select('*').eq('journal_entry_id', id).order('sort_order');
+  hideLoading();
+  editingJEId = id;
+  document.getElementById('jeModalTitle').textContent = 'Edit Journal Entry';
+  document.getElementById('je-date').value = entry.entry_date;
+  document.getElementById('je-ref').value  = entry.reference_number || '';
+  document.getElementById('je-desc').value = entry.description || '';
+  const tbody = document.getElementById('jeLinesTbody');
+  tbody.innerHTML = '';
+  (lines||[]).forEach(l => addJELine(l));
+  updateJETotals();
+  document.getElementById('jeModal').classList.add('show');
+}
+
+function addJELine(data=null) {
+  const tbody = document.getElementById('jeLinesTbody');
+  const acctOpts = acctAccounts.map(a => `<option value="${a.id}" ${data?.account_id===a.id?'selected':''}>${a.account_number} — ${a.account_name}</option>`).join('');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><select onchange="updateJETotals()" style="min-width:160px;"><option value="">— Account —</option>${acctOpts}</select></td>
+    <td><input type="text" placeholder="Description" value="${data?.description||''}"></td>
+    <td><input type="text" placeholder="0.00" value="${data?.debit&&parseFloat(data.debit)>0?parseFloat(data.debit).toFixed(2):''}" oninput="clearOther(this);updateJETotals();" style="text-align:right;"></td>
+    <td><input type="text" placeholder="0.00" value="${data?.credit&&parseFloat(data.credit)>0?parseFloat(data.credit).toFixed(2):''}" oninput="clearOther(this);updateJETotals();" style="text-align:right;"></td>
+    <td><button onclick="this.closest('tr').remove();updateJETotals();" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:18px;line-height:1;padding:0;">×</button></td>`;
+  tbody.appendChild(tr);
+}
+
+function clearOther(input) {
+  const cells = input.closest('tr').querySelectorAll('td:nth-child(3) input, td:nth-child(4) input');
+  cells.forEach(c => { if (c !== input && input.value) c.value = ''; });
+}
+
+function updateJETotals() {
+  let dr=0, cr=0;
+  document.querySelectorAll('#jeLinesTbody tr').forEach(tr => {
+    const inputs = tr.querySelectorAll('input[type=text]');
+    dr += parseFloat(inputs[1]?.value||0)||0;
+    cr += parseFloat(inputs[2]?.value||0)||0;
+  });
+  const diff = Math.abs(dr - cr);
+  document.getElementById('jeTotalDebits').textContent  = dr.toLocaleString('en-US',{minimumFractionDigits:2});
+  document.getElementById('jeTotalCredits').textContent = cr.toLocaleString('en-US',{minimumFractionDigits:2});
+  const diffEl = document.getElementById('jeDifference');
+  diffEl.textContent = diff.toLocaleString('en-US',{minimumFractionDigits:2});
+  diffEl.className   = 'je-total-value' + (diff > 0.001 ? ' unbalanced' : '');
+}
+
+async function saveJE(status) {
+  const date = document.getElementById('je-date').value;
+  if (!date) { showToast('⚠ Entry date is required', true); return; }
+  // Collect lines
+  const lines = [];
+  let dr=0,cr=0;
+  document.querySelectorAll('#jeLinesTbody tr').forEach((tr,i) => {
+    const sel    = tr.querySelector('select');
+    const inputs = tr.querySelectorAll('input[type=text]');
+    const debit  = parseFloat(inputs[1]?.value||0)||0;
+    const credit = parseFloat(inputs[2]?.value||0)||0;
+    if (!sel?.value && !debit && !credit) return; // skip blank lines
+    dr += debit; cr += credit;
+    lines.push({ account_id: sel?.value||null, description: inputs[0]?.value||'', debit, credit, sort_order: i });
+  });
+  if (lines.length < 2) { showToast('⚠ At least 2 lines required', true); return; }
+  if (status === 'posted' && Math.abs(dr-cr) > 0.01) { showToast('⚠ Entry is out of balance — debits must equal credits', true); return; }
+
+  showLoading('Saving journal entry…');
+  const jeId = editingJEId || ('je-' + Date.now());
+  const { error: jeErr } = await sb.from('journal_entries').upsert({
+    id: jeId, company_id: acctCompanyId,
+    entry_date: date, reference_number: document.getElementById('je-ref').value,
+    description: document.getElementById('je-desc').value,
+    status, entry_type: 'manual', updated_at: new Date().toISOString(),
+  });
+  if (jeErr) { hideLoading(); showToast('Error: ' + jeErr.message, true); return; }
+  // Delete existing lines then re-insert
+  await sb.from('journal_entry_lines').delete().eq('journal_entry_id', jeId);
+  const lineRows = lines.map((l,i) => ({ id:'jel-'+jeId+'-'+i, journal_entry_id: jeId, ...l }));
+  const { error: lErr } = await sb.from('journal_entry_lines').insert(lineRows);
+  hideLoading();
+  if (lErr) { showToast('Lines error: ' + lErr.message, true); return; }
+  closeModal('jeModal');
+  showToast('✓ Journal entry ' + (status==='posted'?'posted':'saved as draft'));
+  loadJEList();
+}
+
+async function voidJE(id) {
+  if (!confirm('Void this journal entry? This cannot be undone.')) return;
+  await sb.from('journal_entries').update({ status:'void' }).eq('id', id);
+  showToast('Journal entry voided');
+  loadJEList();
+}
+
+// ── GENERAL LEDGER ──
+function populateGLAccountSelect() {
+  const sel = document.getElementById('gl-account');
+  sel.innerHTML = '<option value="">All Accounts</option>' +
+    acctAccounts.map(a => `<option value="${a.id}">${a.account_number} — ${a.account_name}</option>`).join('');
+}
+
+async function runGeneralLedger() {
+  const from    = document.getElementById('gl-dateFrom').value;
+  const to      = document.getElementById('gl-dateTo').value;
+  const acctId  = document.getElementById('gl-account').value;
+  if (!from||!to) { showToast('⚠ Please select a date range', true); return; }
+  showLoading('Running General Ledger…');
+
+  let jeQuery = sb.from('journal_entries').select('id,entry_date,reference_number,description,status')
+    .gte('entry_date', from).lte('entry_date', to).eq('status','posted');
+  if (!acctConsolidated && acctCompanyId) jeQuery = jeQuery.eq('company_id', acctCompanyId);
+  const { data: entries } = await jeQuery;
+  const jeIds = (entries||[]).map(e=>e.id);
+
+  let lineQuery = sb.from('journal_entry_lines').select('*');
+  if (jeIds.length) lineQuery = lineQuery.in('journal_entry_id', jeIds);
+  else { hideLoading(); document.getElementById('glContent').innerHTML = `<div class="empty-state"><div class="empty-state-title">No posted entries in this period</div></div>`; return; }
+  if (acctId) lineQuery = lineQuery.eq('account_id', acctId);
+  const { data: allLines } = await lineQuery;
+
+  const jeMap = {};
+  (entries||[]).forEach(e => jeMap[e.id] = e);
+  const accounts = acctId ? acctAccounts.filter(a=>a.id===acctId) : acctAccounts;
+  let html = '';
+
+  accounts.forEach(acct => {
+    const lines = (allLines||[]).filter(l => l.account_id === acct.id);
+    if (!lines.length) return;
+    let runBal = 0;
+    const nb = normalBalance(acct.account_type);
+    let rows = '';
+    lines.sort((a,b) => (jeMap[a.journal_entry_id]?.entry_date||'').localeCompare(jeMap[b.journal_entry_id]?.entry_date||''));
+    lines.forEach(l => {
+      const je   = jeMap[l.journal_entry_id];
+      const dr   = parseFloat(l.debit||0);
+      const cr   = parseFloat(l.credit||0);
+      runBal += (nb==='debit') ? (dr-cr) : (cr-dr);
+      rows += `<tr>
+        <td>${je?.entry_date||'—'}</td>
+        <td style="font-family:monospace;color:var(--text-mid);">${je?.reference_number||'—'}</td>
+        <td>${je?.description||l.description||'—'}</td>
+        <td class="amount">${dr>0?'$'+dr.toLocaleString('en-US',{minimumFractionDigits:2}):''}</td>
+        <td class="amount">${cr>0?'$'+cr.toLocaleString('en-US',{minimumFractionDigits:2}):''}</td>
+        <td class="amount">${runBal<0?'($'+Math.abs(runBal).toLocaleString('en-US',{minimumFractionDigits:2})+')':'$'+runBal.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+      </tr>`;
+    });
+    html += `<div style="margin-bottom:28px;">
+      <div class="report-header"><div class="report-title">${acct.account_number} — ${acct.account_name}</div><div class="report-subtitle">${acct.account_type} · ${from} to ${to}</div></div>
+      <div class="report-body">
+        <table class="acct-table"><thead><tr><th>Date</th><th>Ref #</th><th>Description</th><th style="text-align:right;">Debit</th><th style="text-align:right;">Credit</th><th style="text-align:right;">Balance</th></tr></thead>
+        <tbody>${rows}</tbody></table>
+      </div></div>`;
+  });
+  hideLoading();
+  document.getElementById('glContent').innerHTML = html || `<div class="empty-state"><div class="empty-state-title">No activity found</div></div>`;
+}
+
+// ── TRIAL BALANCE ──
+async function runTrialBalance() {
+  const asof = document.getElementById('tb-asof').value;
+  if (!asof) { showToast('⚠ Please select a date', true); return; }
+  showLoading('Running Trial Balance…');
+
+  let jeQuery = sb.from('journal_entries').select('id').lte('entry_date', asof).eq('status','posted');
+  if (!acctConsolidated && acctCompanyId) jeQuery = jeQuery.eq('company_id', acctCompanyId);
+  const { data: entries } = await jeQuery;
+  const jeIds = (entries||[]).map(e=>e.id);
+
+  const { data: allLines } = jeIds.length ? await sb.from('journal_entry_lines').select('*').in('journal_entry_id', jeIds) : { data: [] };
+
+  let totalDr=0, totalCr=0;
+  let rows = '';
+  const groups = ['Asset','Liability','Equity','Income','Expense'];
+  groups.forEach(g => {
+    const accts = acctAccounts.filter(a=>a.account_type===g).sort((a,b)=>(a.account_number||'').localeCompare(b.account_number||''));
+    accts.forEach(acct => {
+      const lines = (allLines||[]).filter(l=>l.account_id===acct.id);
+      const dr = lines.reduce((s,l)=>s+parseFloat(l.debit||0),0);
+      const cr = lines.reduce((s,l)=>s+parseFloat(l.credit||0),0);
+      if (!dr && !cr) return;
+      totalDr += dr; totalCr += cr;
+      rows += `<tr>
+        <td class="number">${acct.account_number||'—'}</td>
+        <td>${acct.account_name}</td>
+        <td><span class="acct-type-pill type-${g.toLowerCase()}">${g}</span></td>
+        <td class="amount">${dr>0?'$'+dr.toLocaleString('en-US',{minimumFractionDigits:2}):''}</td>
+        <td class="amount">${cr>0?'$'+cr.toLocaleString('en-US',{minimumFractionDigits:2}):''}</td>
+      </tr>`;
+    });
+  });
+  hideLoading();
+  const balanced = Math.abs(totalDr-totalCr) < 0.01;
+  document.getElementById('tbContent').innerHTML = `
+    <div class="report-header"><div class="report-title">Trial Balance</div><div class="report-subtitle">As of ${asof} · ${balanced?'✓ Balanced':'⚠ Out of Balance'}</div></div>
+    <div class="report-body">
+      <table class="acct-table"><thead><tr><th>Number</th><th>Account Name</th><th>Type</th><th style="text-align:right;">Debit</th><th style="text-align:right;">Credit</th></tr></thead>
+      <tbody>${rows}
+        <tr style="background:var(--gold-pale);font-weight:600;">
+          <td colspan="3" style="text-align:right;font-size:13px;color:var(--navy);">TOTALS</td>
+          <td class="amount" style="font-weight:600;color:${balanced?'var(--navy)':'var(--error)'};">$${totalDr.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+          <td class="amount" style="font-weight:600;color:${balanced?'var(--navy)':'var(--error)'};">$${totalCr.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+        </tr>
+      </tbody></table>
+    </div>`;
+}
+
+// ── PROFIT & LOSS ──
+async function runPL() {
+  const from = document.getElementById('pl-dateFrom').value;
+  const to   = document.getElementById('pl-dateTo').value;
+  if (!from||!to) { showToast('⚠ Select a date range', true); return; }
+  showLoading('Running Profit & Loss…');
+
+  let jeQuery = sb.from('journal_entries').select('id').gte('entry_date',from).lte('entry_date',to).eq('status','posted');
+  if (!acctConsolidated && acctCompanyId) jeQuery = jeQuery.eq('company_id', acctCompanyId);
+  const { data: entries } = await jeQuery;
+  const jeIds = (entries||[]).map(e=>e.id);
+  const { data: allLines } = jeIds.length ? await sb.from('journal_entry_lines').select('*').in('journal_entry_id', jeIds) : { data: [] };
+
+  const bal = (acct) => {
+    const lines = (allLines||[]).filter(l=>l.account_id===acct.id);
+    const dr = lines.reduce((s,l)=>s+parseFloat(l.debit||0),0);
+    const cr = lines.reduce((s,l)=>s+parseFloat(l.credit||0),0);
+    return acct.account_type==='Income' ? cr-dr : dr-cr;
+  };
+
+  const fmt = v => v<0?`<span class="report-amount neg">(${Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2})})</span>`:`<span class="report-amount">$${v.toLocaleString('en-US',{minimumFractionDigits:2})}</span>`;
+
+  const incAccts = acctAccounts.filter(a=>a.account_type==='Income');
+  const expAccts = acctAccounts.filter(a=>a.account_type==='Expense');
+  const cogAccts = expAccts.filter(a=>a.account_subtype==='Cost of Sales');
+  const opxAccts = expAccts.filter(a=>a.account_subtype!=='Cost of Sales');
+
+  const totalIncome = incAccts.reduce((s,a)=>s+bal(a),0);
+  const totalCOGS   = cogAccts.reduce((s,a)=>s+bal(a),0);
+  const grossProfit = totalIncome - totalCOGS;
+  const totalOpx    = opxAccts.reduce((s,a)=>s+bal(a),0);
+  const netIncome   = grossProfit - totalOpx;
+
+  let html = `<div class="report-header"><div class="report-title">Profit &amp; Loss</div><div class="report-subtitle">${from} through ${to}</div></div><div class="report-body">`;
+  html += `<div class="report-section-row">Income</div>`;
+  incAccts.forEach(a => { const b=bal(a); if(b) html+=`<div class="report-data-row"><span>${a.account_number} ${a.account_name}</span>${fmt(b)}</div>`; });
+  html += `<div class="report-subtotal-row"><span>Total Income</span>${fmt(totalIncome)}</div>`;
+  if (cogAccts.length) {
+    html += `<div class="report-section-row">Cost of Goods Sold</div>`;
+    cogAccts.forEach(a => { const b=bal(a); if(b) html+=`<div class="report-data-row"><span>${a.account_number} ${a.account_name}</span>${fmt(b)}</div>`; });
+    html += `<div class="report-subtotal-row"><span>Total COGS</span>${fmt(totalCOGS)}</div>`;
+    html += `<div class="report-total-row"><span>Gross Profit</span>${fmt(grossProfit)}</div>`;
+  }
+  html += `<div class="report-section-row">Operating Expenses</div>`;
+  opxAccts.forEach(a => { const b=bal(a); if(b) html+=`<div class="report-data-row"><span>${a.account_number} ${a.account_name}</span>${fmt(b)}</div>`; });
+  html += `<div class="report-subtotal-row"><span>Total Expenses</span>${fmt(totalOpx)}</div>`;
+  html += `<div class="report-total-row"><span>Net Income</span>${fmt(netIncome)}</div></div>`;
+  hideLoading();
+  document.getElementById('plContent').innerHTML = html;
+}
+
+// ── BALANCE SHEET ──
+async function runBalanceSheet() {
+  const asof = document.getElementById('bs-asof').value;
+  if (!asof) { showToast('⚠ Select a date', true); return; }
+  showLoading('Running Balance Sheet…');
+
+  let jeQuery = sb.from('journal_entries').select('id').lte('entry_date',asof).eq('status','posted');
+  if (!acctConsolidated && acctCompanyId) jeQuery = jeQuery.eq('company_id', acctCompanyId);
+  const { data: entries } = await jeQuery;
+  const jeIds = (entries||[]).map(e=>e.id);
+  const { data: allLines } = jeIds.length ? await sb.from('journal_entry_lines').select('*').in('journal_entry_id', jeIds) : { data: [] };
+
+  const bal = (acct) => {
+    const lines = (allLines||[]).filter(l=>l.account_id===acct.id);
+    const dr = lines.reduce((s,l)=>s+parseFloat(l.debit||0),0);
+    const cr = lines.reduce((s,l)=>s+parseFloat(l.credit||0),0);
+    return normalBalance(acct.account_type)==='debit' ? dr-cr : cr-dr;
+  };
+
+  const fmt = v => v<0?`<span class="report-amount neg">(${Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2})})</span>`:`<span class="report-amount">$${v.toLocaleString('en-US',{minimumFractionDigits:2})}</span>`;
+
+  const assetAccts = acctAccounts.filter(a=>a.account_type==='Asset');
+  const liabAccts  = acctAccounts.filter(a=>a.account_type==='Liability');
+  const eqAccts    = acctAccounts.filter(a=>a.account_type==='Equity');
+
+  const currAssets = assetAccts.filter(a=>a.account_subtype==='Current Asset');
+  const fixedAssets= assetAccts.filter(a=>a.account_subtype==='Fixed Asset');
+  const otherAssets= assetAccts.filter(a=>a.account_subtype==='Other Asset');
+  const currLiab   = liabAccts.filter(a=>a.account_subtype==='Current Liability');
+  const ltLiab     = liabAccts.filter(a=>a.account_subtype==='Long-Term Liability');
+
+  const totalCA  = currAssets.reduce((s,a)=>s+bal(a),0);
+  const totalFA  = fixedAssets.reduce((s,a)=>s+bal(a),0);
+  const totalOA  = otherAssets.reduce((s,a)=>s+bal(a),0);
+  const totalA   = totalCA + totalFA + totalOA;
+  const totalCL  = currLiab.reduce((s,a)=>s+bal(a),0);
+  const totalLTL = ltLiab.reduce((s,a)=>s+bal(a),0);
+  const totalL   = totalCL + totalLTL;
+  const totalEq  = eqAccts.reduce((s,a)=>s+bal(a),0);
+
+  const section = (label, accts) => {
+    let h = accts.map(a=>{const b=bal(a);return b?`<div class="report-data-row"><span>${a.account_number} ${a.account_name}</span>${fmt(b)}</div>`:''}).join('');
+    return h ? `<div class="report-section-row">${label}</div>${h}` : '';
+  };
+
+  let html = `<div class="report-header"><div class="report-title">Balance Sheet</div><div class="report-subtitle">As of ${asof}</div></div><div class="report-body">`;
+  html += section('Current Assets', currAssets);
+  if(totalCA) html += `<div class="report-subtotal-row"><span>Total Current Assets</span>${fmt(totalCA)}</div>`;
+  html += section('Fixed Assets', fixedAssets);
+  if(totalFA) html += `<div class="report-subtotal-row"><span>Total Fixed Assets</span>${fmt(totalFA)}</div>`;
+  html += section('Other Assets', otherAssets);
+  html += `<div class="report-total-row"><span>Total Assets</span>${fmt(totalA)}</div>`;
+  html += section('Current Liabilities', currLiab);
+  if(totalCL) html += `<div class="report-subtotal-row"><span>Total Current Liabilities</span>${fmt(totalCL)}</div>`;
+  html += section('Long-Term Liabilities', ltLiab);
+  if(totalLTL) html += `<div class="report-subtotal-row"><span>Total Long-Term Liabilities</span>${fmt(totalLTL)}</div>`;
+  if(totalL) html += `<div class="report-total-row"><span>Total Liabilities</span>${fmt(totalL)}</div>`;
+  html += section('Equity', eqAccts);
+  html += `<div class="report-total-row"><span>Total Equity</span>${fmt(totalEq)}</div>`;
+  html += `<div class="report-total-row" style="border-top:3px solid var(--navy);"><span>Total Liabilities + Equity</span>${fmt(totalL+totalEq)}</div>`;
+  html += '</div>';
+  hideLoading();
+  document.getElementById('bsContent').innerHTML = html;
+}
 loadDashboard();
 </script>
 </body>
