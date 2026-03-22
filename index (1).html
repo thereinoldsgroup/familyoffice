@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Office — Company Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --navy: #0f1f38;
+    --navy-mid: #1a3356;
+    --gold: #b8965a;
+    --gold-light: #d4b07a;
+    --gold-pale: #f5edd9;
+    --cream: #faf8f4;
+    --white: #ffffff;
+    --border: #ddd5c5;
+    --border-light: #ede8df;
+    --text-dark: #1a1a2e;
+    --text-mid: #4a4a6a;
+    --text-light: #8a8aaa;
+    --error: #c0392b;
+    --success: #27ae60;
+    --input-bg: #ffffff;
+    --section-bg: #f7f4ef;
+    --shadow-sm: 0 2px 8px rgba(15,31,56,0.06);
+    --shadow-md: 0 4px 20px rgba(15,31,56,0.10);
+    --shadow-lg: 0 8px 40px rgba(15,31,56,0.14);
+    --radius: 6px;
+    --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text-dark);
+    background: var(--cream);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    background: var(--navy);
+    color: var(--gold-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.25);
+  }
+  .topbar-brand { display: flex; align-items: center; gap: 14px; }
+  .topbar-logo {
+    width: 36px; height: 36px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; font-weight: 600;
+    color: var(--navy);
+  }
+  .topbar-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 600;
+    letter-spacing: 0.02em; color: var(--white);
+  }
+  .topbar-subtitle {
+    font-size: 11px; font-weight: 300;
+    color: var(--gold-light);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+  .topbar-nav { display: flex; gap: 6px; }
+  .topbar-nav-btn {
+    padding: 7px 16px;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    background: transparent;
+    color: rgba(255,255,255,0.65);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 400;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .topbar-nav-btn:hover { color: var(--white); background: rgba(255,255,255,0.08); }
+  .topbar-nav-btn.active { background: var(--gold); color: var(--navy); font-weight: 500; }
+
+  /* ── LAYOUT ── */
+  .app-layout { display: flex; flex: 1; min-height: 0; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 260px;
+    background: var(--navy-mid);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 0;
+    min-height: calc(100vh - 64px);
+    position: sticky;
+    top: 64px;
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+  }
+  .sidebar-section-label {
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--gold);
+    padding: 0 20px 8px;
+    margin-top: 16px;
+  }
+  .sidebar-btn {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 13.5px;
+    border-left: 3px solid transparent;
+    background: none;
+    border-right: none; border-top: none; border-bottom: none;
+    text-align: left; width: 100%;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .sidebar-btn:hover { color: var(--white); background: rgba(255,255,255,0.06); }
+  .sidebar-btn.active { color: var(--gold-light); background: rgba(184,150,90,0.12); border-left-color: var(--gold); font-weight: 500; }
+  .company-list-area { margin-top: 8px; }
+  .company-list-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 20px 8px 32px;
+    color: rgba(255,255,255,0.55);
+    font-size: 13px; cursor: pointer;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+  .company-list-item:hover { color: var(--white); background: rgba(255,255,255,0.05); }
+  .company-list-item.active { color: var(--gold-light); background: rgba(184,150,90,0.10); border-left-color: var(--gold); }
+  .company-badge {
+    font-size: 10px; padding: 2px 7px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.10);
+    color: rgba(255,255,255,0.4);
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .type-scorp { background: rgba(39,174,96,0.2) !important; color: #7dcea0 !important; }
+  .type-llc   { background: rgba(52,152,219,0.2) !important; color: #85c1e9 !important; }
+  .type-ccorp { background: rgba(230,126,34,0.2) !important; color: #f0b27a !important; }
+  .add-company-btn {
+    margin: 16px 16px 0;
+    padding: 9px 0;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: var(--navy);
+    border: none; border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; width: calc(100% - 32px);
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(184,150,90,0.30);
+  }
+  .add-company-btn:hover { box-shadow: 0 4px 16px rgba(184,150,90,0.45); transform: translateY(-1px); }
+
+  /* ── MAIN ── */
+  .main { flex: 1; padding: 32px 40px; overflow-y: auto; }
+  .page-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 28px; padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .page-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: var(--navy); line-height: 1.2; }
+  .page-subtitle { font-size: 13px; color: var(--text-light); margin-top: 4px; }
+  .page-actions { display: flex; gap: 10px; align-items: center; }
+
+  .btn-primary { padding: 9px 22px; background: var(--navy); color: var(--gold-light); border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+  .btn-primary:hover { background: var(--navy-mid); }
+  .btn-secondary { padding: 9px 22px; background: var(--white); color: var(--navy); border: 1px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+  .btn-secondary:hover { background: var(--gold-pale); border-color: var(--gold); }
+  .btn-save { padding: 9px 22px; background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: var(--navy); border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(184,150,90,0.3); }
+  .btn-save:hover { box-shadow: 0 4px 16px rgba(184,150,90,0.45); transform: translateY(-1px); }
+  .btn-save:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .btn-danger { padding: 9px 22px; background: transparent; color: var(--error); border: 1px solid var(--error); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+  .btn-danger:hover { background: rgba(192,57,43,0.08); }
+
+  /* ── INNER TABS ── */
+  .inner-tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 28px; }
+  .inner-tab {
+    padding: 10px 20px; font-size: 13.5px; font-weight: 400;
+    color: var(--text-light); cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -2px;
+    transition: all 0.15s; background: none;
+    border-top: none; border-left: none; border-right: none;
+    font-family: 'DM Sans', sans-serif; white-space: nowrap;
+  }
+  .inner-tab:hover { color: var(--navy); }
+  .inner-tab.active { color: var(--navy); font-weight: 500; border-bottom-color: var(--gold); }
+
+  /* ── FORM SECTIONS ── */
+  .form-section { background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); margin-bottom: 24px; overflow: hidden; box-shadow: var(--shadow-sm); }
+  .form-section-header { display: flex; align-items: center; padding: 14px 24px; background: var(--section-bg); border-bottom: 1px solid var(--border-light); gap: 10px; cursor: pointer; user-select: none; }
+  .section-icon { font-size: 16px; }
+  .form-section-title { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 600; color: var(--navy); flex: 1; }
+  .form-section-toggle { color: var(--text-light); font-size: 18px; transition: transform 0.2s; }
+  .form-section-toggle.collapsed { transform: rotate(-90deg); }
+  .form-section-body { padding: 24px; }
+  .form-section-body.collapsed { display: none; }
+
+  /* ── GRIDS ── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 24px; }
+  .col-span-2 { grid-column: span 2; }
+
+  /* ── FIELDS ── */
+  .field-group { display: flex; flex-direction: column; gap: 5px; }
+  .field-label { font-size: 12px; font-weight: 500; color: var(--text-mid); letter-spacing: 0.02em; }
+  .field-label.required::after { content: ' *'; color: var(--gold); }
+  .field-input, .field-select, .field-textarea {
+    height: 36px; padding: 0 12px;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif; font-size: 13.5px;
+    color: var(--text-dark); background: var(--input-bg);
+    transition: border-color 0.15s, box-shadow 0.15s; width: 100%;
+  }
+  .field-input:focus, .field-select:focus, .field-textarea:focus {
+    outline: none; border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(184,150,90,0.12);
+  }
+  .field-input::placeholder { color: var(--text-light); }
+  .field-textarea { height: auto; min-height: 80px; padding: 10px 12px; resize: vertical; line-height: 1.5; }
+  .field-hint { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+  select[multiple] { height: auto; min-height: 130px; padding: 6px; }
+  select[multiple] option { padding: 4px 8px; border-radius: 3px; }
+  select[multiple] option:checked { background: var(--navy); color: var(--gold-light); }
+  .radio-group { display: flex; gap: 20px; align-items: center; padding: 8px 0; }
+  .radio-option { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13.5px; color: var(--text-mid); }
+  .radio-option input[type="radio"] { accent-color: var(--gold); cursor: pointer; }
+  .input-eye-wrap { position: relative; }
+  .input-eye-wrap .field-input { padding-right: 38px; }
+  .eye-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 16px; padding: 0; transition: color 0.15s; }
+  .eye-btn:hover { color: var(--navy); }
+
+  /* ── OFFICER CARDS ── */
+  .officers-list { display: flex; flex-direction: column; gap: 16px; }
+  .officer-card { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--white); transition: box-shadow 0.2s; }
+  .officer-card:hover { box-shadow: var(--shadow-md); }
+  .officer-card-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: var(--navy); color: var(--white); cursor: pointer; }
+  .officer-card-name { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 600; color: var(--gold-light); }
+  .officer-card-subtitle { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 1px; }
+  .officer-card-actions { display: flex; gap: 8px; }
+  .officer-action-btn { padding: 5px 12px; border-radius: var(--radius); font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+  .btn-outline-gold { background: transparent; border: 1px solid var(--gold); color: var(--gold-light); }
+  .btn-outline-gold:hover { background: var(--gold); color: var(--navy); }
+  .btn-outline-red { background: transparent; border: 1px solid rgba(192,57,43,0.5); color: #e07060; }
+  .btn-outline-red:hover { background: rgba(192,57,43,0.15); }
+  .officer-card-body { padding: 20px; }
+  .add-officer-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border: 2px dashed var(--border); border-radius: var(--radius-lg); background: transparent; color: var(--text-light); font-family: 'DM Sans', sans-serif; font-size: 13.5px; cursor: pointer; width: 100%; transition: all 0.2s; margin-top: 16px; }
+  .add-officer-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-pale); }
+  .form-divider { border: none; border-top: 1px solid var(--border-light); margin: 16px 0; }
+  .id-type-toggle { display: flex; gap: 16px; margin-bottom: 16px; }
+  .subsection-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); margin-bottom: 14px; }
+
+  /* ── DASHBOARD ── */
+  .dashboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 28px; }
+  .dash-card { background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 20px 24px; box-shadow: var(--shadow-sm); border-top: 3px solid var(--gold); }
+  .dash-card-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); }
+  .dash-card-value { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; color: var(--navy); margin-top: 4px; line-height: 1; }
+  .dash-card-sub { font-size: 12px; color: var(--text-light); margin-top: 6px; }
+  .companies-table { background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+  .ct-header { display: grid; grid-template-columns: 2fr 1.2fr 1fr 1.2fr 100px; padding: 12px 20px; background: var(--navy); color: var(--gold-light); font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; }
+  .ct-row { display: grid; grid-template-columns: 2fr 1.2fr 1fr 1.2fr 100px; padding: 14px 20px; border-bottom: 1px solid var(--border-light); align-items: center; transition: background 0.12s; cursor: pointer; font-size: 13.5px; }
+  .ct-row:last-child { border-bottom: none; }
+  .ct-row:hover { background: var(--gold-pale); }
+  .ct-company-name { font-weight: 500; color: var(--navy); }
+  .ct-fein { font-family: monospace; color: var(--text-mid); font-size: 13px; }
+  .status-pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+  .status-active { background: rgba(39,174,96,0.12); color: #229954; }
+  .tbl-actions { display: flex; gap: 6px; }
+  .tbl-btn { padding: 4px 10px; border-radius: 4px; font-size: 11.5px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; border: none; }
+  .tbl-btn-edit { background: var(--navy); color: var(--gold-light); }
+  .tbl-btn-edit:hover { background: var(--navy-mid); }
+  .tbl-btn-del { background: transparent; border: 1px solid rgba(192,57,43,0.4) !important; color: #e07060; }
+  .tbl-btn-del:hover { background: rgba(192,57,43,0.1); }
+  .empty-state { padding: 48px; text-align: center; color: var(--text-light); }
+  .empty-state-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--navy); margin-bottom: 8px; }
+
+  /* ── PANELS ── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── LOADING OVERLAY ── */
+  .loading-overlay { position: fixed; inset: 0; background: rgba(15,31,56,0.5); z-index: 500; display: none; align-items: center; justify-content: center; }
+  .loading-overlay.show { display: flex; }
+  .loading-spinner { background: var(--white); border-radius: var(--radius-lg); padding: 32px 48px; text-align: center; box-shadow: var(--shadow-lg); }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 16px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 14px; color: var(--text-mid); }
+
+  /* ── TOAST ── */
+  .save-toast { position: fixed; bottom: 24px; right: 24px; background: var(--navy); color: var(--gold-light); padding: 12px 24px; border-radius: var(--radius); font-size: 13.5px; box-shadow: var(--shadow-lg); opacity: 0; pointer-events: none; transform: translateY(8px); transition: all 0.3s; z-index: 999; }
+  .save-toast.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+  /* ── OWNERSHIP MODULE ── */
+  .ownership-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
+  .ownership-panel { background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+  .ownership-panel-header { padding: 14px 20px; background: var(--navy); display: flex; align-items: center; justify-content: space-between; }
+  .ownership-panel-title { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 600; color: var(--gold-light); }
+  .ownership-panel-body { padding: 20px; }
+
+  .rel-card { border: 1px solid var(--border-light); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px; background: var(--section-bg); transition: box-shadow 0.15s; position: relative; }
+  .rel-card:hover { box-shadow: var(--shadow-sm); }
+  .rel-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .rel-card-title { font-weight: 500; color: var(--navy); font-size: 13.5px; line-height: 1.4; }
+  .rel-card-sub { font-size: 12px; color: var(--text-light); margin-top: 3px; }
+  .rel-card-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .rel-badge { font-size: 11px; padding: 2px 9px; border-radius: 10px; font-weight: 500; }
+  .badge-ownership { background: rgba(184,150,90,0.15); color: #8a6a2a; }
+  .badge-loan { background: rgba(52,152,219,0.15); color: #2471a3; }
+  .badge-mgmt { background: rgba(39,174,96,0.15); color: #1e8449; }
+  .badge-service { background: rgba(155,89,182,0.15); color: #7d3c98; }
+  .badge-investment { background: rgba(230,126,34,0.15); color: #a04000; }
+  .badge-custom { background: rgba(127,140,141,0.15); color: #566573; }
+  .badge-eliminate { background: rgba(192,57,43,0.12); color: #922b21; }
+
+  .elim-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--gold-pale); border-radius: var(--radius); margin-top: 8px; border: 1px solid var(--border); }
+  .elim-toggle-label { font-size: 12.5px; font-weight: 500; color: var(--navy); }
+  .toggle-switch { position: relative; width: 40px; height: 22px; }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: var(--border); border-radius: 22px; transition: 0.2s; }
+  .toggle-slider:before { content:''; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.2s; }
+  .toggle-switch input:checked + .toggle-slider { background: var(--gold); }
+  .toggle-switch input:checked + .toggle-slider:before { transform: translateX(18px); }
+
+  .ownership-tree { padding: 8px 0; }
+  .tree-node { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius); transition: background 0.12s; }
+  .tree-node:hover { background: var(--gold-pale); }
+  .tree-node-indent { padding-left: 28px; border-left: 2px solid var(--border-light); margin-left: 16px; }
+  .tree-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .tree-icon-company { background: rgba(15,31,56,0.08); color: var(--navy); }
+  .tree-icon-person { background: rgba(184,150,90,0.15); color: #8a6a2a; }
+  .tree-node-name { font-size: 13.5px; font-weight: 500; color: var(--navy); flex: 1; }
+  .tree-node-pct { font-size: 12px; color: var(--text-light); font-family: monospace; }
+
+  .add-rel-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border: 2px dashed var(--border); border-radius: var(--radius); background: transparent; color: var(--text-light); font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; width: 100%; transition: all 0.2s; margin-top: 12px; }
+  .add-rel-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-pale); }
+
+  /* Modal */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(15,31,56,0.55); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: var(--white); border-radius: var(--radius-lg); width: 100%; max-width: 560px; box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto; }
+  .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--white); z-index: 1; }
+  .modal-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--navy); }
+  .modal-close { background: none; border: none; font-size: 22px; color: var(--text-light); cursor: pointer; line-height: 1; padding: 0; }
+  .modal-close:hover { color: var(--navy); }
+  .modal-body { padding: 24px; }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border-light); display: flex; justify-content: flex-end; gap: 10px; }
+
+  .elim-summary { background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); margin-top: 24px; }
+  .elim-summary-header { padding: 14px 20px; background: var(--navy); }
+  .elim-summary-title { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 600; color: var(--gold-light); }
+  .elim-table { width: 100%; border-collapse: collapse; }
+  .elim-table th { padding: 10px 16px; background: var(--section-bg); font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-light); text-align: left; border-bottom: 1px solid var(--border-light); }
+  .elim-table td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid var(--border-light); vertical-align: top; }
+  .elim-table tr:last-child td { border-bottom: none; }
+  .elim-table tr:hover td { background: var(--gold-pale); }
+  .elim-on { color: var(--success); font-weight: 500; }
+  .elim-off { color: var(--text-light); }
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loadingText">Saving record…</div>
+  </div>
+</div>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo">FO</div>
+    <div>
+      <div class="topbar-title">Family Office</div>
+      <div class="topbar-subtitle">Enterprise Management System</div>
+    </div>
+  </div>
+  <nav class="topbar-nav">
+    <button class="topbar-nav-btn active" id="nav-companies" onclick="switchModule('companies')">Companies</button>
+    <button class="topbar-nav-btn" id="nav-ownership" onclick="switchModule('ownership')">Ownership</button>
+    <button class="topbar-nav-btn" onclick="comingSoon()">Financials</button>
+    <button class="topbar-nav-btn" onclick="comingSoon()">Tax</button>
+    <button class="topbar-nav-btn" onclick="comingSoon()">Documents</button>
+    <button class="topbar-nav-btn" onclick="comingSoon()">Reports</button>
+  </nav>
+</header>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <button class="sidebar-btn active" id="sidebarDashBtn" onclick="showDashboard()">
+      <span>⊞</span> Dashboard
+    </button>
+    <div style="height:1px;background:rgba(255,255,255,0.08);margin:12px 0;"></div>
+    <div class="sidebar-section-label">Companies</div>
+    <div class="company-list-area" id="sidebarCompanyList">
+      <div style="padding:12px 20px 0 32px;font-size:12px;color:rgba(255,255,255,0.3);">Loading…</div>
+    </div>
+    <button class="add-company-btn" onclick="newCompany()">
+      <span>+</span> New Company
+    </button>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div id="view-dashboard" class="panel active">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-subtitle">Overview of your family office entities</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn-save" onclick="newCompany()">+ Add Company</button>
+        </div>
+      </div>
+      <div class="dashboard-grid">
+        <div class="dash-card">
+          <div class="dash-card-label">Total Entities</div>
+          <div class="dash-card-value" id="statCompanies">—</div>
+          <div class="dash-card-sub">Active companies under management</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-label">Corporate Officers</div>
+          <div class="dash-card-value" id="statOfficers">—</div>
+          <div class="dash-card-sub">Across all entities</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-label">States of Operation</div>
+          <div class="dash-card-value" id="statStates">—</div>
+          <div class="dash-card-sub">Active business registrations</div>
+        </div>
+      </div>
+      <div class="companies-table">
+        <div class="ct-header">
+          <div>Legal Name</div>
+          <div>Structure</div>
+          <div>Status</div>
+          <div>FEIN</div>
+          <div>Actions</div>
+        </div>
+        <div id="dashTableBody"></div>
+      </div>
+    </div><!-- /view-dashboard -->
+
+    <!-- OWNERSHIP MODULE -->
+    <div id="view-ownership" class="panel">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Ownership &amp; Relationships</div>
+          <div class="page-subtitle">Entity ownership structure, intercompany relationships, and consolidation eliminations</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn-primary" onclick="openOwnershipModal()">+ Add Ownership</button>
+          <button class="btn-save" onclick="openRelationshipModal()">+ Add Relationship</button>
+        </div>
+      </div>
+      <div class="inner-tabs">
+        <button class="inner-tab active" id="own-tab-btn-structure" onclick="switchOwnershipTab(this,'own-tab-structure')">Ownership Structure</button>
+        <button class="inner-tab" id="own-tab-btn-relationships" onclick="switchOwnershipTab(this,'own-tab-relationships')">Intercompany Relationships</button>
+        <button class="inner-tab" id="own-tab-btn-eliminations" onclick="switchOwnershipTab(this,'own-tab-eliminations')">Consolidation Eliminations</button>
+      </div>
+
+      <!-- Ownership Structure -->
+      <div id="own-tab-structure" class="panel active">
+        <div class="ownership-grid">
+          <div class="ownership-panel">
+            <div class="ownership-panel-header"><span class="ownership-panel-title">Ownership Tree</span></div>
+            <div class="ownership-panel-body">
+              <div class="ownership-tree" id="ownershipTree">
+                <div style="text-align:center;padding:24px;color:var(--text-light);font-size:13px;">No ownership records yet.</div>
+              </div>
+            </div>
+          </div>
+          <div class="ownership-panel">
+            <div class="ownership-panel-header"><span class="ownership-panel-title">Ownership Records</span></div>
+            <div class="ownership-panel-body">
+              <div id="ownershipList"><div style="text-align:center;padding:24px;color:var(--text-light);font-size:13px;">No ownership records yet.</div></div>
+              <button class="add-rel-btn" onclick="openOwnershipModal()">+ Add Ownership Record</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Relationships -->
+      <div id="own-tab-relationships" class="panel">
+        <div class="form-section">
+          <div class="form-section-header" onclick="toggleSection(this)">
+            <span class="section-icon">🔗</span>
+            <span class="form-section-title">Intercompany Relationships</span>
+            <span class="form-section-toggle">▾</span>
+          </div>
+          <div class="form-section-body">
+            <div id="relationshipsList"><div style="text-align:center;padding:24px;color:var(--text-light);font-size:13px;">No relationships defined yet.</div></div>
+            <button class="add-rel-btn" onclick="openRelationshipModal()">+ Add Intercompany Relationship</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Eliminations -->
+      <div id="own-tab-eliminations" class="panel">
+        <div class="form-section">
+          <div class="form-section-header" onclick="toggleSection(this)">
+            <span class="section-icon">⚖️</span>
+            <span class="form-section-title">Consolidation Elimination Settings</span>
+            <span class="form-section-toggle">▾</span>
+          </div>
+          <div class="form-section-body">
+            <p style="font-size:13px;color:var(--text-mid);margin-bottom:20px;line-height:1.6;">Toggle eliminations on or off per relationship. Enabled items will be cancelled out when compiling a consolidated financial package.</p>
+            <div class="elim-summary">
+              <div class="elim-summary-header"><span class="elim-summary-title">Elimination Schedule</span></div>
+              <table class="elim-table">
+                <thead><tr>
+                  <th>From Entity</th><th>To Entity</th><th>Type</th><th>Description</th><th>Amount</th><th>Eliminate</th>
+                </tr></thead>
+                <tbody id="eliminationsTable"><tr><td colspan="6" style="text-align:center;color:var(--text-light);padding:24px;">No intercompany relationships defined yet.</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /view-ownership -->
+
+    <!-- OWNERSHIP MODAL -->
+    <div class="modal-overlay" id="ownershipModal">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title">Add Ownership Record</span>
+          <button class="modal-close" onclick="closeModal('ownershipModal')">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="field-group col-span-2">
+              <label class="field-label required">Owned Company</label>
+              <select class="field-select" id="own-ownedCompany"></select>
+            </div>
+            <div class="field-group col-span-2">
+              <label class="field-label required">Owner Type</label>
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="ownerType" value="individual" checked onchange="toggleOwnerType(this)"> Individual (Officer/Person)</label>
+                <label class="radio-option"><input type="radio" name="ownerType" value="entity" onchange="toggleOwnerType(this)"> Entity (Company)</label>
+              </div>
+            </div>
+            <div class="field-group col-span-2" id="own-individualField">
+              <label class="field-label required">Individual Owner</label>
+              <select class="field-select" id="own-ownerIndividual"></select>
+            </div>
+            <div class="field-group col-span-2" id="own-entityField" style="display:none;">
+              <label class="field-label required">Owning Entity</label>
+              <select class="field-select" id="own-ownerEntity"></select>
+            </div>
+            <div class="field-group">
+              <label class="field-label required">Ownership %</label>
+              <input type="text" class="field-input" id="own-pct" placeholder="0.0000" oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Effective Date</label>
+              <input type="date" class="field-input" id="own-effDate">
+            </div>
+            <div class="field-group col-span-2">
+              <label class="field-label">Notes</label>
+              <textarea class="field-textarea" id="own-notes" placeholder="Any additional notes…" style="min-height:60px;"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closeModal('ownershipModal')">Cancel</button>
+          <button class="btn-save" onclick="saveOwnership()">Save Ownership</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RELATIONSHIP MODAL -->
+    <div class="modal-overlay" id="relationshipModal">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title">Add Intercompany Relationship</span>
+          <button class="modal-close" onclick="closeModal('relationshipModal')">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="field-group">
+              <label class="field-label required">From Entity</label>
+              <select class="field-select" id="rel-fromCompany"></select>
+            </div>
+            <div class="field-group">
+              <label class="field-label required">To Entity</label>
+              <select class="field-select" id="rel-toCompany"></select>
+            </div>
+            <div class="field-group col-span-2">
+              <label class="field-label required">Relationship Type</label>
+              <select class="field-select" id="rel-type" onchange="toggleCustomType(this)">
+                <option value="">— Select —</option>
+                <option value="loan">Loan / Note Receivable</option>
+                <option value="management_fee">Management Fee</option>
+                <option value="service_agreement">Service Agreement</option>
+                <option value="investment">Investment / Capital Contribution</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+            <div class="field-group col-span-2" id="rel-customTypeField" style="display:none;">
+              <label class="field-label required">Custom Relationship Label</label>
+              <input type="text" class="field-input" id="rel-customLabel" placeholder="Describe the relationship type">
+            </div>
+            <div class="field-group col-span-2">
+              <label class="field-label">Description</label>
+              <textarea class="field-textarea" id="rel-description" placeholder="Details of the relationship…" style="min-height:60px;"></textarea>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Amount ($)</label>
+              <input type="text" class="field-input" id="rel-amount" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Effective Date</label>
+              <input type="date" class="field-input" id="rel-effDate">
+            </div>
+            <div class="field-group col-span-2">
+              <label class="field-label required">Elimination Category</label>
+              <select class="field-select" id="rel-elimCategory">
+                <option value="">— Select —</option>
+                <option value="receivable_payable">Intercompany Receivable / Payable</option>
+                <option value="income_expense">Intercompany Income / Expense</option>
+                <option value="investment">Intercompany Investment</option>
+                <option value="all">All of the Above</option>
+                <option value="none">Not Subject to Elimination</option>
+              </select>
+            </div>
+            <div class="field-group col-span-2">
+              <div class="elim-toggle-row">
+                <span class="elim-toggle-label">Eliminate in Consolidated Financials</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="rel-eliminate">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closeModal('relationshipModal')">Cancel</button>
+          <button class="btn-save" onclick="saveRelationship()">Save Relationship</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPANY DETAIL -->
+    <div id="view-company-detail" class="panel">
+      <div class="page-header">
+        <div>
+          <div class="page-title" id="detailCompanyName">New Company</div>
+          <div class="page-subtitle">Company record — Family Office Management System</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn-danger" id="deleteBtn" onclick="deleteCurrentCompany()" style="display:none;">Delete</button>
+          <button class="btn-secondary" onclick="showDashboard()">← Back</button>
+          <button class="btn-save" id="saveBtn" onclick="saveRecord()">Save Record</button>
+        </div>
+      </div>
+
+      <div class="inner-tabs">
+        <button class="inner-tab active" onclick="switchTab(this,'tab-company-info')">Company Information</button>
+        <button class="inner-tab" onclick="switchTab(this,'tab-officers')">Corporate Officers</button>
+      </div>
+
+      <!-- TAB: Company Info -->
+      <div id="tab-company-info" class="panel active">
+
+        <!-- Business Identity -->
+        <div class="form-section">
+          <div class="form-section-header" onclick="toggleSection(this)">
+            <span class="section-icon">🏢</span>
+            <span class="form-section-title">Business Identity</span>
+            <span class="form-section-toggle">▾</span>
+          </div>
+          <div class="form-section-body">
+            <div class="form-grid">
+              <div class="field-group col-span-2">
+                <label class="field-label required">Legal Business Name</label>
+                <input type="text" class="field-input" id="f-legalName" placeholder="Full legal name as registered" oninput="document.getElementById('detailCompanyName').textContent=this.value||'New Company'">
+              </div>
+              <div class="field-group">
+                <label class="field-label">DBA Name (Doing Business As)</label>
+                <input type="text" class="field-input" id="f-dba" placeholder="Trade name, if applicable">
+              </div>
+              <div class="field-group">
+                <label class="field-label required">FEIN</label>
+                <input type="text" class="field-input" id="f-fein" placeholder="XX-XXXXXXX" maxlength="10" oninput="formatFEIN(this)">
+                <span class="field-hint">Digits only — auto-formatted XX-XXXXXXX</span>
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Organizational Structure</label>
+                <select class="field-select" id="f-structure">
+                  <option value="">— Select —</option>
+                  <option>S Corporation</option>
+                  <option>C Corporation</option>
+                  <option>LLC (Single Member)</option>
+                  <option>LLC (Multi-Member)</option>
+                  <option>Limited Partnership (LP)</option>
+                  <option>Limited Liability Partnership (LLP)</option>
+                  <option>General Partnership</option>
+                  <option>Sole Proprietorship</option>
+                  <option>Non-Profit Corporation</option>
+                  <option>Trust</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Country of Organization</label>
+                <select class="field-select" id="f-countryOfOrg">
+                  <option value="">— Select —</option>
+                  <option>United States</option>
+                  <option>Canada</option>
+                  <option>United Kingdom</option>
+                  <option>Cayman Islands</option>
+                  <option>British Virgin Islands</option>
+                  <option>Luxembourg</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Date of Organization</label>
+                <input type="date" class="field-input" id="f-dateOfOrg">
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Industry Type</label>
+                <select class="field-select" id="f-industryType">
+                  <option value="">— Select —</option>
+                  <option>Real Estate</option>
+                  <option>Finance &amp; Investment</option>
+                  <option>Manufacturing</option>
+                  <option>Retail Trade</option>
+                  <option>Wholesale Trade</option>
+                  <option>Healthcare</option>
+                  <option>Technology</option>
+                  <option>Construction</option>
+                  <option>Transportation</option>
+                  <option>Hospitality</option>
+                  <option>Agriculture</option>
+                  <option>Professional Services</option>
+                  <option>Energy</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">NAICS Code</label>
+                <input type="text" class="field-input" id="f-naics" placeholder="6-digit code" maxlength="6" oninput="this.value=this.value.replace(/\D/g,'')">
+              </div>
+              <div class="field-group col-span-2">
+                <label class="field-label">Products / Services Sold</label>
+                <textarea class="field-textarea" id="f-productServices" placeholder="Describe the primary products or services offered…"></textarea>
+              </div>
+              <div class="field-group col-span-2">
+                <label class="field-label required">States in Which Business is Conducted</label>
+                <select class="field-select" id="f-statesOfBusiness" multiple>
+                  <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option>
+                  <option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option>
+                  <option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option>
+                  <option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option>
+                  <option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option>
+                  <option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
+                  <option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option>
+                  <option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option>
+                  <option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
+                  <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option>
+                  <option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option>
+                  <option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option>
+                  <option>Wisconsin</option><option>Wyoming</option>
+                </select>
+                <span class="field-hint">Hold Ctrl (Windows) or ⌘ Command (Mac) to select multiple states</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accounting -->
+        <div class="form-section">
+          <div class="form-section-header" onclick="toggleSection(this)">
+            <span class="section-icon">📊</span>
+            <span class="form-section-title">Accounting &amp; Fiscal Year</span>
+            <span class="form-section-toggle">▾</span>
+          </div>
+          <div class="form-section-body">
+            <div class="form-grid">
+              <div class="field-group">
+                <label class="field-label required">Accounting Year End</label>
+                <select class="field-select" id="f-acctYearEnd">
+                  <option value="">— Select —</option>
+                  <option>Calendar Year (Dec 31)</option>
+                  <option>Fiscal Year (Custom)</option>
+                </select>
+              </div>
+              <div class="field-group"></div>
+              <div class="field-group">
+                <label class="field-label">Fiscal Year End — Month</label>
+                <select class="field-select" id="f-acctYearEndMonth">
+                  <option value="">— Month —</option>
+                  <option>January</option><option>February</option><option>March</option>
+                  <option>April</option><option>May</option><option>June</option>
+                  <option>July</option><option>August</option><option>September</option>
+                  <option>October</option><option>November</option><option>December</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Fiscal Year End — Day</label>
+                <select class="field-select" id="f-acctYearEndDay">
+                  <option value="">— Day —</option>
+                  <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+                  <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+                  <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
+                  <option>16</option><option>17</option><option>18</option><option>19</option><option>20</option>
+                  <option>21</option><option>22</option><option>23</option><option>24</option><option>25</option>
+                  <option>26</option><option>27</option><option>28</option><option>29</option><option>30</option>
+                  <option>31</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Accounting Method (GL)</label>
+                <select class="field-select" id="f-acctMethodGL">
+                  <option value="">— Select —</option>
+                  <option>Accrual</option><option>Cash</option><option>Modified Cash</option><option>Other</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Accounting Method (Tax)</label>
+                <select class="field-select" id="f-acctMethodTax">
+                  <option value="">— Select —</option>
+                  <option>Accrual</option><option>Cash</option><option>Hybrid</option><option>Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Business Contact -->
+        <div class="form-section">
+          <div class="form-section-header" onclick="toggleSection(this)">
+            <span class="section-icon">👤</span>
+            <span class="form-section-title">Business Contact</span>
+            <span class="form-section-toggle">▾</span>
+          </div>
+          <div class="form-section-body">
+            <div class="form-grid">
+              <div class="field-group">
+                <label class="field-label required">Contact Name</label>
+                <input type="text" class="field-input" id="f-contactName" placeholder="Full name">
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Contact Title</label>
+                <input type="text" class="field-input" id="f-contactTitle" placeholder="e.g. CEO, Controller, Manager">
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Phone Number</label>
+                <input type="tel" class="field-input" id="f-contactPhone" placeholder="(000) 000-0000" oninput="formatPhone(this)">
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Email Address</label>
+                <input type="email" class="field-input" id="f-contactEmail" placeholder="contact@company.com">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Addresses -->
+        <div class="form-section">
+          <div class="form-section-header" onclick="toggleSection(this)">
+            <span class="section-icon">📍</span>
+            <span class="form-section-title">Addresses</span>
+            <span class="form-section-toggle">▾</span>
+          </div>
+          <div class="form-section-body">
+            <p class="subsection-label">Primary Business Address</p>
+            <div class="form-grid">
+              <div class="field-group col-span-2">
+                <label class="field-label required">Street Address Line 1</label>
+                <input type="text" class="field-input" id="f-primAddr1" placeholder="Street address">
+              </div>
+              <div class="field-group col-span-2">
+                <label class="field-label">Street Address Line 2</label>
+                <input type="text" class="field-input" id="f-primAddr2" placeholder="Suite, floor, unit, etc.">
+              </div>
+              <div class="field-group">
+                <label class="field-label required">City</label>
+                <input type="text" class="field-input" id="f-primCity" placeholder="City">
+              </div>
+              <div class="field-group">
+                <label class="field-label required">State</label>
+                <select class="field-select" id="f-primState"><option value="">— State —</option>
+                  <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">ZIP Code</label>
+                <input type="text" class="field-input" id="f-primZip" placeholder="00000" maxlength="10">
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Country</label>
+                <select class="field-select" id="f-primCountry">
+                  <option value="">— Country —</option>
+                  <option>United States</option><option>Canada</option><option>Other</option>
+                </select>
+              </div>
+            </div>
+            <hr class="form-divider">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+              <p class="subsection-label" style="margin:0;">Mailing Address</p>
+              <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-mid);cursor:pointer;">
+                <input type="checkbox" style="accent-color:var(--gold);" onchange="toggleSameAddress(this)"> Same as Primary
+              </label>
+            </div>
+            <div class="form-grid" id="mailingAddressGrid">
+              <div class="field-group col-span-2">
+                <label class="field-label">Street Address Line 1</label>
+                <input type="text" class="field-input" id="f-mailAddr1" placeholder="Street address">
+              </div>
+              <div class="field-group col-span-2">
+                <label class="field-label">Street Address Line 2</label>
+                <input type="text" class="field-input" id="f-mailAddr2" placeholder="Suite, floor, unit, etc.">
+              </div>
+              <div class="field-group">
+                <label class="field-label">City</label>
+                <input type="text" class="field-input" id="f-mailCity" placeholder="City">
+              </div>
+              <div class="field-group">
+                <label class="field-label">State</label>
+                <select class="field-select" id="f-mailState"><option value="">— State —</option>
+                  <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">ZIP Code</label>
+                <input type="text" class="field-input" id="f-mailZip" placeholder="00000">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Country</label>
+                <select class="field-select" id="f-mailCountry">
+                  <option value="">— Country —</option>
+                  <option>United States</option><option>Canada</option><option>Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /tab-company-info -->
+
+      <!-- TAB: Officers -->
+      <div id="tab-officers" class="panel">
+        <div class="form-section">
+          <div class="form-section-header" onclick="toggleSection(this)">
+            <span class="section-icon">🎖️</span>
+            <span class="form-section-title">Corporate Officers &amp; Related Parties</span>
+            <span class="form-section-toggle">▾</span>
+          </div>
+          <div class="form-section-body">
+            <div class="officers-list" id="officersList"></div>
+            <button class="add-officer-btn" onclick="addOfficer()">
+              <span style="font-size:20px;line-height:1">+</span> Add Corporate Officer / Related Party
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /view-company-detail -->
+
+  </main>
+</div>
+
+<div class="save-toast" id="saveToast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  SUPABASE CONFIG
+// ═══════════════════════════════════════════════════
+const SUPABASE_URL = 'https://xttprsvwmvmarfetmwuu.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0dHByc3Z3bXZtYXJmZXRtd3V1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMTQwNzQsImV4cCI6MjA4OTc5MDA3NH0.i-7OaSKtIwZP88IXCDwr8gI3siSHYGtcQZhfO4Zpk_8';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let currentCompanyId = null;
+let officerCount = 0;
+let isNewRecord = false;
+
+const STATES_LIST = ['Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming'];
+
+// ═══════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════
+function uid() { return 'co-' + Date.now() + '-' + Math.random().toString(36).slice(2,7); }
+function ouid() { return 'of-' + Date.now() + '-' + Math.random().toString(36).slice(2,7); }
+
+function showLoading(msg='Saving…') {
+  document.getElementById('loadingText').textContent = msg;
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+function hideLoading() { document.getElementById('loadingOverlay').classList.remove('show'); }
+
+function showToast(msg, isError=false) {
+  const t = document.getElementById('saveToast');
+  t.textContent = msg;
+  t.style.background = isError ? '#c0392b' : 'var(--navy)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function badgeClass(s='') {
+  s = s.toLowerCase();
+  if (s.includes('s corp')) return 'type-scorp';
+  if (s.includes('c corp')) return 'type-ccorp';
+  if (s.includes('llc'))    return 'type-llc';
+  return '';
+}
+function shortStructure(s='') {
+  const map = {'S Corporation':'S Corp','C Corporation':'C Corp','LLC (Single Member)':'LLC','LLC (Multi-Member)':'LLC','Limited Partnership (LP)':'LP','Limited Liability Partnership (LLP)':'LLP','General Partnership':'GP','Sole Proprietorship':'Sole Prop','Non-Profit Corporation':'Non-Profit','Trust':'Trust','Other':'Other'};
+  return map[s] || (s.split(' ')[0] || '—');
+}
+
+function toggleSection(header) {
+  const body   = header.nextElementSibling;
+  const toggle = header.querySelector('.form-section-toggle');
+  body.classList.toggle('collapsed');
+  toggle.classList.toggle('collapsed');
+}
+
+function switchTab(btn, tabId) {
+  document.querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#tab-company-info, #tab-officers').forEach(p => p.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+}
+
+function comingSoon() { showToast('This module is coming soon', false); }
+
+// ═══════════════════════════════════════════════════
+//  FIELD FORMATTERS
+// ═══════════════════════════════════════════════════
+function formatFEIN(input) {
+  let v = input.value.replace(/\D/g,'').slice(0,9);
+  if (v.length > 2) v = v.slice(0,2)+'-'+v.slice(2);
+  input.value = v;
+}
+function formatPhone(input) {
+  let v = input.value.replace(/\D/g,'').slice(0,10);
+  if (v.length >= 7) v = '('+v.slice(0,3)+') '+v.slice(3,6)+'-'+v.slice(6);
+  else if (v.length >= 4) v = '('+v.slice(0,3)+') '+v.slice(3);
+  input.value = v;
+}
+function formatSSN(input) {
+  let v = input.value.replace(/\D/g,'').slice(0,9);
+  if (v.length > 5) v = v.slice(0,3)+'-'+v.slice(3,5)+'-'+v.slice(5);
+  else if (v.length > 3) v = v.slice(0,3)+'-'+v.slice(3);
+  input.value = v;
+}
+function toggleVisibility(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.type = el.type === 'password' ? 'text' : 'password';
+  btn.style.color = el.type === 'text' ? 'var(--navy)' : '';
+}
+function toggleSameAddress(cb) {
+  document.getElementById('mailingAddressGrid').querySelectorAll('input,select').forEach(el => {
+    el.disabled = cb.checked; el.style.opacity = cb.checked ? '0.5' : '1';
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════════════════
+async function loadDashboard() {
+  const { data: companies, error } = await sb.from('companies').select('*').order('legal_name');
+  if (error) { showToast('Failed to load companies', true); return; }
+
+  document.getElementById('statCompanies').textContent = companies.length;
+
+  const { count: officerCount } = await sb.from('officers').select('*', { count: 'exact', head: true });
+  document.getElementById('statOfficers').textContent = officerCount ?? 0;
+
+  const stateSet = new Set();
+  companies.forEach(c => (c.states_of_business || []).forEach(s => stateSet.add(s)));
+  document.getElementById('statStates').textContent = stateSet.size;
+
+  renderSidebar(companies);
+
+  const tbody = document.getElementById('dashTableBody');
+  if (companies.length === 0) {
+    tbody.innerHTML = `<div class="empty-state"><div class="empty-state-title">No companies yet</div><div>Click <strong>+ Add Company</strong> to get started.</div></div>`;
+    return;
+  }
+  tbody.innerHTML = '';
+  companies.forEach(c => {
+    const row = document.createElement('div');
+    row.className = 'ct-row';
+    row.innerHTML = `
+      <div class="ct-company-name">${c.legal_name || '(Unnamed)'}</div>
+      <div>${c.structure || '—'}</div>
+      <div><span class="status-pill status-active">Active</span></div>
+      <div class="ct-fein">${c.fein || '—'}</div>
+      <div class="tbl-actions">
+        <button class="tbl-btn tbl-btn-edit" onclick="editCompany('${c.id}');event.stopPropagation()">Edit</button>
+        <button class="tbl-btn tbl-btn-del" onclick="confirmDelete('${c.id}','${(c.legal_name||'').replace(/'/g,"\\'")}');event.stopPropagation()">Del</button>
+      </div>`;
+    row.onclick = () => editCompany(c.id);
+    tbody.appendChild(row);
+  });
+}
+
+function renderSidebar(companies) {
+  const list = document.getElementById('sidebarCompanyList');
+  if (!companies || companies.length === 0) {
+    list.innerHTML = `<div style="padding:12px 20px 0 32px;font-size:12px;color:rgba(255,255,255,0.3);">No companies yet</div>`;
+    return;
+  }
+  list.innerHTML = '';
+  companies.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'company-list-item' + (c.id === currentCompanyId ? ' active' : '');
+    div.innerHTML = `<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.legal_name || '(Unnamed)'}</span>
+      <span class="company-badge ${badgeClass(c.structure)}">${shortStructure(c.structure)}</span>`;
+    div.onclick = () => editCompany(c.id);
+    list.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  VIEW CONTROL
+// ═══════════════════════════════════════════════════
+function showDashboard() {
+  currentCompanyId = null;
+  ['view-dashboard','view-company-detail','view-ownership'].forEach(id => document.getElementById(id)?.classList.remove('active'));
+  document.getElementById('view-dashboard').classList.add('active');
+  document.getElementById('sidebarDashBtn').classList.add('active');
+  document.getElementById('nav-companies')?.classList.add('active');
+  document.getElementById('nav-ownership')?.classList.remove('active');
+  loadDashboard();
+}
+
+function showDetail() {
+  document.getElementById('view-dashboard').classList.remove('active');
+  document.getElementById('view-company-detail').classList.add('active');
+  document.getElementById('sidebarDashBtn').classList.remove('active');
+  // Reset to first tab
+  document.querySelectorAll('.inner-tab').forEach((t,i) => t.classList.toggle('active', i===0));
+  document.getElementById('tab-company-info').classList.add('active');
+  document.getElementById('tab-officers').classList.remove('active');
+}
+
+// ═══════════════════════════════════════════════════
+//  NEW COMPANY
+// ═══════════════════════════════════════════════════
+function newCompany() {
+  currentCompanyId = uid();
+  isNewRecord = true;
+  clearForm();
+  document.getElementById('detailCompanyName').textContent = 'New Company';
+  document.getElementById('deleteBtn').style.display = 'none';
+  showDetail();
+}
+
+function clearForm() {
+  document.querySelectorAll('#view-company-detail input:not([type=radio]):not([type=checkbox]), #view-company-detail select, #view-company-detail textarea').forEach(el => {
+    if (el.tagName === 'SELECT' && el.multiple) { Array.from(el.options).forEach(o => o.selected = false); }
+    else el.value = '';
+  });
+  document.getElementById('officersList').innerHTML = '';
+  officerCount = 0;
+}
+
+// ═══════════════════════════════════════════════════
+//  EDIT COMPANY
+// ═══════════════════════════════════════════════════
+async function editCompany(id) {
+  showLoading('Loading record…');
+  currentCompanyId = id;
+  isNewRecord = false;
+
+  const { data: c, error: ce } = await sb.from('companies').select('*').eq('id', id).single();
+  const { data: officers, error: oe } = await sb.from('officers').select('*').eq('company_id', id).order('created_at');
+
+  hideLoading();
+  if (ce) { showToast('Failed to load company', true); return; }
+
+  populateForm(c, officers || []);
+  document.getElementById('deleteBtn').style.display = '';
+  showDetail();
+
+  // Highlight in sidebar
+  document.querySelectorAll('.company-list-item').forEach(el => el.classList.remove('active'));
+}
+
+function populateForm(c, officers) {
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+  set('f-legalName', c.legal_name);
+  set('f-dba', c.dba);
+  set('f-fein', c.fein);
+  set('f-structure', c.structure);
+  set('f-countryOfOrg', c.country_of_org);
+  set('f-dateOfOrg', c.date_of_org);
+  set('f-industryType', c.industry_type);
+  set('f-naics', c.naics);
+  set('f-productServices', c.products_services);
+  set('f-acctYearEnd', c.acct_year_end);
+  set('f-acctYearEndMonth', c.acct_year_end_month);
+  set('f-acctYearEndDay', c.acct_year_end_day);
+  set('f-acctMethodGL', c.acct_method_gl);
+  set('f-acctMethodTax', c.acct_method_tax);
+  set('f-contactName', c.contact_name);
+  set('f-contactTitle', c.contact_title);
+  set('f-contactPhone', c.contact_phone);
+  set('f-contactEmail', c.contact_email);
+  set('f-primAddr1', c.prim_addr1);
+  set('f-primAddr2', c.prim_addr2);
+  set('f-primCity', c.prim_city);
+  set('f-primState', c.prim_state);
+  set('f-primZip', c.prim_zip);
+  set('f-primCountry', c.prim_country);
+  set('f-mailAddr1', c.mail_addr1);
+  set('f-mailAddr2', c.mail_addr2);
+  set('f-mailCity', c.mail_city);
+  set('f-mailState', c.mail_state);
+  set('f-mailZip', c.mail_zip);
+  set('f-mailCountry', c.mail_country);
+  document.getElementById('detailCompanyName').textContent = c.legal_name || 'Unnamed Company';
+
+  const statesEl = document.getElementById('f-statesOfBusiness');
+  const saved = c.states_of_business || [];
+  Array.from(statesEl.options).forEach(o => o.selected = saved.includes(o.value));
+
+  // Officers
+  const list = document.getElementById('officersList');
+  list.innerHTML = '';
+  officerCount = 0;
+  officers.forEach(o => buildOfficerCard(o));
+}
+
+// ═══════════════════════════════════════════════════
+//  SAVE
+// ═══════════════════════════════════════════════════
+async function saveRecord() {
+  const legalName = document.getElementById('f-legalName').value.trim();
+  if (!legalName) { showToast('⚠ Legal Business Name is required', true); document.getElementById('f-legalName').focus(); return; }
+
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  showLoading('Saving record…');
+
+  const statesEl = document.getElementById('f-statesOfBusiness');
+  const states = Array.from(statesEl.selectedOptions).map(o => o.value);
+
+  const g = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+
+  const companyData = {
+    id: currentCompanyId,
+    legal_name:        legalName,
+    dba:               g('f-dba'),
+    fein:              g('f-fein'),
+    structure:         g('f-structure'),
+    country_of_org:    g('f-countryOfOrg'),
+    date_of_org:       g('f-dateOfOrg') || null,
+    industry_type:     g('f-industryType'),
+    naics:             g('f-naics'),
+    products_services: g('f-productServices'),
+    states_of_business: states,
+    acct_year_end:      g('f-acctYearEnd'),
+    acct_year_end_month:g('f-acctYearEndMonth'),
+    acct_year_end_day:  g('f-acctYearEndDay'),
+    acct_method_gl:     g('f-acctMethodGL'),
+    acct_method_tax:    g('f-acctMethodTax'),
+    contact_name:       g('f-contactName'),
+    contact_title:      g('f-contactTitle'),
+    contact_phone:      g('f-contactPhone'),
+    contact_email:      g('f-contactEmail'),
+    prim_addr1:         g('f-primAddr1'),
+    prim_addr2:         g('f-primAddr2'),
+    prim_city:          g('f-primCity'),
+    prim_state:         g('f-primState'),
+    prim_zip:           g('f-primZip'),
+    prim_country:       g('f-primCountry'),
+    mail_addr1:         g('f-mailAddr1'),
+    mail_addr2:         g('f-mailAddr2'),
+    mail_city:          g('f-mailCity'),
+    mail_state:         g('f-mailState'),
+    mail_zip:           g('f-mailZip'),
+    mail_country:       g('f-mailCountry'),
+    updated_at:         new Date().toISOString()
+  };
+
+  const { error: compErr } = await sb.from('companies').upsert(companyData);
+  if (compErr) { hideLoading(); btn.disabled = false; showToast('Save failed: ' + compErr.message, true); return; }
+
+  // Save officers — delete existing then re-insert
+  await sb.from('officers').delete().eq('company_id', currentCompanyId);
+
+  const officerRows = [];
+  document.querySelectorAll('.officer-card[data-oid]').forEach(card => {
+    const oid = card.dataset.oid;
+    const inputs  = Array.from(card.querySelectorAll('input[type=text], input[type=date], input[type=tel], input[type=email], input[type=password]'));
+    const selects = Array.from(card.querySelectorAll('select'));
+    const idTypeEl = card.querySelector(`input[name="idtype-${oid}"]:checked`);
+    officerRows.push({
+      id:              oid,
+      company_id:      currentCompanyId,
+      name:            card.querySelector('.oc-name')?.value || '',
+      title:           card.querySelector('.oc-title')?.value || '',
+      effective_date:  card.querySelector('.oc-effdate')?.value || null,
+      pct_owned:       card.querySelector('.oc-pct')?.value || '',
+      dob:             card.querySelector('.oc-dob')?.value || null,
+      home_phone:      card.querySelector('.oc-phone')?.value || '',
+      id_type:         idTypeEl ? idTypeEl.value : 'ssn',
+      ssn:             document.getElementById(oid+'-ssn')?.value || '',
+      passport:        document.getElementById(oid+'-passport')?.value || '',
+      drivers_license: document.getElementById(oid+'-dl')?.value || '',
+      dl_country:      card.querySelector('.oc-dlcountry')?.value || '',
+      dl_state:        card.querySelector('.oc-dlstate')?.value || '',
+      addr_line1:      card.querySelector('.oc-addr1')?.value || '',
+      addr_line2:      card.querySelector('.oc-addr2')?.value || '',
+      addr_city:       card.querySelector('.oc-addrcity')?.value || '',
+      addr_state:      card.querySelector('.oc-addrstate')?.value || '',
+      addr_zip:        card.querySelector('.oc-addrzip')?.value || '',
+      addr_country:    card.querySelector('.oc-addrcountry')?.value || '',
+    });
+  });
+
+  if (officerRows.length > 0) {
+    const { error: offErr } = await sb.from('officers').insert(officerRows);
+    if (offErr) { hideLoading(); btn.disabled = false; showToast('Company saved but officers failed: ' + offErr.message, true); return; }
+  }
+
+  hideLoading();
+  btn.disabled = false;
+  isNewRecord = false;
+  document.getElementById('deleteBtn').style.display = '';
+  showToast('✓ ' + legalName + ' saved successfully');
+  loadDashboard();
+}
+
+// ═══════════════════════════════════════════════════
+//  DELETE
+// ═══════════════════════════════════════════════════
+async function confirmDelete(id, name) {
+  if (!confirm(`Delete "${name}"? This will also remove all associated officers and cannot be undone.`)) return;
+  showLoading('Deleting…');
+  const { error } = await sb.from('companies').delete().eq('id', id);
+  hideLoading();
+  if (error) { showToast('Delete failed: ' + error.message, true); return; }
+  showToast('Company deleted');
+  showDashboard();
+}
+
+async function deleteCurrentCompany() {
+  const name = document.getElementById('f-legalName').value || 'this company';
+  await confirmDelete(currentCompanyId, name);
+}
+
+// ═══════════════════════════════════════════════════
+//  OFFICER CARDS
+// ═══════════════════════════════════════════════════
+function addOfficer() { buildOfficerCard(null); }
+
+function removeOfficer(oid) {
+  const card = document.getElementById('card-'+oid);
+  if (card) card.remove();
+}
+
+function toggleOfficerBody(header) {
+  const body = header.nextElementSibling;
+  const btn  = header.querySelector('.btn-outline-gold');
+  const isHidden = body.style.display === 'none';
+  body.style.display = isHidden ? '' : 'none';
+  btn.textContent = isHidden ? 'Collapse ▴' : 'Expand ▾';
+}
+
+function toggleIdType(radio, oid) {
+  document.getElementById(oid+'-ssn-field').style.display      = radio.value==='ssn' ? '' : 'none';
+  document.getElementById(oid+'-passport-field').style.display = radio.value==='passport' ? '' : 'none';
+}
+
+function buildOfficerCard(data) {
+  officerCount++;
+  const oid  = data?.id || ouid();
+  const dname = data?.name  || 'New Officer ' + officerCount;
+  const dtitle= data?.title || 'Title not set';
+
+  const stateOpts = STATES_LIST.map(s => `<option ${data?.addr_state===s?'selected':''}>${s}</option>`).join('');
+  const dlStateOpts = STATES_LIST.map(s => `<option ${data?.dl_state===s?'selected':''}>${s}</option>`).join('');
+
+  const card = document.createElement('div');
+  card.className = 'officer-card';
+  card.id = 'card-' + oid;
+  card.dataset.oid = oid;
+
+  card.innerHTML = `
+    <div class="officer-card-header" onclick="toggleOfficerBody(this)">
+      <div>
+        <div class="officer-card-name" id="oname-${oid}">${dname}</div>
+        <div class="officer-card-subtitle" id="otitle-${oid}">${dtitle}</div>
+      </div>
+      <div class="officer-card-actions">
+        <button class="officer-action-btn btn-outline-gold" onclick="event.stopPropagation()">Collapse ▴</button>
+        <button class="officer-action-btn btn-outline-red" onclick="removeOfficer('${oid}');event.stopPropagation()">Remove</button>
+      </div>
+    </div>
+    <div class="officer-card-body">
+      <div class="form-grid" style="margin-bottom:18px;">
+        <div class="field-group">
+          <label class="field-label required">Name</label>
+          <input type="text" class="field-input oc-name" value="${data?.name||''}" placeholder="Full legal name"
+            oninput="document.getElementById('oname-${oid}').textContent=this.value||'New Officer'">
+        </div>
+        <div class="field-group">
+          <label class="field-label required">Title</label>
+          <input type="text" class="field-input oc-title" value="${data?.title||''}" placeholder="e.g. President, Treasurer"
+            oninput="document.getElementById('otitle-${oid}').textContent=this.value||'Title not set'">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Effective Date of Title</label>
+          <input type="date" class="field-input oc-effdate" value="${data?.effective_date||''}">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Percentage Owned (%)</label>
+          <input type="text" class="field-input oc-pct" value="${data?.pct_owned||''}" placeholder="0.00"
+            oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Date of Birth</label>
+          <input type="date" class="field-input oc-dob" value="${data?.dob||''}">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Home Phone</label>
+          <input type="tel" class="field-input oc-phone" value="${data?.home_phone||''}" placeholder="(000) 000-0000"
+            oninput="formatPhone(this)">
+        </div>
+      </div>
+
+      <hr class="form-divider">
+      <p class="subsection-label">Government Identification</p>
+      <div class="id-type-toggle">
+        <label class="radio-option">
+          <input type="radio" name="idtype-${oid}" value="ssn" ${(!data||data.id_type==='ssn')?'checked':''}
+            onchange="toggleIdType(this,'${oid}')"> Social Security #
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="idtype-${oid}" value="passport" ${data?.id_type==='passport'?'checked':''}
+            onchange="toggleIdType(this,'${oid}')"> Passport #
+        </label>
+      </div>
+      <div class="form-grid" style="margin-bottom:18px;">
+        <div class="field-group" id="${oid}-ssn-field" style="${data?.id_type==='passport'?'display:none':''}">
+          <label class="field-label">Social Security Number</label>
+          <div class="input-eye-wrap">
+            <input type="password" class="field-input" id="${oid}-ssn" value="${data?.ssn||''}"
+              placeholder="•••-••-••••" maxlength="11" oninput="formatSSN(this)">
+            <button class="eye-btn" onclick="toggleVisibility('${oid}-ssn',this)" type="button">👁</button>
+          </div>
+        </div>
+        <div class="field-group" id="${oid}-passport-field" style="${data?.id_type==='passport'?'':'display:none'}">
+          <label class="field-label">Passport Number</label>
+          <div class="input-eye-wrap">
+            <input type="password" class="field-input" id="${oid}-passport" value="${data?.passport||''}" placeholder="Passport number">
+            <button class="eye-btn" onclick="toggleVisibility('${oid}-passport',this)" type="button">👁</button>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Driver's License #</label>
+          <div class="input-eye-wrap">
+            <input type="password" class="field-input oc-dl" id="${oid}-dl" value="${data?.drivers_license||''}" placeholder="License number">
+            <button class="eye-btn" onclick="toggleVisibility('${oid}-dl',this)" type="button">👁</button>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Driver's License Country</label>
+          <select class="field-select oc-dlcountry">
+            <option value="">— Country —</option>
+            <option ${data?.dl_country==='United States'?'selected':''}>United States</option>
+            <option ${data?.dl_country==='Canada'?'selected':''}>Canada</option>
+            <option ${data?.dl_country==='Other'?'selected':''}>Other</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Driver's License State</label>
+          <select class="field-select oc-dlstate">
+            <option value="">— State —</option>${dlStateOpts}
+          </select>
+        </div>
+      </div>
+
+      <hr class="form-divider">
+      <p class="subsection-label">Home Address</p>
+      <div class="form-grid">
+        <div class="field-group col-span-2">
+          <label class="field-label">Street Address 1</label>
+          <input type="text" class="field-input oc-addr1" value="${data?.addr_line1||''}" placeholder="Street address">
+        </div>
+        <div class="field-group col-span-2">
+          <label class="field-label">Street Address 2</label>
+          <input type="text" class="field-input oc-addr2" value="${data?.addr_line2||''}" placeholder="Apt, Suite, etc.">
+        </div>
+        <div class="field-group">
+          <label class="field-label">City</label>
+          <input type="text" class="field-input oc-addrcity" value="${data?.addr_city||''}" placeholder="City">
+        </div>
+        <div class="field-group">
+          <label class="field-label">State</label>
+          <select class="field-select oc-addrstate">
+            <option value="">— State —</option>${stateOpts}
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">ZIP</label>
+          <input type="text" class="field-input oc-addrzip" value="${data?.addr_zip||''}" placeholder="00000">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Country</label>
+          <select class="field-select oc-addrcountry">
+            <option value="">— Country —</option>
+            <option ${(!data?.addr_country||data.addr_country==='United States')?'selected':''}>United States</option>
+            <option ${data?.addr_country==='Canada'?'selected':''}>Canada</option>
+            <option ${data?.addr_country==='Other'?'selected':''}>Other</option>
+          </select>
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('officersList').appendChild(card);
+  card.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+// ═══════════════════════════════════════════════════
+//  MODULE SWITCHING
+// ═══════════════════════════════════════════════════
+function switchModule(module) {
+  document.querySelectorAll('.topbar-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav-' + module)?.classList.add('active');
+  ['view-dashboard','view-company-detail','view-ownership'].forEach(id => {
+    document.getElementById(id)?.classList.remove('active');
+  });
+  if (module === 'companies') {
+    showDashboard();
+  } else if (module === 'ownership') {
+    document.getElementById('view-ownership').classList.add('active');
+    loadOwnershipModule();
+  }
+}
+
+function switchOwnershipTab(btn, tabId) {
+  document.querySelectorAll('#view-ownership .inner-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  ['own-tab-structure','own-tab-relationships','own-tab-eliminations'].forEach(id => {
+    document.getElementById(id)?.classList.remove('active');
+  });
+  document.getElementById(tabId).classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════
+//  OWNERSHIP MODULE
+// ═══════════════════════════════════════════════════
+let allCompanies = [];
+let allOfficers  = [];
+
+async function loadOwnershipModule() {
+  const { data: companies } = await sb.from('companies').select('id,legal_name,structure').order('legal_name');
+  const { data: officers }  = await sb.from('officers').select('id,name,company_id').order('name');
+  allCompanies = companies || [];
+  allOfficers  = officers  || [];
+  await renderOwnershipList();
+  await renderRelationshipsList();
+  await renderEliminationsTable();
+  renderOwnershipTree();
+}
+
+async function renderOwnershipList() {
+  const { data: records } = await sb.from('ownership').select('*').order('created_at');
+  const container = document.getElementById('ownershipList');
+  if (!records || records.length === 0) {
+    container.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-light);font-size:13px;">No ownership records yet.</div>`;
+    return;
+  }
+  container.innerHTML = '';
+  records.forEach(r => {
+    const ownedCo     = allCompanies.find(c => c.id === r.owned_company_id);
+    const ownerCo     = allCompanies.find(c => c.id === r.owner_entity_id);
+    const ownerPerson = allOfficers.find(o => o.id === r.owner_individual_id);
+    const ownerName   = r.owner_type === 'entity' ? (ownerCo?.legal_name || '—') : (ownerPerson?.name || '—');
+    const pct         = r.ownership_pct != null ? parseFloat(r.ownership_pct).toFixed(2) + '%' : '—';
+    const card = document.createElement('div');
+    card.className = 'rel-card';
+    card.innerHTML = `
+      <div class="rel-card-header">
+        <div>
+          <div class="rel-card-title">${ownerName} → ${ownedCo?.legal_name || '—'}</div>
+          <div class="rel-card-sub">${r.owner_type === 'entity' ? 'Entity Owner' : 'Individual Owner'} · ${pct}${r.effective_date ? ' · Effective ' + r.effective_date : ''}</div>
+          ${r.notes ? `<div class="rel-card-sub" style="margin-top:4px;font-style:italic;">${r.notes}</div>` : ''}
+        </div>
+        <button onclick="deleteOwnership('${r.id}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:20px;line-height:1;padding:0;">×</button>
+      </div>
+      <div class="rel-card-badges">
+        <span class="rel-badge badge-ownership">${pct} Owned</span>
+        <span class="rel-badge ${r.owner_type === 'entity' ? 'badge-investment' : 'badge-custom'}">${r.owner_type === 'entity' ? 'Entity Owner' : 'Individual'}</span>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+async function renderRelationshipsList() {
+  const { data: records } = await sb.from('intercompany_relationships').select('*').order('created_at');
+  const container = document.getElementById('relationshipsList');
+  if (!records || records.length === 0) {
+    container.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-light);font-size:13px;">No relationships defined yet.</div>`;
+    return;
+  }
+  const typeBadge = { loan:'badge-loan', management_fee:'badge-mgmt', service_agreement:'badge-service', investment:'badge-investment', custom:'badge-custom' };
+  const typeLabel = { loan:'Loan', management_fee:'Management Fee', service_agreement:'Service Agreement', investment:'Investment', custom:'Custom' };
+  container.innerHTML = '';
+  records.forEach(r => {
+    const fromCo = allCompanies.find(c => c.id === r.from_company_id);
+    const toCo   = allCompanies.find(c => c.id === r.to_company_id);
+    const label  = r.relationship_type === 'custom' ? (r.custom_type_label || 'Custom') : (typeLabel[r.relationship_type] || r.relationship_type);
+    const amt    = r.amount ? '$' + parseFloat(r.amount).toLocaleString('en-US',{minimumFractionDigits:2}) : '';
+    const card = document.createElement('div');
+    card.className = 'rel-card';
+    card.innerHTML = `
+      <div class="rel-card-header">
+        <div>
+          <div class="rel-card-title">${fromCo?.legal_name || '—'} → ${toCo?.legal_name || '—'}</div>
+          <div class="rel-card-sub">${label}${amt ? ' · ' + amt : ''}${r.effective_date ? ' · Effective ' + r.effective_date : ''}</div>
+          ${r.description ? `<div class="rel-card-sub" style="margin-top:4px;font-style:italic;">${r.description}</div>` : ''}
+        </div>
+        <button onclick="deleteRelationship('${r.id}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:20px;line-height:1;padding:0;">×</button>
+      </div>
+      <div class="rel-card-badges">
+        <span class="rel-badge ${typeBadge[r.relationship_type] || 'badge-custom'}">${label}</span>
+        ${r.eliminate_in_consolidation ? '<span class="rel-badge badge-eliminate">Eliminate in Consolidation</span>' : ''}
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+async function renderEliminationsTable() {
+  const { data: records } = await sb.from('intercompany_relationships').select('*').order('created_at');
+  const tbody = document.getElementById('eliminationsTable');
+  if (!records || records.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-light);padding:24px;">No intercompany relationships defined yet.</td></tr>`;
+    return;
+  }
+  const elimLabels = { receivable_payable:'Receivable/Payable', income_expense:'Income/Expense', investment:'Investment', all:'All Categories', none:'N/A' };
+  const typeLabel  = { loan:'Loan', management_fee:'Management Fee', service_agreement:'Service Agreement', investment:'Investment', custom:'Custom' };
+  tbody.innerHTML = '';
+  records.forEach(r => {
+    const fromCo = allCompanies.find(c => c.id === r.from_company_id);
+    const toCo   = allCompanies.find(c => c.id === r.to_company_id);
+    const label  = r.relationship_type === 'custom' ? (r.custom_type_label || 'Custom') : (typeLabel[r.relationship_type] || r.relationship_type);
+    const amt    = r.amount ? '$' + parseFloat(r.amount).toLocaleString('en-US',{minimumFractionDigits:2}) : '—';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${fromCo?.legal_name || '—'}</td>
+      <td>${toCo?.legal_name || '—'}</td>
+      <td>${label}</td>
+      <td style="color:var(--text-mid);">${r.description || '—'}</td>
+      <td style="font-family:monospace;">${amt}</td>
+      <td>
+        <label class="toggle-switch">
+          <input type="checkbox" ${r.eliminate_in_consolidation ? 'checked' : ''} onchange="toggleElimination('${r.id}',this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+        <div style="font-size:11px;color:var(--text-light);margin-top:4px;">${elimLabels[r.elimination_category] || '—'}</div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderOwnershipTree() {
+  const tree = document.getElementById('ownershipTree');
+  if (allCompanies.length === 0) {
+    tree.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-light);font-size:13px;">No companies in the system.</div>`;
+    return;
+  }
+  tree.innerHTML = '';
+  allCompanies.forEach(c => {
+    const node = document.createElement('div');
+    node.className = 'tree-node';
+    node.innerHTML = `
+      <div class="tree-icon tree-icon-company">🏢</div>
+      <div class="tree-node-name">${c.legal_name}</div>
+      <div class="tree-node-pct" style="font-size:11px;">${c.structure || ''}</div>`;
+    tree.appendChild(node);
+  });
+}
+
+async function toggleElimination(id, value) {
+  await sb.from('intercompany_relationships').update({ eliminate_in_consolidation: value }).eq('id', id);
+  showToast(value ? '✓ Elimination enabled' : 'Elimination disabled');
+  renderRelationshipsList();
+}
+
+// ── MODALS ──
+function openOwnershipModal() {
+  populateCompanyDropdowns();
+  // Reset fields
+  document.getElementById('own-pct').value = '';
+  document.getElementById('own-effDate').value = '';
+  document.getElementById('own-notes').value = '';
+  document.querySelector('input[name="ownerType"][value="individual"]').checked = true;
+  document.getElementById('own-individualField').style.display = '';
+  document.getElementById('own-entityField').style.display = 'none';
+  document.getElementById('ownershipModal').classList.add('show');
+}
+function openRelationshipModal() {
+  populateCompanyDropdowns();
+  document.getElementById('rel-amount').value = '';
+  document.getElementById('rel-effDate').value = '';
+  document.getElementById('rel-description').value = '';
+  document.getElementById('rel-type').value = '';
+  document.getElementById('rel-elimCategory').value = '';
+  document.getElementById('rel-eliminate').checked = false;
+  document.getElementById('rel-customTypeField').style.display = 'none';
+  document.getElementById('rel-customLabel').value = '';
+  document.getElementById('relationshipModal').classList.add('show');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+function populateCompanyDropdowns() {
+  const coOpts = `<option value="">— Select —</option>` + allCompanies.map(c => `<option value="${c.id}">${c.legal_name}</option>`).join('');
+  const ofOpts = `<option value="">— Select —</option>` + allOfficers.map(o => {
+    const co = allCompanies.find(c => c.id === o.company_id);
+    return `<option value="${o.id}">${o.name}${co ? ' ('+co.legal_name+')' : ''}</option>`;
+  }).join('');
+  ['own-ownedCompany','own-ownerEntity','rel-fromCompany','rel-toCompany'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.innerHTML = coOpts;
+  });
+  const ind = document.getElementById('own-ownerIndividual'); if (ind) ind.innerHTML = ofOpts;
+}
+
+function toggleOwnerType(radio) {
+  document.getElementById('own-individualField').style.display = radio.value === 'individual' ? '' : 'none';
+  document.getElementById('own-entityField').style.display     = radio.value === 'entity'     ? '' : 'none';
+}
+function toggleCustomType(sel) {
+  document.getElementById('rel-customTypeField').style.display = sel.value === 'custom' ? '' : 'none';
+}
+
+async function saveOwnership() {
+  const ownerType = document.querySelector('input[name="ownerType"]:checked')?.value;
+  const ownedCo   = document.getElementById('own-ownedCompany').value;
+  const ownerInd  = document.getElementById('own-ownerIndividual').value;
+  const ownerEnt  = document.getElementById('own-ownerEntity').value;
+  const pct       = document.getElementById('own-pct').value;
+  if (!ownedCo || !(ownerInd || ownerEnt) || !pct) { showToast('⚠ Please fill in all required fields', true); return; }
+  showLoading('Saving…');
+  const { error } = await sb.from('ownership').insert({
+    id: 'own-' + Date.now(),
+    owner_type: ownerType,
+    owner_individual_id: ownerType === 'individual' ? ownerInd : null,
+    owner_entity_id:     ownerType === 'entity'     ? ownerEnt : null,
+    owned_company_id: ownedCo,
+    ownership_pct: parseFloat(pct),
+    effective_date: document.getElementById('own-effDate').value || null,
+    notes: document.getElementById('own-notes').value,
+  });
+  hideLoading();
+  if (error) { showToast('Save failed: ' + error.message, true); return; }
+  closeModal('ownershipModal');
+  showToast('✓ Ownership record saved');
+  await renderOwnershipList();
+  renderOwnershipTree();
+}
+
+async function saveRelationship() {
+  const fromCo  = document.getElementById('rel-fromCompany').value;
+  const toCo    = document.getElementById('rel-toCompany').value;
+  const relType = document.getElementById('rel-type').value;
+  if (!fromCo || !toCo || !relType) { showToast('⚠ Please fill in all required fields', true); return; }
+  if (fromCo === toCo) { showToast('⚠ From and To entities cannot be the same', true); return; }
+  showLoading('Saving…');
+  const amt = document.getElementById('rel-amount').value;
+  const { error } = await sb.from('intercompany_relationships').insert({
+    id: 'rel-' + Date.now(),
+    from_company_id: fromCo,
+    to_company_id: toCo,
+    relationship_type: relType,
+    custom_type_label: document.getElementById('rel-customLabel').value,
+    description: document.getElementById('rel-description').value,
+    amount: amt ? parseFloat(amt) : null,
+    effective_date: document.getElementById('rel-effDate').value || null,
+    eliminate_in_consolidation: document.getElementById('rel-eliminate').checked,
+    elimination_category: document.getElementById('rel-elimCategory').value || null,
+  });
+  hideLoading();
+  if (error) { showToast('Save failed: ' + error.message, true); return; }
+  closeModal('relationshipModal');
+  showToast('✓ Relationship saved');
+  await renderRelationshipsList();
+  await renderEliminationsTable();
+}
+
+async function deleteOwnership(id) {
+  if (!confirm('Remove this ownership record?')) return;
+  await sb.from('ownership').delete().eq('id', id);
+  showToast('Ownership record removed');
+  await renderOwnershipList();
+  renderOwnershipTree();
+}
+async function deleteRelationship(id) {
+  if (!confirm('Remove this relationship?')) return;
+  await sb.from('intercompany_relationships').delete().eq('id', id);
+  showToast('Relationship removed');
+  await renderRelationshipsList();
+  await renderEliminationsTable();
+}
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+loadDashboard();
+</script>
+</body>
+</html>
