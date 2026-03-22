@@ -643,10 +643,21 @@
           <button class="acct-sidebar-btn active" id="acct-nav-coa"       onclick="showAcctView('coa')">       <span class="acct-icon">📋</span> Chart of Accounts</button>
           <button class="acct-sidebar-btn"         id="acct-nav-je"        onclick="showAcctView('je')">        <span class="acct-icon">✏️</span> Journal Entries</button>
           <button class="acct-sidebar-btn"         id="acct-nav-gl"        onclick="showAcctView('gl')">        <span class="acct-icon">📒</span> General Ledger</button>
+          <div class="acct-sidebar-section">Transactions</div>
+          <button class="acct-sidebar-btn"         id="acct-nav-customers"  onclick="showAcctView('customers')">  <span class="acct-icon">👥</span> Customers</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-invoices"   onclick="showAcctView('invoices')">   <span class="acct-icon">🧾</span> Invoices</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-payments-in" onclick="showAcctView('payments-in')"><span class="acct-icon">💰</span> Payments Received</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-vendors"    onclick="showAcctView('vendors')">    <span class="acct-icon">🏭</span> Vendors</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-bills"      onclick="showAcctView('bills')">      <span class="acct-icon">📄</span> Bills</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-payments-out" onclick="showAcctView('payments-out')"><span class="acct-icon">💸</span> Payments Made</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-bank"       onclick="showAcctView('bank')">       <span class="acct-icon">🏛️</span> Bank Transactions</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-ic"         onclick="showAcctView('ic')">         <span class="acct-icon">🔄</span> Intercompany</button>
           <div class="acct-sidebar-section">Reports</div>
           <button class="acct-sidebar-btn"         id="acct-nav-tb"        onclick="showAcctView('tb')">        <span class="acct-icon">⚖️</span> Trial Balance</button>
           <button class="acct-sidebar-btn"         id="acct-nav-pl"        onclick="showAcctView('pl')">        <span class="acct-icon">📈</span> Profit &amp; Loss</button>
           <button class="acct-sidebar-btn"         id="acct-nav-bs"        onclick="showAcctView('bs')">        <span class="acct-icon">🏦</span> Balance Sheet</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-ar-aging"  onclick="showAcctView('ar-aging')">  <span class="acct-icon">📊</span> AR Aging</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-ap-aging"  onclick="showAcctView('ap-aging')">  <span class="acct-icon">📊</span> AP Aging</button>
         </div>
 
         <!-- Content area -->
@@ -711,6 +722,98 @@
               <button class="report-run-btn" onclick="runBalanceSheet()">Run Report</button>
             </div>
             <div id="bsContent"><div class="empty-state"><div class="empty-state-title">Select a date and run report</div></div></div>
+          </div>
+
+        </div><!-- /acct-content-phase1 -->
+
+          <!-- CUSTOMERS -->
+          <div id="acct-view-customers" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Customers</div>
+              <button class="btn-save" onclick="openCustomerModal()">+ New Customer</button>
+            </div>
+            <div id="customersContent"><div class="empty-state"><div class="empty-state-title">No customers yet</div></div></div>
+          </div>
+
+          <!-- INVOICES -->
+          <div id="acct-view-invoices" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Invoices</div>
+              <button class="btn-save" onclick="openInvoiceModal()">+ New Invoice</button>
+            </div>
+            <div id="invoicesContent"><div class="empty-state"><div class="empty-state-title">No invoices yet</div></div></div>
+          </div>
+
+          <!-- PAYMENTS RECEIVED -->
+          <div id="acct-view-payments-in" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Payments Received</div>
+              <button class="btn-save" onclick="openPaymentInModal()">+ Record Payment</button>
+            </div>
+            <div id="paymentsInContent"><div class="empty-state"><div class="empty-state-title">No payments recorded yet</div></div></div>
+          </div>
+
+          <!-- VENDORS -->
+          <div id="acct-view-vendors" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Vendors</div>
+              <button class="btn-save" onclick="openVendorModal()">+ New Vendor</button>
+            </div>
+            <div id="vendorsContent"><div class="empty-state"><div class="empty-state-title">No vendors yet</div></div></div>
+          </div>
+
+          <!-- BILLS -->
+          <div id="acct-view-bills" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Bills</div>
+              <button class="btn-save" onclick="openBillModal()">+ Enter Bill</button>
+            </div>
+            <div id="billsContent"><div class="empty-state"><div class="empty-state-title">No bills yet</div></div></div>
+          </div>
+
+          <!-- PAYMENTS MADE -->
+          <div id="acct-view-payments-out" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Payments Made</div>
+              <button class="btn-save" onclick="openPaymentOutModal()">+ Record Payment</button>
+            </div>
+            <div id="paymentsOutContent"><div class="empty-state"><div class="empty-state-title">No payments recorded yet</div></div></div>
+          </div>
+
+          <!-- BANK TRANSACTIONS -->
+          <div id="acct-view-bank" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Bank &amp; Credit Card Transactions</div>
+              <button class="btn-save" onclick="openBankTxnModal()">+ Add Transaction</button>
+            </div>
+            <div id="bankContent"><div class="empty-state"><div class="empty-state-title">No transactions yet</div></div></div>
+          </div>
+
+          <!-- INTERCOMPANY -->
+          <div id="acct-view-ic" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Intercompany Transactions</div>
+              <button class="btn-save" onclick="openICModal()">+ New Transaction</button>
+            </div>
+            <div id="icContent"><div class="empty-state"><div class="empty-state-title">No intercompany transactions yet</div></div></div>
+          </div>
+
+          <!-- AR AGING -->
+          <div id="acct-view-ar-aging" class="acct-panel" style="display:none;">
+            <div class="report-filters">
+              <label>As of Date</label><input type="date" id="ar-asof">
+              <button class="report-run-btn" onclick="runARaging()">Run Report</button>
+            </div>
+            <div id="arAgingContent"><div class="empty-state"><div class="empty-state-title">Select a date and run report</div></div></div>
+          </div>
+
+          <!-- AP AGING -->
+          <div id="acct-view-ap-aging" class="acct-panel" style="display:none;">
+            <div class="report-filters">
+              <label>As of Date</label><input type="date" id="ap-asof">
+              <button class="report-run-btn" onclick="runAPaging()">Run Report</button>
+            </div>
+            <div id="apAgingContent"><div class="empty-state"><div class="empty-state-title">Select a date and run report</div></div></div>
           </div>
 
         </div><!-- /acct-content -->
@@ -1261,6 +1364,259 @@
     </div><!-- /view-company-detail -->
 
   </main>
+</div>
+
+<!-- ═══════════ PHASE 2 MODALS ═══════════ -->
+
+<!-- CUSTOMER MODAL -->
+<div class="modal-overlay" id="customerModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <span class="modal-title" id="customerModalTitle">New Customer</span>
+      <button class="modal-close" onclick="closeModal('customerModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label required">Customer Name</label><input type="text" class="field-input" id="cust-name" placeholder="Individual or business name"></div>
+        <div class="field-group"><label class="field-label">Email</label><input type="email" class="field-input" id="cust-email" placeholder="email@example.com"></div>
+        <div class="field-group"><label class="field-label">Phone</label><input type="tel" class="field-input" id="cust-phone" placeholder="(000) 000-0000" oninput="formatPhone(this)"></div>
+        <div class="field-group"><label class="field-label">Payment Terms</label>
+          <select class="field-select" id="cust-terms"><option>Net 15</option><option selected>Net 30</option><option>Net 60</option><option>Due on Receipt</option></select></div>
+        <div class="field-group"></div>
+        <div class="field-group col-span-2"><label class="field-label">Billing Address</label><input type="text" class="field-input" id="cust-addr1" placeholder="Street address"></div>
+        <div class="field-group"><label class="field-label">City</label><input type="text" class="field-input" id="cust-city" placeholder="City"></div>
+        <div class="field-group"><label class="field-label">State</label><select class="field-select" id="cust-state"><option value="">— State —</option><option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option></select></div>
+        <div class="field-group"><label class="field-label">ZIP</label><input type="text" class="field-input" id="cust-zip" placeholder="00000"></div>
+        <div class="field-group"><label class="field-label">Country</label><select class="field-select" id="cust-country"><option>United States</option><option>Canada</option><option>Other</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('customerModal')">Cancel</button>
+      <button class="btn-save" onclick="saveCustomer()">Save Customer</button>
+    </div>
+  </div>
+</div>
+
+<!-- VENDOR MODAL -->
+<div class="modal-overlay" id="vendorModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <span class="modal-title" id="vendorModalTitle">New Vendor</span>
+      <button class="modal-close" onclick="closeModal('vendorModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label required">Vendor Name</label><input type="text" class="field-input" id="vend-name" placeholder="Vendor or supplier name"></div>
+        <div class="field-group"><label class="field-label">Email</label><input type="email" class="field-input" id="vend-email" placeholder="email@example.com"></div>
+        <div class="field-group"><label class="field-label">Phone</label><input type="tel" class="field-input" id="vend-phone" placeholder="(000) 000-0000" oninput="formatPhone(this)"></div>
+        <div class="field-group"><label class="field-label">Payment Terms</label>
+          <select class="field-select" id="vend-terms"><option>Net 15</option><option selected>Net 30</option><option>Net 60</option><option>Due on Receipt</option></select></div>
+        <div class="field-group"></div>
+        <div class="field-group col-span-2"><label class="field-label">Address</label><input type="text" class="field-input" id="vend-addr1" placeholder="Street address"></div>
+        <div class="field-group"><label class="field-label">City</label><input type="text" class="field-input" id="vend-city" placeholder="City"></div>
+        <div class="field-group"><label class="field-label">State</label><select class="field-select" id="vend-state"><option value="">— State —</option><option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option></select></div>
+        <div class="field-group"><label class="field-label">ZIP</label><input type="text" class="field-input" id="vend-zip" placeholder="00000"></div>
+        <div class="field-group"><label class="field-label">Country</label><select class="field-select" id="vend-country"><option>United States</option><option>Canada</option><option>Other</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('vendorModal')">Cancel</button>
+      <button class="btn-save" onclick="saveVendor()">Save Vendor</button>
+    </div>
+  </div>
+</div>
+
+<!-- INVOICE MODAL -->
+<div class="modal-overlay" id="invoiceModal">
+  <div class="modal" style="max-width:900px;">
+    <div class="modal-header">
+      <span class="modal-title" id="invoiceModalTitle">New Invoice</span>
+      <button class="modal-close" onclick="closeModal('invoiceModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid" style="margin-bottom:20px;">
+        <div class="field-group"><label class="field-label required">Customer</label><select class="field-select" id="inv-customer"></select></div>
+        <div class="field-group"><label class="field-label required">Invoice #</label><input type="text" class="field-input" id="inv-number" placeholder="INV-001"></div>
+        <div class="field-group"><label class="field-label required">Invoice Date</label><input type="date" class="field-input" id="inv-date"></div>
+        <div class="field-group"><label class="field-label required">Due Date</label><input type="date" class="field-input" id="inv-due"></div>
+        <div class="field-group"><label class="field-label">AR Account</label><select class="field-select" id="inv-ar-account"></select></div>
+        <div class="field-group"><label class="field-label">Income Account</label><select class="field-select" id="inv-income-account"></select></div>
+        <div class="field-group col-span-2"><label class="field-label">Memo</label><input type="text" class="field-input" id="inv-memo" placeholder="Invoice notes or description"></div>
+      </div>
+      <div style="border:1px solid var(--border-light);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;">
+        <table class="je-lines-table">
+          <thead><tr><th style="width:35%;">Description</th><th style="width:80px;">Qty</th><th style="width:120px;">Unit Price</th><th style="width:80px;">Tax %</th><th style="width:120px;">Amount</th><th style="width:36px;"></th></tr></thead>
+          <tbody id="invLinesTbody"></tbody>
+        </table>
+        <div style="padding:8px 10px;background:var(--section-bg);border-top:1px solid var(--border-light);">
+          <button class="je-add-line-btn" onclick="addInvoiceLine()">+ Add Line</button>
+        </div>
+      </div>
+      <div class="je-totals-row">
+        <div class="je-total-item"><div class="je-total-label">Subtotal</div><div class="je-total-value" id="invSubtotal">0.00</div></div>
+        <div class="je-total-item"><div class="je-total-label">Tax</div><div class="je-total-value" id="invTax">0.00</div></div>
+        <div class="je-total-item"><div class="je-total-label">Total</div><div class="je-total-value" id="invTotal">0.00</div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('invoiceModal')">Cancel</button>
+      <button class="btn-secondary" onclick="saveInvoice('draft')">Save Draft</button>
+      <button class="btn-save" onclick="saveInvoice('sent')">Save &amp; Post</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT RECEIVED MODAL -->
+<div class="modal-overlay" id="paymentInModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <span class="modal-title">Record Payment Received</span>
+      <button class="modal-close" onclick="closeModal('paymentInModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group"><label class="field-label required">Customer</label><select class="field-select" id="payin-customer" onchange="loadOpenInvoices(this.value)"></select></div>
+        <div class="field-group"><label class="field-label required">Invoice</label><select class="field-select" id="payin-invoice"></select></div>
+        <div class="field-group"><label class="field-label required">Payment Date</label><input type="date" class="field-input" id="payin-date"></div>
+        <div class="field-group"><label class="field-label required">Amount</label><input type="text" class="field-input" id="payin-amount" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Payment Method</label>
+          <select class="field-select" id="payin-method"><option>Check</option><option>ACH / Wire</option><option>Credit Card</option><option>Cash</option><option>Other</option></select></div>
+        <div class="field-group"><label class="field-label">Reference #</label><input type="text" class="field-input" id="payin-ref" placeholder="Check # or confirmation"></div>
+        <div class="field-group col-span-2"><label class="field-label required">Deposit To Account</label><select class="field-select" id="payin-account"></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('paymentInModal')">Cancel</button>
+      <button class="btn-save" onclick="savePaymentIn()">Record Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- BILL MODAL -->
+<div class="modal-overlay" id="billModal">
+  <div class="modal" style="max-width:900px;">
+    <div class="modal-header">
+      <span class="modal-title" id="billModalTitle">Enter Bill</span>
+      <button class="modal-close" onclick="closeModal('billModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid" style="margin-bottom:20px;">
+        <div class="field-group"><label class="field-label required">Vendor</label><select class="field-select" id="bill-vendor"></select></div>
+        <div class="field-group"><label class="field-label">Bill #</label><input type="text" class="field-input" id="bill-number" placeholder="Vendor invoice number"></div>
+        <div class="field-group"><label class="field-label required">Bill Date</label><input type="date" class="field-input" id="bill-date"></div>
+        <div class="field-group"><label class="field-label required">Due Date</label><input type="date" class="field-input" id="bill-due"></div>
+        <div class="field-group"><label class="field-label">AP Account</label><select class="field-select" id="bill-ap-account"></select></div>
+        <div class="field-group"></div>
+        <div class="field-group col-span-2"><label class="field-label">Memo</label><input type="text" class="field-input" id="bill-memo" placeholder="Notes"></div>
+      </div>
+      <div style="border:1px solid var(--border-light);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;">
+        <table class="je-lines-table">
+          <thead><tr><th style="width:35%;">Description</th><th style="width:80px;">Qty</th><th style="width:120px;">Unit Price</th><th style="width:120px;">Account</th><th style="width:80px;">Tax %</th><th style="width:120px;">Amount</th><th style="width:36px;"></th></tr></thead>
+          <tbody id="billLinesTbody"></tbody>
+        </table>
+        <div style="padding:8px 10px;background:var(--section-bg);border-top:1px solid var(--border-light);">
+          <button class="je-add-line-btn" onclick="addBillLine()">+ Add Line</button>
+        </div>
+      </div>
+      <div class="je-totals-row">
+        <div class="je-total-item"><div class="je-total-label">Subtotal</div><div class="je-total-value" id="billSubtotal">0.00</div></div>
+        <div class="je-total-item"><div class="je-total-label">Tax</div><div class="je-total-value" id="billTax">0.00</div></div>
+        <div class="je-total-item"><div class="je-total-label">Total</div><div class="je-total-value" id="billTotal">0.00</div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('billModal')">Cancel</button>
+      <button class="btn-secondary" onclick="saveBill('draft')">Save Draft</button>
+      <button class="btn-save" onclick="saveBill('received')">Save &amp; Post</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT MADE MODAL -->
+<div class="modal-overlay" id="paymentOutModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <span class="modal-title">Record Payment Made</span>
+      <button class="modal-close" onclick="closeModal('paymentOutModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group"><label class="field-label required">Vendor</label><select class="field-select" id="payout-vendor" onchange="loadOpenBills(this.value)"></select></div>
+        <div class="field-group"><label class="field-label required">Bill</label><select class="field-select" id="payout-bill"></select></div>
+        <div class="field-group"><label class="field-label required">Payment Date</label><input type="date" class="field-input" id="payout-date"></div>
+        <div class="field-group"><label class="field-label required">Amount</label><input type="text" class="field-input" id="payout-amount" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Payment Method</label>
+          <select class="field-select" id="payout-method"><option>Check</option><option>ACH / Wire</option><option>Credit Card</option><option>Cash</option><option>Other</option></select></div>
+        <div class="field-group"><label class="field-label">Reference #</label><input type="text" class="field-input" id="payout-ref" placeholder="Check # or confirmation"></div>
+        <div class="field-group col-span-2"><label class="field-label required">Pay From Account</label><select class="field-select" id="payout-account"></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('paymentOutModal')">Cancel</button>
+      <button class="btn-save" onclick="savePaymentOut()">Record Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- BANK TRANSACTION MODAL -->
+<div class="modal-overlay" id="bankTxnModal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header">
+      <span class="modal-title">Add Bank Transaction</span>
+      <button class="modal-close" onclick="closeModal('bankTxnModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label required">Bank / Credit Card Account</label><select class="field-select" id="bank-account"></select></div>
+        <div class="field-group"><label class="field-label required">Date</label><input type="date" class="field-input" id="bank-date"></div>
+        <div class="field-group"><label class="field-label required">Type</label>
+          <select class="field-select" id="bank-type"><option value="deposit">Deposit</option><option value="withdrawal">Withdrawal</option><option value="transfer">Transfer</option></select></div>
+        <div class="field-group col-span-2"><label class="field-label required">Description</label><input type="text" class="field-input" id="bank-desc" placeholder="Transaction description"></div>
+        <div class="field-group"><label class="field-label required">Amount</label><input type="text" class="field-input" id="bank-amount" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Reference</label><input type="text" class="field-input" id="bank-ref" placeholder="Check # / Confirmation"></div>
+        <div class="field-group col-span-2"><label class="field-label">Offset Account (Category)</label><select class="field-select" id="bank-offset"></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('bankTxnModal')">Cancel</button>
+      <button class="btn-save" onclick="saveBankTxn()">Save Transaction</button>
+    </div>
+  </div>
+</div>
+
+<!-- INTERCOMPANY TRANSACTION MODAL -->
+<div class="modal-overlay" id="icModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <span class="modal-title">New Intercompany Transaction</span>
+      <button class="modal-close" onclick="closeModal('icModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group"><label class="field-label required">From Entity</label><select class="field-select" id="ic-from"></select></div>
+        <div class="field-group"><label class="field-label required">To Entity</label><select class="field-select" id="ic-to"></select></div>
+        <div class="field-group col-span-2"><label class="field-label">Relationship</label><select class="field-select" id="ic-relationship"><option value="">— Select if applicable —</option></select></div>
+        <div class="field-group"><label class="field-label required">Date</label><input type="date" class="field-input" id="ic-date"></div>
+        <div class="field-group"><label class="field-label required">Type</label>
+          <select class="field-select" id="ic-type">
+            <option value="loan_advance">Loan Advance</option>
+            <option value="loan_repayment">Loan Repayment</option>
+            <option value="management_fee">Management Fee</option>
+            <option value="service_charge">Service Charge</option>
+            <option value="dividend">Dividend / Distribution</option>
+            <option value="other">Other</option>
+          </select></div>
+        <div class="field-group"><label class="field-label required">Amount</label><input type="text" class="field-input" id="ic-amount" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group col-span-2"><label class="field-label">Description</label><input type="text" class="field-input" id="ic-desc" placeholder="Description of the transaction"></div>
+        <div class="field-group"><label class="field-label">From Account</label><select class="field-select" id="ic-from-account"></select></div>
+        <div class="field-group"><label class="field-label">To Account</label><select class="field-select" id="ic-to-account"></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('icModal')">Cancel</button>
+      <button class="btn-save" onclick="saveICTransaction()">Post Transaction</button>
+    </div>
+  </div>
 </div>
 
 <div class="save-toast" id="saveToast"></div>
@@ -2736,6 +3092,376 @@ async function runBalanceSheet() {
   hideLoading();
   document.getElementById('bsContent').innerHTML = html;
 }
+
+// ═══════════════════════════════════════════════════
+//  PHASE 2 — TRANSACTIONS
+// ═══════════════════════════════════════════════════
+let allCustomers = [], allVendors = [], allRelationships = [];
+let editingCustomerId = null, editingVendorId = null;
+let editingInvoiceId = null, editingBillId = null;
+
+const _origShowAcctView = showAcctView;
+showAcctView = function(view) {
+  _origShowAcctView(view);
+  if (view==='customers')    loadCustomers();
+  if (view==='invoices')     { loadCustomers(); loadInvoices(); }
+  if (view==='payments-in')  { loadCustomers(); loadPaymentsIn(); }
+  if (view==='vendors')      loadVendors();
+  if (view==='bills')        { loadVendors(); loadBills(); }
+  if (view==='payments-out') { loadVendors(); loadPaymentsOut(); }
+  if (view==='bank')         loadBankTxns();
+  if (view==='ic')           loadICTxns();
+};
+
+function fmtMoney(v) { return '$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2}); }
+function fmtDate(d)  { return d||'—'; }
+function acctOptsHTML(filter, selected='') {
+  const arr = Array.isArray(filter) ? filter : (filter ? [filter] : null);
+  return '<option value="">— Select —</option>' +
+    acctAccounts.filter(a => !arr || arr.includes(a.account_type))
+      .map(a=>`<option value="${a.id}" ${a.id===selected?'selected':''}>${a.account_number} — ${a.account_name}</option>`).join('');
+}
+function statusPill(s) {
+  const c={draft:'background:rgba(127,140,141,0.15);color:#566573;',sent:'background:rgba(52,152,219,0.15);color:#1a6fa8;',paid:'background:rgba(39,174,96,0.12);color:#1e8449;',partial:'background:rgba(230,126,34,0.15);color:#a04000;',overdue:'background:rgba(192,57,43,0.12);color:#922b21;',received:'background:rgba(52,152,219,0.15);color:#1a6fa8;',void:'background:rgba(127,140,141,0.15);color:#566573;',unreviewed:'background:rgba(230,126,34,0.12);color:#a04000;',reviewed:'background:rgba(39,174,96,0.12);color:#1e8449;',posted:'background:rgba(39,174,96,0.12);color:#1e8449;'};
+  return `<span class="status-pill" style="${c[s]||''}">${s}</span>`;
+}
+
+// CUSTOMERS
+async function loadCustomers() {
+  if (!acctCompanyId) return;
+  const { data } = await sb.from('customers').select('*').eq('company_id',acctCompanyId).order('name');
+  allCustomers = data||[];
+  const c = document.getElementById('customersContent');
+  if (!c) return;
+  if (!allCustomers.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No customers yet</div></div>`; return; }
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Terms</th><th>Status</th><th></th></tr></thead><tbody>`+
+    allCustomers.map(cu=>`<tr><td><strong>${cu.name}</strong></td><td style="color:var(--text-mid);">${cu.email||'—'}</td><td style="color:var(--text-mid);">${cu.phone||'—'}</td><td>${cu.payment_terms||'—'}</td><td><span class="status-pill ${cu.is_active?'status-active':''}">${cu.is_active?'Active':'Inactive'}</span></td><td><button onclick="editCustomer('${cu.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button></td></tr>`).join('')+'</tbody></table>';
+}
+function openCustomerModal(id=null) {
+  editingCustomerId=id;
+  document.getElementById('customerModalTitle').textContent=id?'Edit Customer':'New Customer';
+  ['cust-name','cust-email','cust-phone','cust-addr1','cust-city','cust-zip'].forEach(f=>document.getElementById(f).value='');
+  document.getElementById('cust-terms').value='Net 30';
+  if (id) { const cu=allCustomers.find(x=>x.id===id); if(cu){ document.getElementById('cust-name').value=cu.name||''; document.getElementById('cust-email').value=cu.email||''; document.getElementById('cust-phone').value=cu.phone||''; document.getElementById('cust-terms').value=cu.payment_terms||'Net 30'; document.getElementById('cust-addr1').value=cu.billing_addr1||''; document.getElementById('cust-city').value=cu.billing_city||''; document.getElementById('cust-state').value=cu.billing_state||''; document.getElementById('cust-zip').value=cu.billing_zip||''; document.getElementById('cust-country').value=cu.billing_country||'United States'; } }
+  document.getElementById('customerModal').classList.add('show');
+}
+function editCustomer(id) { openCustomerModal(id); }
+async function saveCustomer() {
+  const name=document.getElementById('cust-name').value.trim();
+  if (!name) { showToast('⚠ Name required',true); return; }
+  showLoading('Saving…');
+  const {error}=await sb.from('customers').upsert({id:editingCustomerId||('cust-'+Date.now()),company_id:acctCompanyId,name,email:document.getElementById('cust-email').value,phone:document.getElementById('cust-phone').value,payment_terms:document.getElementById('cust-terms').value,billing_addr1:document.getElementById('cust-addr1').value,billing_city:document.getElementById('cust-city').value,billing_state:document.getElementById('cust-state').value,billing_zip:document.getElementById('cust-zip').value,billing_country:document.getElementById('cust-country').value,is_active:true});
+  hideLoading(); if(error){showToast('Error: '+error.message,true);return;} closeModal('customerModal'); showToast('✓ Customer saved'); loadCustomers();
+}
+
+// VENDORS
+async function loadVendors() {
+  if (!acctCompanyId) return;
+  const {data}=await sb.from('vendors').select('*').eq('company_id',acctCompanyId).order('name');
+  allVendors=data||[];
+  const c=document.getElementById('vendorsContent'); if(!c) return;
+  if (!allVendors.length){c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No vendors yet</div></div>`;return;}
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Terms</th><th>Status</th><th></th></tr></thead><tbody>`+
+    allVendors.map(v=>`<tr><td><strong>${v.name}</strong></td><td style="color:var(--text-mid);">${v.email||'—'}</td><td style="color:var(--text-mid);">${v.phone||'—'}</td><td>${v.payment_terms||'—'}</td><td><span class="status-pill ${v.is_active?'status-active':''}">${v.is_active?'Active':'Inactive'}</span></td><td><button onclick="editVendor('${v.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button></td></tr>`).join('')+'</tbody></table>';
+}
+function openVendorModal(id=null) {
+  editingVendorId=id;
+  document.getElementById('vendorModalTitle').textContent=id?'Edit Vendor':'New Vendor';
+  ['vend-name','vend-email','vend-phone','vend-addr1','vend-city','vend-zip'].forEach(f=>document.getElementById(f).value='');
+  document.getElementById('vend-terms').value='Net 30';
+  if (id) { const v=allVendors.find(x=>x.id===id); if(v){ document.getElementById('vend-name').value=v.name||''; document.getElementById('vend-email').value=v.email||''; document.getElementById('vend-phone').value=v.phone||''; document.getElementById('vend-terms').value=v.payment_terms||'Net 30'; document.getElementById('vend-addr1').value=v.addr1||''; document.getElementById('vend-city').value=v.city||''; document.getElementById('vend-state').value=v.state||''; document.getElementById('vend-zip').value=v.zip||''; document.getElementById('vend-country').value=v.country||'United States'; } }
+  document.getElementById('vendorModal').classList.add('show');
+}
+function editVendor(id){openVendorModal(id);}
+async function saveVendor() {
+  const name=document.getElementById('vend-name').value.trim();
+  if(!name){showToast('⚠ Name required',true);return;}
+  showLoading('Saving…');
+  const{error}=await sb.from('vendors').upsert({id:editingVendorId||('vend-'+Date.now()),company_id:acctCompanyId,name,email:document.getElementById('vend-email').value,phone:document.getElementById('vend-phone').value,payment_terms:document.getElementById('vend-terms').value,addr1:document.getElementById('vend-addr1').value,city:document.getElementById('vend-city').value,state:document.getElementById('vend-state').value,zip:document.getElementById('vend-zip').value,country:document.getElementById('vend-country').value,is_active:true});
+  hideLoading();if(error){showToast('Error: '+error.message,true);return;}closeModal('vendorModal');showToast('✓ Vendor saved');loadVendors();
+}
+
+// INVOICES
+async function loadInvoices() {
+  if (!acctCompanyId) return;
+  const{data}=await sb.from('invoices').select('*, customers(name)').eq('company_id',acctCompanyId).order('invoice_date',{ascending:false});
+  const c=document.getElementById('invoicesContent');if(!c)return;
+  if(!data||!data.length){c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No invoices yet</div></div>`;return;}
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Invoice #</th><th>Customer</th><th>Date</th><th>Due</th><th>Total</th><th>Balance</th><th>Status</th><th></th></tr></thead><tbody>`+
+    data.map(inv=>`<tr><td class="number">${inv.invoice_number||'—'}</td><td>${inv.customers?.name||'—'}</td><td>${fmtDate(inv.invoice_date)}</td><td>${fmtDate(inv.due_date)}</td><td class="amount">${fmtMoney(inv.total)}</td><td class="amount ${parseFloat(inv.balance_due||0)>0?'negative':''}">${fmtMoney(inv.balance_due)}</td><td>${statusPill(inv.status)}</td><td><button onclick="editInvoice('${inv.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button> <button onclick="voidInvoice('${inv.id}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Void</button></td></tr>`).join('')+'</tbody></table>';
+}
+function openInvoiceModal() {
+  if(!acctCompanyId){showToast('⚠ Select a company first',true);return;}
+  editingInvoiceId=null;
+  document.getElementById('invoiceModalTitle').textContent='New Invoice';
+  document.getElementById('inv-customer').innerHTML='<option value="">— Select —</option>'+allCustomers.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById('inv-ar-account').innerHTML=acctOptsHTML('Asset');
+  document.getElementById('inv-income-account').innerHTML=acctOptsHTML('Income');
+  document.getElementById('inv-number').value='INV-'+Date.now().toString().slice(-4);
+  document.getElementById('inv-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('inv-due').value=''; document.getElementById('inv-memo').value='';
+  document.getElementById('invLinesTbody').innerHTML='';
+  addInvoiceLine();addInvoiceLine();updateInvoiceTotals();
+  document.getElementById('invoiceModal').classList.add('show');
+}
+async function editInvoice(id) {
+  showLoading('Loading…');
+  const{data:inv}=await sb.from('invoices').select('*').eq('id',id).single();
+  const{data:lines}=await sb.from('invoice_lines').select('*').eq('invoice_id',id).order('sort_order');
+  hideLoading(); editingInvoiceId=id;
+  document.getElementById('invoiceModalTitle').textContent='Edit Invoice';
+  document.getElementById('inv-customer').innerHTML='<option value="">— Select —</option>'+allCustomers.map(c=>`<option value="${c.id}" ${c.id===inv.customer_id?'selected':''}>${c.name}</option>`).join('');
+  document.getElementById('inv-ar-account').innerHTML=acctOptsHTML('Asset',inv.ar_account_id);
+  document.getElementById('inv-income-account').innerHTML=acctOptsHTML('Income',inv.income_account_id);
+  document.getElementById('inv-number').value=inv.invoice_number||''; document.getElementById('inv-date').value=inv.invoice_date||''; document.getElementById('inv-due').value=inv.due_date||''; document.getElementById('inv-memo').value=inv.memo||'';
+  document.getElementById('invLinesTbody').innerHTML='';
+  (lines||[]).forEach(l=>addInvoiceLine(l)); updateInvoiceTotals();
+  document.getElementById('invoiceModal').classList.add('show');
+}
+function addInvoiceLine(data=null) {
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td><input type="text" placeholder="Description" value="${data?.description||''}"></td><td><input type="text" value="${data?.quantity||1}" style="text-align:right;" oninput="updateInvoiceTotals()"></td><td><input type="text" placeholder="0.00" value="${data?.unit_price?parseFloat(data.unit_price).toFixed(2):''}" style="text-align:right;" oninput="updateInvoiceTotals()"></td><td><input type="text" placeholder="0.00" value="${data?.tax_rate||''}" style="text-align:right;" oninput="updateInvoiceTotals()"></td><td><input type="text" value="${data?.amount?parseFloat(data.amount).toFixed(2):''}" style="text-align:right;background:var(--section-bg);" readonly></td><td><button onclick="this.closest('tr').remove();updateInvoiceTotals();" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:18px;line-height:1;padding:0;">×</button></td>`;
+  document.getElementById('invLinesTbody').appendChild(tr);
+}
+function updateInvoiceTotals() {
+  let sub=0,tax=0;
+  document.querySelectorAll('#invLinesTbody tr').forEach(tr=>{const i=tr.querySelectorAll('input');const qty=parseFloat(i[1]?.value||1)||1;const price=parseFloat(i[2]?.value||0)||0;const taxR=parseFloat(i[3]?.value||0)||0;const amt=qty*price;sub+=amt;tax+=amt*(taxR/100);if(i[4])i[4].value=amt.toFixed(2);});
+  document.getElementById('invSubtotal').textContent=sub.toLocaleString('en-US',{minimumFractionDigits:2});
+  document.getElementById('invTax').textContent=tax.toLocaleString('en-US',{minimumFractionDigits:2});
+  document.getElementById('invTotal').textContent=(sub+tax).toLocaleString('en-US',{minimumFractionDigits:2});
+}
+async function saveInvoice(status) {
+  const custId=document.getElementById('inv-customer').value,date=document.getElementById('inv-date').value;
+  if(!custId||!date){showToast('⚠ Customer and date required',true);return;}
+  const lines=[];
+  document.querySelectorAll('#invLinesTbody tr').forEach((tr,i)=>{const inp=tr.querySelectorAll('input');const desc=inp[0]?.value||'';const qty=parseFloat(inp[1]?.value||1)||1;const price=parseFloat(inp[2]?.value||0)||0;const taxR=parseFloat(inp[3]?.value||0)||0;const amt=qty*price;if(desc||amt)lines.push({description:desc,quantity:qty,unit_price:price,tax_rate:taxR,amount:amt,sort_order:i});});
+  const sub=lines.reduce((s,l)=>s+l.amount,0),tax=lines.reduce((s,l)=>s+(l.amount*(l.tax_rate/100)),0),total=sub+tax;
+  showLoading('Saving invoice…');
+  const invId=editingInvoiceId||('inv-'+Date.now());
+  const arId=document.getElementById('inv-ar-account').value||null,incId=document.getElementById('inv-income-account').value||null;
+  const{error:ie}=await sb.from('invoices').upsert({id:invId,company_id:acctCompanyId,customer_id:custId,invoice_number:document.getElementById('inv-number').value,invoice_date:date,due_date:document.getElementById('inv-due').value||null,status,subtotal:sub,tax_amount:tax,total,balance_due:total,amount_paid:0,memo:document.getElementById('inv-memo').value,ar_account_id:arId,income_account_id:incId,updated_at:new Date().toISOString()});
+  if(ie){hideLoading();showToast('Error: '+ie.message,true);return;}
+  await sb.from('invoice_lines').delete().eq('invoice_id',invId);
+  if(lines.length)await sb.from('invoice_lines').insert(lines.map((l,i)=>({id:'il-'+invId+'-'+i,invoice_id:invId,...l})));
+  if(status==='sent'&&arId&&incId){const jeId='je-inv-'+invId;await sb.from('journal_entries').upsert({id:jeId,company_id:acctCompanyId,entry_date:date,reference_number:document.getElementById('inv-number').value,description:'Invoice - '+(allCustomers.find(c=>c.id===custId)?.name||''),status:'posted',entry_type:'invoice',updated_at:new Date().toISOString()});await sb.from('journal_entry_lines').delete().eq('journal_entry_id',jeId);await sb.from('journal_entry_lines').insert([{id:'jel-'+jeId+'-1',journal_entry_id:jeId,account_id:arId,description:'AR',debit:total,credit:0,sort_order:0},{id:'jel-'+jeId+'-2',journal_entry_id:jeId,account_id:incId,description:'Revenue',debit:0,credit:sub,sort_order:1}]);await sb.from('invoices').update({journal_entry_id:jeId}).eq('id',invId);}
+  hideLoading();closeModal('invoiceModal');showToast('✓ Invoice saved');loadInvoices();
+}
+async function voidInvoice(id){if(!confirm('Void this invoice?'))return;await sb.from('invoices').update({status:'void'}).eq('id',id);showToast('Invoice voided');loadInvoices();}
+
+// PAYMENTS RECEIVED
+async function loadPaymentsIn() {
+  if(!acctCompanyId)return;
+  const{data}=await sb.from('payments_received').select('*, customers(name), invoices(invoice_number)').eq('company_id',acctCompanyId).order('payment_date',{ascending:false});
+  const c=document.getElementById('paymentsInContent');if(!c)return;
+  if(!data||!data.length){c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No payments received yet</div></div>`;return;}
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Date</th><th>Customer</th><th>Invoice</th><th>Method</th><th>Reference</th><th>Amount</th></tr></thead><tbody>`+data.map(p=>`<tr><td>${fmtDate(p.payment_date)}</td><td>${p.customers?.name||'—'}</td><td class="number">${p.invoices?.invoice_number||'—'}</td><td>${p.payment_method||'—'}</td><td class="number">${p.reference||'—'}</td><td class="amount">${fmtMoney(p.amount)}</td></tr>`).join('')+'</tbody></table>';
+}
+async function openPaymentInModal() {
+  if(!acctCompanyId){showToast('⚠ Select a company first',true);return;}
+  await loadCustomers();
+  document.getElementById('payin-customer').innerHTML='<option value="">— Select —</option>'+allCustomers.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById('payin-invoice').innerHTML='<option value="">— Select customer first —</option>';
+  document.getElementById('payin-account').innerHTML=acctOptsHTML('Asset');
+  document.getElementById('payin-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('payin-amount').value=''; document.getElementById('payin-ref').value='';
+  document.getElementById('paymentInModal').classList.add('show');
+}
+async function loadOpenInvoices(customerId) {
+  const{data}=await sb.from('invoices').select('id,invoice_number,balance_due').eq('company_id',acctCompanyId).eq('customer_id',customerId).in('status',['sent','partial']);
+  document.getElementById('payin-invoice').innerHTML='<option value="">— Select —</option>'+(data||[]).map(i=>`<option value="${i.id}">${i.invoice_number} (${fmtMoney(i.balance_due)} due)</option>`).join('');
+}
+async function savePaymentIn() {
+  const custId=document.getElementById('payin-customer').value,invId=document.getElementById('payin-invoice').value,date=document.getElementById('payin-date').value,amount=parseFloat(document.getElementById('payin-amount').value||0),acctId=document.getElementById('payin-account').value;
+  if(!custId||!date||!amount||!acctId){showToast('⚠ Please fill all required fields',true);return;}
+  showLoading('Recording payment…');
+  const pid='payin-'+Date.now();
+  await sb.from('payments_received').insert({id:pid,company_id:acctCompanyId,customer_id:custId,invoice_id:invId||null,payment_date:date,amount,payment_method:document.getElementById('payin-method').value,reference:document.getElementById('payin-ref').value,deposit_account_id:acctId});
+  if(invId){const{data:inv}=await sb.from('invoices').select('balance_due,amount_paid,total').eq('id',invId).single();if(inv){const np=parseFloat(inv.amount_paid||0)+amount;const nb=parseFloat(inv.total||0)-np;await sb.from('invoices').update({amount_paid:np,balance_due:Math.max(0,nb),status:nb<=0.01?'paid':'partial'}).eq('id',invId);}}
+  const arAccts=acctAccounts.filter(a=>a.account_name.toLowerCase().includes('receivable'));
+  if(acctId&&arAccts.length){const jeId='je-payin-'+pid;await sb.from('journal_entries').insert({id:jeId,company_id:acctCompanyId,entry_date:date,description:'Payment Received',status:'posted',entry_type:'invoice',updated_at:new Date().toISOString()});await sb.from('journal_entry_lines').insert([{id:'jel-'+jeId+'-1',journal_entry_id:jeId,account_id:acctId,description:'Deposit',debit:amount,credit:0,sort_order:0},{id:'jel-'+jeId+'-2',journal_entry_id:jeId,account_id:arAccts[0].id,description:'AR',debit:0,credit:amount,sort_order:1}]);await sb.from('payments_received').update({journal_entry_id:jeId}).eq('id',pid);}
+  hideLoading();closeModal('paymentInModal');showToast('✓ Payment recorded');loadPaymentsIn();
+}
+
+// BILLS
+async function loadBills() {
+  if(!acctCompanyId)return;
+  const{data}=await sb.from('bills').select('*, vendors(name)').eq('company_id',acctCompanyId).order('bill_date',{ascending:false});
+  const c=document.getElementById('billsContent');if(!c)return;
+  if(!data||!data.length){c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No bills yet</div></div>`;return;}
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Bill #</th><th>Vendor</th><th>Date</th><th>Due</th><th>Total</th><th>Balance</th><th>Status</th><th></th></tr></thead><tbody>`+data.map(b=>`<tr><td class="number">${b.bill_number||'—'}</td><td>${b.vendors?.name||'—'}</td><td>${fmtDate(b.bill_date)}</td><td>${fmtDate(b.due_date)}</td><td class="amount">${fmtMoney(b.total)}</td><td class="amount ${parseFloat(b.balance_due||0)>0?'negative':''}">${fmtMoney(b.balance_due)}</td><td>${statusPill(b.status)}</td><td><button onclick="voidBill('${b.id}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Void</button></td></tr>`).join('')+'</tbody></table>';
+}
+function openBillModal() {
+  if(!acctCompanyId){showToast('⚠ Select a company first',true);return;}
+  editingBillId=null;
+  document.getElementById('billModalTitle').textContent='Enter Bill';
+  document.getElementById('bill-vendor').innerHTML='<option value="">— Select —</option>'+allVendors.map(v=>`<option value="${v.id}">${v.name}</option>`).join('');
+  document.getElementById('bill-ap-account').innerHTML=acctOptsHTML('Liability');
+  document.getElementById('bill-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('bill-due').value=''; document.getElementById('bill-number').value=''; document.getElementById('bill-memo').value='';
+  document.getElementById('billLinesTbody').innerHTML='';
+  addBillLine();addBillLine();updateBillTotals();
+  document.getElementById('billModal').classList.add('show');
+}
+function addBillLine(data=null) {
+  const acctOpts=acctAccounts.filter(a=>a.account_type==='Expense'||a.account_type==='Asset').map(a=>`<option value="${a.id}" ${a.id===data?.account_id?'selected':''}>${a.account_number} — ${a.account_name}</option>`).join('');
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td><input type="text" placeholder="Description" value="${data?.description||''}"></td><td><input type="text" value="${data?.quantity||1}" style="text-align:right;" oninput="updateBillTotals()"></td><td><input type="text" placeholder="0.00" value="${data?.unit_price?parseFloat(data.unit_price).toFixed(2):''}" style="text-align:right;" oninput="updateBillTotals()"></td><td><select style="height:32px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;width:100%;"><option value="">—</option>${acctOpts}</select></td><td><input type="text" placeholder="0%" value="${data?.tax_rate||''}" style="text-align:right;" oninput="updateBillTotals()"></td><td><input type="text" value="${data?.amount?parseFloat(data.amount).toFixed(2):''}" style="text-align:right;background:var(--section-bg);" readonly></td><td><button onclick="this.closest('tr').remove();updateBillTotals();" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:18px;line-height:1;padding:0;">×</button></td>`;
+  document.getElementById('billLinesTbody').appendChild(tr);
+}
+function updateBillTotals() {
+  let sub=0,tax=0;
+  document.querySelectorAll('#billLinesTbody tr').forEach(tr=>{const i=tr.querySelectorAll('input');const qty=parseFloat(i[1]?.value||1)||1;const price=parseFloat(i[2]?.value||0)||0;const taxR=parseFloat(i[4]?.value||0)||0;const amt=qty*price;sub+=amt;tax+=amt*(taxR/100);if(i[5])i[5].value=amt.toFixed(2);});
+  document.getElementById('billSubtotal').textContent=sub.toLocaleString('en-US',{minimumFractionDigits:2});
+  document.getElementById('billTax').textContent=tax.toLocaleString('en-US',{minimumFractionDigits:2});
+  document.getElementById('billTotal').textContent=(sub+tax).toLocaleString('en-US',{minimumFractionDigits:2});
+}
+async function saveBill(status) {
+  const vendId=document.getElementById('bill-vendor').value,date=document.getElementById('bill-date').value;
+  if(!vendId||!date){showToast('⚠ Vendor and date required',true);return;}
+  const lines=[];
+  document.querySelectorAll('#billLinesTbody tr').forEach((tr,i)=>{const inp=tr.querySelectorAll('input');const sel=tr.querySelector('select');const desc=inp[0]?.value||'';const qty=parseFloat(inp[1]?.value||1)||1;const price=parseFloat(inp[2]?.value||0)||0;const taxR=parseFloat(inp[4]?.value||0)||0;const amt=qty*price;const aId=sel?.value||null;if(desc||amt)lines.push({description:desc,quantity:qty,unit_price:price,account_id:aId,tax_rate:taxR,amount:amt,sort_order:i});});
+  const sub=lines.reduce((s,l)=>s+l.amount,0),tax=lines.reduce((s,l)=>s+(l.amount*(l.tax_rate/100)),0),total=sub+tax;
+  showLoading('Saving bill…');
+  const billId=editingBillId||('bill-'+Date.now());
+  const apId=document.getElementById('bill-ap-account').value||null;
+  await sb.from('bills').upsert({id:billId,company_id:acctCompanyId,vendor_id:vendId,bill_number:document.getElementById('bill-number').value,bill_date:date,due_date:document.getElementById('bill-due').value||null,status,subtotal:sub,tax_amount:tax,total,balance_due:total,amount_paid:0,memo:document.getElementById('bill-memo').value,ap_account_id:apId,updated_at:new Date().toISOString()});
+  await sb.from('bill_lines').delete().eq('bill_id',billId);
+  if(lines.length)await sb.from('bill_lines').insert(lines.map((l,i)=>({id:'bl-'+billId+'-'+i,bill_id:billId,...l})));
+  if(status==='received'&&apId&&lines.some(l=>l.account_id)){const jeId='je-bill-'+billId;await sb.from('journal_entries').upsert({id:jeId,company_id:acctCompanyId,entry_date:date,reference_number:document.getElementById('bill-number').value,description:'Bill - '+(allVendors.find(v=>v.id===vendId)?.name||''),status:'posted',entry_type:'bill',updated_at:new Date().toISOString()});await sb.from('journal_entry_lines').delete().eq('journal_entry_id',jeId);const jls=[];lines.forEach((l,i)=>{if(l.account_id)jls.push({id:'jel-'+jeId+'-'+i,journal_entry_id:jeId,account_id:l.account_id,description:l.description,debit:l.amount,credit:0,sort_order:i});});if(apId)jls.push({id:'jel-'+jeId+'-ap',journal_entry_id:jeId,account_id:apId,description:'Accounts Payable',debit:0,credit:total,sort_order:99});await sb.from('journal_entry_lines').insert(jls);}
+  hideLoading();closeModal('billModal');showToast('✓ Bill saved');loadBills();
+}
+async function voidBill(id){if(!confirm('Void this bill?'))return;await sb.from('bills').update({status:'void'}).eq('id',id);showToast('Bill voided');loadBills();}
+
+// PAYMENTS MADE
+async function loadPaymentsOut() {
+  if(!acctCompanyId)return;
+  const{data}=await sb.from('payments_made').select('*, vendors(name), bills(bill_number)').eq('company_id',acctCompanyId).order('payment_date',{ascending:false});
+  const c=document.getElementById('paymentsOutContent');if(!c)return;
+  if(!data||!data.length){c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No payments made yet</div></div>`;return;}
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Date</th><th>Vendor</th><th>Bill #</th><th>Method</th><th>Reference</th><th>Amount</th></tr></thead><tbody>`+data.map(p=>`<tr><td>${fmtDate(p.payment_date)}</td><td>${p.vendors?.name||'—'}</td><td class="number">${p.bills?.bill_number||'—'}</td><td>${p.payment_method||'—'}</td><td class="number">${p.reference||'—'}</td><td class="amount">${fmtMoney(p.amount)}</td></tr>`).join('')+'</tbody></table>';
+}
+async function openPaymentOutModal() {
+  if(!acctCompanyId){showToast('⚠ Select a company first',true);return;}
+  await loadVendors();
+  document.getElementById('payout-vendor').innerHTML='<option value="">— Select —</option>'+allVendors.map(v=>`<option value="${v.id}">${v.name}</option>`).join('');
+  document.getElementById('payout-bill').innerHTML='<option value="">— Select vendor first —</option>';
+  document.getElementById('payout-account').innerHTML=acctOptsHTML('Asset');
+  document.getElementById('payout-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('payout-amount').value=''; document.getElementById('payout-ref').value='';
+  document.getElementById('paymentOutModal').classList.add('show');
+}
+async function loadOpenBills(vendorId) {
+  const{data}=await sb.from('bills').select('id,bill_number,balance_due').eq('company_id',acctCompanyId).eq('vendor_id',vendorId).in('status',['received','partial']);
+  document.getElementById('payout-bill').innerHTML='<option value="">— Select —</option>'+(data||[]).map(b=>`<option value="${b.id}">${b.bill_number||'Bill'} (${fmtMoney(b.balance_due)} due)</option>`).join('');
+}
+async function savePaymentOut() {
+  const vendId=document.getElementById('payout-vendor').value,billId=document.getElementById('payout-bill').value,date=document.getElementById('payout-date').value,amount=parseFloat(document.getElementById('payout-amount').value||0),acctId=document.getElementById('payout-account').value;
+  if(!vendId||!date||!amount||!acctId){showToast('⚠ Please fill all required fields',true);return;}
+  showLoading('Recording payment…');
+  const pid='payout-'+Date.now();
+  await sb.from('payments_made').insert({id:pid,company_id:acctCompanyId,vendor_id:vendId,bill_id:billId||null,payment_date:date,amount,payment_method:document.getElementById('payout-method').value,reference:document.getElementById('payout-ref').value,payment_account_id:acctId});
+  if(billId){const{data:bill}=await sb.from('bills').select('balance_due,amount_paid,total').eq('id',billId).single();if(bill){const np=parseFloat(bill.amount_paid||0)+amount;const nb=parseFloat(bill.total||0)-np;await sb.from('bills').update({amount_paid:np,balance_due:Math.max(0,nb),status:nb<=0.01?'paid':'partial'}).eq('id',billId);}}
+  const apAccts=acctAccounts.filter(a=>a.account_name.toLowerCase().includes('payable'));
+  if(acctId&&apAccts.length){const jeId='je-payout-'+pid;await sb.from('journal_entries').insert({id:jeId,company_id:acctCompanyId,entry_date:date,description:'Payment Made',status:'posted',entry_type:'bill',updated_at:new Date().toISOString()});await sb.from('journal_entry_lines').insert([{id:'jel-'+jeId+'-1',journal_entry_id:jeId,account_id:apAccts[0].id,description:'AP',debit:amount,credit:0,sort_order:0},{id:'jel-'+jeId+'-2',journal_entry_id:jeId,account_id:acctId,description:'Cash',debit:0,credit:amount,sort_order:1}]);}
+  hideLoading();closeModal('paymentOutModal');showToast('✓ Payment recorded');loadPaymentsOut();
+}
+
+// BANK TRANSACTIONS
+async function loadBankTxns() {
+  if(!acctCompanyId)return;
+  const{data}=await sb.from('bank_transactions').select('*, accounts(account_name)').eq('company_id',acctCompanyId).order('transaction_date',{ascending:false});
+  const c=document.getElementById('bankContent');if(!c)return;
+  if(!data||!data.length){c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No transactions yet</div></div>`;return;}
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Date</th><th>Account</th><th>Description</th><th>Type</th><th>Reference</th><th>Amount</th><th>Status</th><th></th></tr></thead><tbody>`+data.map(t=>`<tr><td>${fmtDate(t.transaction_date)}</td><td>${t.accounts?.account_name||'—'}</td><td>${t.description||'—'}</td><td style="text-transform:capitalize;">${t.transaction_type||'—'}</td><td class="number">${t.reference||'—'}</td><td class="amount">${fmtMoney(t.amount)}</td><td>${statusPill(t.status)}</td><td><button onclick="reviewBankTxn('${t.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">${t.status==='unreviewed'?'Review':'✓'}</button></td></tr>`).join('')+'</tbody></table>';
+}
+function openBankTxnModal() {
+  if(!acctCompanyId){showToast('⚠ Select a company first',true);return;}
+  document.getElementById('bank-account').innerHTML=acctOptsHTML('Asset');
+  document.getElementById('bank-offset').innerHTML=acctOptsHTML(['Asset','Liability','Income','Expense']);
+  document.getElementById('bank-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('bank-desc').value=''; document.getElementById('bank-amount').value=''; document.getElementById('bank-ref').value='';
+  document.getElementById('bankTxnModal').classList.add('show');
+}
+async function saveBankTxn() {
+  const acctId=document.getElementById('bank-account').value,date=document.getElementById('bank-date').value,desc=document.getElementById('bank-desc').value,amount=parseFloat(document.getElementById('bank-amount').value||0),type=document.getElementById('bank-type').value;
+  if(!acctId||!date||!amount){showToast('⚠ Account, date, and amount required',true);return;}
+  showLoading('Saving…');
+  const tid='btxn-'+Date.now(),offsetId=document.getElementById('bank-offset').value||null;
+  await sb.from('bank_transactions').insert({id:tid,company_id:acctCompanyId,account_id:acctId,transaction_date:date,description:desc,reference:document.getElementById('bank-ref').value,amount,transaction_type:type,status:offsetId?'reviewed':'unreviewed',offset_account_id:offsetId});
+  if(offsetId){const jeId='je-bank-'+tid;const isDeposit=type==='deposit';await sb.from('journal_entries').insert({id:jeId,company_id:acctCompanyId,entry_date:date,description:desc||type,status:'posted',entry_type:'manual',updated_at:new Date().toISOString()});await sb.from('journal_entry_lines').insert([{id:'jel-'+jeId+'-1',journal_entry_id:jeId,account_id:isDeposit?acctId:offsetId,description:desc,debit:amount,credit:0,sort_order:0},{id:'jel-'+jeId+'-2',journal_entry_id:jeId,account_id:isDeposit?offsetId:acctId,description:desc,debit:0,credit:amount,sort_order:1}]);await sb.from('bank_transactions').update({matched_journal_entry_id:jeId}).eq('id',tid);}
+  hideLoading();closeModal('bankTxnModal');showToast('✓ Transaction saved');loadBankTxns();
+}
+async function reviewBankTxn(id){await sb.from('bank_transactions').update({status:'reviewed'}).eq('id',id);showToast('Marked as reviewed');loadBankTxns();}
+
+// INTERCOMPANY
+async function loadICTxns() {
+  const{data}=await sb.from('intercompany_transactions').select('*, from_co:from_company_id(legal_name), to_co:to_company_id(legal_name)').order('transaction_date',{ascending:false});
+  const c=document.getElementById('icContent');if(!c)return;
+  if(!data||!data.length){c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No intercompany transactions yet</div></div>`;return;}
+  const tl={loan_advance:'Loan Advance',loan_repayment:'Loan Repayment',management_fee:'Management Fee',service_charge:'Service Charge',dividend:'Dividend',other:'Other'};
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Date</th><th>From</th><th>To</th><th>Type</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead><tbody>`+data.map(t=>`<tr><td>${fmtDate(t.transaction_date)}</td><td>${t.from_co?.legal_name||'—'}</td><td>${t.to_co?.legal_name||'—'}</td><td>${tl[t.transaction_type]||t.transaction_type}</td><td>${t.description||'—'}</td><td class="amount">${fmtMoney(t.amount)}</td><td>${statusPill(t.status||'posted')}</td></tr>`).join('')+'</tbody></table>';
+}
+async function openICModal() {
+  const{data:companies}=await sb.from('companies').select('id,legal_name').order('legal_name');
+  const{data:rels}=await sb.from('intercompany_relationships').select('id,from_company_id,to_company_id,relationship_type,custom_type_label');
+  const coOpts=(companies||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
+  document.getElementById('ic-from').innerHTML='<option value="">— Select —</option>'+coOpts;
+  document.getElementById('ic-to').innerHTML='<option value="">— Select —</option>'+coOpts;
+  document.getElementById('ic-relationship').innerHTML='<option value="">— None —</option>'+(rels||[]).map(r=>`<option value="${r.id}">${(companies||[]).find(c=>c.id===r.from_company_id)?.legal_name||''} → ${(companies||[]).find(c=>c.id===r.to_company_id)?.legal_name||''} (${r.custom_type_label||r.relationship_type})</option>`).join('');
+  document.getElementById('ic-from-account').innerHTML=acctOptsHTML(['Asset','Liability']);
+  document.getElementById('ic-to-account').innerHTML=acctOptsHTML(['Asset','Liability','Income']);
+  document.getElementById('ic-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('ic-amount').value=''; document.getElementById('ic-desc').value='';
+  document.getElementById('icModal').classList.add('show');
+}
+async function saveICTransaction() {
+  const fromId=document.getElementById('ic-from').value,toId=document.getElementById('ic-to').value,date=document.getElementById('ic-date').value,amount=parseFloat(document.getElementById('ic-amount').value||0),type=document.getElementById('ic-type').value;
+  if(!fromId||!toId||!date||!amount){showToast('⚠ Please fill all required fields',true);return;}
+  if(fromId===toId){showToast('⚠ From and To cannot be the same',true);return;}
+  showLoading('Posting…');
+  await sb.from('intercompany_transactions').insert({id:'ic-'+Date.now(),from_company_id:fromId,to_company_id:toId,relationship_id:document.getElementById('ic-relationship').value||null,transaction_date:date,description:document.getElementById('ic-desc').value,amount,transaction_type:type,from_account_id:document.getElementById('ic-from-account').value||null,to_account_id:document.getElementById('ic-to-account').value||null,status:'posted'});
+  hideLoading();closeModal('icModal');showToast('✓ Intercompany transaction posted');loadICTxns();
+}
+
+// AR / AP AGING
+async function runARaging() {
+  const asof=document.getElementById('ar-asof').value;
+  if(!asof){showToast('⚠ Select a date',true);return;}
+  showLoading('Running AR Aging…');
+  let q=sb.from('invoices').select('*, customers(name)').in('status',['sent','partial','overdue']);
+  if(!acctConsolidated&&acctCompanyId)q=q.eq('company_id',acctCompanyId);
+  const{data:invs}=await q; hideLoading();
+  if(!invs||!invs.length){document.getElementById('arAgingContent').innerHTML=`<div class="empty-state"><div class="empty-state-title">No open invoices</div></div>`;return;}
+  const asofDate=new Date(asof);
+  const buckets={'Current':[],'1-30':[],'31-60':[],'61-90':[],'90+':[]};
+  invs.forEach(inv=>{if(parseFloat(inv.balance_due||0)<=0)return;const due=new Date(inv.due_date||inv.invoice_date);const days=Math.floor((asofDate-due)/(864e5));const b=days<=0?'Current':days<=30?'1-30':days<=60?'31-60':days<=90?'61-90':'90+';buckets[b].push({...inv,days_past_due:Math.max(0,days)});});
+  let html=`<div class="report-header"><div class="report-title">Accounts Receivable Aging</div><div class="report-subtitle">As of ${asof}</div></div><div class="report-body"><table class="acct-table"><thead><tr><th>Customer</th><th>Invoice #</th><th>Invoice Date</th><th>Due Date</th><th>Days Past Due</th><th>Balance Due</th></tr></thead><tbody>`;
+  let grand=0;
+  Object.entries(buckets).forEach(([bucket,items])=>{if(!items.length)return;const bt=items.reduce((s,i)=>s+parseFloat(i.balance_due||0),0);grand+=bt;html+=`<tr><td colspan="6" style="background:var(--navy);color:var(--gold-light);font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:8px 16px;">${bucket} Days</td></tr>`;items.forEach(inv=>{html+=`<tr><td>${inv.customers?.name||'—'}</td><td class="number">${inv.invoice_number||'—'}</td><td>${fmtDate(inv.invoice_date)}</td><td>${fmtDate(inv.due_date)}</td><td style="color:${inv.days_past_due>60?'var(--error)':'var(--text-mid)'};">${inv.days_past_due||0}</td><td class="amount">${fmtMoney(inv.balance_due)}</td></tr>`;});html+=`<tr style="background:rgba(184,150,90,0.06);"><td colspan="5" style="text-align:right;font-weight:500;padding:8px 16px;">Subtotal ${bucket}</td><td class="amount" style="font-weight:600;">${fmtMoney(bt)}</td></tr>`;});
+  html+=`<tr style="background:var(--gold-pale);"><td colspan="5" style="text-align:right;font-weight:700;padding:12px 16px;color:var(--navy);">TOTAL AR</td><td class="amount" style="font-weight:700;font-size:15px;">${fmtMoney(grand)}</td></tr></tbody></table></div>`;
+  document.getElementById('arAgingContent').innerHTML=html;
+}
+async function runAPaging() {
+  const asof=document.getElementById('ap-asof').value;
+  if(!asof){showToast('⚠ Select a date',true);return;}
+  showLoading('Running AP Aging…');
+  let q=sb.from('bills').select('*, vendors(name)').in('status',['received','partial']);
+  if(!acctConsolidated&&acctCompanyId)q=q.eq('company_id',acctCompanyId);
+  const{data:bills}=await q; hideLoading();
+  if(!bills||!bills.length){document.getElementById('apAgingContent').innerHTML=`<div class="empty-state"><div class="empty-state-title">No open bills</div></div>`;return;}
+  const asofDate=new Date(asof);
+  const buckets={'Current':[],'1-30':[],'31-60':[],'61-90':[],'90+':[]};
+  bills.forEach(bill=>{if(parseFloat(bill.balance_due||0)<=0)return;const due=new Date(bill.due_date||bill.bill_date);const days=Math.floor((asofDate-due)/(864e5));const b=days<=0?'Current':days<=30?'1-30':days<=60?'31-60':days<=90?'61-90':'90+';buckets[b].push({...bill,days_past_due:Math.max(0,days)});});
+  let html=`<div class="report-header"><div class="report-title">Accounts Payable Aging</div><div class="report-subtitle">As of ${asof}</div></div><div class="report-body"><table class="acct-table"><thead><tr><th>Vendor</th><th>Bill #</th><th>Bill Date</th><th>Due Date</th><th>Days Past Due</th><th>Balance Due</th></tr></thead><tbody>`;
+  let grand=0;
+  Object.entries(buckets).forEach(([bucket,items])=>{if(!items.length)return;const bt=items.reduce((s,i)=>s+parseFloat(i.balance_due||0),0);grand+=bt;html+=`<tr><td colspan="6" style="background:var(--navy);color:var(--gold-light);font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:8px 16px;">${bucket} Days</td></tr>`;items.forEach(bill=>{html+=`<tr><td>${bill.vendors?.name||'—'}</td><td class="number">${bill.bill_number||'—'}</td><td>${fmtDate(bill.bill_date)}</td><td>${fmtDate(bill.due_date)}</td><td style="color:${bill.days_past_due>60?'var(--error)':'var(--text-mid)'};">${bill.days_past_due||0}</td><td class="amount">${fmtMoney(bill.balance_due)}</td></tr>`;});html+=`<tr style="background:rgba(184,150,90,0.06);"><td colspan="5" style="text-align:right;font-weight:500;padding:8px 16px;">Subtotal ${bucket}</td><td class="amount" style="font-weight:600;">${fmtMoney(bt)}</td></tr>`;});
+  html+=`<tr style="background:var(--gold-pale);"><td colspan="5" style="text-align:right;font-weight:700;padding:12px 16px;color:var(--navy);">TOTAL AP</td><td class="amount" style="font-weight:700;font-size:15px;">${fmtMoney(grand)}</td></tr></tbody></table></div>`;
+  document.getElementById('apAgingContent').innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
 loadDashboard();
 </script>
 </body>
