@@ -452,7 +452,32 @@
   .report-run-btn:hover { background: var(--navy-mid); }
   .coa-group-header { padding: 8px 16px; background: var(--navy); color: var(--gold-light); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 
-  /* ── PROJECT MANAGEMENT ── */
+  /* ── INVENTORY MODULE ── */
+  .inv-layout { display:flex; gap:0; min-height:calc(100vh - 240px); }
+  .inv-sidebar { width:210px; flex-shrink:0; background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:8px 0; box-shadow:var(--shadow-sm); height:fit-content; position:sticky; top:80px; }
+  .inv-sidebar-section { font-size:10px; font-weight:600; letter-spacing:0.10em; text-transform:uppercase; color:var(--text-light); padding:14px 16px 6px; }
+  .inv-sidebar-btn { display:flex; align-items:center; gap:9px; padding:9px 16px; font-size:13px; color:var(--text-mid); cursor:pointer; border:none; background:none; width:100%; text-align:left; font-family:'DM Sans',sans-serif; border-left:3px solid transparent; transition:all 0.15s; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .inv-sidebar-btn:hover { background:var(--gold-pale); color:var(--navy); }
+  .inv-sidebar-btn.active { color:var(--navy); font-weight:500; background:var(--gold-pale); border-left-color:var(--gold); }
+  .inv-content { flex:1; padding-left:28px; min-width:0; }
+  .inv-panel { display:none; }
+  .inv-panel.active { display:block; }
+  /* Item type badges */
+  .item-type-inv   { background:rgba(52,152,219,0.15); color:#1a6fa8; }
+  .item-type-svc   { background:rgba(39,174,96,0.12);  color:#1e8449; }
+  .item-type-noninv{ background:rgba(127,140,141,0.15);color:#566573; }
+  .item-type-bundle{ background:rgba(155,89,182,0.15); color:#6c3483; }
+  /* Stock level indicator */
+  .stock-ok     { color:var(--success); font-weight:500; }
+  .stock-low    { color:#e67e22; font-weight:500; }
+  .stock-zero   { color:var(--error); font-weight:500; }
+  .stock-neg    { color:#922b21; font-weight:600; }
+  /* Audit trail */
+  .audit-row { display:grid; grid-template-columns:140px 80px 120px 1fr 120px; gap:0; border-bottom:1px solid var(--border-light); padding:8px 12px; font-size:12px; align-items:center; }
+  .audit-row:hover { background:var(--gold-pale); }
+  /* Cycle count */
+  .count-row { display:grid; grid-template-columns:1fr 100px 110px 110px 100px 100px; gap:8px; align-items:center; padding:8px 12px; border-bottom:1px solid var(--border-light); font-size:13px; }
+  .count-row:hover { background:var(--gold-pale); }
   .pm-layout { display:flex; gap:0; min-height:calc(100vh - 240px); }
   .pm-sidebar { width:220px; flex-shrink:0; background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:8px 0; box-shadow:var(--shadow-sm); height:fit-content; position:sticky; top:80px; overflow:hidden; }
   .pm-sidebar-section { font-size:10px; font-weight:600; letter-spacing:0.10em; text-transform:uppercase; color:var(--text-light); padding:14px 16px 6px; }
@@ -603,6 +628,7 @@
     <button class="topbar-nav-btn" id="nav-financials" onclick="switchModule('financials')">Financials</button>
     <button class="topbar-nav-btn" id="nav-tax" onclick="switchModule('tax')">Tax</button>
     <button class="topbar-nav-btn" id="nav-projects" onclick="switchModule('projects')">Projects</button>
+    <button class="topbar-nav-btn" id="nav-inventory" onclick="switchModule('inventory')">Inventory</button>
     <button class="topbar-nav-btn" onclick="comingSoon()">Documents</button>
     <button class="topbar-nav-btn" onclick="comingSoon()">Reports</button>
   </nav>
@@ -1537,6 +1563,196 @@
         </div><!-- /pm-content -->
       </div><!-- /pm-layout -->
     </div><!-- /view-projects -->
+
+    <!-- ═══════════════════════════════════════════
+         INVENTORY MODULE — BATCH 3
+    ═══════════════════════════════════════════ -->
+    <div id="view-inventory" class="panel">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Inventory</div>
+          <div class="page-subtitle">Items · Transactions · Valuation · Cycle Counts · Audit Trail</div>
+        </div>
+        <div class="page-actions">
+          <select id="inv-entity-select" class="field-select" style="height:34px;width:220px;" onchange="onInvEntityChange()">
+            <option value="">— Select company —</option>
+          </select>
+          <button class="btn-primary" onclick="openReceiveModal()">📥 Receive</button>
+          <button class="btn-save" onclick="openItemModal()">+ New Item</button>
+        </div>
+      </div>
+
+      <div class="inv-layout">
+        <!-- Inventory Sidebar -->
+        <div class="inv-sidebar">
+          <div class="inv-sidebar-section">Catalog</div>
+          <button class="inv-sidebar-btn active" id="inv-nav-items"      onclick="showInvPanel('items')">     <span>📦</span> Items</button>
+          <button class="inv-sidebar-btn"         id="inv-nav-locations"  onclick="showInvPanel('locations')"> <span>🏭</span> Locations</button>
+          <div class="inv-sidebar-section">Transactions</div>
+          <button class="inv-sidebar-btn"         id="inv-nav-receive"    onclick="showInvPanel('receive')">   <span>📥</span> Receive</button>
+          <button class="inv-sidebar-btn"         id="inv-nav-issue"      onclick="showInvPanel('issue')">     <span>📤</span> Issue</button>
+          <button class="inv-sidebar-btn"         id="inv-nav-transfer"   onclick="showInvPanel('transfer')">  <span>🔀</span> Transfer</button>
+          <button class="inv-sidebar-btn"         id="inv-nav-txn-log"    onclick="showInvPanel('txn-log')">   <span>📋</span> Transaction Log</button>
+          <div class="inv-sidebar-section">Reports</div>
+          <button class="inv-sidebar-btn"         id="inv-nav-valuation"  onclick="showInvPanel('valuation')"> <span>💰</span> Valuation</button>
+          <button class="inv-sidebar-btn"         id="inv-nav-soh"        onclick="showInvPanel('soh')">       <span>📊</span> Stock on Hand</button>
+          <button class="inv-sidebar-btn"         id="inv-nav-aging"      onclick="showInvPanel('aging')">     <span>⏳</span> Inventory Aging</button>
+          <button class="inv-sidebar-btn"         id="inv-nav-reorder"    onclick="showInvPanel('reorder')">   <span>🔔</span> Reorder Alerts</button>
+          <div class="inv-sidebar-section">Controls</div>
+          <button class="inv-sidebar-btn"         id="inv-nav-cycle"      onclick="showInvPanel('cycle')">     <span>🔄</span> Cycle Count</button>
+          <button class="inv-sidebar-btn"         id="inv-nav-audit"      onclick="showInvPanel('audit')">     <span>🔍</span> Audit Trail</button>
+        </div>
+
+        <!-- Inventory Content -->
+        <div class="inv-content">
+
+          <!-- ITEMS -->
+          <div id="inv-panel-items" class="inv-panel active">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Item Catalog</div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="text" id="item-search" class="field-input" style="height:32px;width:200px;" placeholder="Search items…" oninput="filterItems()">
+                <select id="item-type-filter" class="field-select" style="height:32px;width:140px;" onchange="filterItems()">
+                  <option value="">All types</option>
+                  <option value="inventory">Inventory</option>
+                  <option value="non_inventory">Non-Inventory</option>
+                  <option value="service">Service</option>
+                  <option value="bundle">Bundle</option>
+                </select>
+                <button class="btn-save" onclick="openItemModal()">+ New Item</button>
+              </div>
+            </div>
+            <div id="inv-items-body"><div class="empty-state"><div class="empty-state-title">No items yet</div></div></div>
+          </div>
+
+          <!-- LOCATIONS -->
+          <div id="inv-panel-locations" class="inv-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Warehouse Locations</div>
+              <button class="btn-save" onclick="openLocationModal()">+ Add Location</button>
+            </div>
+            <div id="inv-locations-body"><div class="empty-state"><div class="empty-state-title">No locations configured</div></div></div>
+          </div>
+
+          <!-- RECEIVE -->
+          <div id="inv-panel-receive" class="inv-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Receive Inventory</div>
+              <div style="font-size:12px;color:var(--text-light);">Posts DR Inventory / CR Accounts Payable automatically</div></div>
+              <button class="btn-save" onclick="openReceiveModal()">+ New Receipt</button>
+            </div>
+            <div id="inv-receive-body"><div class="empty-state"><div class="empty-state-title">No receipts yet</div></div></div>
+          </div>
+
+          <!-- ISSUE -->
+          <div id="inv-panel-issue" class="inv-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Issue Inventory</div>
+              <div style="font-size:12px;color:var(--text-light);">Posts DR COGS / CR Inventory automatically (FIFO costing)</div></div>
+              <button class="btn-save" onclick="openIssueModal()">+ New Issue</button>
+            </div>
+            <div id="inv-issue-body"><div class="empty-state"><div class="empty-state-title">No issues yet</div></div></div>
+          </div>
+
+          <!-- TRANSFER -->
+          <div id="inv-panel-transfer" class="inv-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Inventory Transfers</div>
+              <button class="btn-save" onclick="openTransferModal()">+ New Transfer</button>
+            </div>
+            <div id="inv-transfer-body"><div class="empty-state"><div class="empty-state-title">No transfers yet</div></div></div>
+          </div>
+
+          <!-- TRANSACTION LOG -->
+          <div id="inv-panel-txn-log" class="inv-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Transaction Log</div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <select id="txn-item-filter" class="field-select" style="height:32px;width:180px;"><option value="">All items</option></select>
+                <input type="date" id="txn-from" class="field-input" style="height:32px;width:130px;">
+                <input type="date" id="txn-to"   class="field-input" style="height:32px;width:130px;">
+                <button class="btn-primary" onclick="loadTxnLog()">Load</button>
+              </div>
+            </div>
+            <div id="inv-txnlog-body"><div class="empty-state"><div class="empty-state-title">Select filters and click Load</div></div></div>
+          </div>
+
+          <!-- VALUATION -->
+          <div id="inv-panel-valuation" class="inv-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Inventory Valuation Report</div>
+              <div style="display:flex;gap:8px;">
+                <input type="date" id="val-as-of" class="field-input" style="height:32px;width:140px;">
+                <button class="btn-primary" onclick="loadValuation()">Run Report</button>
+                <button class="btn-secondary" onclick="printValuationReport()">🖨 Print</button>
+              </div>
+            </div>
+            <div id="inv-val-body"><div class="empty-state"><div class="empty-state-title">Select an as-of date and run report</div></div></div>
+          </div>
+
+          <!-- STOCK ON HAND -->
+          <div id="inv-panel-soh" class="inv-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Stock on Hand</div>
+              <div style="display:flex;gap:8px;">
+                <select id="soh-location-filter" class="field-select" style="height:32px;width:180px;"><option value="">All locations</option></select>
+                <button class="btn-primary" onclick="loadSOH()">Refresh</button>
+              </div>
+            </div>
+            <div id="inv-soh-body"><div class="empty-state"><div class="empty-state-title">Loading stock levels…</div></div></div>
+          </div>
+
+          <!-- AGING -->
+          <div id="inv-panel-aging" class="inv-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Inventory Aging (FIFO Layers)</div>
+              <button class="btn-primary" onclick="loadAging()">Run Report</button>
+            </div>
+            <div id="inv-aging-body"><div class="empty-state"><div class="empty-state-title">Click Run Report to see FIFO lot aging</div></div></div>
+          </div>
+
+          <!-- REORDER ALERTS -->
+          <div id="inv-panel-reorder" class="inv-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Reorder Alerts</div>
+              <button class="btn-primary" onclick="loadReorderAlerts()">Refresh</button>
+            </div>
+            <div id="inv-reorder-body"><div class="empty-state"><div class="empty-state-title">Loading reorder alerts…</div></div></div>
+          </div>
+
+          <!-- CYCLE COUNT -->
+          <div id="inv-panel-cycle" class="inv-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Cycle Count</div>
+              <div style="display:flex;gap:8px;">
+                <select id="cycle-location-filter" class="field-select" style="height:32px;width:180px;"><option value="">All locations</option></select>
+                <button class="btn-primary" onclick="startCycleCount()">Start Count</button>
+              </div>
+            </div>
+            <div id="inv-cycle-body"><div class="empty-state"><div class="empty-state-title">Click "Start Count" to begin a cycle count</div></div></div>
+          </div>
+
+          <!-- AUDIT TRAIL -->
+          <div id="inv-panel-audit" class="inv-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Audit Trail</div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <select id="audit-action-filter" class="field-select" style="height:32px;width:140px;">
+                  <option value="">All actions</option>
+                  <option value="insert">Created</option>
+                  <option value="update">Updated</option>
+                  <option value="delete">Deleted</option>
+                </select>
+                <input type="date" id="audit-from" class="field-input" style="height:32px;width:130px;">
+                <button class="btn-primary" onclick="loadAuditTrail()">Load</button>
+              </div>
+            </div>
+            <div id="inv-audit-body"><div class="empty-state"><div class="empty-state-title">Select filters and click Load</div></div></div>
+          </div>
+
+        </div><!-- /inv-content -->
+      </div><!-- /inv-layout -->
+    </div><!-- /view-inventory -->
 
     <!-- ACCOUNT MODAL -->
     <div class="modal-overlay" id="accountModal">
@@ -3144,6 +3360,216 @@
   </div>
 </div>
 
+<!-- ITEM MODAL -->
+<div class="modal-overlay" id="itemModal">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-header">
+      <span class="modal-title" id="itemModalTitle">New Item</span>
+      <button class="modal-close" onclick="closeModal('itemModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="inner-tabs" style="margin-bottom:20px;">
+        <button class="inner-tab active" onclick="switchItemTab(this,'item-tab-general')">General</button>
+        <button class="inner-tab" onclick="switchItemTab(this,'item-tab-pricing')">Pricing &amp; Costing</button>
+        <button class="inner-tab" onclick="switchItemTab(this,'item-tab-gl')">GL Accounts</button>
+        <button class="inner-tab" onclick="switchItemTab(this,'item-tab-reorder')">Reorder</button>
+      </div>
+      <div id="item-tab-general">
+        <div class="form-grid">
+          <div class="field-group"><label class="field-label required">SKU</label><input type="text" class="field-input" id="item-sku" placeholder="ITEM-001"></div>
+          <div class="field-group"><label class="field-label required">Item Name</label><input type="text" class="field-input" id="item-name" placeholder="Item name"></div>
+          <div class="field-group"><label class="field-label required">Item Type</label>
+            <select class="field-select" id="item-type">
+              <option value="inventory">Inventory (tracked qty)</option>
+              <option value="non_inventory">Non-Inventory (no tracking)</option>
+              <option value="service">Service (no quantity)</option>
+              <option value="bundle">Bundle / Kit</option>
+            </select></div>
+          <div class="field-group"><label class="field-label">Category</label><input type="text" class="field-input" id="item-category" placeholder="e.g. Raw Materials"></div>
+          <div class="field-group"><label class="field-label">Unit of Measure</label>
+            <select class="field-select" id="item-uom"></select></div>
+          <div class="field-group"><label class="field-label">Costing Method</label>
+            <select class="field-select" id="item-costing">
+              <option value="fifo">FIFO</option>
+              <option value="average">Weighted Average</option>
+              <option value="specific">Specific Identification</option>
+            </select></div>
+          <div class="field-group col-span-2"><label class="field-label">Description</label>
+            <textarea class="field-input" id="item-desc" rows="2" style="resize:vertical;" placeholder="Item description"></textarea></div>
+          <div class="field-group">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-mid);cursor:pointer;margin-top:22px;">
+              <input type="checkbox" id="item-taxable" checked style="accent-color:var(--gold);"> Taxable
+            </label></div>
+          <div class="field-group">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-mid);cursor:pointer;margin-top:22px;">
+              <input type="checkbox" id="item-active" checked style="accent-color:var(--gold);"> Active
+            </label></div>
+        </div>
+      </div>
+      <div id="item-tab-pricing" style="display:none;">
+        <div class="form-grid">
+          <div class="field-group"><label class="field-label">Purchase Cost (default)</label><input type="text" class="field-input" id="item-cost" placeholder="0.0000" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+          <div class="field-group"><label class="field-label">Sales Price</label><input type="text" class="field-input" id="item-price" placeholder="0.0000" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+          <div class="field-group"><label class="field-label">Preferred Vendor</label><select class="field-select" id="item-vendor"><option value="">— None —</option></select></div>
+        </div>
+      </div>
+      <div id="item-tab-gl" style="display:none;">
+        <div style="background:var(--gold-pale);padding:12px 16px;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:16px;font-size:13px;color:var(--text-mid);">
+          GL accounts drive automatic journal entries on every inventory movement.
+        </div>
+        <div class="form-grid">
+          <div class="field-group col-span-2"><label class="field-label">Inventory Asset Account</label><select class="field-select" id="item-inv-acct"></select></div>
+          <div class="field-group col-span-2"><label class="field-label">COGS Account</label><select class="field-select" id="item-cogs-acct"></select></div>
+          <div class="field-group col-span-2"><label class="field-label">Sales Income Account</label><select class="field-select" id="item-income-acct"></select></div>
+        </div>
+      </div>
+      <div id="item-tab-reorder" style="display:none;">
+        <div class="form-grid">
+          <div class="field-group"><label class="field-label">Reorder Point</label><input type="text" class="field-input" id="item-reorder-pt" placeholder="0" oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+            <span class="field-hint">Alert when stock falls to or below this quantity</span></div>
+          <div class="field-group"><label class="field-label">Reorder Quantity</label><input type="text" class="field-input" id="item-reorder-qty" placeholder="0" oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+            <span class="field-hint">Suggested quantity to order when reorder point is hit</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('itemModal')">Cancel</button>
+      <button class="btn-save" onclick="saveItem()">Save Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOCATION MODAL -->
+<div class="modal-overlay" id="locationModal">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <span class="modal-title" id="locationModalTitle">Add Location</span>
+      <button class="modal-close" onclick="closeModal('locationModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group"><label class="field-label required">Location Name</label><input type="text" class="field-input" id="loc-name" placeholder="e.g. Main Warehouse"></div>
+        <div class="field-group"><label class="field-label">Location Code</label><input type="text" class="field-input" id="loc-code" placeholder="WH-01"></div>
+        <div class="field-group col-span-2"><label class="field-label">Address</label><input type="text" class="field-input" id="loc-address" placeholder="Street address"></div>
+        <div class="field-group"><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-top:22px;"><input type="checkbox" id="loc-default" style="accent-color:var(--gold);"> Set as Default Location</label></div>
+        <div class="field-group"><label class="field-label">Notes</label><input type="text" class="field-input" id="loc-notes" placeholder="Optional notes"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('locationModal')">Cancel</button>
+      <button class="btn-save" onclick="saveLocation()">Save Location</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECEIVE MODAL -->
+<div class="modal-overlay" id="receiveModal">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-header">
+      <span class="modal-title">Receive Inventory</span>
+      <button class="modal-close" onclick="closeModal('receiveModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--gold-pale);padding:10px 14px;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:16px;font-size:13px;color:var(--text-mid);">
+        Posts <strong>DR Inventory Asset / CR Accounts Payable</strong> automatically. Creates a FIFO lot layer for each line.
+      </div>
+      <div class="form-grid" style="margin-bottom:16px;">
+        <div class="field-group"><label class="field-label required">Receipt Date</label><input type="date" class="field-input" id="rcv-date"></div>
+        <div class="field-group"><label class="field-label">Vendor</label><select class="field-select" id="rcv-vendor"><option value="">— None —</option></select></div>
+        <div class="field-group"><label class="field-label">PO / Reference #</label><input type="text" class="field-input" id="rcv-ref" placeholder="PO-001"></div>
+        <div class="field-group"><label class="field-label">Location</label><select class="field-select" id="rcv-location"><option value="">— Default —</option></select></div>
+      </div>
+      <div style="border:1px solid var(--border-light);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;">
+        <table class="je-lines-table">
+          <thead><tr>
+            <th>Item</th><th style="width:80px;">Qty</th><th style="width:100px;">Unit Cost</th>
+            <th style="width:100px;">Total</th><th style="width:120px;">Lot / Serial</th><th style="width:36px;"></th>
+          </tr></thead>
+          <tbody id="rcv-lines-tbody"></tbody>
+        </table>
+        <div style="padding:8px 10px;background:var(--section-bg);border-top:1px solid var(--border-light);">
+          <button class="je-add-line-btn" onclick="addReceiveLine()">+ Add Item</button>
+        </div>
+      </div>
+      <div class="je-totals-row">
+        <div class="je-total-item"><div class="je-total-label">Total Cost</div><div class="je-total-value" id="rcv-total">0.00</div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('receiveModal')">Cancel</button>
+      <button class="btn-save" onclick="postReceipt()">Post Receipt</button>
+    </div>
+  </div>
+</div>
+
+<!-- ISSUE MODAL -->
+<div class="modal-overlay" id="issueModal">
+  <div class="modal" style="max-width:660px;">
+    <div class="modal-header">
+      <span class="modal-title">Issue Inventory</span>
+      <button class="modal-close" onclick="closeModal('issueModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--gold-pale);padding:10px 14px;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:16px;font-size:13px;color:var(--text-mid);">
+        Posts <strong>DR COGS / CR Inventory</strong> using FIFO costing. Negative inventory is blocked.
+      </div>
+      <div class="form-grid" style="margin-bottom:16px;">
+        <div class="field-group"><label class="field-label required">Issue Date</label><input type="date" class="field-input" id="iss-date"></div>
+        <div class="field-group"><label class="field-label">From Location</label><select class="field-select" id="iss-location"><option value="">— Default —</option></select></div>
+        <div class="field-group"><label class="field-label">Reference Type</label>
+          <select class="field-select" id="iss-ref-type">
+            <option value="invoice">Customer Invoice</option>
+            <option value="project">Project</option>
+            <option value="internal">Internal Use</option>
+            <option value="other">Other</option>
+          </select></div>
+        <div class="field-group"><label class="field-label">Reference #</label><input type="text" class="field-input" id="iss-ref" placeholder="INV-001 / PRJ-001"></div>
+      </div>
+      <div style="border:1px solid var(--border-light);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;">
+        <table class="je-lines-table">
+          <thead><tr><th>Item</th><th style="width:90px;">Qty to Issue</th><th style="width:110px;">FIFO Cost</th><th style="width:110px;">Total Cost</th><th style="width:36px;"></th></tr></thead>
+          <tbody id="iss-lines-tbody"></tbody>
+        </table>
+        <div style="padding:8px 10px;background:var(--section-bg);border-top:1px solid var(--border-light);">
+          <button class="je-add-line-btn" onclick="addIssueLine()">+ Add Item</button>
+        </div>
+      </div>
+      <div class="je-totals-row">
+        <div class="je-total-item"><div class="je-total-label">Total COGS</div><div class="je-total-value" id="iss-total">0.00</div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('issueModal')">Cancel</button>
+      <button class="btn-save" onclick="postIssue()">Post Issue</button>
+    </div>
+  </div>
+</div>
+
+<!-- TRANSFER MODAL -->
+<div class="modal-overlay" id="transferModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <span class="modal-title">Transfer Inventory</span>
+      <button class="modal-close" onclick="closeModal('transferModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group"><label class="field-label required">Date</label><input type="date" class="field-input" id="xfr-date"></div>
+        <div class="field-group"><label class="field-label required">Item</label><select class="field-select" id="xfr-item" onchange="loadItemSOHForXfr()"></select></div>
+        <div class="field-group"><label class="field-label required">From Location</label><select class="field-select" id="xfr-from"><option value="">— Select —</option></select></div>
+        <div class="field-group"><label class="field-label required">To Location</label><select class="field-select" id="xfr-to"><option value="">— Select —</option></select></div>
+        <div class="field-group"><label class="field-label required">Quantity</label><input type="text" class="field-input" id="xfr-qty" placeholder="0" oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+          <span class="field-hint" id="xfr-avail-hint" style="color:var(--text-light);">Available: —</span></div>
+        <div class="field-group"><label class="field-label">Notes</label><input type="text" class="field-input" id="xfr-notes" placeholder="Optional notes"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('transferModal')">Cancel</button>
+      <button class="btn-save" onclick="postTransfer()">Post Transfer</button>
+    </div>
+  </div>
+</div>
+
 <div class="save-toast" id="saveToast"></div>
 
 <script>
@@ -3725,7 +4151,7 @@ function buildOfficerCard(data) {
 function switchModule(module) {
   document.querySelectorAll('.topbar-nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('nav-' + module)?.classList.add('active');
-  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub','view-tax','view-projects'].forEach(id => {
+  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub','view-tax','view-projects','view-inventory'].forEach(id => {
     document.getElementById(id)?.classList.remove('active');
   });
   setSidebarVisible(module === 'companies');
@@ -3743,6 +4169,9 @@ function switchModule(module) {
   } else if (module === 'projects') {
     document.getElementById('view-projects').classList.add('active');
     loadPMModule();
+  } else if (module === 'inventory') {
+    document.getElementById('view-inventory').classList.add('active');
+    loadInvModule();
   }
 }
 
@@ -9600,6 +10029,806 @@ loadPMData = async function() {
     if (!isAll && pmProjects.length === 1) sel.value = pmProjects[0].id;
   });
 };
+
+// ═══════════════════════════════════════════════════
+//  BATCH 3 — INVENTORY MODULE
+// ═══════════════════════════════════════════════════
+
+let invCompanyId  = null;
+let invItems      = [];
+let invLocations  = [];
+let invUOMs       = [];
+let invAllItems   = []; // unfiltered
+let editingItemId = null, editingLocId = null;
+
+// ── MODULE LOAD ──
+async function loadInvModule() {
+  showLoading('Loading inventory…');
+  const { data: companies } = await sb.from('companies').select('id,legal_name').order('legal_name');
+  const sel = document.getElementById('inv-entity-select');
+  sel.innerHTML = '<option value="">— Select company —</option>' +
+    (companies||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
+  if (companies?.length && !invCompanyId) {
+    invCompanyId = companies[0].id;
+    sel.value = invCompanyId;
+  } else if (invCompanyId) { sel.value = invCompanyId; }
+  const { data: uoms } = await sb.from('units_of_measure').select('*').order('uom_name');
+  invUOMs = uoms || [];
+  await loadInvData();
+  hideLoading();
+}
+
+async function onInvEntityChange() {
+  invCompanyId = document.getElementById('inv-entity-select').value || null;
+  await loadInvData();
+}
+
+async function loadInvData() {
+  if (!invCompanyId) return;
+  const [{ data: items }, { data: locs }] = await Promise.all([
+    sb.from('items').select('*').eq('company_id', invCompanyId).order('item_name'),
+    sb.from('inventory_locations').select('*').eq('company_id', invCompanyId).order('location_name'),
+  ]);
+  invItems = items || [];
+  invAllItems = invItems;
+  invLocations = locs || [];
+  populateInvDropdowns();
+  showInvPanel('items');
+  loadItems();
+}
+
+function populateInvDropdowns() {
+  const itemOpts = '<option value="">— Select item —</option>' + invItems.map(i=>`<option value="${i.id}">${i.sku} — ${i.item_name}</option>`).join('');
+  const locOpts  = '<option value="">— Default —</option>' + invLocations.map(l=>`<option value="${l.id}">${l.location_name}</option>`).join('');
+  ['txn-item-filter','xfr-item'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=itemOpts; });
+  ['rcv-location','iss-location','xfr-from','xfr-to','cycle-location-filter','soh-location-filter'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=locOpts; });
+}
+
+// ── PANEL NAVIGATION ──
+function showInvPanel(panelId) {
+  document.querySelectorAll('.inv-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.inv-sidebar-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('inv-panel-'+panelId)?.classList.add('active');
+  document.getElementById('inv-nav-'+panelId)?.classList.add('active');
+  if (panelId==='items')     loadItems();
+  if (panelId==='locations') loadLocations();
+  if (panelId==='receive')   loadReceiveLog();
+  if (panelId==='issue')     loadIssueLog();
+  if (panelId==='transfer')  loadTransferLog();
+  if (panelId==='soh')       loadSOH();
+  if (panelId==='reorder')   loadReorderAlerts();
+  if (panelId==='aging')     loadAging();
+}
+
+// ── CORE HELPER: calculate stock on hand for an item ──
+async function getItemSOH(itemId, locationId=null) {
+  let q = sb.from('inventory_transactions').select('quantity,transaction_type').eq('item_id',itemId);
+  if (locationId) q = q.or(`location_id.eq.${locationId},to_location_id.eq.${locationId}`);
+  const { data } = await q;
+  if (!data) return 0;
+  return data.reduce((s,t) => {
+    const qty = parseFloat(t.quantity||0);
+    return s + qty; // quantities are signed by the posting logic
+  }, 0);
+}
+
+// ── CALCULATE FIFO COST for an issue ──
+async function calcFIFOCost(itemId, qtyNeeded, locationId=null) {
+  let q = sb.from('inventory_lots').select('*').eq('item_id',itemId).eq('is_depleted',false).order('received_date').order('id');
+  if (locationId) q = q.eq('location_id',locationId);
+  const { data: lots } = await q;
+  if (!lots?.length) return { totalCost:0, lotUpdates:[], available:0 };
+
+  let remaining = qtyNeeded;
+  let totalCost = 0;
+  const lotUpdates = [];
+  const available = lots.reduce((s,l)=>s+parseFloat(l.quantity_remaining||0),0);
+
+  for (const lot of lots) {
+    if (remaining <= 0) break;
+    const fromLot = Math.min(remaining, parseFloat(lot.quantity_remaining||0));
+    totalCost += fromLot * parseFloat(lot.unit_cost||0);
+    remaining -= fromLot;
+    const newQty = parseFloat(lot.quantity_remaining||0) - fromLot;
+    lotUpdates.push({ id:lot.id, quantity_remaining:Math.round(newQty*10000)/10000, is_depleted:newQty<=0.0001 });
+  }
+  return { totalCost:Math.round(totalCost*100)/100, lotUpdates, available, unfilled:remaining };
+}
+
+// ── GL POSTING HELPER ──
+async function postInvJE(companyId, date, desc, lines) {
+  const jeId = 'je-inv-'+Date.now();
+  const totalDr = lines.reduce((s,l)=>s+(l.debit||0),0);
+  const totalCr = lines.reduce((s,l)=>s+(l.credit||0),0);
+  if (Math.abs(totalDr-totalCr)>0.02) return null; // won't post unbalanced
+  const { error } = await sb.from('journal_entries').insert({
+    id:jeId, company_id:companyId, entry_date:date,
+    description:desc, status:'posted', entry_type:'manual',
+    updated_at:new Date().toISOString(),
+  });
+  if (error) return null;
+  await sb.from('journal_entry_lines').insert(
+    lines.map((l,i)=>({ id:`${jeId}-${i}`, journal_entry_id:jeId,
+      account_id:l.account_id, description:l.description||desc,
+      debit:Math.round((l.debit||0)*100)/100, credit:Math.round((l.credit||0)*100)/100,
+      sort_order:i }))
+  );
+  return jeId;
+}
+
+// ── AUDIT LOG HELPER ──
+async function logAuditEvent(companyId, tableName, recordId, action, oldVals, newVals, reason) {
+  await sb.from('inventory_audit_log').insert({
+    company_id:companyId, table_name:tableName, record_id:recordId,
+    action, changed_at:new Date().toISOString(),
+    old_values:oldVals?JSON.stringify(oldVals):null,
+    new_values:newVals?JSON.stringify(newVals):null,
+    reason_code:reason||null,
+  });
+}
+
+// ── ITEMS ──
+async function loadItems() {
+  const c = document.getElementById('inv-items-body'); if(!c) return;
+  if (!invItems.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No items yet</div><div>Add your first item with "+ New Item".</div></div>`; return; }
+  // Compute SOH for each inventory-type item in one batch query
+  const invTypeIds = invItems.filter(i=>i.item_type==='inventory').map(i=>i.id);
+  const sohMap = {};
+  if (invTypeIds.length) {
+    const { data:txns } = await sb.from('inventory_transactions').select('item_id,quantity').in('item_id',invTypeIds);
+    (txns||[]).forEach(t=>{ sohMap[t.item_id]=(sohMap[t.item_id]||0)+parseFloat(t.quantity||0); });
+  }
+  const typeLabel = { inventory:'Inventory', non_inventory:'Non-Inventory', service:'Service', bundle:'Bundle' };
+  const typeClass = { inventory:'item-type-inv', non_inventory:'item-type-noninv', service:'item-type-svc', bundle:'item-type-bundle' };
+  const uomMap = {}; invUOMs.forEach(u=>uomMap[u.id]=u.uom_abbreviation||u.uom_name);
+  c.innerHTML = `<table class="acct-table"><thead><tr>
+    <th>SKU</th><th>Item Name</th><th>Type</th><th>Category</th><th>UOM</th>
+    <th style="text-align:right;">Cost</th><th style="text-align:right;">Price</th>
+    <th style="text-align:right;">On Hand</th><th>Status</th><th></th>
+  </tr></thead><tbody>`+
+  invItems.map(item=>{
+    const soh = sohMap[item.id]||0;
+    const sohClass = item.item_type!=='inventory'?'':soh<0?'stock-neg':soh===0?'stock-zero':soh<=parseFloat(item.reorder_point||0)?'stock-low':'stock-ok';
+    const sohLabel = item.item_type!=='inventory'?'—':soh.toFixed(2);
+    return `<tr>
+      <td style="font-family:monospace;font-size:12px;"><strong>${item.sku}</strong></td>
+      <td><strong>${item.item_name}</strong>${item.description?`<div style="font-size:11px;color:var(--text-light);">${item.description.slice(0,60)}</div>`:''}</td>
+      <td><span class="status-pill ${typeClass[item.item_type]||''}">${typeLabel[item.item_type]||item.item_type}</span></td>
+      <td style="font-size:12px;color:var(--text-mid);">${item.category||'—'}</td>
+      <td style="font-size:12px;color:var(--text-mid);">${uomMap[item.unit_of_measure]||item.unit_of_measure||'ea'}</td>
+      <td class="amount">$${parseFloat(item.purchase_cost||0).toFixed(4)}</td>
+      <td class="amount">$${parseFloat(item.sales_price||0).toFixed(4)}</td>
+      <td class="amount ${sohClass}">${sohLabel}${soh>0&&soh<=parseFloat(item.reorder_point||0)?` <span style="font-size:10px;">⚠</span>`:''}</td>
+      <td><span class="status-pill ${item.is_active?'status-active':''}">${item.is_active?'Active':'Inactive'}</span></td>
+      <td>
+        <button onclick="editItem('${item.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button>
+        <button onclick="openReceiveModal('${item.id}')" style="background:none;border:none;color:var(--text-mid);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Receive</button>
+      </td>
+    </tr>`;
+  }).join('')+'</tbody></table>';
+}
+
+function filterItems() {
+  const search = document.getElementById('item-search')?.value.toLowerCase()||'';
+  const type   = document.getElementById('item-type-filter')?.value||'';
+  invItems = invAllItems.filter(i =>
+    (!search || i.item_name.toLowerCase().includes(search) || i.sku.toLowerCase().includes(search)) &&
+    (!type   || i.item_type===type)
+  );
+  loadItems();
+}
+
+async function openItemModal(id=null) {
+  if (!invCompanyId) { showToast('⚠ Select a company first',true); return; }
+  editingItemId = id;
+  document.getElementById('itemModalTitle').textContent = id?'Edit Item':'New Item';
+  // UOM dropdown
+  document.getElementById('item-uom').innerHTML = invUOMs.map(u=>`<option value="${u.uom_abbreviation||u.uom_name}">${u.uom_name}</option>`).join('');
+  // Vendor dropdown
+  const { data:vendors } = await sb.from('vendors').select('id,name').eq('company_id',invCompanyId).order('name');
+  document.getElementById('item-vendor').innerHTML = '<option value="">— None —</option>'+(vendors||[]).map(v=>`<option value="${v.id}">${v.name}</option>`).join('');
+  // GL accounts
+  const { data:accts } = await sb.from('accounts').select('id,account_number,account_name,account_type').eq('company_id',invCompanyId).eq('is_active',true).order('account_number');
+  const assetOpts = '<option value="">— None —</option>'+(accts||[]).filter(a=>a.account_type==='Asset').map(a=>`<option value="${a.id}">${a.account_number} — ${a.account_name}</option>`).join('');
+  const expOpts   = '<option value="">— None —</option>'+(accts||[]).filter(a=>a.account_type==='Expense').map(a=>`<option value="${a.id}">${a.account_number} — ${a.account_name}</option>`).join('');
+  const incOpts   = '<option value="">— None —</option>'+(accts||[]).filter(a=>a.account_type==='Income').map(a=>`<option value="${a.id}">${a.account_number} — ${a.account_name}</option>`).join('');
+  document.getElementById('item-inv-acct').innerHTML   = assetOpts;
+  document.getElementById('item-cogs-acct').innerHTML  = expOpts;
+  document.getElementById('item-income-acct').innerHTML= incOpts;
+  // Clear form
+  if (!id) {
+    ['item-sku','item-name','item-category','item-desc','item-cost','item-price','item-reorder-pt','item-reorder-qty'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+    document.getElementById('item-type').value='inventory';
+    document.getElementById('item-costing').value='fifo';
+    document.getElementById('item-taxable').checked=true;
+    document.getElementById('item-active').checked=true;
+    document.getElementById('item-uom').value='ea';
+  } else {
+    const item = invItems.find(i=>i.id===id);
+    if (item) {
+      const s=(fid,v)=>{ const el=document.getElementById(fid); if(el) el.value=v||''; };
+      s('item-sku',item.sku); s('item-name',item.item_name); s('item-category',item.category);
+      s('item-type',item.item_type); s('item-uom',item.unit_of_measure);
+      s('item-costing',item.costing_method); s('item-desc',item.description);
+      s('item-cost',item.purchase_cost); s('item-price',item.sales_price);
+      s('item-vendor',item.preferred_vendor_id); s('item-reorder-pt',item.reorder_point);
+      s('item-reorder-qty',item.reorder_quantity);
+      s('item-inv-acct',item.inventory_asset_account_id);
+      s('item-cogs-acct',item.cogs_account_id);
+      s('item-income-acct',item.income_account_id);
+      document.getElementById('item-taxable').checked=!!item.is_taxable;
+      document.getElementById('item-active').checked=!!item.is_active;
+    }
+  }
+  switchItemTab(document.querySelector('#itemModal .inner-tab'),'item-tab-general');
+  document.getElementById('itemModal').classList.add('show');
+}
+
+function editItem(id) { openItemModal(id); }
+
+function switchItemTab(btn, tabId) {
+  document.querySelectorAll('#itemModal .inner-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  ['item-tab-general','item-tab-pricing','item-tab-gl','item-tab-reorder'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
+  const el=document.getElementById(tabId); if(el) el.style.display='';
+}
+
+async function saveItem() {
+  const sku  = document.getElementById('item-sku').value.trim();
+  const name = document.getElementById('item-name').value.trim();
+  if (!sku||!name) { showToast('⚠ SKU and item name required',true); return; }
+  showLoading('Saving item…');
+  const g=id=>document.getElementById(id)?.value||'';
+  const cb=id=>document.getElementById(id)?.checked||false;
+  const iid = editingItemId||('item-'+Date.now());
+  const oldItem = invItems.find(i=>i.id===iid);
+  const newData = {
+    id:iid, company_id:invCompanyId, sku, item_name:name,
+    description:g('item-desc'), item_type:g('item-type'),
+    category:g('item-category'), unit_of_measure:g('item-uom'),
+    costing_method:g('item-costing'),
+    purchase_cost:parseFloat(g('item-cost'))||0,
+    sales_price:parseFloat(g('item-price'))||0,
+    preferred_vendor_id:g('item-vendor')||null,
+    reorder_point:parseFloat(g('item-reorder-pt'))||0,
+    reorder_quantity:parseFloat(g('item-reorder-qty'))||0,
+    inventory_asset_account_id:g('item-inv-acct')||null,
+    cogs_account_id:g('item-cogs-acct')||null,
+    income_account_id:g('item-income-acct')||null,
+    is_taxable:cb('item-taxable'), is_active:cb('item-active'),
+    updated_at:new Date().toISOString(),
+  };
+  const { error } = await sb.from('items').upsert(newData);
+  if (!error) await logAuditEvent(invCompanyId,'items',iid,editingItemId?'update':'insert',oldItem,newData,'item_save');
+  hideLoading();
+  if (error) { showToast('Error: '+error.message,true); return; }
+  closeModal('itemModal'); showToast('✓ Item saved');
+  await loadInvData();
+}
+
+// ── LOCATIONS ──
+async function loadLocations() {
+  const c = document.getElementById('inv-locations-body'); if(!c) return;
+  if (!invLocations.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No locations configured</div><div>Add a warehouse or storage location to get started.</div></div>`; return; }
+  c.innerHTML = `<table class="acct-table"><thead><tr><th>Location Name</th><th>Code</th><th>Address</th><th>Default</th><th>Status</th><th></th></tr></thead><tbody>`+
+    invLocations.map(l=>`<tr>
+      <td><strong>${l.location_name}</strong></td>
+      <td style="font-family:monospace;font-size:12px;">${l.location_code||'—'}</td>
+      <td style="font-size:12px;color:var(--text-mid);">${l.address||'—'}</td>
+      <td>${l.is_default?'<span class="status-pill status-active">Default</span>':''}</td>
+      <td><span class="status-pill ${l.is_active?'status-active':''}">${l.is_active?'Active':'Inactive'}</span></td>
+      <td><button onclick="editLocation('${l.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button></td>
+    </tr>`).join('')+'</tbody></table>';
+}
+
+async function openLocationModal(id=null) {
+  editingLocId=id;
+  document.getElementById('locationModalTitle').textContent=id?'Edit Location':'Add Location';
+  ['loc-name','loc-code','loc-address','loc-notes'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+  document.getElementById('loc-default').checked=false;
+  if (id) {
+    const loc=invLocations.find(l=>l.id===id);
+    if(loc){ const s=(fid,v)=>{ const el=document.getElementById(fid); if(el) el.value=v||''; };
+      s('loc-name',loc.location_name); s('loc-code',loc.location_code);
+      s('loc-address',loc.address); s('loc-notes',loc.notes);
+      document.getElementById('loc-default').checked=!!loc.is_default; }
+  }
+  document.getElementById('locationModal').classList.add('show');
+}
+
+function editLocation(id) { openLocationModal(id); }
+
+async function saveLocation() {
+  const name = document.getElementById('loc-name').value.trim();
+  if (!name) { showToast('⚠ Location name required',true); return; }
+  showLoading('Saving…');
+  const g=id=>document.getElementById(id)?.value||'';
+  const lid=editingLocId||('loc-'+Date.now());
+  if (document.getElementById('loc-default').checked) {
+    await sb.from('inventory_locations').update({is_default:false}).eq('company_id',invCompanyId);
+  }
+  await sb.from('inventory_locations').upsert({
+    id:lid, company_id:invCompanyId, location_name:name,
+    location_code:g('loc-code'), address:g('loc-address'), notes:g('loc-notes'),
+    is_default:document.getElementById('loc-default').checked, is_active:true,
+  });
+  hideLoading(); closeModal('locationModal'); showToast('✓ Location saved'); await loadInvData();
+}
+
+// ── RECEIVE ──
+async function openReceiveModal(presetItemId=null) {
+  if (!invCompanyId) { showToast('⚠ Select a company first',true); return; }
+  const { data:vendors } = await sb.from('vendors').select('id,name').eq('company_id',invCompanyId).order('name');
+  document.getElementById('rcv-vendor').innerHTML='<option value="">— None —</option>'+(vendors||[]).map(v=>`<option value="${v.id}">${v.name}</option>`).join('');
+  document.getElementById('rcv-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('rcv-ref').value='';
+  document.getElementById('rcv-lines-tbody').innerHTML='';
+  document.getElementById('rcv-total').textContent='0.00';
+  addReceiveLine(presetItemId);
+  document.getElementById('receiveModal').classList.add('show');
+}
+
+function addReceiveLine(presetItemId=null) {
+  const itemOpts = invItems.filter(i=>i.item_type==='inventory').map(i=>`<option value="${i.id}" data-cost="${i.purchase_cost||0}" ${i.id===presetItemId?'selected':''}>${i.sku} — ${i.item_name}</option>`).join('');
+  const tr=document.createElement('tr');
+  tr.innerHTML=`
+    <td><select style="width:100%;height:30px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;" onchange="prefillRcvCost(this)">${itemOpts}</select></td>
+    <td><input type="text" style="width:70px;height:28px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;text-align:right;" placeholder="0" oninput="updateRcvTotal()" class="rcv-qty"></td>
+    <td><input type="text" style="width:90px;height:28px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;text-align:right;" placeholder="0.00" oninput="updateRcvTotal()" class="rcv-unit-cost"></td>
+    <td><input type="text" style="width:90px;height:28px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;text-align:right;background:var(--section-bg);" readonly class="rcv-line-total"></td>
+    <td><input type="text" style="width:110px;height:28px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;" placeholder="Lot / Serial" class="rcv-lot"></td>
+    <td><button onclick="this.closest('tr').remove();updateRcvTotal();" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:18px;">×</button></td>`;
+  document.getElementById('rcv-lines-tbody').appendChild(tr);
+  if (presetItemId) prefillRcvCost(tr.querySelector('select'));
+}
+
+function prefillRcvCost(sel) {
+  const cost = sel.options[sel.selectedIndex]?.dataset?.cost||'0';
+  const row  = sel.closest('tr');
+  row.querySelector('.rcv-unit-cost').value = parseFloat(cost).toFixed(4);
+  updateRcvTotal();
+}
+
+function updateRcvTotal() {
+  let total=0;
+  document.querySelectorAll('#rcv-lines-tbody tr').forEach(tr=>{
+    const qty=parseFloat(tr.querySelector('.rcv-qty')?.value||0)||0;
+    const uc =parseFloat(tr.querySelector('.rcv-unit-cost')?.value||0)||0;
+    const lt=qty*uc; total+=lt;
+    const ltEl=tr.querySelector('.rcv-line-total'); if(ltEl) ltEl.value=lt.toFixed(2);
+  });
+  document.getElementById('rcv-total').textContent=total.toLocaleString('en-US',{minimumFractionDigits:2});
+}
+
+async function postReceipt() {
+  const date=document.getElementById('rcv-date').value;
+  if (!date) { showToast('⚠ Date required',true); return; }
+  const rows=document.querySelectorAll('#rcv-lines-tbody tr');
+  if (!rows.length) { showToast('⚠ Add at least one item',true); return; }
+  showLoading('Posting receipt…');
+  const vendorId=document.getElementById('rcv-vendor').value||null;
+  const locId=document.getElementById('rcv-location').value||null;
+  const ref=document.getElementById('rcv-ref').value;
+  const jeLines=[];
+  let totalCost=0;
+
+  for (const tr of rows) {
+    const itemId=tr.querySelector('select')?.value;
+    const qty=parseFloat(tr.querySelector('.rcv-qty')?.value||0)||0;
+    const uc=parseFloat(tr.querySelector('.rcv-unit-cost')?.value||0)||0;
+    const lot=tr.querySelector('.rcv-lot')?.value||null;
+    if (!itemId||!qty) continue;
+    const item=invItems.find(i=>i.id===itemId);
+    const lineTotal=Math.round(qty*uc*100)/100;
+    totalCost+=lineTotal;
+    // Transaction record
+    const txnId='txn-'+Date.now()+'-'+Math.random().toString(36).slice(2,5);
+    await sb.from('inventory_transactions').insert({
+      id:txnId, company_id:invCompanyId, item_id:itemId,
+      location_id:locId||invLocations.find(l=>l.is_default)?.id||null,
+      transaction_type:'receive', transaction_date:date,
+      quantity:qty, unit_cost:uc, total_cost:lineTotal,
+      reference_type:'bill', reference_number:ref,
+      notes:`Receipt from ${ref||'vendor'}`,
+    });
+    // FIFO lot layer
+    await sb.from('inventory_lots').insert({
+      id:'lot-'+txnId, item_id:itemId,
+      location_id:locId||invLocations.find(l=>l.is_default)?.id||null,
+      receive_transaction_id:txnId, received_date:date,
+      quantity_received:qty, quantity_remaining:qty,
+      unit_cost:uc, lot_number:lot, is_depleted:false,
+    });
+    // GL line
+    if (item?.inventory_asset_account_id) {
+      jeLines.push({ account_id:item.inventory_asset_account_id, description:`Receive: ${item.item_name}`, debit:lineTotal, credit:0 });
+    }
+    await logAuditEvent(invCompanyId,'inventory_transactions',txnId,'insert',null,{item_id:itemId,qty,uc,lineTotal},'receive');
+  }
+
+  // Credit AP
+  if (jeLines.length) {
+    const { data:apAccts } = await sb.from('accounts').select('id').eq('company_id',invCompanyId).ilike('account_name','%payable%').limit(1);
+    const apId = apAccts?.[0]?.id;
+    if (apId) {
+      jeLines.push({ account_id:apId, description:'Accounts Payable — Inventory Receipt', debit:0, credit:Math.round(totalCost*100)/100 });
+      await postInvJE(invCompanyId, date, `Inventory Receipt ${ref||''}`, jeLines);
+    }
+  }
+  hideLoading(); closeModal('receiveModal'); showToast('✓ Receipt posted — inventory and GL updated');
+  await loadInvData();
+}
+
+async function loadReceiveLog() {
+  const c=document.getElementById('inv-receive-body'); if(!c) return;
+  const { data:txns } = await sb.from('inventory_transactions').select('*, items(sku,item_name)').eq('company_id',invCompanyId).eq('transaction_type','receive').order('transaction_date',{ascending:false}).limit(50);
+  if (!txns?.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No receipts yet</div></div>`; return; }
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Date</th><th>SKU</th><th>Item</th><th>Ref #</th><th style="text-align:right;">Qty</th><th style="text-align:right;">Unit Cost</th><th style="text-align:right;">Total</th><th>GL</th></tr></thead><tbody>`+
+    txns.map(t=>`<tr><td>${fmtDate(t.transaction_date)}</td><td style="font-family:monospace;font-size:12px;">${t.items?.sku||'—'}</td><td>${t.items?.item_name||'—'}</td><td style="font-size:12px;color:var(--text-mid);">${t.reference_number||'—'}</td><td class="number">${parseFloat(t.quantity||0).toFixed(2)}</td><td class="amount">$${parseFloat(t.unit_cost||0).toFixed(4)}</td><td class="amount">$${parseFloat(t.total_cost||0).toFixed(2)}</td><td>${t.journal_entry_id?'<span class="status-pill status-active">Posted</span>':'—'}</td></tr>`).join('')+'</tbody></table>';
+}
+
+// ── ISSUE ──
+async function openIssueModal() {
+  if (!invCompanyId) { showToast('⚠ Select a company first',true); return; }
+  document.getElementById('iss-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('iss-ref').value='';
+  document.getElementById('iss-lines-tbody').innerHTML='';
+  document.getElementById('iss-total').textContent='0.00';
+  addIssueLine();
+  document.getElementById('issueModal').classList.add('show');
+}
+
+function addIssueLine() {
+  const itemOpts=invItems.filter(i=>i.item_type==='inventory').map(i=>`<option value="${i.id}">${i.sku} — ${i.item_name}</option>`).join('');
+  const tr=document.createElement('tr');
+  tr.innerHTML=`
+    <td><select style="width:100%;height:30px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;" onchange="lookupFIFOCost(this)" class="iss-item">${itemOpts}</select></td>
+    <td><input type="text" style="width:80px;height:28px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;text-align:right;" placeholder="0" oninput="lookupFIFOCost(this.closest('tr').querySelector('.iss-item'))" class="iss-qty"></td>
+    <td><input type="text" style="width:100px;height:28px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;text-align:right;background:var(--section-bg);" readonly placeholder="Auto-FIFO" class="iss-cost"></td>
+    <td><input type="text" style="width:100px;height:28px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;text-align:right;background:var(--section-bg);" readonly class="iss-total-cost"></td>
+    <td><button onclick="this.closest('tr').remove();" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:18px;">×</button></td>`;
+  document.getElementById('iss-lines-tbody').appendChild(tr);
+}
+
+async function lookupFIFOCost(sel) {
+  const tr=sel.closest('tr');
+  const itemId=tr.querySelector('.iss-item')?.value;
+  const qty=parseFloat(tr.querySelector('.iss-qty')?.value||0)||0;
+  if (!itemId||!qty) return;
+  const { totalCost, available } = await calcFIFOCost(itemId, qty);
+  tr.querySelector('.iss-cost').value = qty>0?(totalCost/qty).toFixed(4):'0';
+  tr.querySelector('.iss-total-cost').value = totalCost.toFixed(2);
+  // Running total
+  let runTotal=0;
+  document.querySelectorAll('#iss-lines-tbody tr').forEach(r=>{ runTotal+=parseFloat(r.querySelector('.iss-total-cost')?.value||0)||0; });
+  document.getElementById('iss-total').textContent=runTotal.toLocaleString('en-US',{minimumFractionDigits:2});
+  if (qty>available) tr.querySelector('.iss-qty').style.borderColor='var(--error)';
+  else tr.querySelector('.iss-qty').style.borderColor='';
+}
+
+async function postIssue() {
+  const date=document.getElementById('iss-date').value;
+  if (!date) { showToast('⚠ Date required',true); return; }
+  const rows=document.querySelectorAll('#iss-lines-tbody tr');
+  showLoading('Posting issue…');
+  const locId=document.getElementById('iss-location').value||null;
+  const refType=document.getElementById('iss-ref-type').value;
+  const ref=document.getElementById('iss-ref').value;
+  const jeLines=[];
+
+  for (const tr of rows) {
+    const itemId=tr.querySelector('.iss-item')?.value;
+    const qty=parseFloat(tr.querySelector('.iss-qty')?.value||0)||0;
+    if (!itemId||!qty) continue;
+    const item=invItems.find(i=>i.id===itemId);
+    const { totalCost, lotUpdates, available, unfilled } = await calcFIFOCost(itemId, qty, locId);
+    if (unfilled>0.001) { hideLoading(); showToast(`⚠ ${item?.item_name}: only ${(available).toFixed(2)} available, cannot issue ${qty}`,true); return; }
+    const txnId='txn-'+Date.now()+'-'+Math.random().toString(36).slice(2,5);
+    await sb.from('inventory_transactions').insert({
+      id:txnId, company_id:invCompanyId, item_id:itemId,
+      location_id:locId||invLocations.find(l=>l.is_default)?.id||null,
+      transaction_type:'issue', transaction_date:date,
+      quantity:-qty, unit_cost:qty>0?totalCost/qty:0, total_cost:totalCost,
+      reference_type:refType, reference_number:ref,
+    });
+    // Update FIFO lots
+    for (const lu of lotUpdates) await sb.from('inventory_lots').update({ quantity_remaining:lu.quantity_remaining, is_depleted:lu.is_depleted }).eq('id',lu.id);
+    // GL
+    if (item?.cogs_account_id && item?.inventory_asset_account_id) {
+      jeLines.push({ account_id:item.cogs_account_id, description:`COGS: ${item.item_name}`, debit:totalCost, credit:0 });
+      jeLines.push({ account_id:item.inventory_asset_account_id, description:`Inventory: ${item.item_name}`, debit:0, credit:totalCost });
+    }
+    await logAuditEvent(invCompanyId,'inventory_transactions',txnId,'insert',null,{item_id:itemId,qty,totalCost,refType,ref},'issue');
+  }
+  if (jeLines.length) await postInvJE(invCompanyId, date, `Inventory Issue — ${ref||refType}`, jeLines);
+  hideLoading(); closeModal('issueModal'); showToast('✓ Issue posted — COGS and inventory updated');
+  await loadInvData();
+}
+
+async function loadIssueLog() {
+  const c=document.getElementById('inv-issue-body'); if(!c) return;
+  const { data:txns } = await sb.from('inventory_transactions').select('*, items(sku,item_name)').eq('company_id',invCompanyId).eq('transaction_type','issue').order('transaction_date',{ascending:false}).limit(50);
+  if (!txns?.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No issues yet</div></div>`; return; }
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Date</th><th>SKU</th><th>Item</th><th>Ref</th><th style="text-align:right;">Qty</th><th style="text-align:right;">FIFO Cost</th><th>GL</th></tr></thead><tbody>`+
+    txns.map(t=>`<tr><td>${fmtDate(t.transaction_date)}</td><td style="font-family:monospace;font-size:12px;">${t.items?.sku||'—'}</td><td>${t.items?.item_name||'—'}</td><td style="font-size:12px;color:var(--text-mid);">${t.reference_number||'—'}</td><td class="number">${Math.abs(parseFloat(t.quantity||0)).toFixed(2)}</td><td class="amount">$${parseFloat(t.total_cost||0).toFixed(2)}</td><td>${t.journal_entry_id?'<span class="status-pill status-active">Posted</span>':'—'}</td></tr>`).join('')+'</tbody></table>';
+}
+
+// ── TRANSFER ──
+async function openTransferModal() {
+  if (!invCompanyId) { showToast('⚠ Select a company first',true); return; }
+  document.getElementById('xfr-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('xfr-qty').value='';
+  document.getElementById('xfr-notes').value='';
+  document.getElementById('xfr-avail-hint').textContent='Available: —';
+  document.getElementById('transferModal').classList.add('show');
+}
+
+async function loadItemSOHForXfr() {
+  const itemId=document.getElementById('xfr-item')?.value;
+  const locId=document.getElementById('xfr-from')?.value||null;
+  if (!itemId) return;
+  const soh = await getItemSOH(itemId, locId);
+  document.getElementById('xfr-avail-hint').textContent=`Available: ${soh.toFixed(2)}`;
+}
+
+async function postTransfer() {
+  const date=document.getElementById('xfr-date').value;
+  const itemId=document.getElementById('xfr-item').value;
+  const fromId=document.getElementById('xfr-from').value||null;
+  const toId=document.getElementById('xfr-to').value||null;
+  const qty=parseFloat(document.getElementById('xfr-qty').value||0)||0;
+  if (!date||!itemId||!qty) { showToast('⚠ Date, item and quantity required',true); return; }
+  if (fromId===toId) { showToast('⚠ From and To locations must be different',true); return; }
+  // Check availability
+  const avail=await getItemSOH(itemId,fromId);
+  if (qty>avail+0.001) { showToast(`⚠ Only ${avail.toFixed(2)} available in source location`,true); return; }
+  showLoading('Posting transfer…');
+  const base='txn-xfr-'+Date.now();
+  const item=invItems.find(i=>i.id===itemId);
+  const avgCost=item?.purchase_cost||0;
+  await sb.from('inventory_transactions').insert([
+    { id:base+'-out', company_id:invCompanyId, item_id:itemId, location_id:fromId, to_location_id:toId, transaction_type:'transfer_out', transaction_date:date, quantity:-qty, unit_cost:avgCost, total_cost:Math.round(qty*avgCost*100)/100, notes:document.getElementById('xfr-notes').value },
+    { id:base+'-in',  company_id:invCompanyId, item_id:itemId, location_id:toId, from_location_id:fromId, transaction_type:'transfer_in',  transaction_date:date, quantity:qty,  unit_cost:avgCost, total_cost:Math.round(qty*avgCost*100)/100, notes:document.getElementById('xfr-notes').value },
+  ]);
+  await logAuditEvent(invCompanyId,'inventory_transactions',base,'insert',null,{itemId,qty,fromId,toId},'transfer');
+  hideLoading(); closeModal('transferModal'); showToast('✓ Transfer posted'); await loadInvData();
+}
+
+async function loadTransferLog() {
+  const c=document.getElementById('inv-transfer-body'); if(!c) return;
+  const { data:txns } = await sb.from('inventory_transactions').select('*, items(sku,item_name)').eq('company_id',invCompanyId).in('transaction_type',['transfer_in','transfer_out']).order('transaction_date',{ascending:false}).limit(50);
+  if (!txns?.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No transfers yet</div></div>`; return; }
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Date</th><th>SKU</th><th>Item</th><th>Direction</th><th style="text-align:right;">Qty</th><th>Notes</th></tr></thead><tbody>`+
+    txns.map(t=>`<tr><td>${fmtDate(t.transaction_date)}</td><td style="font-family:monospace;font-size:12px;">${t.items?.sku||'—'}</td><td>${t.items?.item_name||'—'}</td><td><span class="status-pill ${t.transaction_type==='transfer_in'?'status-active':'status-void'}">${t.transaction_type==='transfer_in'?'In':'Out'}</span></td><td class="number">${Math.abs(parseFloat(t.quantity||0)).toFixed(2)}</td><td style="font-size:12px;color:var(--text-mid);">${t.notes||'—'}</td></tr>`).join('')+'</tbody></table>';
+}
+
+// ── TRANSACTION LOG ──
+async function loadTxnLog() {
+  const c=document.getElementById('inv-txnlog-body'); if(!c) return;
+  const itemId=document.getElementById('txn-item-filter')?.value||'';
+  const from=document.getElementById('txn-from')?.value||'';
+  const to=document.getElementById('txn-to')?.value||'';
+  let q=sb.from('inventory_transactions').select('*, items(sku,item_name)').eq('company_id',invCompanyId).order('transaction_date',{ascending:false}).limit(200);
+  if (itemId) q=q.eq('item_id',itemId);
+  if (from) q=q.gte('transaction_date',from);
+  if (to)   q=q.lte('transaction_date',to);
+  const { data:txns } = await q;
+  if (!txns?.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No transactions found</div></div>`; return; }
+  const typeColor={ receive:'status-active', issue:'status-void', transfer_in:'status-posted', transfer_out:'status-partial', adjust_up:'status-active', adjust_down:'status-void', opening_balance:'', count_adjustment:'' };
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Date</th><th>Type</th><th>SKU</th><th>Item</th><th>Ref #</th><th style="text-align:right;">Qty</th><th style="text-align:right;">Unit Cost</th><th style="text-align:right;">Total</th><th>GL</th></tr></thead><tbody>`+
+    txns.map(t=>`<tr><td>${fmtDate(t.transaction_date)}</td><td><span class="status-pill ${typeColor[t.transaction_type]||''}">${t.transaction_type.replace(/_/g,' ')}</span></td><td style="font-family:monospace;font-size:12px;">${t.items?.sku||'—'}</td><td>${t.items?.item_name||'—'}</td><td style="font-size:12px;color:var(--text-mid);">${t.reference_number||'—'}</td><td class="number" style="color:${parseFloat(t.quantity||0)<0?'var(--error)':'inherit'};">${parseFloat(t.quantity||0)>0?'+':''}${parseFloat(t.quantity||0).toFixed(2)}</td><td class="amount">$${parseFloat(t.unit_cost||0).toFixed(4)}</td><td class="amount">$${Math.abs(parseFloat(t.total_cost||0)).toFixed(2)}</td><td>${t.journal_entry_id?'<span class="status-pill status-active">✓</span>':'—'}</td></tr>`).join('')+'</tbody></table>';
+}
+
+// ── VALUATION REPORT ──
+async function loadValuation() {
+  const asOf=document.getElementById('val-as-of').value||new Date().toISOString().slice(0,10);
+  const c=document.getElementById('inv-val-body'); if(!c) return;
+  showLoading('Calculating valuation…');
+  // For each inventory item, sum all transactions up to asOf date
+  const { data:txns } = await sb.from('inventory_transactions').select('item_id,quantity,unit_cost,total_cost,transaction_type').eq('company_id',invCompanyId).lte('transaction_date',asOf);
+  const byItem={};
+  (txns||[]).forEach(t=>{
+    if(!byItem[t.item_id]) byItem[t.item_id]={qty:0,cost:0};
+    byItem[t.item_id].qty+=parseFloat(t.quantity||0);
+    byItem[t.item_id].cost+=parseFloat(t.total_cost||0)*(parseFloat(t.quantity||0)>0?1:-1);
+  });
+  hideLoading();
+  const invTypeItems=invItems.filter(i=>i.item_type==='inventory');
+  if (!invTypeItems.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No inventory items</div></div>`; return; }
+  let totalValue=0;
+  const rows=invTypeItems.map(item=>{
+    const d=byItem[item.id]||{qty:0,cost:0};
+    const qty=Math.round(d.qty*10000)/10000;
+    const cost=Math.max(0,Math.round(d.cost*100)/100);
+    const avgCost=qty>0?Math.round((cost/qty)*10000)/10000:0;
+    totalValue+=cost;
+    return `<tr><td style="font-family:monospace;font-size:12px;"><strong>${item.sku}</strong></td><td>${item.item_name}</td><td style="font-size:12px;color:var(--text-mid);">${item.category||'—'}</td><td style="font-size:12px;color:var(--text-mid);">${item.costing_method||'fifo'}</td><td class="number">${qty.toFixed(2)}</td><td class="amount">$${avgCost.toFixed(4)}</td><td class="amount" style="font-weight:500;">$${cost.toLocaleString('en-US',{minimumFractionDigits:2})}</td></tr>`;
+  }).join('');
+  c.innerHTML=`
+    <div style="background:var(--gold-pale);padding:12px 16px;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:13px;color:var(--text-mid);">Inventory Valuation as of <strong>${asOf}</strong></div>
+      <div style="font-size:18px;font-weight:600;font-family:monospace;color:var(--navy);">Total: $${totalValue.toLocaleString('en-US',{minimumFractionDigits:2})}</div>
+    </div>
+    <table class="acct-table"><thead><tr><th>SKU</th><th>Item Name</th><th>Category</th><th>Method</th><th style="text-align:right;">Qty on Hand</th><th style="text-align:right;">Avg Cost</th><th style="text-align:right;">Total Value</th></tr></thead>
+    <tbody>${rows}</tbody>
+    <tfoot><tr style="background:var(--gold-pale);font-weight:700;"><td colspan="6" style="padding:10px 16px;">Total Inventory Value</td><td class="amount" style="font-weight:700;">$${totalValue.toLocaleString('en-US',{minimumFractionDigits:2})}</td></tr></tfoot>
+    </table>`;
+}
+
+function printValuationReport() {
+  const content=document.getElementById('inv-val-body')?.innerHTML||'';
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>Inventory Valuation</title><style>body{font-family:Georgia,serif;font-size:12px;max-width:900px;margin:20px auto;}table{width:100%;border-collapse:collapse;}th{background:#0f1f38;color:#d4b07a;padding:7px 12px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;}td{padding:7px 12px;border-bottom:1px solid #ede8df;}tfoot tr{background:#f7f4ef;font-weight:700;}@media print{button{display:none;}}</style></head><body><button onclick="window.print()" style="padding:7px 16px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:16px;">🖨 Print</button><h2>Inventory Valuation Report</h2>${content}</body></html>`);
+  win.document.close();
+}
+
+// ── STOCK ON HAND ──
+async function loadSOH() {
+  const c=document.getElementById('inv-soh-body'); if(!c) return;
+  const locFilter=document.getElementById('soh-location-filter')?.value||null;
+  showLoading('Calculating stock…');
+  const { data:txns } = await sb.from('inventory_transactions').select('item_id,quantity,location_id').eq('company_id',invCompanyId);
+  const sohMap={};
+  (txns||[]).forEach(t=>{
+    if (locFilter && t.location_id!==locFilter) return;
+    sohMap[t.item_id]=(sohMap[t.item_id]||0)+parseFloat(t.quantity||0);
+  });
+  hideLoading();
+  const invTypeItems=invItems.filter(i=>i.item_type==='inventory');
+  if (!invTypeItems.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No inventory items</div></div>`; return; }
+  const rows=invTypeItems.map(item=>{
+    const soh=Math.round((sohMap[item.id]||0)*10000)/10000;
+    const reorder=parseFloat(item.reorder_point||0);
+    const sohClass=soh<0?'stock-neg':soh===0?'stock-zero':soh<=reorder?'stock-low':'stock-ok';
+    const alert=soh<=reorder&&soh>0?'<span style="color:#e67e22;font-size:11px;"> ⚠ Below reorder point</span>':soh<0?'<span style="color:var(--error);font-size:11px;"> ⛔ Negative stock</span>':'';
+    return `<tr><td style="font-family:monospace;font-size:12px;"><strong>${item.sku}</strong></td><td>${item.item_name}</td><td style="font-size:12px;color:var(--text-mid);">${item.category||'—'}</td><td class="number ${sohClass}" style="font-weight:500;">${soh.toFixed(2)}${alert}</td><td class="number" style="color:var(--text-light);">${reorder||'—'}</td><td class="number" style="color:var(--text-light);">${parseFloat(item.reorder_quantity||0)||'—'}</td><td style="font-size:12px;color:var(--text-mid);">${item.unit_of_measure||'ea'}</td></tr>`;
+  }).join('');
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>SKU</th><th>Item Name</th><th>Category</th><th style="text-align:right;">On Hand</th><th style="text-align:right;">Reorder Pt.</th><th style="text-align:right;">Reorder Qty</th><th>UOM</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+// ── REORDER ALERTS ──
+async function loadReorderAlerts() {
+  const c=document.getElementById('inv-reorder-body'); if(!c) return;
+  const { data:txns } = await sb.from('inventory_transactions').select('item_id,quantity').eq('company_id',invCompanyId);
+  const sohMap={};
+  (txns||[]).forEach(t=>{ sohMap[t.item_id]=(sohMap[t.item_id]||0)+parseFloat(t.quantity||0); });
+  const alerts=invItems.filter(i=>i.item_type==='inventory'&&i.reorder_point>0&&(sohMap[i.id]||0)<=parseFloat(i.reorder_point||0));
+  if (!alerts.length) { c.innerHTML=`<div style="text-align:center;padding:40px;color:var(--success);font-size:15px;">✓ All items are above their reorder points</div>`; return; }
+  c.innerHTML=`<div style="background:rgba(230,126,34,0.1);border:1px solid rgba(230,126,34,0.3);border-radius:var(--radius);padding:12px 16px;margin-bottom:16px;font-size:13px;color:#a04000;">${alerts.length} item${alerts.length!==1?'s':''} need replenishment</div>`+
+  `<table class="acct-table"><thead><tr><th>SKU</th><th>Item</th><th style="text-align:right;">On Hand</th><th style="text-align:right;">Reorder Point</th><th style="text-align:right;">Reorder Qty</th><th>Preferred Vendor</th><th></th></tr></thead><tbody>`+
+  alerts.map(item=>{
+    const soh=Math.round((sohMap[item.id]||0)*10000)/10000;
+    return `<tr style="background:${soh<0?'rgba(192,57,43,0.06)':'rgba(230,126,34,0.04)'};">
+      <td style="font-family:monospace;font-size:12px;"><strong>${item.sku}</strong></td>
+      <td>${item.item_name}</td>
+      <td class="number ${soh<0?'stock-neg':'stock-low'}">${soh.toFixed(2)}</td>
+      <td class="number">${parseFloat(item.reorder_point||0).toFixed(2)}</td>
+      <td class="number">${parseFloat(item.reorder_quantity||0).toFixed(2)}</td>
+      <td style="font-size:12px;color:var(--text-mid);">—</td>
+      <td><button onclick="openReceiveModal('${item.id}')" style="background:none;border:1px solid var(--gold);color:var(--gold);padding:3px 10px;border-radius:var(--radius);cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;">Receive</button></td>
+    </tr>`;
+  }).join('')+'</tbody></table>';
+}
+
+// ── INVENTORY AGING (FIFO LOTS) ──
+async function loadAging() {
+  const c=document.getElementById('inv-aging-body'); if(!c) return;
+  showLoading('Loading FIFO lots…');
+  const { data:lots } = await sb.from('inventory_lots').select('*, items(sku,item_name,category)').in('item_id',invItems.map(i=>i.id)).eq('is_depleted',false).order('received_date');
+  hideLoading();
+  if (!lots?.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No open FIFO lots</div></div>`; return; }
+  const today=new Date();
+  const ageDays=d=>Math.floor((today-new Date(d))/86400000);
+  const ageLabel=d=>{ const a=ageDays(d); return a<=30?'<30 days':a<=60?'31-60 days':a<=90?'61-90 days':'>90 days'; };
+  const ageColor=d=>{ const a=ageDays(d); return a<=30?'var(--success)':a<=60?'#f39c12':a<=90?'#e67e22':'var(--error)'; };
+  let totalValue=0;
+  const rows=lots.map(lot=>{
+    const val=Math.round(parseFloat(lot.quantity_remaining||0)*parseFloat(lot.unit_cost||0)*100)/100;
+    totalValue+=val;
+    return `<tr><td style="font-family:monospace;font-size:12px;">${lot.items?.sku||'—'}</td><td>${lot.items?.item_name||'—'}</td><td style="font-size:12px;color:var(--text-mid);">${lot.items?.category||'—'}</td><td>${fmtDate(lot.received_date)}</td><td class="number" style="color:${ageColor(lot.received_date)};font-weight:500;">${ageLabel(lot.received_date)}</td><td class="number">${parseFloat(lot.quantity_remaining||0).toFixed(2)}</td><td class="amount">$${parseFloat(lot.unit_cost||0).toFixed(4)}</td><td class="amount" style="font-weight:500;">$${val.toLocaleString('en-US',{minimumFractionDigits:2})}</td><td style="font-size:12px;color:var(--text-mid);">${lot.lot_number||'—'}</td></tr>`;
+  }).join('');
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>SKU</th><th>Item</th><th>Category</th><th>Received</th><th>Age</th><th style="text-align:right;">Qty Remaining</th><th style="text-align:right;">Unit Cost</th><th style="text-align:right;">Layer Value</th><th>Lot #</th></tr></thead><tbody>${rows}</tbody>
+  <tfoot><tr style="background:var(--gold-pale);font-weight:700;"><td colspan="7" style="padding:10px 16px;">Total Open Lot Value</td><td class="amount" style="font-weight:700;">$${totalValue.toLocaleString('en-US',{minimumFractionDigits:2})}</td><td></td></tr></tfoot></table>`;
+}
+
+// ── CYCLE COUNT ──
+async function startCycleCount() {
+  const locId=document.getElementById('cycle-location-filter')?.value||null;
+  const c=document.getElementById('inv-cycle-body'); if(!c) return;
+  showLoading('Preparing count sheet…');
+  const { data:txns } = await sb.from('inventory_transactions').select('item_id,quantity').eq('company_id',invCompanyId);
+  const sohMap={};
+  (txns||[]).forEach(t=>{ sohMap[t.item_id]=(sohMap[t.item_id]||0)+parseFloat(t.quantity||0); });
+  hideLoading();
+  const invTypeItems=invItems.filter(i=>i.item_type==='inventory');
+  if (!invTypeItems.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No inventory items to count</div></div>`; return; }
+  let rows=invTypeItems.map((item,i)=>{
+    const sys=Math.round((sohMap[item.id]||0)*10000)/10000;
+    return `<div class="count-row">
+      <div style="font-size:12.5px;"><strong>${item.sku}</strong> — ${item.item_name}</div>
+      <div style="font-family:monospace;font-size:13px;text-align:right;">${sys.toFixed(2)}</div>
+      <div><input type="text" id="cc-counted-${item.id}" placeholder="Count here" style="width:100%;height:28px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:monospace;font-size:13px;" oninput="updateCycleVariance('${item.id}',${sys})"></div>
+      <div id="cc-var-${item.id}" style="font-family:monospace;font-size:13px;text-align:right;color:var(--text-light);">—</div>
+      <div id="cc-varval-${item.id}" style="font-family:monospace;font-size:13px;text-align:right;color:var(--text-light);">—</div>
+      <div style="font-size:12px;color:var(--text-mid);">${item.unit_of_measure||'ea'}</div>
+    </div>`;
+  }).join('');
+  c.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 100px 110px 110px 100px 100px;gap:8px;padding:8px 12px;background:var(--navy);border-radius:var(--radius-lg) var(--radius-lg) 0 0;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold-light);">
+      <div>Item</div><div style="text-align:right;">System Qty</div><div>Counted Qty</div><div style="text-align:right;">Variance</div><div style="text-align:right;">Variance $</div><div>UOM</div>
+    </div>
+    <div style="border:1px solid var(--border-light);border-top:none;border-radius:0 0 var(--radius-lg) var(--radius-lg);overflow:hidden;">${rows}</div>
+    <div style="margin-top:12px;display:flex;gap:10px;">
+      <button class="btn-save" onclick="postCycleCount()">Post Adjustments</button>
+      <button class="btn-secondary" onclick="printCycleCount()">🖨 Print Count Sheet</button>
+    </div>`;
+}
+
+function updateCycleVariance(itemId, systemQty) {
+  const counted=parseFloat(document.getElementById('cc-counted-'+itemId)?.value||'');
+  const varEl=document.getElementById('cc-var-'+itemId);
+  const varValEl=document.getElementById('cc-varval-'+itemId);
+  if (isNaN(counted)) { if(varEl) varEl.textContent='—'; if(varValEl) varValEl.textContent='—'; return; }
+  const variance=Math.round((counted-systemQty)*10000)/10000;
+  const item=invItems.find(i=>i.id===itemId);
+  const varValue=Math.round(variance*parseFloat(item?.purchase_cost||0)*100)/100;
+  if(varEl){ varEl.textContent=(variance>0?'+':'')+variance.toFixed(2); varEl.style.color=variance===0?'var(--success)':variance>0?'var(--text-mid)':'var(--error)'; }
+  if(varValEl){ varValEl.textContent='$'+Math.abs(varValue).toFixed(2); varValEl.style.color=varValue===0?'var(--success)':varValue>0?'var(--text-mid)':'var(--error)'; }
+}
+
+async function postCycleCount() {
+  showLoading('Posting adjustments…');
+  const adjId='adj-'+Date.now();
+  await sb.from('inventory_adjustments').insert({ id:adjId, company_id:invCompanyId, adjustment_date:new Date().toISOString().slice(0,10), adjustment_type:'cycle_count', status:'posted', posted_at:new Date().toISOString() });
+  const { data:txns } = await sb.from('inventory_transactions').select('item_id,quantity').eq('company_id',invCompanyId);
+  const sohMap={};
+  (txns||[]).forEach(t=>{ sohMap[t.item_id]=(sohMap[t.item_id]||0)+parseFloat(t.quantity||0); });
+  let adjustments=0;
+  for (const item of invItems.filter(i=>i.item_type==='inventory')) {
+    const countedEl=document.getElementById('cc-counted-'+item.id);
+    if (!countedEl||countedEl.value==='') continue;
+    const counted=parseFloat(countedEl.value)||0;
+    const sys=sohMap[item.id]||0;
+    const variance=Math.round((counted-sys)*10000)/10000;
+    if (Math.abs(variance)<0.0001) continue;
+    const txnId='txn-adj-'+Date.now()+'-'+item.id.slice(-4);
+    await sb.from('inventory_transactions').insert({ id:txnId, company_id:invCompanyId, item_id:item.id, transaction_type:variance>0?'adjust_up':'adjust_down', transaction_date:new Date().toISOString().slice(0,10), quantity:variance, unit_cost:parseFloat(item.purchase_cost||0), total_cost:Math.abs(Math.round(variance*parseFloat(item.purchase_cost||0)*100)/100), notes:'Cycle count adjustment' });
+    if (variance<0&&item.inventory_asset_account_id) {
+      const { data:adjAccts } = await sb.from('accounts').select('id').eq('company_id',invCompanyId).ilike('account_name','%adjustment%').limit(1);
+      const adjAcctId=adjAccts?.[0]?.id;
+      if (adjAcctId) await postInvJE(invCompanyId,new Date().toISOString().slice(0,10),`Cycle Count Adjustment — ${item.item_name}`,[{ account_id:adjAcctId, description:'Inventory Shrinkage', debit:Math.abs(variance)*parseFloat(item.purchase_cost||0), credit:0 },{ account_id:item.inventory_asset_account_id, description:'Inventory Asset', debit:0, credit:Math.abs(variance)*parseFloat(item.purchase_cost||0) }]);
+    }
+    await logAuditEvent(invCompanyId,'inventory_transactions',txnId,'insert',{system_qty:sys},{counted_qty:counted,variance},'cycle_count');
+    adjustments++;
+  }
+  hideLoading(); showToast(`✓ ${adjustments} adjustment${adjustments!==1?'s':''} posted`); await loadInvData(); startCycleCount();
+}
+
+function printCycleCount() {
+  const content=document.getElementById('inv-cycle-body')?.innerHTML||'';
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>Cycle Count Sheet</title><style>body{font-family:Arial,sans-serif;font-size:12px;max-width:900px;margin:20px auto;}.count-row{display:grid;grid-template-columns:1fr 100px 110px 110px 100px 100px;gap:8px;padding:8px 12px;border-bottom:1px solid #ddd;}input{border:1px solid #ccc;padding:4px 8px;width:100%;font-family:monospace;}@media print{button{display:none;}}</style></head><body><button onclick="window.print()" style="padding:7px 16px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:16px;">🖨 Print</button><h2>Cycle Count Sheet — ${new Date().toLocaleDateString()}</h2>${content}</body></html>`);
+  win.document.close();
+}
+
+// ── AUDIT TRAIL ──
+async function loadAuditTrail() {
+  const c=document.getElementById('inv-audit-body'); if(!c) return;
+  const action=document.getElementById('audit-action-filter')?.value||'';
+  const from=document.getElementById('audit-from')?.value||'';
+  let q=sb.from('inventory_audit_log').select('*').eq('company_id',invCompanyId).order('changed_at',{ascending:false}).limit(100);
+  if (action) q=q.eq('action',action);
+  if (from)   q=q.gte('changed_at',from);
+  const { data:logs } = await q;
+  if (!logs?.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No audit log entries</div></div>`; return; }
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>When</th><th>Action</th><th>Table</th><th>Details</th><th>Reason</th></tr></thead><tbody>`+
+    logs.map(l=>{
+      const actionColor={ insert:'status-active', update:'status-posted', delete:'status-void' };
+      let details='';
+      try { const nv=l.new_values?JSON.parse(l.new_values):null; if(nv) details=Object.entries(nv).slice(0,3).map(([k,v])=>`${k}: ${v}`).join(', '); } catch(e){}
+      return `<tr><td style="font-size:12px;">${new Date(l.changed_at).toLocaleString()}</td><td><span class="status-pill ${actionColor[l.action]||''}">${l.action}</span></td><td style="font-size:12px;font-family:monospace;">${l.table_name}</td><td style="font-size:11px;color:var(--text-mid);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${details||'—'}</td><td style="font-size:12px;color:var(--text-light);">${l.reason_code||'—'}</td></tr>`;
+    }).join('')+'</tbody></table>';
+}
 
 // ── INIT
 loadDashboard();
