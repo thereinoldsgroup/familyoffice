@@ -1389,6 +1389,12 @@
           <button class="pm-sidebar-btn" id="pm-nav-gantt"     onclick="showPMPanel('gantt')">    <span>📅</span> Gantt Chart</button>
           <button class="pm-sidebar-btn" id="pm-nav-wbs"       onclick="showPMPanel('wbs')">      <span>🌲</span> Work Breakdown</button>
           <button class="pm-sidebar-btn" id="pm-nav-time"      onclick="showPMPanel('time')">     <span>⏱️</span> Time Entries</button>
+          <div class="pm-sidebar-section">Accounting</div>
+          <button class="pm-sidebar-btn" id="pm-nav-budget"    onclick="showPMPanel('budget')">   <span>💰</span> Budgets</button>
+          <button class="pm-sidebar-btn" id="pm-nav-costs"     onclick="showPMPanel('costs')">    <span>📉</span> Cost Tracking</button>
+          <button class="pm-sidebar-btn" id="pm-nav-billing"   onclick="showPMPanel('billing')">  <span>🧾</span> Billing</button>
+          <button class="pm-sidebar-btn" id="pm-nav-bva"       onclick="showPMPanel('bva')">      <span>📊</span> Budget vs Actual</button>
+          <button class="pm-sidebar-btn" id="pm-nav-proj-pl"   onclick="showPMPanel('proj-pl')">  <span>📈</span> Project P&amp;L</button>
           <div class="pm-sidebar-section">Projects</div>
           <div id="pm-project-list" style="padding-bottom:8px;">
             <div style="padding:8px 16px;font-size:12px;color:var(--text-light);">No projects yet</div>
@@ -1458,6 +1464,74 @@
               </div>
             </div>
             <div id="pm-time-body"><div class="empty-state"><div class="empty-state-title">No time entries yet</div></div></div>
+          </div>
+
+          <!-- BUDGET -->
+          <div id="pm-panel-budget" class="pm-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Project Budgets</div>
+              <div style="display:flex;gap:8px;">
+                <select id="budget-project-filter" class="field-select" style="height:32px;width:200px;" onchange="loadBudgets()">
+                  <option value="">Select project…</option>
+                </select>
+                <button class="btn-save" onclick="openBudgetModal()">+ Add Budget Line</button>
+              </div>
+            </div>
+            <div id="pm-budget-body"><div class="empty-state"><div class="empty-state-title">Select a project to view its budget</div></div></div>
+          </div>
+
+          <!-- COST TRACKING -->
+          <div id="pm-panel-costs" class="pm-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Cost Tracking</div>
+              <div style="display:flex;gap:8px;">
+                <select id="costs-project-filter" class="field-select" style="height:32px;width:200px;" onchange="loadProjectCosts()">
+                  <option value="">Select project…</option>
+                </select>
+                <button class="btn-save" onclick="openCostModal()">+ Add Cost Entry</button>
+              </div>
+            </div>
+            <div id="pm-costs-body"><div class="empty-state"><div class="empty-state-title">Select a project to view costs</div></div></div>
+          </div>
+
+          <!-- BILLING -->
+          <div id="pm-panel-billing" class="pm-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Project Billing</div>
+              <div style="display:flex;gap:8px;">
+                <select id="billing-project-filter" class="field-select" style="height:32px;width:200px;" onchange="loadProjectBilling()">
+                  <option value="">Select project…</option>
+                </select>
+                <button class="btn-primary" onclick="createMilestoneBill()">+ Milestone Invoice</button>
+                <button class="btn-save" onclick="createTimeMaterialsBill()">+ T&amp;M Invoice</button>
+              </div>
+            </div>
+            <div id="pm-billing-body"><div class="empty-state"><div class="empty-state-title">Select a project to manage billing</div></div></div>
+          </div>
+
+          <!-- BUDGET VS ACTUAL -->
+          <div id="pm-panel-bva" class="pm-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Budget vs Actual</div>
+              <select id="bva-project-filter" class="field-select" style="height:32px;width:200px;" onchange="loadBVA()">
+                <option value="">Select project…</option>
+              </select>
+            </div>
+            <div id="pm-bva-body"><div class="empty-state"><div class="empty-state-title">Select a project to compare budget to actuals</div></div></div>
+          </div>
+
+          <!-- PROJECT P&L -->
+          <div id="pm-panel-proj-pl" class="pm-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Project Profit &amp; Loss</div>
+              <div style="display:flex;gap:8px;">
+                <select id="projpl-filter" class="field-select" style="height:32px;width:200px;" onchange="loadProjectPL()">
+                  <option value="">All projects</option>
+                </select>
+                <button class="btn-primary" onclick="printProjectPL()">🖨 Print</button>
+              </div>
+            </div>
+            <div id="pm-projpl-body"><div class="empty-state"><div class="empty-state-title">Select a project or view all</div></div></div>
           </div>
 
         </div><!-- /pm-content -->
@@ -2968,6 +3042,104 @@
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal('timeEntryModal')">Cancel</button>
       <button class="btn-save" onclick="saveTimeEntry()">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- BUDGET LINE MODAL -->
+<div class="modal-overlay" id="budgetModal">
+  <div class="modal" style="max-width:540px;">
+    <div class="modal-header">
+      <span class="modal-title" id="budgetModalTitle">Add Budget Line</span>
+      <button class="modal-close" onclick="closeModal('budgetModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label required">Project</label>
+          <select class="field-select" id="bud-project"></select></div>
+        <div class="field-group"><label class="field-label">Phase</label>
+          <select class="field-select" id="bud-phase"><option value="">— Overall —</option></select></div>
+        <div class="field-group"><label class="field-label required">Cost Category</label>
+          <select class="field-select" id="bud-category">
+            <option value="labor">Labor</option>
+            <option value="materials">Materials</option>
+            <option value="equipment">Equipment</option>
+            <option value="subcontractor">Subcontractor</option>
+            <option value="travel">Travel &amp; Expenses</option>
+            <option value="overhead">Overhead</option>
+            <option value="contingency">Contingency</option>
+            <option value="other">Other</option>
+          </select></div>
+        <div class="field-group col-span-2"><label class="field-label required">Description</label>
+          <input type="text" class="field-input" id="bud-desc" placeholder="Budget line description"></div>
+        <div class="field-group"><label class="field-label required">Budgeted Amount ($)</label>
+          <input type="text" class="field-input" id="bud-amount" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Budgeted Hours</label>
+          <input type="text" class="field-input" id="bud-hours" placeholder="0" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Billing Method</label>
+          <select class="field-select" id="bud-billing-method">
+            <option value="fixed_price">Fixed Price</option>
+            <option value="time_and_materials">Time &amp; Materials</option>
+            <option value="milestone">Milestone</option>
+            <option value="retainer">Retainer</option>
+          </select></div>
+        <div class="field-group"><label class="field-label">GL Account</label>
+          <select class="field-select" id="bud-gl-account"><option value="">— None —</option></select></div>
+        <div class="field-group"><label class="field-label">Notes</label>
+          <input type="text" class="field-input" id="bud-notes" placeholder="Optional notes"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('budgetModal')">Cancel</button>
+      <button class="btn-save" onclick="saveBudgetLine()">Save Budget Line</button>
+    </div>
+  </div>
+</div>
+
+<!-- COST ENTRY MODAL -->
+<div class="modal-overlay" id="costModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <span class="modal-title" id="costModalTitle">Add Cost Entry</span>
+      <button class="modal-close" onclick="closeModal('costModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group"><label class="field-label required">Project</label>
+          <select class="field-select" id="cost-project" onchange="loadPhasesForCost()"></select></div>
+        <div class="field-group"><label class="field-label">Phase</label>
+          <select class="field-select" id="cost-phase"><option value="">— Overall —</option></select></div>
+        <div class="field-group"><label class="field-label required">Cost Type</label>
+          <select class="field-select" id="cost-type">
+            <option value="labor">Labor (from timesheet)</option>
+            <option value="materials">Materials</option>
+            <option value="equipment">Equipment</option>
+            <option value="subcontractor">Subcontractor</option>
+            <option value="travel">Travel &amp; Expense</option>
+            <option value="overhead">Overhead Allocation</option>
+            <option value="other">Other</option>
+          </select></div>
+        <div class="field-group"><label class="field-label required">Date</label>
+          <input type="date" class="field-input" id="cost-date"></div>
+        <div class="field-group col-span-2"><label class="field-label required">Description</label>
+          <input type="text" class="field-input" id="cost-desc" placeholder="Description of cost"></div>
+        <div class="field-group"><label class="field-label required">Amount ($)</label>
+          <input type="text" class="field-input" id="cost-amount" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Vendor / Supplier</label>
+          <select class="field-select" id="cost-vendor"><option value="">— None —</option></select></div>
+        <div class="field-group"><label class="field-label">GL Account</label>
+          <select class="field-select" id="cost-gl-account"><option value="">— None —</option></select></div>
+        <div class="field-group">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-mid);cursor:pointer;margin-top:22px;">
+            <input type="checkbox" id="cost-post-je" style="accent-color:var(--gold);" checked> Auto-post to GL
+          </label></div>
+        <div class="field-group"><label class="field-label">Reference / PO #</label>
+          <input type="text" class="field-input" id="cost-ref" placeholder="Optional reference"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('costModal')">Cancel</button>
+      <button class="btn-save" onclick="saveCostEntry()">Save Cost</button>
     </div>
   </div>
 </div>
@@ -8829,6 +9001,605 @@ async function saveTimeEntry() {
   showToast('✓ Time entry saved');
   loadTimeEntries();
 }
+
+// ═══════════════════════════════════════════════════
+//  BATCH 2 — PROJECT ACCOUNTING & RESOURCE MGMT
+// ═══════════════════════════════════════════════════
+
+let editingBudgetId = null, editingCostId = null;
+
+// ── EXTEND showPMPanel to handle batch 2 panels ──
+const _origShowPMPanel = showPMPanel;
+showPMPanel = function(panelId) {
+  _origShowPMPanel(panelId);
+  const projDropdowns = {
+    'budget':   'budget-project-filter',
+    'costs':    'costs-project-filter',
+    'billing':  'billing-project-filter',
+    'bva':      'bva-project-filter',
+    'proj-pl':  'projpl-filter',
+  };
+  // Sync project filter dropdowns with current PM project list
+  if (projDropdowns[panelId]) {
+    const sel = document.getElementById(projDropdowns[panelId]);
+    if (sel && sel.options.length <= 1) {
+      const firstOpt = panelId === 'proj-pl' ? '<option value="">All projects</option>' : '<option value="">Select project…</option>';
+      sel.innerHTML = firstOpt + pmProjects.map(p=>`<option value="${p.id}">${p.project_name}</option>`).join('');
+      if (pmProjects.length === 1) sel.value = pmProjects[0].id;
+    }
+    if (panelId === 'budget')   loadBudgets();
+    if (panelId === 'costs')    loadProjectCosts();
+    if (panelId === 'billing')  loadProjectBilling();
+    if (panelId === 'bva')      loadBVA();
+    if (panelId === 'proj-pl')  loadProjectPL();
+  }
+};
+
+// ── HELPER: get company GL accounts for project ──
+async function getProjectGLAccounts(companyId) {
+  if (!companyId) return [];
+  const { data } = await sb.from('accounts').select('id,account_number,account_name,account_type').eq('company_id', companyId).eq('is_active', true).order('account_number');
+  return data || [];
+}
+
+function glOptsHTML(accounts, selected='') {
+  return '<option value="">— None —</option>' +
+    accounts.map(a => `<option value="${a.id}" ${a.id===selected?'selected':''}>${a.account_number} — ${a.account_name}</option>`).join('');
+}
+
+// ── BUDGETS ──
+async function loadBudgets() {
+  const projId = document.getElementById('budget-project-filter')?.value;
+  const c = document.getElementById('pm-budget-body');
+  if (!projId) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">Select a project</div></div>`; return; }
+
+  const { data: lines } = await sb.from('project_budgets').select('*').eq('project_id', projId).order('sort_order');
+  const { data: costs  } = await sb.from('project_costs').select('category,amount').eq('project_id', projId);
+  const proj = pmProjects.find(p=>p.id===projId);
+
+  // Actual costs by category
+  const actualByCategory = {};
+  (costs||[]).forEach(c => {
+    actualByCategory[c.category] = (actualByCategory[c.category]||0) + parseFloat(c.amount||0);
+  });
+
+  const totalBudget = (lines||[]).reduce((s,l)=>s+parseFloat(l.budgeted_amount||0),0);
+  const totalActual = Object.values(actualByCategory).reduce((s,v)=>s+v,0);
+  const totalVariance = totalBudget - totalActual;
+  const fmt2 = v => parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+
+  if (!lines?.length) {
+    c.innerHTML = `<div style="background:var(--gold-pale);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;font-size:13px;color:var(--text-mid);">
+      Contract Value: <strong>$${fmt2(proj?.contract_value)}</strong> &nbsp;·&nbsp; No budget lines yet. Click "+ Add Budget Line" to break down the budget.
+    </div><div class="empty-state"><div class="empty-state-title">No budget lines</div></div>`;
+    return;
+  }
+
+  const catColors = { labor:'#3498db', materials:'#e67e22', equipment:'#9b59b6', subcontractor:'#e74c3c', travel:'#1abc9c', overhead:'#95a5a6', contingency:'#f39c12', other:'#7f8c8d' };
+
+  c.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+      <div class="dash-card"><div class="dash-card-label">Total Budget</div><div class="dash-card-value">$${fmt2(totalBudget)}</div></div>
+      <div class="dash-card"><div class="dash-card-label">Actual to Date</div><div class="dash-card-value">$${fmt2(totalActual)}</div></div>
+      <div class="dash-card"><div class="dash-card-label">Remaining</div><div class="dash-card-value" style="color:${totalVariance>=0?'var(--success)':'var(--error)'};">$${fmt2(totalVariance)}</div></div>
+      <div class="dash-card"><div class="dash-card-label">% Used</div><div class="dash-card-value">${totalBudget?Math.round(totalActual/totalBudget*100):0}%</div></div>
+    </div>
+    <table class="acct-table"><thead><tr>
+      <th>Category</th><th>Description</th><th>Phase</th><th>Billing Method</th>
+      <th style="text-align:right;">Budget</th><th style="text-align:right;">Actual</th>
+      <th style="text-align:right;">Variance</th><th style="text-align:right;">% Used</th><th></th>
+    </tr></thead><tbody>` +
+    (lines||[]).map(l => {
+      const actual  = actualByCategory[l.category]||0;
+      const variance = parseFloat(l.budgeted_amount||0) - actual;
+      const pctUsed  = l.budgeted_amount ? Math.round(actual/parseFloat(l.budgeted_amount)*100) : 0;
+      return `<tr>
+        <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${catColors[l.category]||'#95a5a6'};margin-right:6px;"></span>${l.category}</td>
+        <td>${l.description||'—'}</td>
+        <td style="font-size:12px;color:var(--text-mid);">${l.phase_name||'Overall'}</td>
+        <td style="font-size:12px;color:var(--text-mid);">${(l.billing_method||'').replace(/_/g,' ')}</td>
+        <td class="amount">$${fmt2(l.budgeted_amount)}</td>
+        <td class="amount">$${fmt2(actual)}</td>
+        <td class="amount" style="color:${variance>=0?'var(--success)':'var(--error)');">$${fmt2(variance)}</td>
+        <td style="text-align:right;">
+          <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;">
+            <div style="width:50px;height:5px;background:var(--border-light);border-radius:3px;overflow:hidden;">
+              <div style="height:5px;width:${Math.min(100,pctUsed)}%;background:${pctUsed>100?'var(--error)':pctUsed>80?'var(--warning)':'var(--success)'};"></div>
+            </div>
+            <span style="font-size:12px;font-family:monospace;">${pctUsed}%</span>
+          </div>
+        </td>
+        <td><button onclick="editBudgetLine('${l.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button></td>
+      </tr>`;
+    }).join('') + `</tbody>
+    <tfoot><tr style="background:var(--gold-pale);font-weight:600;">
+      <td colspan="4" style="padding:10px 16px;font-size:13px;">Total</td>
+      <td class="amount" style="font-weight:700;">$${fmt2(totalBudget)}</td>
+      <td class="amount" style="font-weight:700;">$${fmt2(totalActual)}</td>
+      <td class="amount" style="font-weight:700;color:${totalVariance>=0?'var(--success)':'var(--error)'};">$${fmt2(totalVariance)}</td>
+      <td colspan="2"></td>
+    </tr></tfoot></table>`;
+}
+
+async function openBudgetModal(id=null) {
+  editingBudgetId = id;
+  document.getElementById('budgetModalTitle').textContent = id ? 'Edit Budget Line' : 'Add Budget Line';
+  const projOpts = '<option value="">— Select project —</option>' + pmProjects.map(p=>`<option value="${p.id}">${p.project_name}</option>`).join('');
+  document.getElementById('bud-project').innerHTML = projOpts;
+
+  const projId = document.getElementById('budget-project-filter')?.value || pmProjects[0]?.id || '';
+  if (projId) {
+    document.getElementById('bud-project').value = projId;
+    const { data: phases } = await sb.from('project_phases').select('id,phase_name').eq('project_id',projId).order('sort_order');
+    document.getElementById('bud-phase').innerHTML = '<option value="">— Overall —</option>' +
+      (phases||[]).map(p=>`<option value="${p.id}">${p.phase_name}</option>`).join('');
+    // Load GL accounts
+    const proj = pmProjects.find(p=>p.id===projId);
+    const accts = await getProjectGLAccounts(proj?.company_id);
+    document.getElementById('bud-gl-account').innerHTML = glOptsHTML(accts);
+  }
+
+  if (!id) {
+    ['bud-desc','bud-amount','bud-hours','bud-notes'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+    document.getElementById('bud-category').value = 'labor';
+    document.getElementById('bud-billing-method').value = 'fixed_price';
+  } else {
+    showLoading('Loading…');
+    const { data:b } = await sb.from('project_budgets').select('*').eq('id',id).single();
+    hideLoading();
+    if (b) {
+      const s=(fid,v)=>{ const el=document.getElementById(fid); if(el) el.value=v||''; };
+      s('bud-project',b.project_id); s('bud-phase',b.phase_id);
+      s('bud-category',b.category); s('bud-desc',b.description);
+      s('bud-amount',b.budgeted_amount); s('bud-hours',b.budgeted_hours);
+      s('bud-billing-method',b.billing_method); s('bud-gl-account',b.gl_account_id);
+      s('bud-notes',b.notes);
+    }
+  }
+  document.getElementById('budgetModal').classList.add('show');
+}
+
+async function editBudgetLine(id) { await openBudgetModal(id); }
+
+async function saveBudgetLine() {
+  const projId = document.getElementById('bud-project').value;
+  const amount = parseFloat(document.getElementById('bud-amount').value||0);
+  const desc   = document.getElementById('bud-desc').value.trim();
+  if (!projId||!desc||!amount) { showToast('⚠ Project, description and amount required',true); return; }
+  showLoading('Saving…');
+  const g = id => document.getElementById(id)?.value||'';
+  const bid = editingBudgetId||('bud-'+Date.now());
+  await sb.from('project_budgets').upsert({
+    id:bid, project_id:projId, phase_id:g('bud-phase')||null,
+    category:g('bud-category'), description:desc,
+    budgeted_amount:amount, budgeted_hours:parseFloat(g('bud-hours'))||0,
+    billing_method:g('bud-billing-method'), gl_account_id:g('bud-gl-account')||null,
+    notes:g('bud-notes'),
+  });
+  hideLoading(); closeModal('budgetModal'); showToast('✓ Budget line saved'); loadBudgets();
+}
+
+// ── COST TRACKING ──
+async function loadProjectCosts() {
+  const projId = document.getElementById('costs-project-filter')?.value;
+  const c = document.getElementById('pm-costs-body');
+  if (!projId) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">Select a project</div></div>`; return; }
+
+  const { data: costs } = await sb.from('project_costs').select('*').eq('project_id',projId).order('cost_date',{ascending:false});
+  const fmt2 = v => parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+
+  if (!costs?.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No cost entries yet</div></div>`; return; }
+
+  const totalCost = costs.reduce((s,c)=>s+parseFloat(c.amount||0),0);
+  const byCat = {};
+  costs.forEach(c=>{ byCat[c.category]=(byCat[c.category]||0)+parseFloat(c.amount||0); });
+
+  c.innerHTML = `
+    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+      <div class="dash-card" style="flex:1;min-width:140px;"><div class="dash-card-label">Total Costs</div><div class="dash-card-value">$${fmt2(totalCost)}</div></div>
+      ${Object.entries(byCat).map(([cat,amt])=>`<div class="dash-card" style="flex:1;min-width:120px;"><div class="dash-card-label" style="text-transform:capitalize;">${cat}</div><div class="dash-card-value" style="font-size:18px;">$${fmt2(amt)}</div></div>`).join('')}
+    </div>
+    <table class="acct-table"><thead><tr>
+      <th>Date</th><th>Type</th><th>Description</th><th>Vendor</th><th>Reference</th>
+      <th style="text-align:right;">Amount</th><th>GL Posted</th><th></th>
+    </tr></thead><tbody>` +
+    costs.map(cost => `<tr>
+      <td>${fmtDate(cost.cost_date)}</td>
+      <td style="text-transform:capitalize;font-size:12px;">${cost.category||'—'}</td>
+      <td>${cost.description||'—'}</td>
+      <td style="font-size:12px;color:var(--text-mid);">${cost.vendor_name||'—'}</td>
+      <td style="font-size:12px;color:var(--text-light);">${cost.reference||'—'}</td>
+      <td class="amount">$${fmt2(cost.amount)}</td>
+      <td>${cost.journal_entry_id?'<span class="status-pill status-active">Posted</span>':'<span class="status-pill">Pending</span>'}</td>
+      <td><button onclick="editCostEntry('${cost.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button></td>
+    </tr>`).join('') + `</tbody>
+    <tfoot><tr style="background:var(--gold-pale);font-weight:600;"><td colspan="5" style="padding:10px 16px;">Total</td><td class="amount" style="font-weight:700;">$${fmt2(totalCost)}</td><td colspan="2"></td></tr></tfoot>
+    </table>`;
+}
+
+async function openCostModal(id=null) {
+  editingCostId = id;
+  document.getElementById('costModalTitle').textContent = id ? 'Edit Cost Entry' : 'Add Cost Entry';
+  document.getElementById('cost-project').innerHTML = pmProjects.map(p=>`<option value="${p.id}">${p.project_name}</option>`).join('');
+  const projId = document.getElementById('costs-project-filter')?.value || pmProjects[0]?.id || '';
+  if (projId) {
+    document.getElementById('cost-project').value = projId;
+    await loadPhasesForCost();
+    const proj = pmProjects.find(p=>p.id===projId);
+    const accts = await getProjectGLAccounts(proj?.company_id);
+    document.getElementById('cost-gl-account').innerHTML = glOptsHTML(accts.filter(a=>a.account_type==='Expense'));
+    const { data: vendors } = await sb.from('vendors').select('id,name').eq('company_id',proj?.company_id||'').order('name');
+    document.getElementById('cost-vendor').innerHTML = '<option value="">— None —</option>' +
+      (vendors||[]).map(v=>`<option value="${v.id}">${v.name}</option>`).join('');
+  }
+  document.getElementById('cost-date').value = new Date().toISOString().slice(0,10);
+  ['cost-desc','cost-amount','cost-ref'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+  document.getElementById('cost-type').value='materials';
+  document.getElementById('cost-post-je').checked=true;
+  if (id) {
+    showLoading('Loading…');
+    const { data:e } = await sb.from('project_costs').select('*').eq('id',id).single();
+    hideLoading();
+    if (e) {
+      const s=(fid,v)=>{ const el=document.getElementById(fid); if(el) el.value=v||''; };
+      s('cost-project',e.project_id); s('cost-phase',e.phase_id);
+      s('cost-type',e.category); s('cost-date',e.cost_date);
+      s('cost-desc',e.description); s('cost-amount',e.amount);
+      s('cost-vendor',e.vendor_id); s('cost-ref',e.reference);
+      s('cost-gl-account',e.gl_account_id);
+    }
+  }
+  document.getElementById('costModal').classList.add('show');
+}
+
+async function editCostEntry(id) { await openCostModal(id); }
+
+async function loadPhasesForCost() {
+  const projId = document.getElementById('cost-project')?.value;
+  const sel = document.getElementById('cost-phase');
+  if (!projId) { sel.innerHTML='<option value="">— Overall —</option>'; return; }
+  const { data:phases } = await sb.from('project_phases').select('id,phase_name').eq('project_id',projId).order('sort_order');
+  sel.innerHTML = '<option value="">— Overall —</option>' + (phases||[]).map(p=>`<option value="${p.id}">${p.phase_name}</option>`).join('');
+}
+
+async function saveCostEntry() {
+  const projId = document.getElementById('cost-project').value;
+  const amount = parseFloat(document.getElementById('cost-amount').value||0);
+  const desc   = document.getElementById('cost-desc').value.trim();
+  const date   = document.getElementById('cost-date').value;
+  if (!projId||!amount||!desc||!date) { showToast('⚠ Project, date, description and amount required',true); return; }
+  showLoading('Saving cost…');
+  const g = id => document.getElementById(id)?.value||'';
+  const cid = editingCostId||('cost-'+Date.now());
+  const proj = pmProjects.find(p=>p.id===projId);
+  const shouldPostJE = document.getElementById('cost-post-je').checked;
+  const glAcctId = g('cost-gl-account')||null;
+  let jeId = null;
+
+  // Auto-post JE to GL if requested and GL account selected
+  if (shouldPostJE && glAcctId && proj?.company_id) {
+    // Find AP or Cash account for credit side
+    const { data: accts } = await sb.from('accounts').select('id,account_name,account_type,account_number')
+      .eq('company_id', proj.company_id).eq('is_active',true);
+    const apAcct = accts?.find(a=>a.account_name.toLowerCase().includes('accounts payable')
+      || a.account_name.toLowerCase().includes('payable')) || accts?.find(a=>a.account_type==='Liability');
+    if (apAcct) {
+      jeId = 'je-cost-'+cid;
+      const projCode = proj.project_number || proj.project_name.slice(0,10);
+      await sb.from('journal_entries').insert({
+        id:jeId, company_id:proj.company_id, entry_date:date,
+        description:`Project Cost — ${desc} [${projCode}]`,
+        status:'posted', entry_type:'manual', updated_at:new Date().toISOString(),
+      });
+      await sb.from('journal_entry_lines').insert([
+        {id:jeId+'-1', journal_entry_id:jeId, account_id:glAcctId, description:`${desc} [Project: ${projCode}]`, debit:Math.round(amount*100)/100, credit:0, sort_order:0},
+        {id:jeId+'-2', journal_entry_id:jeId, account_id:apAcct.id, description:'Accounts Payable', debit:0, credit:Math.round(amount*100)/100, sort_order:1},
+      ]);
+    }
+  }
+
+  const { data: vendorData } = g('cost-vendor') ? await sb.from('vendors').select('name').eq('id',g('cost-vendor')).single() : { data:null };
+  await sb.from('project_costs').upsert({
+    id:cid, project_id:projId, phase_id:g('cost-phase')||null,
+    category:g('cost-type'), description:desc, cost_date:date,
+    amount, vendor_id:g('cost-vendor')||null, vendor_name:vendorData?.name||null,
+    reference:g('cost-ref'), gl_account_id:glAcctId,
+    journal_entry_id:jeId, is_posted:!!jeId,
+  });
+  hideLoading(); closeModal('costModal'); showToast('✓ Cost entry saved'+(jeId?' and posted to GL':'')); loadProjectCosts();
+}
+
+// ── BILLING ──
+async function loadProjectBilling() {
+  const projId = document.getElementById('billing-project-filter')?.value;
+  const c = document.getElementById('pm-billing-body');
+  if (!projId) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">Select a project</div></div>`; return; }
+  const proj = pmProjects.find(p=>p.id===projId);
+  const fmt2 = v => parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+
+  // Load milestones, time entries, existing invoices
+  const [{ data:milestones }, { data:timeEntries }, { data:invoices }] = await Promise.all([
+    sb.from('project_milestones').select('*').eq('project_id',projId).order('sort_order'),
+    sb.from('time_entries').select('*').eq('project_id',projId).eq('is_billable',true).eq('is_invoiced',false),
+    sb.from('invoices').select('*').eq('company_id',proj?.company_id||'').order('invoice_date',{ascending:false}).limit(20),
+  ]);
+
+  const unbilledHours = (timeEntries||[]).reduce((s,t)=>s+parseFloat(t.hours||0),0);
+  const unbilledAmount = (timeEntries||[]).reduce((s,t)=>s+parseFloat(t.billable_amount||0),0);
+  const totalContract = parseFloat(proj?.contract_value||0);
+  const totalBilled = (invoices||[]).filter(i=>i.status!=='void').reduce((s,i)=>s+parseFloat(i.total||0),0);
+
+  c.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+      <div class="dash-card"><div class="dash-card-label">Contract Value</div><div class="dash-card-value">$${fmt2(totalContract)}</div></div>
+      <div class="dash-card"><div class="dash-card-label">Total Billed</div><div class="dash-card-value">$${fmt2(totalBilled)}</div></div>
+      <div class="dash-card"><div class="dash-card-label">Remaining to Bill</div><div class="dash-card-value" style="color:var(--success);">$${fmt2(totalContract-totalBilled)}</div></div>
+      <div class="dash-card"><div class="dash-card-label">Unbilled T&amp;M</div><div class="dash-card-value">${unbilledHours.toFixed(1)}h / $${fmt2(unbilledAmount)}</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;">Milestones</div>
+        ${(milestones||[]).length ? `<table class="acct-table"><thead><tr><th>Milestone</th><th>Due</th><th>Status</th><th style="text-align:right;">Amount</th><th></th></tr></thead><tbody>` +
+          (milestones||[]).map(m=>`<tr>
+            <td>${m.milestone_name}</td>
+            <td style="font-size:12px;color:var(--text-mid);">${m.due_date?fmtDate(m.due_date):'—'}</td>
+            <td>${statusPill(m.status)}</td>
+            <td class="amount">$${fmt2(m.billing_amount)}</td>
+            <td>${m.status==='achieved'&&m.is_billable?`<button onclick="invoiceMilestone('${m.id}','${projId}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Invoice</button>`:'—'}</td>
+          </tr>`).join('') + `</tbody></table>` :
+          `<div style="font-size:13px;color:var(--text-light);padding:12px;">No milestones set up yet. Add milestones in the project settings.</div>`}
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;">Unbilled Time &amp; Materials</div>
+        ${(timeEntries||[]).length ? `<table class="acct-table"><thead><tr><th>Date</th><th>Description</th><th style="text-align:right;">Hrs</th><th style="text-align:right;">Amount</th></tr></thead><tbody>` +
+          (timeEntries||[]).slice(0,10).map(t=>`<tr>
+            <td>${fmtDate(t.entry_date)}</td>
+            <td style="font-size:12px;color:var(--text-mid);">${t.description||'—'}</td>
+            <td class="number">${parseFloat(t.hours||0).toFixed(2)}</td>
+            <td class="amount">$${fmt2(t.billable_amount)}</td>
+          </tr>`).join('') + `</tbody>
+          <tfoot><tr style="background:var(--gold-pale);font-weight:600;">
+            <td colspan="2">Total Unbilled</td>
+            <td class="number">${unbilledHours.toFixed(2)}</td>
+            <td class="amount">$${fmt2(unbilledAmount)}</td>
+          </tr></tfoot></table>
+          <div style="margin-top:10px;">
+            <button class="btn-save" onclick="createTimeMaterialsBill('${projId}')">Create T&amp;M Invoice →</button>
+          </div>` :
+          `<div style="font-size:13px;color:var(--text-light);padding:12px;">No unbilled time entries.</div>`}
+      </div>
+    </div>
+
+    <div style="margin-top:20px;">
+      <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;">Invoice History</div>
+      ${(invoices||[]).length ? `<table class="acct-table"><thead><tr><th>Invoice #</th><th>Date</th><th>Due</th><th>Status</th><th style="text-align:right;">Amount</th><th style="text-align:right;">Balance</th></tr></thead><tbody>` +
+        invoices.slice(0,8).map(i=>`<tr>
+          <td class="number">${i.invoice_number||'—'}</td>
+          <td>${fmtDate(i.invoice_date)}</td>
+          <td style="font-size:12px;color:var(--text-mid);">${fmtDate(i.due_date)}</td>
+          <td>${statusPill(i.status)}</td>
+          <td class="amount">$${fmt2(i.total)}</td>
+          <td class="amount" style="color:${parseFloat(i.balance_due||0)>0?'var(--error)':'var(--success)'};">$${fmt2(i.balance_due)}</td>
+        </tr>`).join('') + `</tbody></table>` :
+        `<div style="font-size:13px;color:var(--text-light);padding:12px;">No invoices yet for this project's company.</div>`}
+    </div>`;
+}
+
+async function invoiceMilestone(milestoneId, projId) {
+  showLoading('Preparing milestone invoice…');
+  const { data:m } = await sb.from('project_milestones').select('*').eq('id',milestoneId).single();
+  const proj = pmProjects.find(p=>p.id===projId);
+  hideLoading();
+  if (!m||!proj) { showToast('⚠ Could not load milestone data',true); return; }
+  // Switch to Financials → Invoices with pre-filled data
+  showToast(`✓ Navigate to Financials → Invoices to create invoice for "${m.milestone_name}" ($${parseFloat(m.billing_amount||0).toFixed(2)})`);
+}
+
+async function createTimeMaterialsBill(projId) {
+  if (!projId) projId = document.getElementById('billing-project-filter')?.value;
+  if (!projId) { showToast('⚠ Select a project',true); return; }
+  showLoading('Preparing T&M invoice…');
+  const { data: entries } = await sb.from('time_entries').select('*').eq('project_id',projId).eq('is_billable',true).eq('is_invoiced',false);
+  hideLoading();
+  if (!entries?.length) { showToast('⚠ No unbilled time entries found',true); return; }
+  const total = entries.reduce((s,t)=>s+parseFloat(t.billable_amount||0),0);
+  showToast(`✓ ${entries.length} time entries totaling $${total.toFixed(2)} ready. Navigate to Financials → Invoices to post.`);
+  // Mark as invoiced
+  for (const e of entries) await sb.from('time_entries').update({is_invoiced:true}).eq('id',e.id);
+}
+
+async function createMilestoneBill() { createTimeMaterialsBill(document.getElementById('billing-project-filter')?.value); }
+
+// ── BUDGET VS ACTUAL ──
+async function loadBVA() {
+  const projId = document.getElementById('bva-project-filter')?.value;
+  const c = document.getElementById('pm-bva-body');
+  if (!projId) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">Select a project</div></div>`; return; }
+
+  showLoading('Calculating budget vs actual…');
+  const [{ data:budgets }, { data:costs }, { data:timeEntries }, proj] = await Promise.all([
+    sb.from('project_budgets').select('*').eq('project_id',projId),
+    sb.from('project_costs').select('*').eq('project_id',projId),
+    sb.from('time_entries').select('hours,billable_amount,billing_rate').eq('project_id',projId),
+    Promise.resolve(pmProjects.find(p=>p.id===projId)),
+  ]);
+  hideLoading();
+
+  const fmt2 = v => parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+  const categories = ['labor','materials','equipment','subcontractor','travel','overhead','contingency','other'];
+
+  // Labor costs come from time entries
+  const laborCost = (timeEntries||[]).reduce((s,t)=>s+parseFloat(t.billable_amount||0),0);
+  const actualByCat = {};
+  (costs||[]).forEach(cost => {
+    actualByCat[cost.category] = (actualByCat[cost.category]||0)+parseFloat(cost.amount||0);
+  });
+  actualByCat['labor'] = (actualByCat['labor']||0) + laborCost;
+
+  const budgetByCat = {};
+  (budgets||[]).forEach(b => {
+    budgetByCat[b.category] = (budgetByCat[b.category]||0)+parseFloat(b.budgeted_amount||0);
+  });
+
+  const totalBudget = Object.values(budgetByCat).reduce((s,v)=>s+v,0);
+  const totalActual = Object.values(actualByCat).reduce((s,v)=>s+v,0);
+  const totalVariance = totalBudget - totalActual;
+  const overallPct = totalBudget ? Math.round(totalActual/totalBudget*100) : 0;
+
+  let rows = categories.map(cat => {
+    const bud = budgetByCat[cat]||0;
+    const act = actualByCat[cat]||0;
+    const variance = bud - act;
+    const pct = bud ? Math.round(act/bud*100) : (act>0?999:0);
+    if (!bud && !act) return '';
+    return `<tr>
+      <td style="text-transform:capitalize;">${cat}</td>
+      <td class="amount">$${fmt2(bud)}</td>
+      <td class="amount">$${fmt2(act)}</td>
+      <td class="amount" style="color:${variance>=0?'var(--success)':'var(--error)'};">$${fmt2(variance)}</td>
+      <td style="text-align:right;">
+        <div style="display:flex;align-items:center;gap:8px;justify-content:flex-end;">
+          <div style="width:80px;height:6px;background:var(--border-light);border-radius:3px;overflow:hidden;">
+            <div style="height:6px;width:${Math.min(100,pct)}%;background:${pct>100?'var(--error)':pct>80?'#f39c12':'var(--success)'}; border-radius:3px;"></div>
+          </div>
+          <span style="font-size:12px;font-family:monospace;min-width:36px;text-align:right;">${pct>999?'N/A':pct+'%'}</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  c.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+      <div class="dash-card"><div class="dash-card-label">Total Budget</div><div class="dash-card-value">$${fmt2(totalBudget)}</div></div>
+      <div class="dash-card"><div class="dash-card-label">Actual Costs</div><div class="dash-card-value">$${fmt2(totalActual)}</div></div>
+      <div class="dash-card"><div class="dash-card-label">${totalVariance>=0?'Under Budget':'Over Budget'}</div><div class="dash-card-value" style="color:${totalVariance>=0?'var(--success)':'var(--error)'};">$${fmt2(Math.abs(totalVariance))}</div></div>
+      <div class="dash-card"><div class="dash-card-label">Budget Used</div>
+        <div class="dash-card-value" style="color:${overallPct>100?'var(--error)':overallPct>80?'#e67e22':'var(--success)'}">${overallPct}%</div>
+      </div>
+    </div>
+    <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+      <div style="background:var(--navy);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--gold-light);">Budget vs Actual — ${proj?.project_name}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);">As of ${new Date().toLocaleDateString()}</div>
+      </div>
+      <table class="acct-table"><thead><tr>
+        <th>Category</th>
+        <th style="text-align:right;">Budgeted</th>
+        <th style="text-align:right;">Actual</th>
+        <th style="text-align:right;">Variance</th>
+        <th style="text-align:right;">% Used</th>
+      </tr></thead><tbody>
+        ${rows||'<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-light);">No budget or cost data yet</td></tr>'}
+      </tbody>
+      <tfoot><tr style="background:var(--gold-pale);font-weight:700;">
+        <td style="padding:10px 16px;">Total</td>
+        <td class="amount" style="font-weight:700;">$${fmt2(totalBudget)}</td>
+        <td class="amount" style="font-weight:700;">$${fmt2(totalActual)}</td>
+        <td class="amount" style="font-weight:700;color:${totalVariance>=0?'var(--success)':'var(--error)'};">$${fmt2(totalVariance)}</td>
+        <td style="text-align:right;font-family:monospace;font-weight:700;">${overallPct}%</td>
+      </tr></tfoot></table>
+    </div>`;
+}
+
+// ── PROJECT P&L ──
+async function loadProjectPL() {
+  const projFilter = document.getElementById('projpl-filter')?.value;
+  const c = document.getElementById('pm-projpl-body');
+  showLoading('Calculating project P&L…');
+
+  const projects = projFilter ? pmProjects.filter(p=>p.id===projFilter) : pmProjects;
+  if (!projects.length) { hideLoading(); c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No projects to display</div></div>`; return; }
+
+  const fmt2 = v => parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+  const rows = [];
+
+  for (const proj of projects) {
+    const [{ data:costs }, { data:timeEntries }, { data:invoices }] = await Promise.all([
+      sb.from('project_costs').select('amount').eq('project_id',proj.id),
+      sb.from('time_entries').select('hours,billable_amount').eq('project_id',proj.id),
+      sb.from('invoices').select('total,status').eq('company_id',proj.company_id),
+    ]);
+    const totalCosts  = (costs||[]).reduce((s,c)=>s+parseFloat(c.amount||0),0);
+    const laborCost   = (timeEntries||[]).reduce((s,t)=>s+parseFloat(t.billable_amount||0),0);
+    const totalRevenue = (invoices||[]).filter(i=>i.status!=='void').reduce((s,i)=>s+parseFloat(i.total||0),0);
+    const totalExpense = totalCosts + laborCost;
+    const grossProfit = totalRevenue - totalExpense;
+    const margin = totalRevenue ? Math.round(grossProfit/totalRevenue*100) : 0;
+    rows.push({ proj, totalRevenue, totalExpense, laborCost, totalCosts, grossProfit, margin });
+  }
+
+  hideLoading();
+  const grandRevenue  = rows.reduce((s,r)=>s+r.totalRevenue,0);
+  const grandExpense  = rows.reduce((s,r)=>s+r.totalExpense,0);
+  const grandProfit   = grandRevenue - grandExpense;
+  const grandMargin   = grandRevenue ? Math.round(grandProfit/grandRevenue*100) : 0;
+
+  c.innerHTML = `
+    <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+      <div style="background:var(--navy);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--gold-light);">Project Profitability Report</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);">As of ${new Date().toLocaleDateString()}</div>
+      </div>
+      <table class="acct-table"><thead><tr>
+        <th>Project</th><th>Type</th><th style="text-align:right;">Revenue</th>
+        <th style="text-align:right;">Labor</th><th style="text-align:right;">Other Costs</th>
+        <th style="text-align:right;">Total Costs</th><th style="text-align:right;">Gross Profit</th>
+        <th style="text-align:right;">Margin %</th>
+      </tr></thead><tbody>` +
+    rows.map(r=>`<tr>
+      <td><div style="display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:${r.proj.color||'#b8965a'};"></span><strong>${r.proj.project_name}</strong></div></td>
+      <td style="font-size:12px;color:var(--text-mid);">${(r.proj.project_type||'').replace(/_/g,' ')}</td>
+      <td class="amount">$${fmt2(r.totalRevenue)}</td>
+      <td class="amount">$${fmt2(r.laborCost)}</td>
+      <td class="amount">$${fmt2(r.totalCosts)}</td>
+      <td class="amount">$${fmt2(r.totalExpense)}</td>
+      <td class="amount" style="color:${r.grossProfit>=0?'var(--success)':'var(--error)'};">$${fmt2(r.grossProfit)}</td>
+      <td style="text-align:right;font-family:monospace;font-weight:500;color:${r.margin>=0?'var(--success)':'var(--error)'};">${r.margin}%</td>
+    </tr>`).join('') + `
+      </tbody>
+      <tfoot><tr style="background:var(--gold-pale);font-weight:700;">
+        <td colspan="2" style="padding:10px 16px;">Total / Average</td>
+        <td class="amount" style="font-weight:700;">$${fmt2(grandRevenue)}</td>
+        <td class="amount" style="font-weight:700;">$${fmt2(rows.reduce((s,r)=>s+r.laborCost,0))}</td>
+        <td class="amount" style="font-weight:700;">$${fmt2(rows.reduce((s,r)=>s+r.totalCosts,0))}</td>
+        <td class="amount" style="font-weight:700;">$${fmt2(grandExpense)}</td>
+        <td class="amount" style="font-weight:700;color:${grandProfit>=0?'var(--success)':'var(--error)'};">$${fmt2(grandProfit)}</td>
+        <td style="text-align:right;font-family:monospace;font-weight:700;color:${grandMargin>=0?'var(--success)':'var(--error)'};">${grandMargin}%</td>
+      </tr></tfoot>
+    </table>
+  </div>`;
+}
+
+function printProjectPL() {
+  const content = document.getElementById('pm-projpl-body')?.innerHTML||'';
+  const win = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>Project P&L</title>
+  <style>body{font-family:Georgia,serif;font-size:12px;max-width:900px;margin:20px auto;}
+  table{width:100%;border-collapse:collapse;margin-top:12px;}
+  th{background:#0f1f38;color:#d4b07a;padding:7px 12px;text-align:left;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;}
+  td{padding:7px 12px;border-bottom:1px solid #ede8df;}
+  tfoot tr{background:#f7f4ef;font-weight:700;}
+  @media print{button{display:none;}}</style></head>
+  <body><button onclick="window.print()" style="padding:7px 16px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:16px;">🖨 Print</button>
+  <h2>Project Profitability Report</h2>${content}</body></html>`);
+  win.document.close();
+}
+
+// ── EXTEND loadPMData to populate Batch 2 dropdowns ──
+const _origLoadPMData = loadPMData;
+loadPMData = async function() {
+  await _origLoadPMData();
+  // Sync batch 2 project filter dropdowns
+  const b2Selects = ['budget-project-filter','costs-project-filter','billing-project-filter','bva-project-filter','projpl-filter'];
+  b2Selects.forEach(selId => {
+    const sel = document.getElementById(selId); if (!sel) return;
+    const isAll = selId === 'projpl-filter';
+    sel.innerHTML = (isAll?'<option value="">All projects</option>':'<option value="">Select project…</option>') +
+      pmProjects.map(p=>`<option value="${p.id}">${p.project_name}</option>`).join('');
+    if (!isAll && pmProjects.length === 1) sel.value = pmProjects[0].id;
+  });
+};
 
 // ── INIT
 loadDashboard();
