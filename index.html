@@ -3249,6 +3249,12 @@ const DEFAULT_COA = [
   {n:'2100',name:'Accrued Liabilities',          type:'Liability', sub:'Current Liability'},
   {n:'2200',name:'Sales Tax Payable',            type:'Liability', sub:'Current Liability'},
   {n:'2300',name:'Payroll Liabilities',          type:'Liability', sub:'Current Liability'},
+  {n:'2310',name:'Federal Income Tax Payable',   type:'Liability', sub:'Current Liability'},
+  {n:'2320',name:'Social Security Tax Payable',  type:'Liability', sub:'Current Liability'},
+  {n:'2330',name:'Medicare Tax Payable',          type:'Liability', sub:'Current Liability'},
+  {n:'2340',name:'State Income Tax Payable',      type:'Liability', sub:'Current Liability'},
+  {n:'2350',name:'Employee Benefits Payable',     type:'Liability', sub:'Current Liability'},
+  {n:'2360',name:'Garnishments Payable',          type:'Liability', sub:'Current Liability'},
   {n:'2400',name:'Short-Term Notes Payable',     type:'Liability', sub:'Current Liability'},
   {n:'2500',name:'Deferred Revenue',             type:'Liability', sub:'Current Liability'},
   {n:'2600',name:'Intercompany Payable',         type:'Liability', sub:'Current Liability'},
@@ -4771,6 +4777,7 @@ async function loadPayroll() {
       <td class="amount">${fmtMoney(p.total_net_pay)}</td>
       <td>${statusPill(p.status)}</td>
       <td><button onclick="viewPayrollDetail('${p.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">View</button>
+          <button onclick="printPayrollChecks('${p.id}')" style="background:none;border:none;color:var(--navy);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">🖨 Checks</button>
           <button onclick="voidPayroll('${p.id}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Void</button></td>
     </tr>`).join('')+'</tbody></table>';
 }
@@ -4993,28 +5000,9 @@ async function savePayroll(status) {
   if (error) { hideLoading(); showToast('Error: ' + error.message, true); return; }
   await sb.from('payroll_lines').insert(lines.map(l => ({ ...l, payroll_id: pid })));
 
-  // Auto-post JE if processed
+  // ── POST PAYROLL JOURNAL ENTRY ──
   if (status === 'processed') {
-    const wageAccts = acctAccounts.filter(a => a.account_name.toLowerCase().includes('salari') || a.account_name.toLowerCase().includes('wage'));
-    const cashAccts = acctAccounts.filter(a => a.account_type === 'Asset' && a.account_subtype === 'Current Asset');
-    const liabAccts = acctAccounts.filter(a => a.account_name.toLowerCase().includes('payroll'));
-    if (wageAccts.length && cashAccts.length) {
-      const jeId = 'je-pr-' + pid;
-      await sb.from('journal_entries').insert({
-        id: jeId, company_id: acctCompanyId, entry_date: paydate,
-        description: `Payroll ${start} – ${end}`, status: 'posted',
-        entry_type: 'manual', updated_at: new Date().toISOString()
-      });
-      const jeLines = [
-        { id: jeId+'-gross', journal_entry_id: jeId, account_id: wageAccts[0].id, description: 'Gross Wages', debit: totalGross, credit: 0, sort_order: 0 },
-        { id: jeId+'-net',   journal_entry_id: jeId, account_id: cashAccts[0].id, description: 'Net Pay', debit: 0, credit: totalNet, sort_order: 1 },
-      ];
-      if (totalFed + totalState + totalSS + totalMed > 0 && liabAccts.length) {
-        jeLines.push({ id: jeId+'-liab', journal_entry_id: jeId, account_id: liabAccts[0].id, description: 'Payroll Tax Liabilities', debit: 0, credit: totalFed + totalState + totalSS + totalMed, sort_order: 2 });
-      }
-      await sb.from('journal_entry_lines').insert(jeLines);
-      await sb.from('payroll_records').update({ journal_entry_id: jeId }).eq('id', pid);
-    }
+    await postPayrollJournalEntry(pid, paydate, start, end, lines, totalGross, totalFed, totalState, totalSS, totalMed, totalNet);
   }
 
   hideLoading();
@@ -6222,13 +6210,301 @@ saveRecord = async function() {
   }).eq('id', currentCompanyId);
 };
 
+// ═══════════════════════════════════════════════════
+//  PAYROLL — BALANCED JOURNAL ENTRY
+// ═══════════════════════════════════════════════════
+async function postPayrollJournalEntry(pid, paydate, start, end, lines, totalGross, totalFed, totalState, totalSS, totalMed, totalNet) {
+
+  // ── Helper: find best matching account by number or name keywords ──
+  const findAcct = (numberPrefix, ...keywords) => {
+    // Try by account number first
+    let a = acctAccounts.find(x => x.account_number && x.account_number.startsWith(numberPrefix));
+    if (a) return a;
+    // Fall back to name match
+    for (const kw of keywords) {
+      a = acctAccounts.find(x => x.account_name.toLowerCase().includes(kw.toLowerCase()));
+      if (a) return a;
+    }
+    return null;
+  };
+
+  // Identify GL accounts
+  const wageAcct     = findAcct('6000', 'Salaries', 'Wages');
+  const taxExpAcct   = findAcct('6010', 'Payroll Tax');
+  const benefitAcct  = findAcct('6020', 'Employee Benefits', 'Benefits');
+  const cashAcct     = findAcct('1010', 'Checking', 'Cash');
+  const fitPayAcct   = findAcct('2310', 'Federal Income Tax Payable', 'Federal Tax');
+  const ssPayAcct    = findAcct('2320', 'Social Security Tax Payable', 'Social Security');
+  const medPayAcct   = findAcct('2330', 'Medicare Tax Payable', 'Medicare');
+  const sitPayAcct   = findAcct('2340', 'State Income Tax Payable', 'State Income Tax');
+  const benefitPayAcct = findAcct('2350', 'Employee Benefits Payable', 'Benefits Payable', 'Payroll Liabilities');
+  const garnPayAcct  = findAcct('2360', 'Garnishments Payable', 'Payroll Liabilities');
+  const fallbackLiab = findAcct('2300', 'Payroll Liabilities');
+
+  if (!wageAcct || !cashAcct) {
+    console.warn('Payroll JE skipped: missing Wages or Cash account. Load Default COA first.');
+    showToast('⚠ Payroll saved but JE not posted — missing Wages/Cash GL accounts. Load Default COA.', true);
+    return;
+  }
+
+  // ── Aggregate deduction totals across all lines ──
+  const totalPreTax  = lines.reduce((s,l) => s + (l.pretax_deductions  || 0), 0);
+  const totalPostTax = lines.reduce((s,l) => s + (l.posttax_deductions || 0), 0);
+  // Employer FICA (matches employee amounts — 6.2% SS + 1.45% Medicare)
+  const totalSSEmployer  = Math.round(totalSS  * 100) / 100;
+  const totalMedEmployer = Math.round(totalMed * 100) / 100;
+  const totalEmployerFICA = totalSSEmployer + totalMedEmployer;
+
+  // ── Build JE lines ──
+  const jeId = 'je-pr-' + pid;
+  const jl = [];
+  let sort = 0;
+  const addLine = (acct, desc, debit, credit) => {
+    if (!acct || (Math.abs(debit) < 0.005 && Math.abs(credit) < 0.005)) return;
+    jl.push({
+      id: `${jeId}-${sort}`,
+      journal_entry_id: jeId,
+      account_id: acct.id,
+      description: desc,
+      debit:  Math.round(debit  * 100) / 100,
+      credit: Math.round(credit * 100) / 100,
+      sort_order: sort++,
+    });
+  };
+
+  // DEBITS
+  addLine(wageAcct,   'Gross Wages',                    totalGross,       0);
+  addLine(taxExpAcct || fallbackLiab, 'Employer Payroll Taxes (FICA)', totalEmployerFICA, 0);
+
+  // CREDITS — employee net pay
+  addLine(cashAcct,   'Net Pay Disbursed',              0, totalNet);
+
+  // CREDITS — employee tax withholdings
+  addLine(fitPayAcct   || fallbackLiab, 'Federal Income Tax Withheld',   0, totalFed);
+  addLine(ssPayAcct    || fallbackLiab, 'Social Security Tax Payable (EE+ER)', 0, totalSS + totalSSEmployer);
+  addLine(medPayAcct   || fallbackLiab, 'Medicare Tax Payable (EE+ER)',   0, totalMed + totalMedEmployer);
+  addLine(sitPayAcct   || fallbackLiab, 'State Income Tax Withheld',      0, totalState);
+
+  // CREDITS — deductions payable
+  if (totalPreTax > 0)  addLine(benefitPayAcct || fallbackLiab, 'Pre-Tax Deductions Payable',  0, totalPreTax);
+  if (totalPostTax > 0) addLine(garnPayAcct    || fallbackLiab, 'Post-Tax Deductions Payable', 0, totalPostTax);
+
+  // ── Verify balance before posting ──
+  const totalDebits  = jl.reduce((s,l) => s + l.debit,  0);
+  const totalCredits = jl.reduce((s,l) => s + l.credit, 0);
+  const diff = Math.abs(totalDebits - totalCredits);
+
+  if (diff > 0.05) {
+    // Force balance with adjustment to fallback liability
+    const adjustAcct = fallbackLiab || cashAcct;
+    if (totalDebits > totalCredits) {
+      jl.push({ id: `${jeId}-adj`, journal_entry_id: jeId, account_id: adjustAcct.id, description: 'Payroll Rounding Adjustment', debit: 0, credit: diff, sort_order: sort++ });
+    } else {
+      jl.push({ id: `${jeId}-adj`, journal_entry_id: jeId, account_id: adjustAcct.id, description: 'Payroll Rounding Adjustment', debit: diff, credit: 0, sort_order: sort++ });
+    }
+  }
+
+  await sb.from('journal_entries').insert({
+    id: jeId, company_id: acctCompanyId, entry_date: paydate,
+    reference_number: `PR-${pid.slice(-6)}`,
+    description: `Payroll ${start} – ${end}`,
+    status: 'posted', entry_type: 'manual',
+    updated_at: new Date().toISOString(),
+  });
+  await sb.from('journal_entry_lines').insert(jl);
+  await sb.from('payroll_records').update({ journal_entry_id: jeId }).eq('id', pid);
+}
+
+// ═══════════════════════════════════════════════════
+//  PAYROLL CHECK PRINTING
+// ═══════════════════════════════════════════════════
+async function printPayrollChecks(payrollId) {
+  showLoading('Preparing checks…');
+  const { data: pr }    = await sb.from('payroll_records').select('*').eq('id', payrollId).single();
+  const { data: lines } = await sb.from('payroll_lines').select('*, employees(first_name,last_name,address_line1,city,state,zip)').eq('payroll_id', payrollId).order('sort_order');
+  const { data: company } = await sb.from('companies').select('legal_name,prim_addr1,prim_city,prim_state,prim_zip').eq('id', acctCompanyId).single();
+  hideLoading();
+
+  const fmt2 = v => `$${parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2})}`;
+  const fmtDate = d => d ? new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : '—';
+  const toWords = n => {
+    // Simple number-to-words for check amounts
+    if (n === 0) return 'Zero';
+    const ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+    const tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+    const toWordsUnder1000 = x => {
+      if (x === 0) return '';
+      if (x < 20) return ones[x] + ' ';
+      if (x < 100) return tens[Math.floor(x/10)] + (x%10 ? '-'+ones[x%10] : '') + ' ';
+      return ones[Math.floor(x/100)] + ' Hundred ' + toWordsUnder1000(x%100);
+    };
+    const dollars = Math.floor(n);
+    const cents   = Math.round((n - dollars) * 100);
+    let result = '';
+    if (dollars >= 1000) result += toWordsUnder1000(Math.floor(dollars/1000)) + 'Thousand ';
+    result += toWordsUnder1000(dollars % 1000);
+    result = result.trim() + ' and ' + String(cents).padStart(2,'0') + '/100';
+    return result;
+  };
+
+  const win = window.open('', '_blank');
+  let checksHTML = '';
+
+  (lines||[]).forEach((line, idx) => {
+    const empName  = line.employees ? `${line.employees.first_name} ${line.employees.last_name}` : line.employee_name;
+    const empAddr1 = line.employees?.address_line1 || '';
+    const empCityStateZip = line.employees ? `${line.employees.city||''}, ${line.employees.state||''} ${line.employees.zip||''}` : '';
+    const netPay   = parseFloat(line.net_pay || 0);
+    const checkNum = (1000 + idx + 1);
+
+    checksHTML += `
+    <div class="check-page">
+      <!-- CHECK STUB (top) -->
+      <div class="stub">
+        <div class="stub-header">
+          <div><strong>${company?.legal_name||'Company'}</strong></div>
+          <div style="font-size:11px;color:#666;">${company?.prim_addr1||''} · ${company?.prim_city||''}, ${company?.prim_state||''} ${company?.prim_zip||''}</div>
+        </div>
+        <table class="stub-table">
+          <thead><tr><th>Pay Period</th><th>Pay Date</th><th>Check #</th><th>Employee</th></tr></thead>
+          <tbody><tr>
+            <td>${pr.pay_period_start} – ${pr.pay_period_end}</td>
+            <td>${pr.pay_date}</td>
+            <td>${checkNum}</td>
+            <td>${empName}</td>
+          </tr></tbody>
+        </table>
+        <table class="stub-table" style="margin-top:8px;">
+          <thead><tr><th>Gross Pay</th><th>Fed Tax</th><th>State Tax</th><th>SS (EE)</th><th>Medicare</th><th>Pre-Tax Ded.</th><th>Post-Tax Ded.</th><th>Net Pay</th></tr></thead>
+          <tbody><tr>
+            <td>${fmt2(line.gross_pay)}</td>
+            <td>${fmt2(line.federal_income_tax)}</td>
+            <td>${fmt2(line.state_income_tax)}</td>
+            <td>${fmt2(line.ss_employee)}</td>
+            <td>${fmt2(line.medicare_employee)}</td>
+            <td>${fmt2(line.pretax_deductions)}</td>
+            <td>${fmt2(line.posttax_deductions)}</td>
+            <td><strong>${fmt2(netPay)}</strong></td>
+          </tr></tbody>
+        </table>
+      </div>
+
+      <!-- NEGOTIABLE CHECK (middle) -->
+      <div class="check">
+        <div class="check-top">
+          <div class="company-block">
+            <div class="company-name">${company?.legal_name||'Company'}</div>
+            <div class="company-addr">${company?.prim_addr1||''}<br>${company?.prim_city||''}, ${company?.prim_state||''} ${company?.prim_zip||''}</div>
+          </div>
+          <div class="check-number-block">
+            <div class="check-number">${checkNum}</div>
+            <div class="check-date">Date: ${pr.pay_date}</div>
+          </div>
+        </div>
+        <div class="pay-to-row">
+          <span class="pay-to-label">PAY TO THE ORDER OF</span>
+          <span class="payee">${empName}</span>
+          <span class="amount-box">${fmt2(netPay)}</span>
+        </div>
+        <div class="amount-words-row">
+          <span class="amount-words">${toWords(netPay)}</span>
+          <span class="dollars-label">DOLLARS</span>
+        </div>
+        <div class="payee-address">${empAddr1}${empCityStateZip?'<br>'+empCityStateZip:''}</div>
+        <div class="check-bottom">
+          <div class="memo-line"><span class="memo-label">MEMO:</span> Payroll ${pr.pay_period_start} – ${pr.pay_period_end}</div>
+          <div class="signature-line">_______________________________<br><span style="font-size:9px;">Authorized Signature</span></div>
+        </div>
+        <div class="micr-line">⑆ 000000000 ⑆ 000000000 ⑆ ${checkNum}</div>
+      </div>
+
+      <!-- SECOND STUB (employee copy) -->
+      <div class="stub stub-bottom">
+        <div class="stub-header">
+          <div><strong>EMPLOYEE COPY — RETAIN FOR YOUR RECORDS</strong></div>
+          <div style="font-size:11px;color:#666;">${empName} · Pay Date: ${pr.pay_date}</div>
+        </div>
+        <table class="stub-table">
+          <thead><tr><th>Earnings</th><th>Hours</th><th>Amount</th><th>Deductions</th><th>Amount</th><th>Taxes</th><th>Amount</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Regular Pay</td><td>${parseFloat(line.regular_hours||line.hours_worked||0).toFixed(2)}</td><td>${fmt2(parseFloat(line.gross_pay||0)-parseFloat(line.overtime_pay||0))}</td>
+              <td>Pre-Tax Deductions</td><td>${fmt2(line.pretax_deductions)}</td>
+              <td>Federal Income Tax</td><td>${fmt2(line.federal_income_tax)}</td>
+            </tr>
+            <tr>
+              <td>Overtime Pay</td><td>${parseFloat(line.overtime_hours||0).toFixed(2)}</td><td>${fmt2(line.overtime_pay||0)}</td>
+              <td>Post-Tax Deductions</td><td>${fmt2(line.posttax_deductions)}</td>
+              <td>Social Security</td><td>${fmt2(line.ss_employee)}</td>
+            </tr>
+            <tr>
+              <td></td><td></td><td></td>
+              <td></td><td></td>
+              <td>Medicare</td><td>${fmt2(line.medicare_employee)}</td>
+            </tr>
+            <tr>
+              <td></td><td></td><td></td>
+              <td></td><td></td>
+              <td>State Tax</td><td>${fmt2(line.state_income_tax)}</td>
+            </tr>
+            <tr style="font-weight:600;background:#f7f4ef;">
+              <td>GROSS PAY</td><td></td><td>${fmt2(line.gross_pay)}</td>
+              <td>TOTAL DEDUCTIONS</td><td>${fmt2((parseFloat(line.pretax_deductions||0)+parseFloat(line.posttax_deductions||0)))}</td>
+              <td>NET PAY</td><td>${fmt2(netPay)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  });
+
+  win.document.write(`<!DOCTYPE html><html><head><title>Payroll Checks — ${pr.pay_date}</title>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family: Arial, sans-serif; font-size: 11px; color: #1a1a2e; background: #f0f0f0; }
+    .no-print { padding:12px 20px; background:#0f1f38; color:#d4b07a; border:none; border-radius:4px; cursor:pointer; font-size:13px; margin:16px; display:inline-block; }
+    .check-page { width:8.5in; margin:0 auto 24px; background:white; border:1px solid #ccc; page-break-after:always; }
+    .stub { padding:16px 24px; border-bottom:2px dashed #999; min-height:1.5in; }
+    .stub-bottom { border-bottom:none; border-top:2px dashed #999; }
+    .stub-header { display:flex; justify-content:space-between; margin-bottom:10px; font-size:11px; }
+    .stub-table { width:100%; border-collapse:collapse; font-size:10px; }
+    .stub-table th { background:#0f1f38; color:#d4b07a; padding:4px 8px; text-align:right; white-space:nowrap; }
+    .stub-table th:first-child { text-align:left; }
+    .stub-table td { padding:4px 8px; border-bottom:1px solid #eee; text-align:right; }
+    .stub-table td:first-child { text-align:left; }
+    .check { padding:20px 28px; min-height:3.5in; border-bottom:2px dashed #999; position:relative; }
+    .check-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; }
+    .company-name { font-size:16px; font-weight:700; color:#0f1f38; }
+    .company-addr { font-size:10px; color:#666; margin-top:4px; }
+    .check-number { font-size:18px; font-weight:700; text-align:right; }
+    .check-date { font-size:11px; text-align:right; margin-top:4px; }
+    .pay-to-row { display:flex; align-items:center; gap:12px; margin-bottom:10px; border-bottom:1px solid #000; padding-bottom:6px; }
+    .pay-to-label { font-size:9px; text-transform:uppercase; letter-spacing:0.05em; color:#666; white-space:nowrap; }
+    .payee { flex:1; font-size:14px; font-weight:600; }
+    .amount-box { border:2px solid #000; padding:4px 12px; font-size:14px; font-weight:700; font-family:monospace; white-space:nowrap; min-width:100px; text-align:right; }
+    .amount-words-row { display:flex; align-items:baseline; gap:8px; margin-bottom:16px; border-bottom:1px solid #000; padding-bottom:6px; }
+    .amount-words { flex:1; font-size:12px; font-style:italic; }
+    .dollars-label { font-size:10px; text-transform:uppercase; color:#666; }
+    .payee-address { font-size:10px; color:#444; margin-bottom:16px; min-height:28px; }
+    .check-bottom { display:flex; justify-content:space-between; align-items:flex-end; margin-top:16px; }
+    .memo-line { font-size:10px; color:#666; }
+    .memo-label { font-weight:600; }
+    .signature-line { text-align:right; font-size:11px; }
+    .micr-line { text-align:center; font-family:monospace; font-size:13px; letter-spacing:0.15em; color:#333; margin-top:12px; border-top:1px solid #ccc; padding-top:8px; }
+    @media print {
+      body { background:white; }
+      .no-print { display:none; }
+      .check-page { border:none; margin:0; page-break-after:always; }
+    }
+  </style></head><body>
+  <button class="no-print" onclick="window.print()">🖨 Print All Checks (${(lines||[]).length})</button>
+  ${checksHTML}
+  </body></html>`);
+  win.document.close();
+}
+
 // ── INIT
 loadDashboard();
 </script>
 </body>
 </html>
-
-
-
-
-
