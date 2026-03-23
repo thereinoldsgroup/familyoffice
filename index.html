@@ -6,6 +6,7 @@
 <title>Family Office — Company Manager</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   :root {
     --navy: #0f1f38;
@@ -442,6 +443,21 @@
   .report-run-btn { padding: 7px 18px; background: var(--navy); color: var(--gold-light); border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; transition: all 0.2s; }
   .report-run-btn:hover { background: var(--navy-mid); }
   .coa-group-header { padding: 8px 16px; background: var(--navy); color: var(--gold-light); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* ── COMPANY HUB ── */
+  .hub-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 8px; }
+  .hub-card {
+    background: var(--white); border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg); padding: 24px 20px;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+    box-shadow: var(--shadow-sm);
+    border-top: 3px solid transparent;
+  }
+  .hub-card:hover { box-shadow: var(--shadow-md); border-top-color: var(--gold); transform: translateY(-2px); }
+  .hub-card-icon { font-size: 28px; line-height: 1; }
+  .hub-card-title { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 600; color: var(--navy); }
+  .hub-card-desc { font-size: 12px; color: var(--text-light); line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -532,6 +548,67 @@
         <div id="dashTableBody"></div>
       </div>
     </div><!-- /view-dashboard -->
+
+    <!-- COMPANY HUB — shown when a company is selected from sidebar -->
+    <div id="view-company-hub" class="panel">
+      <div class="page-header">
+        <div>
+          <div class="page-title" id="hubCompanyName">Company</div>
+          <div class="page-subtitle" id="hubCompanyMeta">Select a section below to manage this entity</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn-secondary" onclick="showDashboard()">← All Companies</button>
+          <button class="btn-save" id="hubEditBtn" onclick="">Edit Company Info</button>
+        </div>
+      </div>
+      <div class="hub-grid">
+        <div class="hub-card" onclick="hubGo('company-info')">
+          <div class="hub-card-icon">🏢</div>
+          <div class="hub-card-title">Company Information</div>
+          <div class="hub-card-desc">Legal name, FEIN, organizational structure, addresses, accounting method</div>
+        </div>
+        <div class="hub-card" onclick="hubGo('officers')">
+          <div class="hub-card-icon">🎖️</div>
+          <div class="hub-card-title">Corporate Officers</div>
+          <div class="hub-card-desc">Officers, directors, related parties, ownership percentages, government IDs</div>
+        </div>
+        <div class="hub-card" onclick="switchModule('ownership')">
+          <div class="hub-card-icon">🔗</div>
+          <div class="hub-card-title">Ownership &amp; Relationships</div>
+          <div class="hub-card-desc">Entity ownership structure, intercompany relationships, consolidation eliminations</div>
+        </div>
+        <div class="hub-card" onclick="switchModuleForCompany('financials','coa')">
+          <div class="hub-card-icon">📋</div>
+          <div class="hub-card-title">Chart of Accounts</div>
+          <div class="hub-card-desc">Manage the general ledger accounts for this entity</div>
+        </div>
+        <div class="hub-card" onclick="switchModuleForCompany('financials','je')">
+          <div class="hub-card-icon">✏️</div>
+          <div class="hub-card-title">Journal Entries</div>
+          <div class="hub-card-desc">Create and manage manual journal entries and adjustments</div>
+        </div>
+        <div class="hub-card" onclick="switchModuleForCompany('financials','invoices')">
+          <div class="hub-card-icon">🧾</div>
+          <div class="hub-card-title">Invoices &amp; AR</div>
+          <div class="hub-card-desc">Customer invoices, payments received, accounts receivable aging</div>
+        </div>
+        <div class="hub-card" onclick="switchModuleForCompany('financials','bills')">
+          <div class="hub-card-icon">📄</div>
+          <div class="hub-card-title">Bills &amp; AP</div>
+          <div class="hub-card-desc">Vendor bills, payments made, accounts payable aging</div>
+        </div>
+        <div class="hub-card" onclick="switchModuleForCompany('financials','bank')">
+          <div class="hub-card-icon">🏛️</div>
+          <div class="hub-card-title">Bank Transactions</div>
+          <div class="hub-card-desc">Bank and credit card transactions, reconciliation</div>
+        </div>
+        <div class="hub-card" onclick="switchModuleForCompany('financials','pl')">
+          <div class="hub-card-icon">📈</div>
+          <div class="hub-card-title">Financial Reports</div>
+          <div class="hub-card-desc">Profit &amp; Loss, Balance Sheet, Trial Balance, General Ledger</div>
+        </div>
+      </div>
+    </div><!-- /view-company-hub -->
 
     <!-- OWNERSHIP MODULE -->
     <div id="view-ownership" class="panel">
@@ -653,6 +730,10 @@
           <button class="acct-sidebar-btn"         id="acct-nav-bank"       onclick="showAcctView('bank')">       <span class="acct-icon">🏛️</span> Bank Transactions</button>
           <button class="acct-sidebar-btn"         id="acct-nav-reconcile"  onclick="showAcctView('reconcile')">  <span class="acct-icon">✅</span> Reconciliation</button>
           <button class="acct-sidebar-btn"         id="acct-nav-ic"         onclick="showAcctView('ic')">         <span class="acct-icon">🔄</span> Intercompany</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-payroll"    onclick="showAcctView('payroll')">    <span class="acct-icon">💼</span> Payroll</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-draws"      onclick="showAcctView('draws')">      <span class="acct-icon">👤</span> Owner Draws</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-assets"     onclick="showAcctView('assets')">     <span class="acct-icon">🏗️</span> Fixed Assets</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-sales-tax"  onclick="showAcctView('sales-tax')">  <span class="acct-icon">🧮</span> Sales Tax</button>
           <div class="acct-sidebar-section">Reports</div>
           <button class="acct-sidebar-btn"         id="acct-nav-tb"        onclick="showAcctView('tb')">        <span class="acct-icon">⚖️</span> Trial Balance</button>
           <button class="acct-sidebar-btn"         id="acct-nav-pl"        onclick="showAcctView('pl')">        <span class="acct-icon">📈</span> Profit &amp; Loss</button>
@@ -827,6 +908,81 @@
               </div>
             </div>
             <div id="reconcileContent"><div class="empty-state"><div class="empty-state-title">Select an account to reconcile</div><div>Click "+ New Reconciliation" to get started.</div></div></div>
+          </div>
+
+          <!-- PAYROLL -->
+          <div id="acct-view-payroll" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Payroll</div>
+              <button class="btn-save" onclick="openPayrollModal()">+ New Payroll Run</button>
+            </div>
+            <div id="payrollContent"><div class="empty-state"><div class="empty-state-title">No payroll records yet</div></div></div>
+          </div>
+
+          <!-- OWNER DRAWS -->
+          <div id="acct-view-draws" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Owner Draws &amp; Distributions</div>
+              <button class="btn-save" onclick="openDrawModal()">+ Record Draw / Distribution</button>
+            </div>
+            <div id="drawsContent"><div class="empty-state"><div class="empty-state-title">No draws recorded yet</div></div></div>
+          </div>
+
+          <!-- FIXED ASSETS -->
+          <div id="acct-view-assets" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Fixed Assets</div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-primary" onclick="showAcctView('asset-schedule')">Depreciation Schedule</button>
+                <button class="btn-save" onclick="openAssetModal()">+ Add Asset</button>
+              </div>
+            </div>
+            <div id="assetsContent"><div class="empty-state"><div class="empty-state-title">No fixed assets yet</div></div></div>
+          </div>
+
+          <!-- DEPRECIATION SCHEDULE -->
+          <div id="acct-view-asset-schedule" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Depreciation Schedule</div>
+              <div style="display:flex;gap:8px;">
+                <label style="font-size:12px;color:var(--text-mid);display:flex;align-items:center;gap:6px;">Year:
+                  <select id="depr-year-filter" class="field-select" style="height:34px;width:100px;" onchange="loadDepreciationSchedule()"></select>
+                </label>
+                <button class="btn-primary" onclick="postDepreciationJEs()">Post Depreciation JEs</button>
+              </div>
+            </div>
+            <div id="assetScheduleContent"><div class="empty-state"><div class="empty-state-title">Select a year to view the depreciation schedule</div></div></div>
+          </div>
+
+          <!-- SALES TAX -->
+          <div id="acct-view-sales-tax" class="acct-panel" style="display:none;">
+            <div class="inner-tabs" style="margin-bottom:20px;">
+              <button class="inner-tab active" id="st-tab-btn-rates"   onclick="switchSTTab(this,'st-tab-rates')">Tax Rates</button>
+              <button class="inner-tab"        id="st-tab-btn-liability" onclick="switchSTTab(this,'st-tab-liability')">Tax Liability Report</button>
+              <button class="inner-tab"        id="st-tab-btn-collected" onclick="switchSTTab(this,'st-tab-collected')">Collected</button>
+              <button class="inner-tab"        id="st-tab-btn-paid"      onclick="switchSTTab(this,'st-tab-paid')">Paid</button>
+            </div>
+            <div id="st-tab-rates" style="">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <div style="font-size:14px;color:var(--text-mid);">Configure the sales tax rates applicable to this entity.</div>
+                <button class="btn-save" onclick="openTaxRateModal()">+ Add Tax Rate</button>
+              </div>
+              <div id="taxRatesContent"><div class="empty-state"><div class="empty-state-title">No tax rates configured</div></div></div>
+            </div>
+            <div id="st-tab-liability" style="display:none;">
+              <div class="report-filters">
+                <label>From</label><input type="date" id="stl-from">
+                <label>To</label><input type="date" id="stl-to">
+                <button class="report-run-btn" onclick="runSalesTaxLiability()">Run Report</button>
+              </div>
+              <div id="taxLiabilityContent"><div class="empty-state"><div class="empty-state-title">Select date range and run report</div></div></div>
+            </div>
+            <div id="st-tab-collected" style="display:none;">
+              <div id="taxCollectedContent"><div class="empty-state"><div class="empty-state-title">No tax collected records</div></div></div>
+            </div>
+            <div id="st-tab-paid" style="display:none;">
+              <div id="taxPaidContent"><div class="empty-state"><div class="empty-state-title">No tax paid records</div></div></div>
+            </div>
           </div>
 
         </div><!-- /acct-content -->
@@ -1724,6 +1880,210 @@
   </div>
 </div>
 
+<!-- PAYROLL MODAL -->
+<div class="modal-overlay" id="payrollModal">
+  <div class="modal" style="max-width:900px;">
+    <div class="modal-header">
+      <span class="modal-title" id="payrollModalTitle">New Payroll Run</span>
+      <button class="modal-close" onclick="closeModal('payrollModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid" style="margin-bottom:20px;">
+        <div class="field-group"><label class="field-label required">Pay Period Start</label><input type="date" class="field-input" id="pr-start"></div>
+        <div class="field-group"><label class="field-label required">Pay Period End</label><input type="date" class="field-input" id="pr-end"></div>
+        <div class="field-group"><label class="field-label required">Pay Date</label><input type="date" class="field-input" id="pr-paydate"></div>
+        <div class="field-group"><label class="field-label">Notes</label><input type="text" class="field-input" id="pr-notes" placeholder="Optional notes"></div>
+      </div>
+      <div style="border:1px solid var(--border-light);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;">
+        <table class="je-lines-table">
+          <thead><tr>
+            <th>Employee / Owner</th><th style="width:100px;">Type</th><th style="width:90px;">Pay Type</th>
+            <th style="width:70px;">Hours</th><th style="width:100px;">Rate / Amount</th>
+            <th style="width:90px;">Gross Pay</th><th style="width:80px;">Fed Tax</th>
+            <th style="width:80px;">State Tax</th><th style="width:80px;">SS (EE)</th>
+            <th style="width:80px;">Medicare</th><th style="width:80px;">Other Ded.</th>
+            <th style="width:90px;">Net Pay</th><th style="width:36px;"></th>
+          </tr></thead>
+          <tbody id="payrollLinesTbody"></tbody>
+        </table>
+        <div style="padding:8px 10px;background:var(--section-bg);border-top:1px solid var(--border-light);">
+          <button class="je-add-line-btn" onclick="addPayrollLine()">+ Add Employee / Owner</button>
+        </div>
+      </div>
+      <div class="je-totals-row">
+        <div class="je-total-item"><div class="je-total-label">Total Gross</div><div class="je-total-value" id="pr-total-gross">0.00</div></div>
+        <div class="je-total-item"><div class="je-total-label">Total Taxes</div><div class="je-total-value" id="pr-total-taxes">0.00</div></div>
+        <div class="je-total-item"><div class="je-total-label">Total Net Pay</div><div class="je-total-value" id="pr-total-net">0.00</div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('payrollModal')">Cancel</button>
+      <button class="btn-secondary" onclick="savePayroll('draft')">Save Draft</button>
+      <button class="btn-save" onclick="savePayroll('processed')">Process Payroll</button>
+    </div>
+  </div>
+</div>
+
+<!-- OWNER DRAW MODAL -->
+<div class="modal-overlay" id="drawModal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header">
+      <span class="modal-title">Record Draw / Distribution</span>
+      <button class="modal-close" onclick="closeModal('drawModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group"><label class="field-label required">Officer / Owner</label><select class="field-select" id="draw-officer"></select></div>
+        <div class="field-group"><label class="field-label required">Type</label>
+          <select class="field-select" id="draw-type">
+            <option value="draw">Owner Draw</option>
+            <option value="distribution">Distribution</option>
+            <option value="guaranteed_payment">Guaranteed Payment</option>
+            <option value="return_of_capital">Return of Capital</option>
+          </select></div>
+        <div class="field-group"><label class="field-label required">Date</label><input type="date" class="field-input" id="draw-date"></div>
+        <div class="field-group"><label class="field-label required">Amount</label><input type="text" class="field-input" id="draw-amount" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Draw / Equity Account</label><select class="field-select" id="draw-acct"></select></div>
+        <div class="field-group"><label class="field-label">Cash / Bank Account</label><select class="field-select" id="draw-cash-acct"></select></div>
+        <div class="field-group col-span-2"><label class="field-label">Description</label><input type="text" class="field-input" id="draw-desc" placeholder="Description or memo"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('drawModal')">Cancel</button>
+      <button class="btn-save" onclick="saveDraw()">Post Draw</button>
+    </div>
+  </div>
+</div>
+
+<!-- FIXED ASSET MODAL -->
+<div class="modal-overlay" id="assetModal">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-header">
+      <span class="modal-title" id="assetModalTitle">Add Fixed Asset</span>
+      <button class="modal-close" onclick="closeModal('assetModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);margin-bottom:12px;">Asset Information</p>
+      <div class="form-grid" style="margin-bottom:20px;">
+        <div class="field-group"><label class="field-label required">Asset Name</label><input type="text" class="field-input" id="fa-name" placeholder="Description of asset"></div>
+        <div class="field-group"><label class="field-label">Asset Number</label><input type="text" class="field-input" id="fa-number" placeholder="FA-001"></div>
+        <div class="field-group"><label class="field-label required">Category</label>
+          <select class="field-select" id="fa-category">
+            <option value="">— Select —</option>
+            <option>Machinery & Equipment</option><option>Vehicle</option><option>Building</option>
+            <option>Land</option><option>Furniture & Fixtures</option><option>Computer & Technology</option>
+            <option>Leasehold Improvement</option><option>Intangible Asset</option><option>Other</option>
+          </select></div>
+        <div class="field-group"><label class="field-label required">Purchase Date</label><input type="date" class="field-input" id="fa-purchase-date"></div>
+        <div class="field-group"><label class="field-label required">Placed in Service</label><input type="date" class="field-input" id="fa-service-date"></div>
+        <div class="field-group"><label class="field-label required">Purchase Cost</label><input type="text" class="field-input" id="fa-cost" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcAssetBookValue()"></div>
+        <div class="field-group"><label class="field-label">Salvage Value</label><input type="text" class="field-input" id="fa-salvage" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcAssetBookValue()"></div>
+        <div class="field-group col-span-2"><label class="field-label">Notes</label><input type="text" class="field-input" id="fa-notes" placeholder="Optional notes"></div>
+      </div>
+      <hr style="border:none;border-top:1px solid var(--border-light);margin-bottom:16px;">
+      <p style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);margin-bottom:12px;">Depreciation Settings</p>
+      <div class="form-grid" style="margin-bottom:20px;">
+        <div class="field-group"><label class="field-label required">Depreciation Method</label>
+          <select class="field-select" id="fa-depr-method" onchange="toggleMACRS()">
+            <option>Straight-Line</option><option>MACRS</option>
+            <option>Double Declining Balance</option><option>Sum of Years Digits</option><option>None</option>
+          </select></div>
+        <div class="field-group" id="fa-life-group"><label class="field-label">Useful Life (Years)</label><input type="text" class="field-input" id="fa-life" placeholder="5" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group" id="fa-macrs-group" style="display:none;"><label class="field-label">MACRS Class</label>
+          <select class="field-select" id="fa-macrs-class">
+            <option>3-year</option><option>5-year</option><option selected>7-year</option>
+            <option>10-year</option><option>15-year</option><option>27.5-year (Residential)</option><option>39-year (Nonresidential)</option>
+          </select></div>
+        <div class="field-group"><label class="field-label">Section 179 Deduction</label><input type="text" class="field-input" id="fa-179" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcAssetBookValue()"></div>
+        <div class="field-group"><label class="field-label">Bonus Depreciation %</label><input type="text" class="field-input" id="fa-bonus" placeholder="0" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcAssetBookValue()"></div>
+        <div class="field-group col-span-2" style="background:var(--gold-pale);padding:12px;border-radius:var(--radius);border:1px solid var(--border);">
+          <div style="display:flex;justify-content:space-between;font-size:13px;">
+            <span style="color:var(--text-mid);">Net Depreciable Basis:</span>
+            <span style="font-family:monospace;font-weight:600;color:var(--navy);" id="fa-basis-display">$0.00</span>
+          </div>
+        </div>
+      </div>
+      <hr style="border:none;border-top:1px solid var(--border-light);margin-bottom:16px;">
+      <p style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);margin-bottom:12px;">GL Accounts</p>
+      <div class="form-grid">
+        <div class="field-group"><label class="field-label">Asset Account</label><select class="field-select" id="fa-asset-acct"></select></div>
+        <div class="field-group"><label class="field-label">Accum. Depreciation Account</label><select class="field-select" id="fa-accum-acct"></select></div>
+        <div class="field-group col-span-2"><label class="field-label">Depreciation Expense Account</label><select class="field-select" id="fa-depr-exp-acct"></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('assetModal')">Cancel</button>
+      <button class="btn-save" onclick="saveAsset()">Save &amp; Generate Schedule</button>
+    </div>
+  </div>
+</div>
+
+<!-- ASSET DISPOSAL MODAL -->
+<div class="modal-overlay" id="assetDisposalModal">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <span class="modal-title">Dispose of Asset</span>
+      <button class="modal-close" onclick="closeModal('assetDisposalModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text-mid);margin-bottom:16px;" id="disposal-asset-info"></p>
+      <div class="form-grid">
+        <div class="field-group"><label class="field-label required">Disposal Date</label><input type="date" class="field-input" id="disposal-date"></div>
+        <div class="field-group"><label class="field-label">Sale Proceeds</label><input type="text" class="field-input" id="disposal-proceeds" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcDisposalGainLoss()"></div>
+        <div class="field-group col-span-2" style="background:var(--gold-pale);padding:12px;border-radius:var(--radius);border:1px solid var(--border);">
+          <div style="display:flex;justify-content:space-between;font-size:13px;">
+            <span style="color:var(--text-mid);">Estimated Gain / (Loss):</span>
+            <span style="font-family:monospace;font-weight:600;" id="disposal-gain-display">$0.00</span>
+          </div>
+        </div>
+        <div class="field-group col-span-2"><label class="field-label">Notes</label><input type="text" class="field-input" id="disposal-notes" placeholder="Reason for disposal, buyer info, etc."></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('assetDisposalModal')">Cancel</button>
+      <button class="btn-save" onclick="processDisposal()">Post Disposal</button>
+    </div>
+  </div>
+</div>
+
+<!-- TAX RATE MODAL -->
+<div class="modal-overlay" id="taxRateModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <span class="modal-title" id="taxRateModalTitle">Add Tax Rate</span>
+      <button class="modal-close" onclick="closeModal('taxRateModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label required">Rate Name</label><input type="text" class="field-input" id="tr-name" placeholder="e.g. Florida State Sales Tax"></div>
+        <div class="field-group"><label class="field-label required">Rate Type</label>
+          <select class="field-select" id="tr-type">
+            <option value="state">State</option><option value="county">County</option>
+            <option value="city">City</option><option value="special">Special District</option>
+          </select></div>
+        <div class="field-group"><label class="field-label required">Rate (%)</label><input type="text" class="field-input" id="tr-rate" placeholder="6.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group"><label class="field-label">State</label>
+          <select class="field-select" id="tr-state"><option value="">— State —</option>
+            <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
+          </select></div>
+        <div class="field-group"><label class="field-label">County</label><input type="text" class="field-input" id="tr-county" placeholder="County name (if applicable)"></div>
+        <div class="field-group"><label class="field-label">City</label><input type="text" class="field-input" id="tr-city" placeholder="City name (if applicable)"></div>
+        <div class="field-group"><label class="field-label">Effective Date</label><input type="date" class="field-input" id="tr-effdate"></div>
+        <div class="field-group"><label class="field-label">Applies To</label>
+          <select class="field-select" id="tr-applies">
+            <option value="all">All Taxable Sales</option><option value="goods">Goods Only</option>
+            <option value="services">Services Only</option>
+          </select></div>
+        <div class="field-group col-span-2"><label class="field-label">Tax Liability Account</label><select class="field-select" id="tr-account"></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('taxRateModal')">Cancel</button>
+      <button class="btn-save" onclick="saveTaxRate()">Save Rate</button>
+    </div>
+  </div>
+</div>
+
 <div class="save-toast" id="saveToast"></div>
 
 <script>
@@ -1874,9 +2234,10 @@ function renderSidebar(companies) {
   companies.forEach(c => {
     const div = document.createElement('div');
     div.className = 'company-list-item' + (c.id === currentCompanyId ? ' active' : '');
+    div.dataset.cid = c.id;
     div.innerHTML = `<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.legal_name || '(Unnamed)'}</span>
       <span class="company-badge ${badgeClass(c.structure)}">${shortStructure(c.structure)}</span>`;
-    div.onclick = () => editCompany(c.id);
+    div.onclick = () => showCompanyHub(c);
     list.appendChild(div);
   });
 }
@@ -1886,9 +2247,10 @@ function renderSidebar(companies) {
 // ═══════════════════════════════════════════════════
 function showDashboard() {
   currentCompanyId = null;
-  ['view-dashboard','view-company-detail','view-ownership','view-financials'].forEach(id => document.getElementById(id)?.classList.remove('active'));
+  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub'].forEach(id => document.getElementById(id)?.classList.remove('active'));
   document.getElementById('view-dashboard').classList.add('active');
   document.getElementById('sidebarDashBtn').classList.add('active');
+  document.querySelectorAll('.company-list-item').forEach(el=>el.classList.remove('active'));
   document.getElementById('nav-companies')?.classList.add('active');
   document.getElementById('nav-ownership')?.classList.remove('active');
   document.getElementById('nav-financials')?.classList.remove('active');
@@ -1896,7 +2258,7 @@ function showDashboard() {
 }
 
 function showDetail() {
-  document.getElementById('view-dashboard').classList.remove('active');
+  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub'].forEach(id => document.getElementById(id)?.classList.remove('active'));
   document.getElementById('view-company-detail').classList.add('active');
   document.getElementById('sidebarDashBtn').classList.remove('active');
   // Reset to first tab
@@ -1904,6 +2266,9 @@ function showDetail() {
   document.getElementById('tab-company-info').classList.add('active');
   document.getElementById('tab-officers').classList.remove('active');
 }
+
+// editCompanyInfo opens the edit form directly (used from hub)
+function editCompanyInfo(id) { editCompany(id); }
 
 // ═══════════════════════════════════════════════════
 //  NEW COMPANY
@@ -2291,7 +2656,7 @@ function buildOfficerCard(data) {
 function switchModule(module) {
   document.querySelectorAll('.topbar-nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('nav-' + module)?.classList.add('active');
-  ['view-dashboard','view-company-detail','view-ownership','view-financials'].forEach(id => {
+  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub'].forEach(id => {
     document.getElementById(id)?.classList.remove('active');
   });
   if (module === 'companies') {
@@ -3771,6 +4136,8 @@ async function renderReconcileWorkspace(reconId, acctId, stmtBal, stmtDt, reconB
   const clearedIds = new Set((clearedItems||[]).filter(i=>i.cleared).map(i=>i.transaction_id));
 
   const acct = acctAccounts.find(a=>a.id===acctId);
+  const txnCount = (txns||[]).length;
+
   let html = `
     <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm);">
       <div style="background:var(--navy);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;">
@@ -3778,7 +4145,7 @@ async function renderReconcileWorkspace(reconId, acctId, stmtBal, stmtDt, reconB
           <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--gold-light);">Reconciling: ${acct?.account_name||'Account'}</div>
           <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;">Statement Date: ${stmtDt} · Reconciled by: ${reconBy||'—'}</div>
         </div>
-        <div style="display:flex;gap:10px;">
+        <div style="display:flex;gap:20px;">
           <div style="text-align:right;">
             <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.4);">Statement Balance</div>
             <div style="font-family:monospace;font-size:18px;color:var(--gold-light);" id="recon-stmt-display">${fmtMoney(stmtBal)}</div>
@@ -3789,10 +4156,20 @@ async function renderReconcileWorkspace(reconId, acctId, stmtBal, stmtDt, reconB
           </div>
           <div style="text-align:right;">
             <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.4);">Difference</div>
-            <div style="font-family:monospace;font-size:18px;" id="recon-diff-display" style="color:var(--gold-light);">${fmtMoney(stmtBal)}</div>
+            <div style="font-family:monospace;font-size:18px;color:#e07060;" id="recon-diff-display">${fmtMoney(stmtBal)}</div>
           </div>
         </div>
       </div>
+
+      <!-- CSV/XLSX Import Bar -->
+      <div style="padding:12px 20px;background:var(--gold-pale);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <span style="font-size:12px;font-weight:500;color:var(--navy);">📥 Import Statement Transactions:</span>
+        <input type="file" id="recon-import-file" accept=".csv,.xlsx,.xls" style="display:none;" onchange="importReconTransactions(this,'${reconId}','${acctId}','${stmtBal}','${stmtDt}','${reconBy}')">
+        <button class="btn-secondary" onclick="document.getElementById('recon-import-file').click()" style="font-size:12px;padding:6px 14px;">📎 Upload CSV / XLSX</button>
+        <span style="font-size:11px;color:var(--text-light);">File must have columns: Date, Description, Amount (positive=deposit, negative=withdrawal)</span>
+        <span style="font-size:11px;color:var(--text-mid);margin-left:auto;">${txnCount} transaction${txnCount!==1?'s':''} loaded</span>
+      </div>
+
       <div style="padding:0;">
         <table class="acct-table" id="reconTxnTable">
           <thead><tr>
@@ -3818,7 +4195,11 @@ async function renderReconcileWorkspace(reconId, acctId, stmtBal, stmtDt, reconB
     </tr>`;
   });
 
-  if (!txns||!txns.length) html += `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-light);">No transactions found for this account through ${stmtDt}</td></tr>`;
+  if (!txns||!txns.length) html += `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-light);">
+    <div style="font-size:15px;margin-bottom:8px;">No transactions loaded yet</div>
+    <div style="font-size:12px;">Upload a bank statement CSV/XLSX above, or add transactions manually via Bank Transactions.</div>
+  </td></tr>`;
+
   html += `</tbody></table></div>
       <div style="padding:16px 24px;background:var(--section-bg);border-top:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;">
         <div style="font-size:13px;color:var(--text-mid);" id="recon-status-msg">Check off transactions that appear on your statement.</div>
@@ -3943,12 +4324,817 @@ async function printReconciliationReport(reconId, acctId, stmtDt, reconBy, stmtB
   win.document.close();
 }
 
+// ── CSV / XLSX IMPORT FOR RECONCILIATION ──
+async function importReconTransactions(input, reconId, acctId, stmtBal, stmtDt, reconBy) {
+  const file = input.files[0];
+  if (!file) return;
+  showLoading('Parsing file…');
+  try {
+    let rows = [];
+    if (file.name.endsWith('.csv')) {
+      const text = await file.text();
+      rows = parseCSV(text);
+    } else {
+      // XLSX — use SheetJS
+      const buf = await file.arrayBuffer();
+      const wb  = XLSX.read(buf, {type:'array', cellDates:true});
+      const ws  = wb.Sheets[wb.SheetNames[0]];
+      rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+    }
+    if (!rows.length) { hideLoading(); showToast('⚠ No rows found in file', true); return; }
+
+    // Normalize columns — detect date/description/amount regardless of header name
+    const header = Object.keys(rows[0]).map(k=>k.toLowerCase().trim());
+    const colDate = Object.keys(rows[0]).find(k=>k.toLowerCase().match(/date/));
+    const colDesc = Object.keys(rows[0]).find(k=>k.toLowerCase().match(/desc|memo|narr|payee|note|detail/));
+    const colAmt  = Object.keys(rows[0]).find(k=>k.toLowerCase().match(/amount|amt|debit|credit|sum/));
+    const colRef  = Object.keys(rows[0]).find(k=>k.toLowerCase().match(/ref|check|num|id|conf/));
+    if (!colDate||!colAmt) { hideLoading(); showToast('⚠ Could not find Date and Amount columns. Check your file.', true); return; }
+
+    const toDateStr = v => {
+      if (!v) return stmtDt;
+      if (v instanceof Date) return v.toISOString().slice(0,10);
+      const s = String(v).trim();
+      const d = new Date(s);
+      return isNaN(d) ? stmtDt : d.toISOString().slice(0,10);
+    };
+
+    const inserts = [];
+    for (const row of rows) {
+      const rawAmt = parseFloat(String(row[colAmt]||'0').replace(/[,$\s]/g,''))||0;
+      if (rawAmt === 0) continue;
+      const isDeposit = rawAmt > 0;
+      const tid = 'btxn-import-' + Date.now() + '-' + Math.random().toString(36).slice(2,6);
+      inserts.push({
+        id: tid,
+        company_id: acctCompanyId,
+        account_id: acctId,
+        transaction_date: toDateStr(row[colDate]),
+        description: colDesc ? String(row[colDesc]||'').trim() : 'Imported',
+        reference: colRef ? String(row[colRef]||'').trim() : '',
+        amount: Math.abs(rawAmt),
+        transaction_type: isDeposit ? 'deposit' : 'withdrawal',
+        status: 'unreviewed',
+      });
+    }
+
+    if (!inserts.length) { hideLoading(); showToast('⚠ No valid transactions found', true); return; }
+    const { error } = await sb.from('bank_transactions').insert(inserts);
+    hideLoading();
+    if (error) { showToast('Import error: '+error.message, true); return; }
+    showToast(`✓ Imported ${inserts.length} transactions`);
+    input.value = '';
+    await renderReconcileWorkspace(reconId, acctId, parseFloat(stmtBal), stmtDt, reconBy);
+  } catch(e) {
+    hideLoading();
+    showToast('⚠ Failed to parse file: '+e.message, true);
+  }
+}
+
+function parseCSV(text) {
+  const lines = text.split(/\r?\n/).filter(l=>l.trim());
+  if (lines.length < 2) return [];
+  const headers = splitCSVLine(lines[0]);
+  return lines.slice(1).map(line => {
+    const vals = splitCSVLine(line);
+    const obj = {};
+    headers.forEach((h,i) => obj[h.trim()] = (vals[i]||'').trim());
+    return obj;
+  }).filter(r => Object.values(r).some(v=>v));
+}
+function splitCSVLine(line) {
+  const result=[]; let cur=''; let inQ=false;
+  for(let i=0;i<line.length;i++){
+    if(line[i]==='"'){inQ=!inQ;}
+    else if(line[i]===','&&!inQ){result.push(cur);cur='';}
+    else{cur+=line[i];}
+  }
+  result.push(cur);
+  return result;
+}
+
+// ── COMPANY HUB ──
+function showCompanyHub(company) {
+  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  document.getElementById('view-company-hub').classList.add('active');
+  document.getElementById('hubCompanyName').textContent = company.legal_name || 'Company';
+  document.getElementById('hubCompanyMeta').textContent = [company.structure, company.industry_type, company.fein ? 'FEIN: '+company.fein : ''].filter(Boolean).join(' · ');
+  document.getElementById('hubEditBtn').onclick = () => editCompanyInfo(company.id);
+  // Highlight in sidebar
+  document.querySelectorAll('.company-list-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.cid === company.id);
+  });
+  document.getElementById('sidebarDashBtn').classList.remove('active');
+}
+
+function hubGo(tab) {
+  // Navigate to company detail with specific tab open
+  showDetail();
+  if (tab === 'officers') {
+    document.querySelectorAll('.inner-tab').forEach((t,i)=>t.classList.toggle('active',i===1));
+    document.getElementById('tab-company-info').classList.remove('active');
+    document.getElementById('tab-officers').classList.add('active');
+  } else {
+    document.querySelectorAll('.inner-tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+    document.getElementById('tab-company-info').classList.add('active');
+    document.getElementById('tab-officers').classList.remove('active');
+  }
+}
+
+function switchModuleForCompany(module, view) {
+  switchModule(module);
+  // After module loads, switch to the requested view
+  setTimeout(() => showAcctView(view), 300);
+}
+
 // ═══════════════════════════════════════════════════
-//  INIT
+//  PHASE 3 — PAYROLL, FIXED ASSETS, SALES TAX
 // ═══════════════════════════════════════════════════
+
+// Update showAcctView override to handle phase 3 views
+const _origShowAcctView2 = showAcctView;
+showAcctView = function(view) {
+  _origShowAcctView2(view);
+  if (view==='payroll')        loadPayroll();
+  if (view==='draws')          loadDraws();
+  if (view==='assets')         loadAssets();
+  if (view==='asset-schedule') { populateDeprYearFilter(); loadDepreciationSchedule(); }
+  if (view==='sales-tax')      { loadTaxRates(); loadTaxCollected(); loadTaxPaid(); }
+};
+
+function switchSTTab(btn, tabId) {
+  document.querySelectorAll('#acct-view-sales-tax .inner-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  ['st-tab-rates','st-tab-liability','st-tab-collected','st-tab-paid'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display='none';
+  });
+  const el=document.getElementById(tabId); if(el) el.style.display='';
+}
+
+// ══════════════════════════════
+//  PAYROLL
+// ══════════════════════════════
+async function loadPayroll() {
+  if (!acctCompanyId) return;
+  const {data}=await sb.from('payroll_records').select('*').eq('company_id',acctCompanyId).order('pay_date',{ascending:false});
+  const c=document.getElementById('payrollContent'); if(!c) return;
+  if (!data||!data.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No payroll records yet</div></div>`; return; }
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Pay Date</th><th>Period</th><th>Gross Pay</th><th>Total Taxes</th><th>Net Pay</th><th>Status</th><th></th></tr></thead><tbody>`+
+    data.map(p=>`<tr>
+      <td>${fmtDate(p.pay_date)}</td>
+      <td style="color:var(--text-mid);font-size:12px;">${fmtDate(p.pay_period_start)} – ${fmtDate(p.pay_period_end)}</td>
+      <td class="amount">${fmtMoney(p.total_gross_pay)}</td>
+      <td class="amount">${fmtMoney((p.total_federal_tax||0)+(p.total_state_tax||0)+(p.total_ss_employee||0)+(p.total_medicare_employee||0))}</td>
+      <td class="amount">${fmtMoney(p.total_net_pay)}</td>
+      <td>${statusPill(p.status)}</td>
+      <td><button onclick="viewPayrollDetail('${p.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">View</button>
+          <button onclick="voidPayroll('${p.id}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Void</button></td>
+    </tr>`).join('')+'</tbody></table>';
+}
+
+function openPayrollModal() {
+  if (!acctCompanyId) { showToast('⚠ Select a company first',true); return; }
+  document.getElementById('payrollModalTitle').textContent='New Payroll Run';
+  document.getElementById('pr-start').value='';
+  document.getElementById('pr-end').value='';
+  document.getElementById('pr-paydate').value=new Date().toISOString().slice(0,10);
+  document.getElementById('pr-notes').value='';
+  document.getElementById('payrollLinesTbody').innerHTML='';
+  addPayrollLine();
+  updatePayrollTotals();
+  document.getElementById('payrollModal').classList.add('show');
+}
+
+function addPayrollLine(data=null) {
+  const tr=document.createElement('tr');
+  tr.innerHTML=`
+    <td><input type="text" class="pl-name" placeholder="Employee name" value="${data?.employee_name||''}"></td>
+    <td><select class="pl-etype" style="height:32px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;width:100%;">
+      <option value="employee" ${(!data||data.employee_type==='employee')?'selected':''}>Employee</option>
+      <option value="owner" ${data?.employee_type==='owner'?'selected':''}>Owner</option>
+      <option value="contractor" ${data?.employee_type==='contractor'?'selected':''}>Contractor</option>
+    </select></td>
+    <td><select class="pl-ptype" style="height:32px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;width:100%;" onchange="updatePayrollTotals()">
+      <option value="salary" ${(!data||data.pay_type==='salary')?'selected':''}>Salary</option>
+      <option value="hourly" ${data?.pay_type==='hourly'?'selected':''}>Hourly</option>
+      <option value="bonus" ${data?.pay_type==='bonus'?'selected':''}>Bonus</option>
+      <option value="commission" ${data?.pay_type==='commission'?'selected':''}>Commission</option>
+    </select></td>
+    <td><input type="text" class="pl-hours" placeholder="—" value="${data?.hours_worked||''}" style="text-align:right;" oninput="calcPayrollGross(this)"></td>
+    <td><input type="text" class="pl-rate" placeholder="0.00" value="${data?.pay_rate?parseFloat(data.pay_rate).toFixed(2):''}" style="text-align:right;" oninput="calcPayrollGross(this)"></td>
+    <td><input type="text" class="pl-gross" placeholder="0.00" value="${data?.gross_pay?parseFloat(data.gross_pay).toFixed(2):''}" style="text-align:right;background:var(--section-bg);" oninput="updatePayrollTotals()"></td>
+    <td><input type="text" class="pl-fed" placeholder="0.00" value="${data?.federal_income_tax?parseFloat(data.federal_income_tax).toFixed(2):''}" style="text-align:right;" oninput="updatePayrollTotals()"></td>
+    <td><input type="text" class="pl-state" placeholder="0.00" value="${data?.state_income_tax?parseFloat(data.state_income_tax).toFixed(2):''}" style="text-align:right;" oninput="updatePayrollTotals()"></td>
+    <td><input type="text" class="pl-ss" placeholder="0.00" value="${data?.ss_employee?parseFloat(data.ss_employee).toFixed(2):''}" style="text-align:right;" oninput="updatePayrollTotals()"></td>
+    <td><input type="text" class="pl-medicare" placeholder="0.00" value="${data?.medicare_employee?parseFloat(data.medicare_employee).toFixed(2):''}" style="text-align:right;" oninput="updatePayrollTotals()"></td>
+    <td><input type="text" class="pl-other" placeholder="0.00" value="${data?.other_deductions?parseFloat(data.other_deductions).toFixed(2):''}" style="text-align:right;" oninput="updatePayrollTotals()"></td>
+    <td><input type="text" class="pl-net" placeholder="0.00" value="${data?.net_pay?parseFloat(data.net_pay).toFixed(2):''}" style="text-align:right;background:var(--section-bg);" readonly></td>
+    <td><button onclick="this.closest('tr').remove();updatePayrollTotals();" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:18px;line-height:1;padding:0;">×</button></td>`;
+  document.getElementById('payrollLinesTbody').appendChild(tr);
+}
+
+function calcPayrollGross(input) {
+  const tr=input.closest('tr');
+  const hours=parseFloat(tr.querySelector('.pl-hours')?.value||0)||0;
+  const rate=parseFloat(tr.querySelector('.pl-rate')?.value||0)||0;
+  const ptype=tr.querySelector('.pl-ptype')?.value;
+  const grossEl=tr.querySelector('.pl-gross');
+  if (ptype==='hourly' && hours && rate) grossEl.value=(hours*rate).toFixed(2);
+  else if (ptype!=='hourly' && rate) grossEl.value=rate.toFixed(2);
+  updatePayrollTotals();
+}
+
+function updatePayrollTotals() {
+  let gross=0,taxes=0,net=0;
+  document.querySelectorAll('#payrollLinesTbody tr').forEach(tr=>{
+    const g=parseFloat(tr.querySelector('.pl-gross')?.value||0)||0;
+    const fed=parseFloat(tr.querySelector('.pl-fed')?.value||0)||0;
+    const st=parseFloat(tr.querySelector('.pl-state')?.value||0)||0;
+    const ss=parseFloat(tr.querySelector('.pl-ss')?.value||0)||0;
+    const med=parseFloat(tr.querySelector('.pl-medicare')?.value||0)||0;
+    const oth=parseFloat(tr.querySelector('.pl-other')?.value||0)||0;
+    const totalDed=fed+st+ss+med+oth;
+    const n=g-totalDed;
+    const netEl=tr.querySelector('.pl-net'); if(netEl) netEl.value=n.toFixed(2);
+    gross+=g; taxes+=totalDed; net+=n;
+  });
+  document.getElementById('pr-total-gross').textContent=gross.toLocaleString('en-US',{minimumFractionDigits:2});
+  document.getElementById('pr-total-taxes').textContent=taxes.toLocaleString('en-US',{minimumFractionDigits:2});
+  document.getElementById('pr-total-net').textContent=net.toLocaleString('en-US',{minimumFractionDigits:2});
+}
+
+async function savePayroll(status) {
+  const start=document.getElementById('pr-start').value;
+  const end=document.getElementById('pr-end').value;
+  const paydate=document.getElementById('pr-paydate').value;
+  if (!start||!end||!paydate) { showToast('⚠ Pay period and pay date required',true); return; }
+  const lines=[];
+  document.querySelectorAll('#payrollLinesTbody tr').forEach((tr,i)=>{
+    const name=tr.querySelector('.pl-name')?.value||'';
+    const gross=parseFloat(tr.querySelector('.pl-gross')?.value||0)||0;
+    if (!name&&!gross) return;
+    lines.push({
+      id:'pl-'+Date.now()+'-'+i,
+      employee_name:name,
+      employee_type:tr.querySelector('.pl-etype')?.value||'employee',
+      pay_type:tr.querySelector('.pl-ptype')?.value||'salary',
+      hours_worked:parseFloat(tr.querySelector('.pl-hours')?.value||0)||null,
+      pay_rate:parseFloat(tr.querySelector('.pl-rate')?.value||0)||0,
+      gross_pay:gross,
+      federal_income_tax:parseFloat(tr.querySelector('.pl-fed')?.value||0)||0,
+      state_income_tax:parseFloat(tr.querySelector('.pl-state')?.value||0)||0,
+      ss_employee:parseFloat(tr.querySelector('.pl-ss')?.value||0)||0,
+      medicare_employee:parseFloat(tr.querySelector('.pl-medicare')?.value||0)||0,
+      other_deductions:parseFloat(tr.querySelector('.pl-other')?.value||0)||0,
+      net_pay:parseFloat(tr.querySelector('.pl-net')?.value||0)||0,
+      sort_order:i,
+    });
+  });
+  if (!lines.length) { showToast('⚠ Add at least one employee',true); return; }
+  showLoading('Processing payroll…');
+  const pid='pr-'+Date.now();
+  const totalGross=lines.reduce((s,l)=>s+l.gross_pay,0);
+  const totalFed=lines.reduce((s,l)=>s+l.federal_income_tax,0);
+  const totalState=lines.reduce((s,l)=>s+l.state_income_tax,0);
+  const totalSS=lines.reduce((s,l)=>s+l.ss_employee,0);
+  const totalMed=lines.reduce((s,l)=>s+l.medicare_employee,0);
+  const totalOther=lines.reduce((s,l)=>s+l.other_deductions,0);
+  const totalNet=lines.reduce((s,l)=>s+l.net_pay,0);
+  const {error}=await sb.from('payroll_records').insert({
+    id:pid,company_id:acctCompanyId,pay_period_start:start,pay_period_end:end,pay_date:paydate,
+    status,total_gross_pay:totalGross,total_federal_tax:totalFed,total_state_tax:totalState,
+    total_ss_employee:totalSS,total_medicare_employee:totalMed,total_other_deductions:totalOther,
+    total_net_pay:totalNet,notes:document.getElementById('pr-notes').value,
+  });
+  if (error) { hideLoading(); showToast('Error: '+error.message,true); return; }
+  await sb.from('payroll_lines').insert(lines.map(l=>({...l,payroll_id:pid})));
+  // Auto-post JE if processed
+  if (status==='processed') {
+    const wageAccts=acctAccounts.filter(a=>a.account_name.toLowerCase().includes('salari')||a.account_name.toLowerCase().includes('wage'));
+    const cashAccts=acctAccounts.filter(a=>a.account_type==='Asset'&&a.account_subtype==='Current Asset');
+    if (wageAccts.length&&cashAccts.length) {
+      const jeId='je-pr-'+pid;
+      await sb.from('journal_entries').insert({id:jeId,company_id:acctCompanyId,entry_date:paydate,description:`Payroll ${start} – ${end}`,status:'posted',entry_type:'manual',updated_at:new Date().toISOString()});
+      await sb.from('journal_entry_lines').insert([
+        {id:jeId+'-1',journal_entry_id:jeId,account_id:wageAccts[0].id,description:'Gross Wages',debit:totalGross,credit:0,sort_order:0},
+        {id:jeId+'-2',journal_entry_id:jeId,account_id:cashAccts[0].id,description:'Net Pay',debit:0,credit:totalNet,sort_order:1},
+      ]);
+      await sb.from('payroll_records').update({journal_entry_id:jeId}).eq('id',pid);
+    }
+  }
+  hideLoading(); closeModal('payrollModal'); showToast('✓ Payroll '+status); loadPayroll();
+}
+
+async function voidPayroll(id) {
+  if (!confirm('Void this payroll run?')) return;
+  await sb.from('payroll_records').update({status:'voided'}).eq('id',id);
+  showToast('Payroll voided'); loadPayroll();
+}
+
+async function viewPayrollDetail(id) {
+  showLoading('Loading…');
+  const {data:pr}=await sb.from('payroll_records').select('*').eq('id',id).single();
+  const {data:lines}=await sb.from('payroll_lines').select('*').eq('payroll_id',id).order('sort_order');
+  hideLoading();
+  const win=window.open('','_blank');
+  let rows=(lines||[]).map(l=>`<tr><td>${l.employee_name}</td><td>${l.employee_type}</td><td>${l.pay_type}</td><td style="text-align:right;">${l.hours_worked||'—'}</td><td style="text-align:right;font-family:monospace;">${fmtMoney(l.gross_pay)}</td><td style="text-align:right;font-family:monospace;">${fmtMoney(l.federal_income_tax)}</td><td style="text-align:right;font-family:monospace;">${fmtMoney(l.state_income_tax)}</td><td style="text-align:right;font-family:monospace;">${fmtMoney(l.ss_employee)}</td><td style="text-align:right;font-family:monospace;">${fmtMoney(l.medicare_employee)}</td><td style="text-align:right;font-family:monospace;">${fmtMoney(l.net_pay)}</td></tr>`).join('');
+  win.document.write(`<!DOCTYPE html><html><head><title>Payroll Detail</title><style>body{font-family:Georgia,serif;max-width:1000px;margin:40px auto;font-size:13px;color:#1a1a2e;}h1{font-size:22px;}table{width:100%;border-collapse:collapse;margin-top:16px;}th{background:#0f1f38;color:#d4b07a;padding:8px 12px;text-align:left;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;}td{padding:8px 12px;border-bottom:1px solid #ede8df;}.totals{background:#f7f4ef;padding:16px;margin-top:16px;border-radius:6px;display:flex;gap:24px;}.tot-item{}.tot-label{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#8a8aaa;}.tot-val{font-size:18px;font-weight:600;font-family:monospace;}@media print{button{display:none;}}</style></head><body>
+  <button onclick="window.print()" style="padding:8px 20px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:20px;">🖨 Print</button>
+  <h1>Payroll Register</h1>
+  <p style="color:#4a4a6a;">Period: ${pr.pay_period_start} – ${pr.pay_period_end} &nbsp;|&nbsp; Pay Date: ${pr.pay_date} &nbsp;|&nbsp; Status: ${pr.status}</p>
+  <table><thead><tr><th>Name</th><th>Type</th><th>Pay Type</th><th>Hours</th><th>Gross</th><th>Fed Tax</th><th>State Tax</th><th>SS</th><th>Medicare</th><th>Net Pay</th></tr></thead><tbody>${rows}</tbody></table>
+  <div class="totals">
+    <div class="tot-item"><div class="tot-label">Total Gross</div><div class="tot-val">${fmtMoney(pr.total_gross_pay)}</div></div>
+    <div class="tot-item"><div class="tot-label">Total Net Pay</div><div class="tot-val">${fmtMoney(pr.total_net_pay)}</div></div>
+  </div></body></html>`);
+  win.document.close();
+}
+
+// ══════════════════════════════
+//  OWNER DRAWS
+// ══════════════════════════════
+async function loadDraws() {
+  if (!acctCompanyId) return;
+  const {data}=await sb.from('owner_draws').select('*, officers(name)').eq('company_id',acctCompanyId).order('draw_date',{ascending:false});
+  const c=document.getElementById('drawsContent'); if(!c) return;
+  if (!data||!data.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No draws recorded yet</div></div>`; return; }
+  const typeLabels={draw:'Owner Draw',distribution:'Distribution',guaranteed_payment:'Guaranteed Payment',return_of_capital:'Return of Capital'};
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Date</th><th>Officer / Owner</th><th>Type</th><th>Description</th><th>Amount</th></tr></thead><tbody>`+
+    data.map(d=>`<tr><td>${fmtDate(d.draw_date)}</td><td>${d.officers?.name||'—'}</td><td>${typeLabels[d.draw_type]||d.draw_type}</td><td style="color:var(--text-mid);">${d.description||'—'}</td><td class="amount">${fmtMoney(d.amount)}</td></tr>`).join('')+'</tbody></table>';
+}
+
+async function openDrawModal() {
+  if (!acctCompanyId) { showToast('⚠ Select a company first',true); return; }
+  const {data:officers}=await sb.from('officers').select('id,name').eq('company_id',acctCompanyId).order('name');
+  document.getElementById('draw-officer').innerHTML='<option value="">— Select —</option>'+(officers||[]).map(o=>`<option value="${o.id}">${o.name}</option>`).join('');
+  document.getElementById('draw-acct').innerHTML=acctOptsHTML('Equity');
+  document.getElementById('draw-cash-acct').innerHTML=acctOptsHTML('Asset');
+  document.getElementById('draw-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('draw-amount').value='';
+  document.getElementById('draw-desc').value='';
+  document.getElementById('draw-type').value='draw';
+  document.getElementById('drawModal').classList.add('show');
+}
+
+async function saveDraw() {
+  const officerId=document.getElementById('draw-officer').value;
+  const date=document.getElementById('draw-date').value;
+  const amount=parseFloat(document.getElementById('draw-amount').value||0);
+  if (!date||!amount) { showToast('⚠ Date and amount required',true); return; }
+  showLoading('Posting draw…');
+  const did='draw-'+Date.now();
+  const drawAcctId=document.getElementById('draw-acct').value||null;
+  const cashAcctId=document.getElementById('draw-cash-acct').value||null;
+  await sb.from('owner_draws').insert({
+    id:did,company_id:acctCompanyId,officer_id:officerId||null,draw_date:date,amount,
+    draw_type:document.getElementById('draw-type').value,
+    description:document.getElementById('draw-desc').value,
+    draw_account_id:drawAcctId,cash_account_id:cashAcctId,
+  });
+  if (drawAcctId&&cashAcctId) {
+    const jeId='je-draw-'+did;
+    await sb.from('journal_entries').insert({id:jeId,company_id:acctCompanyId,entry_date:date,description:'Owner Draw',status:'posted',entry_type:'manual',updated_at:new Date().toISOString()});
+    await sb.from('journal_entry_lines').insert([
+      {id:jeId+'-1',journal_entry_id:jeId,account_id:drawAcctId,description:'Draw',debit:amount,credit:0,sort_order:0},
+      {id:jeId+'-2',journal_entry_id:jeId,account_id:cashAcctId,description:'Cash',debit:0,credit:amount,sort_order:1},
+    ]);
+    await sb.from('owner_draws').update({journal_entry_id:jeId}).eq('id',did);
+  }
+  hideLoading(); closeModal('drawModal'); showToast('✓ Draw recorded'); loadDraws();
+}
+
+// ══════════════════════════════
+//  FIXED ASSETS
+// ══════════════════════════════
+let editingAssetId=null, disposingAssetId=null, disposingAssetBookValue=0;
+
+async function loadAssets() {
+  if (!acctCompanyId) return;
+  const {data}=await sb.from('fixed_assets').select('*').eq('company_id',acctCompanyId).order('placed_in_service_date',{ascending:false});
+  const c=document.getElementById('assetsContent'); if(!c) return;
+  if (!data||!data.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No fixed assets yet</div></div>`; return; }
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Asset Name</th><th>Category</th><th>In Service</th><th>Cost</th><th>Method</th><th>Accum. Depr.</th><th>Book Value</th><th>Status</th><th></th></tr></thead><tbody>`+
+    data.map(a=>`<tr>
+      <td><strong>${a.asset_name}</strong>${a.asset_number?`<div style="font-size:11px;color:var(--text-light);">${a.asset_number}</div>`:''}</td>
+      <td style="color:var(--text-mid);">${a.asset_category||'—'}</td>
+      <td>${fmtDate(a.placed_in_service_date)}</td>
+      <td class="amount">${fmtMoney(a.purchase_cost)}</td>
+      <td style="color:var(--text-mid);font-size:12px;">${a.depreciation_method||'—'}</td>
+      <td class="amount negative">${fmtMoney(a.accumulated_depreciation)}</td>
+      <td class="amount">${fmtMoney(a.book_value)}</td>
+      <td>${statusPill(a.status)}</td>
+      <td>
+        <button onclick="editAsset('${a.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button>
+        ${a.status==='active'?`<button onclick="openDisposalModal('${a.id}',${a.book_value},'${a.asset_name.replace(/'/g,"\\'")}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Dispose</button>`:''}
+      </td>
+    </tr>`).join('')+'</tbody></table>';
+}
+
+function openAssetModal(id=null) {
+  if (!acctCompanyId) { showToast('⚠ Select a company first',true); return; }
+  editingAssetId=id;
+  document.getElementById('assetModalTitle').textContent=id?'Edit Fixed Asset':'Add Fixed Asset';
+  ['fa-name','fa-number','fa-cost','fa-salvage','fa-life','fa-179','fa-bonus','fa-notes'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
+  document.getElementById('fa-category').value='';
+  document.getElementById('fa-depr-method').value='Straight-Line';
+  document.getElementById('fa-macrs-class').value='7-year';
+  document.getElementById('fa-macrs-group').style.display='none';
+  document.getElementById('fa-life-group').style.display='';
+  document.getElementById('fa-asset-acct').innerHTML=acctOptsHTML('Asset');
+  document.getElementById('fa-accum-acct').innerHTML=acctOptsHTML('Asset');
+  document.getElementById('fa-depr-exp-acct').innerHTML=acctOptsHTML('Expense');
+  if (id) {
+    const a=allAssets?.find(x=>x.id===id); if(a) populateAssetForm(a);
+  }
+  calcAssetBookValue();
+  document.getElementById('assetModal').classList.add('show');
+}
+
+let allAssets=[];
+async function editAsset(id) {
+  showLoading('Loading asset…');
+  const {data:a}=await sb.from('fixed_assets').select('*').eq('id',id).single();
+  hideLoading(); editingAssetId=id;
+  document.getElementById('assetModalTitle').textContent='Edit Fixed Asset';
+  document.getElementById('fa-asset-acct').innerHTML=acctOptsHTML('Asset',a.asset_account_id);
+  document.getElementById('fa-accum-acct').innerHTML=acctOptsHTML('Asset',a.accum_depr_account_id);
+  document.getElementById('fa-depr-exp-acct').innerHTML=acctOptsHTML('Expense',a.depr_expense_account_id);
+  populateAssetForm(a);
+  calcAssetBookValue();
+  document.getElementById('assetModal').classList.add('show');
+}
+
+function populateAssetForm(a) {
+  const s=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';};
+  s('fa-name',a.asset_name); s('fa-number',a.asset_number); s('fa-category',a.asset_category);
+  s('fa-purchase-date',a.purchase_date); s('fa-service-date',a.placed_in_service_date);
+  s('fa-cost',a.purchase_cost); s('fa-salvage',a.salvage_value); s('fa-life',a.useful_life_years);
+  s('fa-depr-method',a.depreciation_method); s('fa-macrs-class',a.macrs_class);
+  s('fa-179',a.section_179_amount); s('fa-bonus',a.bonus_depreciation_pct);
+  s('fa-notes',a.notes);
+  toggleMACRS();
+}
+
+function toggleMACRS() {
+  const method=document.getElementById('fa-depr-method').value;
+  document.getElementById('fa-macrs-group').style.display=method==='MACRS'?'':'none';
+  document.getElementById('fa-life-group').style.display=method==='MACRS'?'none':'';
+}
+
+function calcAssetBookValue() {
+  const cost=parseFloat(document.getElementById('fa-cost')?.value||0)||0;
+  const sec179=parseFloat(document.getElementById('fa-179')?.value||0)||0;
+  const bonusPct=parseFloat(document.getElementById('fa-bonus')?.value||0)||0;
+  const afterSec179=Math.max(0,cost-sec179);
+  const bonusAmt=afterSec179*(bonusPct/100);
+  const basis=Math.max(0,afterSec179-bonusAmt);
+  const el=document.getElementById('fa-basis-display');
+  if(el) el.textContent=fmtMoney(basis);
+}
+
+function calcDisposalGainLoss() {
+  const proceeds=parseFloat(document.getElementById('disposal-proceeds')?.value||0)||0;
+  const gainLoss=proceeds-disposingAssetBookValue;
+  const el=document.getElementById('disposal-gain-display');
+  if(el) { el.textContent=(gainLoss<0?'-':'')+fmtMoney(Math.abs(gainLoss)); el.style.color=gainLoss>=0?'var(--success)':'var(--error)'; }
+}
+
+function generateDepreciationSchedule(cost,salvage,life,method,macrsClass,sec179,bonusPct,serviceDate) {
+  const schedule=[];
+  const afterSec179=Math.max(0,cost-sec179);
+  const bonusAmt=afterSec179*(bonusPct/100);
+  const depreciableBasis=Math.max(0,afterSec179-bonusAmt);
+  const startYear=serviceDate?new Date(serviceDate).getFullYear():new Date().getFullYear();
+  let accumDepr=sec179+bonusAmt;
+  let bookValue=cost-accumDepr;
+  // First year: Section 179 + Bonus
+  if (sec179>0||bonusAmt>0) {
+    schedule.push({year:startYear,deprAmt:sec179+bonusAmt,accumDepr,bookValue});
+  }
+  if (method==='Straight-Line'&&life>0) {
+    const annualDepr=(depreciableBasis-Math.max(0,salvage))/life;
+    for (let y=0;y<life;y++) {
+      const yr=startYear+(sec179>0||bonusAmt>0?0:0)+y+(sec179>0||bonusAmt>0?1:0);
+      const depr=Math.min(annualDepr,bookValue-salvage);
+      if (depr<=0.01) break;
+      accumDepr+=depr; bookValue-=depr;
+      schedule.push({year:yr+(sec179>0||bonusAmt>0?0:y===0?0:0),deprAmt:parseFloat(depr.toFixed(2)),accumDepr:parseFloat(accumDepr.toFixed(2)),bookValue:parseFloat(bookValue.toFixed(2))});
+    }
+  } else if (method==='Double Declining Balance'&&life>0) {
+    const rate=2/life;
+    for (let y=0;y<life*2;y++) {
+      if (bookValue<=salvage+0.01) break;
+      let depr=bookValue*rate;
+      const straightLine=(bookValue-salvage)/(life-y);
+      depr=Math.max(depr,straightLine);
+      depr=Math.min(depr,bookValue-salvage);
+      accumDepr+=depr; bookValue-=depr;
+      schedule.push({year:startYear+y+(sec179>0||bonusAmt>0?1:0),deprAmt:parseFloat(depr.toFixed(2)),accumDepr:parseFloat(accumDepr.toFixed(2)),bookValue:parseFloat(bookValue.toFixed(2))});
+      if (bookValue<=salvage+0.01) break;
+    }
+  } else if (method==='MACRS') {
+    // Simplified MACRS half-year convention rates
+    const macrsRates={
+      '3-year':[0.3333,0.4445,0.1481,0.0741],
+      '5-year':[0.2000,0.3200,0.1920,0.1152,0.1152,0.0576],
+      '7-year':[0.1429,0.2449,0.1749,0.1249,0.0893,0.0892,0.0893,0.0446],
+      '10-year':[0.1000,0.1800,0.1440,0.1152,0.0922,0.0737,0.0655,0.0655,0.0656,0.0655,0.0328],
+      '15-year':[0.05,0.095,0.0855,0.077,0.0693,0.0623,0.059,0.059,0.0591,0.059,0.0591,0.059,0.0591,0.059,0.0591,0.0295],
+      '27.5-year (Residential)':[0.03636],
+      '39-year (Nonresidential)':[0.02564],
+    };
+    const rates=macrsRates[macrsClass]||macrsRates['7-year'];
+    rates.forEach((r,i)=>{
+      const depr=depreciableBasis*r;
+      accumDepr+=depr; bookValue=Math.max(0,cost-accumDepr);
+      schedule.push({year:startYear+i+(sec179>0||bonusAmt>0?1:0),deprAmt:parseFloat(depr.toFixed(2)),accumDepr:parseFloat(accumDepr.toFixed(2)),bookValue:parseFloat(bookValue.toFixed(2))});
+    });
+  }
+  return schedule;
+}
+
+async function saveAsset() {
+  const name=document.getElementById('fa-name').value.trim();
+  const cost=parseFloat(document.getElementById('fa-cost').value||0)||0;
+  const serviceDate=document.getElementById('fa-service-date').value;
+  if (!name||!cost||!serviceDate) { showToast('⚠ Name, cost, and placed-in-service date required',true); return; }
+  showLoading('Saving asset…');
+  const aid=editingAssetId||('fa-'+Date.now());
+  const method=document.getElementById('fa-depr-method').value;
+  const life=parseFloat(document.getElementById('fa-life').value||5)||5;
+  const salvage=parseFloat(document.getElementById('fa-salvage').value||0)||0;
+  const sec179=parseFloat(document.getElementById('fa-179').value||0)||0;
+  const bonusPct=parseFloat(document.getElementById('fa-bonus').value||0)||0;
+  const schedule=generateDepreciationSchedule(cost,salvage,life,method,document.getElementById('fa-macrs-class').value,sec179,bonusPct,serviceDate);
+  const totalFirstYearDepr=(sec179>0||bonusPct>0)?schedule[0]?.deprAmt||0:0;
+  const {error}=await sb.from('fixed_assets').upsert({
+    id:aid,company_id:acctCompanyId,
+    asset_name:name,asset_number:document.getElementById('fa-number').value,
+    description:'',asset_category:document.getElementById('fa-category').value,
+    purchase_date:document.getElementById('fa-purchase-date').value||null,
+    placed_in_service_date:serviceDate,
+    purchase_cost:cost,salvage_value:salvage,useful_life_years:life,
+    depreciation_method:method,macrs_class:document.getElementById('fa-macrs-class').value,
+    section_179_amount:sec179,bonus_depreciation_pct:bonusPct,
+    accumulated_depreciation:0,book_value:cost,
+    asset_account_id:document.getElementById('fa-asset-acct').value||null,
+    accum_depr_account_id:document.getElementById('fa-accum-acct').value||null,
+    depr_expense_account_id:document.getElementById('fa-depr-exp-acct').value||null,
+    status:'active',notes:document.getElementById('fa-notes').value,
+    updated_at:new Date().toISOString(),
+  });
+  if (error) { hideLoading(); showToast('Error: '+error.message,true); return; }
+  // Save depreciation schedule
+  await sb.from('asset_depreciation_schedule').delete().eq('asset_id',aid);
+  if (schedule.length) {
+    await sb.from('asset_depreciation_schedule').insert(schedule.map((s,i)=>({
+      id:`ads-${aid}-${i}`,asset_id:aid,fiscal_year:s.year,
+      depreciation_amount:s.deprAmt,accumulated_depreciation:s.accumDepr,
+      book_value_end:s.bookValue,is_posted:false,
+    })));
+  }
+  hideLoading(); closeModal('assetModal'); showToast('✓ Asset saved with depreciation schedule'); loadAssets();
+}
+
+function populateDeprYearFilter() {
+  const sel=document.getElementById('depr-year-filter');
+  if (!sel) return;
+  const cur=new Date().getFullYear();
+  sel.innerHTML='';
+  for (let y=cur+1;y>=cur-10;y--) sel.innerHTML+=`<option ${y===cur?'selected':''}>${y}</option>`;
+}
+
+async function loadDepreciationSchedule() {
+  if (!acctCompanyId) return;
+  const year=parseInt(document.getElementById('depr-year-filter')?.value||new Date().getFullYear());
+  showLoading('Loading schedule…');
+  const {data:assets}=await sb.from('fixed_assets').select('id,asset_name,asset_number,purchase_cost,depreciation_method').eq('company_id',acctCompanyId).eq('status','active');
+  if (!assets||!assets.length) { hideLoading(); document.getElementById('assetScheduleContent').innerHTML=`<div class="empty-state"><div class="empty-state-title">No active assets found</div></div>`; return; }
+  const assetIds=assets.map(a=>a.id);
+  const {data:schedRows}=await sb.from('asset_depreciation_schedule').select('*').in('asset_id',assetIds).eq('fiscal_year',year);
+  hideLoading();
+  const c=document.getElementById('assetScheduleContent');
+  if (!schedRows||!schedRows.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No depreciation scheduled for ${year}</div></div>`; return; }
+  const assetMap={};assets.forEach(a=>assetMap[a.id]=a);
+  let totalDepr=0;
+  let rows=schedRows.map(s=>{
+    const a=assetMap[s.asset_id]||{};
+    totalDepr+=parseFloat(s.depreciation_amount||0);
+    return `<tr>
+      <td><strong>${a.asset_name||'—'}</strong>${a.asset_number?`<div style="font-size:11px;color:var(--text-light);">${a.asset_number}</div>`:''}</td>
+      <td style="color:var(--text-mid);">${a.depreciation_method||'—'}</td>
+      <td class="amount">${fmtMoney(a.purchase_cost)}</td>
+      <td class="amount negative">${fmtMoney(s.depreciation_amount)}</td>
+      <td class="amount negative">${fmtMoney(s.accumulated_depreciation)}</td>
+      <td class="amount">${fmtMoney(s.book_value_end)}</td>
+      <td>${s.is_posted?'<span class="status-pill status-active">Posted</span>':'<span class="status-pill" style="background:rgba(127,140,141,0.15);color:#566573;">Unposted</span>'}</td>
+    </tr>`;
+  }).join('');
+  c.innerHTML=`
+    <div class="report-header"><div class="report-title">Depreciation Schedule — ${year}</div><div class="report-subtitle">All active assets · ${acctCompanyId}</div></div>
+    <div class="report-body">
+      <table class="acct-table"><thead><tr><th>Asset</th><th>Method</th><th>Cost</th><th>This Year Depr.</th><th>Accum. Depr.</th><th>Book Value (EOY)</th><th>Status</th></tr></thead>
+      <tbody>${rows}
+        <tr style="background:var(--gold-pale);font-weight:600;">
+          <td colspan="3" style="text-align:right;padding:12px 16px;color:var(--navy);">Total Depreciation ${year}</td>
+          <td class="amount" style="font-weight:700;font-size:15px;color:var(--error);">${fmtMoney(totalDepr)}</td>
+          <td colspan="3"></td>
+        </tr>
+      </tbody></table>
+    </div>`;
+}
+
+async function postDepreciationJEs() {
+  if (!acctCompanyId) { showToast('⚠ Select a company first',true); return; }
+  const year=parseInt(document.getElementById('depr-year-filter')?.value||new Date().getFullYear());
+  if (!confirm(`Post depreciation journal entries for ${year}? This will create JEs for all unposted assets.`)) return;
+  showLoading('Posting depreciation JEs…');
+  const {data:assets}=await sb.from('fixed_assets').select('*').eq('company_id',acctCompanyId).eq('status','active');
+  const {data:schedRows}=await sb.from('asset_depreciation_schedule').select('*').in('asset_id',(assets||[]).map(a=>a.id)).eq('fiscal_year',year).eq('is_posted',false);
+  let posted=0;
+  for (const s of (schedRows||[])) {
+    const a=assets.find(x=>x.id===s.asset_id);
+    if (!a||!a.depr_expense_account_id||!a.accum_depr_account_id) continue;
+    const jeId=`je-depr-${s.id}`;
+    await sb.from('journal_entries').insert({id:jeId,company_id:acctCompanyId,entry_date:`${year}-12-31`,description:`Depreciation — ${a.asset_name} ${year}`,status:'posted',entry_type:'manual',updated_at:new Date().toISOString()});
+    await sb.from('journal_entry_lines').insert([
+      {id:jeId+'-1',journal_entry_id:jeId,account_id:a.depr_expense_account_id,description:'Depreciation Expense',debit:s.depreciation_amount,credit:0,sort_order:0},
+      {id:jeId+'-2',journal_entry_id:jeId,account_id:a.accum_depr_account_id,description:'Accumulated Depreciation',debit:0,credit:s.depreciation_amount,sort_order:1},
+    ]);
+    await sb.from('asset_depreciation_schedule').update({is_posted:true,journal_entry_id:jeId}).eq('id',s.id);
+    // Update asset accumulated_depreciation and book_value
+    await sb.from('fixed_assets').update({accumulated_depreciation:s.accumulated_depreciation,book_value:s.book_value_end,updated_at:new Date().toISOString()}).eq('id',a.id);
+    posted++;
+  }
+  hideLoading(); showToast(`✓ Posted ${posted} depreciation journal entries`); loadDepreciationSchedule();
+}
+
+function openDisposalModal(id, bookValue, name) {
+  disposingAssetId=id; disposingAssetBookValue=parseFloat(bookValue)||0;
+  document.getElementById('disposal-asset-info').textContent=`Asset: ${name} · Book Value: ${fmtMoney(disposingAssetBookValue)}`;
+  document.getElementById('disposal-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('disposal-proceeds').value='';
+  document.getElementById('disposal-notes').value='';
+  calcDisposalGainLoss();
+  document.getElementById('assetDisposalModal').classList.add('show');
+}
+
+async function processDisposal() {
+  const date=document.getElementById('disposal-date').value;
+  const proceeds=parseFloat(document.getElementById('disposal-proceeds').value||0)||0;
+  if (!date) { showToast('⚠ Disposal date required',true); return; }
+  showLoading('Processing disposal…');
+  const gainLoss=proceeds-disposingAssetBookValue;
+  await sb.from('fixed_assets').update({status:'disposed',disposal_date:date,disposal_proceeds:proceeds,disposal_gain_loss:gainLoss,updated_at:new Date().toISOString()}).eq('id',disposingAssetId);
+  hideLoading(); closeModal('assetDisposalModal'); showToast('✓ Asset disposed'); loadAssets();
+}
+
+// ══════════════════════════════
+//  SALES TAX
+// ══════════════════════════════
+let editingTaxRateId=null;
+
+async function loadTaxRates() {
+  if (!acctCompanyId) return;
+  const {data}=await sb.from('sales_tax_rates').select('*').eq('company_id',acctCompanyId).order('rate_type');
+  const c=document.getElementById('taxRatesContent'); if(!c) return;
+  if (!data||!data.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No tax rates configured</div><div>Add the rates that apply to this entity's sales.</div></div>`; return; }
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Name</th><th>Type</th><th>State</th><th>County / City</th><th>Rate</th><th>Applies To</th><th>Status</th><th></th></tr></thead><tbody>`+
+    data.map(r=>`<tr>
+      <td><strong>${r.name}</strong></td>
+      <td style="text-transform:capitalize;">${r.rate_type}</td>
+      <td>${r.state||'—'}</td>
+      <td>${[r.county,r.city].filter(Boolean).join(' / ')||'—'}</td>
+      <td style="font-family:monospace;font-weight:500;">${(parseFloat(r.rate)*100).toFixed(4)}%</td>
+      <td style="text-transform:capitalize;">${r.applies_to||'all'}</td>
+      <td><span class="status-pill ${r.is_active?'status-active':''}">${r.is_active?'Active':'Inactive'}</span></td>
+      <td><button onclick="editTaxRate('${r.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button></td>
+    </tr>`).join('')+'</tbody></table>';
+}
+
+function openTaxRateModal(id=null) {
+  if (!acctCompanyId) { showToast('⚠ Select a company first',true); return; }
+  editingTaxRateId=id;
+  document.getElementById('taxRateModalTitle').textContent=id?'Edit Tax Rate':'Add Tax Rate';
+  ['tr-name','tr-rate','tr-county','tr-city'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
+  document.getElementById('tr-type').value='state';
+  document.getElementById('tr-applies').value='all';
+  document.getElementById('tr-state').value='';
+  document.getElementById('tr-account').innerHTML=acctOptsHTML('Liability');
+  document.getElementById('taxRateModal').classList.add('show');
+}
+
+async function editTaxRate(id) {
+  showLoading('Loading…');
+  const {data:r}=await sb.from('sales_tax_rates').select('*').eq('id',id).single();
+  hideLoading(); editingTaxRateId=id;
+  document.getElementById('taxRateModalTitle').textContent='Edit Tax Rate';
+  document.getElementById('tr-name').value=r.name||'';
+  document.getElementById('tr-type').value=r.rate_type||'state';
+  document.getElementById('tr-rate').value=(parseFloat(r.rate)*100).toFixed(4);
+  document.getElementById('tr-state').value=r.state||'';
+  document.getElementById('tr-county').value=r.county||'';
+  document.getElementById('tr-city').value=r.city||'';
+  document.getElementById('tr-applies').value=r.applies_to||'all';
+  document.getElementById('tr-account').innerHTML=acctOptsHTML('Liability',r.tax_account_id);
+  document.getElementById('taxRateModal').classList.add('show');
+}
+
+async function saveTaxRate() {
+  const name=document.getElementById('tr-name').value.trim();
+  const rateStr=document.getElementById('tr-rate').value;
+  if (!name||!rateStr) { showToast('⚠ Name and rate required',true); return; }
+  const rate=parseFloat(rateStr)/100;
+  showLoading('Saving…');
+  const {error}=await sb.from('sales_tax_rates').upsert({
+    id:editingTaxRateId||('tr-'+Date.now()),company_id:acctCompanyId,
+    name,rate_type:document.getElementById('tr-type').value,
+    rate,state:document.getElementById('tr-state').value,
+    county:document.getElementById('tr-county').value,
+    city:document.getElementById('tr-city').value,
+    applies_to:document.getElementById('tr-applies').value,
+    effective_date:document.getElementById('tr-effdate').value||null,
+    tax_account_id:document.getElementById('tr-account').value||null,
+    is_active:true,
+  });
+  hideLoading(); if(error){showToast('Error: '+error.message,true);return;}
+  closeModal('taxRateModal'); showToast('✓ Tax rate saved'); loadTaxRates();
+}
+
+async function loadTaxCollected() {
+  if (!acctCompanyId) return;
+  const {data}=await sb.from('sales_tax_collected').select('*, invoices(invoice_number), customers(name)').eq('company_id',acctCompanyId).order('transaction_date',{ascending:false});
+  const c=document.getElementById('taxCollectedContent'); if(!c) return;
+  if (!data||!data.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No tax collected records</div><div style="font-size:13px;color:var(--text-light);margin-top:8px;">Tax collected is recorded automatically when invoices are saved with tax rates.</div></div>`; return; }
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Date</th><th>Customer</th><th>Invoice</th><th>Tax Rate</th><th>Rate %</th><th>Taxable Amount</th><th>Tax Collected</th><th>Exempt</th></tr></thead><tbody>`+
+    data.map(t=>`<tr><td>${fmtDate(t.transaction_date)}</td><td>${t.customers?.name||'—'}</td><td class="number">${t.invoices?.invoice_number||'—'}</td><td>${t.tax_rate_name||'—'}</td><td style="font-family:monospace;">${((parseFloat(t.rate||0))*100).toFixed(2)}%</td><td class="amount">${fmtMoney(t.taxable_amount)}</td><td class="amount">${fmtMoney(t.tax_amount)}</td><td>${t.is_exempt?'<span class="status-pill" style="background:rgba(230,126,34,0.15);color:#a04000;">Exempt</span>':''}</td></tr>`).join('')+'</tbody></table>';
+}
+
+async function loadTaxPaid() {
+  if (!acctCompanyId) return;
+  const {data}=await sb.from('sales_tax_paid').select('*, bills(bill_number)').eq('company_id',acctCompanyId).order('transaction_date',{ascending:false});
+  const c=document.getElementById('taxPaidContent'); if(!c) return;
+  if (!data||!data.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No tax paid records</div></div>`; return; }
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Date</th><th>Bill</th><th>Tax Rate</th><th>Rate %</th><th>Taxable Amount</th><th>Tax Paid</th></tr></thead><tbody>`+
+    data.map(t=>`<tr><td>${fmtDate(t.transaction_date)}</td><td class="number">${t.bills?.bill_number||'—'}</td><td>${t.tax_rate_name||'—'}</td><td style="font-family:monospace;">${((parseFloat(t.rate||0))*100).toFixed(2)}%</td><td class="amount">${fmtMoney(t.taxable_amount)}</td><td class="amount">${fmtMoney(t.tax_amount)}</td></tr>`).join('')+'</tbody></table>';
+}
+
+async function runSalesTaxLiability() {
+  const from=document.getElementById('stl-from').value;
+  const to=document.getElementById('stl-to').value;
+  if (!from||!to) { showToast('⚠ Select date range',true); return; }
+  showLoading('Running Sales Tax Liability Report…');
+  let q1=sb.from('sales_tax_collected').select('*').gte('transaction_date',from).lte('transaction_date',to).eq('is_exempt',false);
+  let q2=sb.from('sales_tax_paid').select('*').gte('transaction_date',from).lte('transaction_date',to);
+  if (!acctConsolidated&&acctCompanyId) { q1=q1.eq('company_id',acctCompanyId); q2=q2.eq('company_id',acctCompanyId); }
+  const [{data:collected},{data:paid}]=await Promise.all([q1,q2]);
+  hideLoading();
+  const totalCollected=(collected||[]).reduce((s,t)=>s+parseFloat(t.tax_amount||0),0);
+  const totalPaid=(paid||[]).reduce((s,t)=>s+parseFloat(t.tax_amount||0),0);
+  const netLiability=totalCollected-totalPaid;
+  // Group by rate name
+  const byRate={};
+  (collected||[]).forEach(t=>{
+    const k=t.tax_rate_name||'Unknown';
+    if(!byRate[k])byRate[k]={name:k,collected:0,paid:0};
+    byRate[k].collected+=parseFloat(t.tax_amount||0);
+  });
+  (paid||[]).forEach(t=>{
+    const k=t.tax_rate_name||'Unknown';
+    if(!byRate[k])byRate[k]={name:k,collected:0,paid:0};
+    byRate[k].paid+=parseFloat(t.tax_amount||0);
+  });
+  const fmt=v=>v<0?`<span class="report-amount neg">(${Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2})})</span>`:`<span class="report-amount">$${v.toLocaleString('en-US',{minimumFractionDigits:2})}</span>`;
+  let rows=Object.values(byRate).map(r=>`
+    <div class="report-data-row">
+      <span>${r.name}</span>
+      <div style="display:flex;gap:32px;">
+        <span>${fmt(r.collected)}</span>
+        <span>${fmt(r.paid)}</span>
+        <span>${fmt(r.collected-r.paid)}</span>
+      </div>
+    </div>`).join('');
+  document.getElementById('taxLiabilityContent').innerHTML=`
+    <div class="report-header"><div class="report-title">Sales Tax Liability</div><div class="report-subtitle">${from} through ${to}</div></div>
+    <div class="report-body">
+      <div style="display:flex;justify-content:space-between;padding:10px 28px;background:var(--section-bg);border-bottom:1px solid var(--border-light);font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-light);">
+        <span>Tax Rate</span><div style="display:flex;gap:32px;"><span>Collected</span><span>Paid</span><span>Net Liability</span></div>
+      </div>
+      ${rows||'<div style="padding:24px;text-align:center;color:var(--text-light);">No tax transactions in this period</div>'}
+      <div class="report-total-row">
+        <span>Total</span>
+        <div style="display:flex;gap:32px;">
+          ${fmt(totalCollected)}${fmt(totalPaid)}${fmt(netLiability)}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── INIT
 loadDashboard();
 </script>
 </body>
 </html>
+
 
 
