@@ -6876,20 +6876,98 @@ let taxDocs = [];
 
 // ── MODULE LOAD ──
 async function loadTaxModule() {
-  const { data: companies } = await sb.from('companies').select('id,legal_name,structure,acct_method_tax').order('legal_name');
+  showLoading('Loading tax module…');
+  const { data: companies } = await sb.from('companies').select('id,legal_name,structure,acct_method_tax,suta_state').order('legal_name');
+  hideLoading();
   const sel = document.getElementById('taxEntitySelect');
   sel.innerHTML = '<option value="">— Select a company —</option>' +
     (companies||[]).map(c => `<option value="${c.id}" data-structure="${c.structure||''}">${c.legal_name}</option>`).join('');
   taxYear = parseInt(document.getElementById('taxYearSelect').value) || 2025;
+
+  // Auto-select first company
+  if (companies && companies.length > 0 && !taxCompanyId) {
+    sel.value = companies[0].id;
+    taxCompanyId = companies[0].id;
+    await loadTaxEntityData();
+    showTaxDashboard(companies[0]);
+  } else if (taxCompanyId) {
+    sel.value = taxCompanyId;
+  }
 }
 
-function onTaxEntityChange() {
+function showTaxDashboard(company) {
+  // Show helpful status in the 1120s panel (default active panel)
+  const structure = company.structure || '';
+  const isSCorp = structure.toLowerCase().includes('s corp');
+  const isCCorp = structure.toLowerCase().includes('c corp');
+  const isPartnership = structure.toLowerCase().includes('llc') || structure.toLowerCase().includes('partnership') || structure.toLowerCase().includes('lp') || structure.toLowerCase().includes('llp');
+
+  const recommendedForm = isSCorp ? '1120-S' : isCCorp ? '1120' : isPartnership ? '1065' : '1120-S';
+  const dueDate = (isSCorp || isPartnership) ? 'March 15, 2026' : 'April 15, 2026';
+
+  document.getElementById('form-1120s-body').innerHTML = `
+    <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:20px;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--navy);margin-bottom:4px;">
+        ${company.legal_name} — Tax Year ${taxYear}
+      </div>
+      <div style="font-size:13px;color:var(--text-mid);margin-bottom:16px;">
+        Entity Type: <strong>${structure||'Not set'}</strong> &nbsp;·&nbsp; 
+        Recommended Return: <strong>Form ${recommendedForm}</strong> &nbsp;·&nbsp;
+        Due: <strong>${dueDate}</strong>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        <div style="background:var(--section-bg);border-radius:var(--radius);padding:14px 16px;cursor:pointer;border:2px solid ${isSCorp?'var(--gold)':'var(--border-light)'};" onclick="showTaxPanel('1120s');syncReturnFromFinancials('1120s')">
+          <div style="font-size:20px;margin-bottom:6px;">📋</div>
+          <div style="font-size:13px;font-weight:500;color:var(--navy);">Form 1120-S</div>
+          <div style="font-size:11px;color:var(--text-light);">S Corporation · Due Mar 15</div>
+          ${isSCorp?'<div style="font-size:11px;color:var(--success);margin-top:4px;">✓ Recommended for this entity</div>':''}
+        </div>
+        <div style="background:var(--section-bg);border-radius:var(--radius);padding:14px 16px;cursor:pointer;border:2px solid ${isCCorp?'var(--gold)':'var(--border-light)'};" onclick="showTaxPanel('1120');syncReturnFromFinancials('1120')">
+          <div style="font-size:20px;margin-bottom:6px;">📋</div>
+          <div style="font-size:13px;font-weight:500;color:var(--navy);">Form 1120</div>
+          <div style="font-size:11px;color:var(--text-light);">C Corporation · Due Apr 15</div>
+          ${isCCorp?'<div style="font-size:11px;color:var(--success);margin-top:4px;">✓ Recommended for this entity</div>':''}
+        </div>
+        <div style="background:var(--section-bg);border-radius:var(--radius);padding:14px 16px;cursor:pointer;border:2px solid ${isPartnership?'var(--gold)':'var(--border-light)'};" onclick="showTaxPanel('1065');syncReturnFromFinancials('1065')">
+          <div style="font-size:20px;margin-bottom:6px;">📋</div>
+          <div style="font-size:13px;font-weight:500;color:var(--navy);">Form 1065</div>
+          <div style="font-size:11px;color:var(--text-light);">Partnership / LLC · Due Mar 15</div>
+          ${isPartnership?'<div style="font-size:11px;color:var(--success);margin-top:4px;">✓ Recommended for this entity</div>':''}
+        </div>
+        <div style="background:var(--section-bg);border-radius:var(--radius);padding:14px 16px;cursor:pointer;" onclick="showTaxPanel('k1');syncK1FromFinancials()">
+          <div style="font-size:20px;margin-bottom:6px;">📊</div>
+          <div style="font-size:13px;font-weight:500;color:var(--navy);">K-1 Allocations</div>
+          <div style="font-size:11px;color:var(--text-light);">Distribute income to owners</div>
+        </div>
+        <div style="background:var(--section-bg);border-radius:var(--radius);padding:14px 16px;cursor:pointer;" onclick="showTaxPanel('fl-dr15');syncSalesTaxReturn('fl')">
+          <div style="font-size:20px;margin-bottom:6px;">🏖️</div>
+          <div style="font-size:13px;font-weight:500;color:var(--navy);">FL DR-15</div>
+          <div style="font-size:11px;color:var(--text-light);">Florida Sales & Use Tax</div>
+        </div>
+        <div style="background:var(--section-bg);border-radius:var(--radius);padding:14px 16px;cursor:pointer;" onclick="showTaxPanel('ga-st3');syncSalesTaxReturn('ga')">
+          <div style="font-size:20px;margin-bottom:6px;">🍑</div>
+          <div style="font-size:13px;font-weight:500;color:var(--navy);">GA ST-3</div>
+          <div style="font-size:11px;color:var(--text-light);">Georgia Sales & Use Tax</div>
+        </div>
+      </div>
+    </div>
+    <div style="background:var(--gold-pale);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;font-size:13px;color:var(--text-mid);">
+      <strong style="color:var(--navy);">How to use:</strong> Select a return type above or from the left sidebar, then click <strong>↻ Sync from Financials</strong> to auto-populate from your ${taxYear} posted journal entries. All amounts can be manually overridden. Click <strong>🖨 Print</strong> to generate a printable return.
+    </div>`;
+}
+
+async function onTaxEntityChange() {
   const sel = document.getElementById('taxEntitySelect');
   taxCompanyId = sel.value;
   taxYear = parseInt(document.getElementById('taxYearSelect').value) || 2025;
   taxFinancialData = {};
   taxReturnLines = {};
-  if (taxCompanyId) loadTaxEntityData();
+  if (taxCompanyId) {
+    await loadTaxEntityData();
+    const company = { legal_name: sel.options[sel.selectedIndex]?.text?.split(' —')[0] || '', structure: sel.options[sel.selectedIndex]?.dataset?.structure || '' };
+    showTaxPanel('1120s');
+    showTaxDashboard(company);
+  }
 }
 
 async function loadTaxEntityData() {
@@ -7317,103 +7395,166 @@ async function syncSalesTaxReturn(state) {
   const periodSel = state === 'fl' ? 'dr15-period' : 'st3-period';
   const period    = document.getElementById(periodSel)?.value || '2025-12';
   const [yr, mo]  = period.split('-');
+  const daysInMonth = new Date(parseInt(yr), parseInt(mo), 0).getDate();
   const dateFrom  = `${yr}-${mo}-01`;
-  const dateTo    = `${yr}-${mo}-${new Date(parseInt(yr), parseInt(mo), 0).getDate()}`;
+  const dateTo    = `${yr}-${mo}-${daysInMonth}`;
 
-  showLoading(`Loading ${state.toUpperCase()} invoices…`);
+  showLoading(`Syncing ${state.toUpperCase()} sales tax return…`);
 
-  // Get invoices for this company in this period
+  // Get invoices for this period
   const { data: invoices } = await sb.from('invoices')
-    .select('*, invoice_lines(*), customers(billing_zip, billing_state)')
+    .select('id,invoice_number,invoice_date,subtotal,tax_amount,total,customers(name,billing_zip,billing_state,billing_city,is_tax_exempt)')
     .eq('company_id', taxCompanyId)
     .gte('invoice_date', dateFrom).lte('invoice_date', dateTo)
     .neq('status','void');
 
-  // Get zip rate lookup
+  // Get zip code rate table for this state
   const { data: zipRates } = await sb.from('sales_tax_zip_rates').eq('state', state.toUpperCase());
   const zipMap = {};
-  (zipRates||[]).forEach(z => zipMap[z.zip_code] = z);
+  (zipRates||[]).forEach(z => { zipMap[z.zip_code] = z; });
 
-  // Map invoices to this state
-  let totalTaxableSales = 0, totalExemptSales = 0, totalTax = 0;
+  // Get company-configured sales tax rates for this state as fallback
+  const { data: companyRates } = await sb.from('sales_tax_rates')
+    .eq('company_id', taxCompanyId).eq('is_active', true)
+    .eq('state', state === 'fl' ? 'Florida' : 'Georgia');
+
+  const stateAbbr = state.toUpperCase();
+  let totalTaxableSales = 0, totalExemptSales = 0, totalTax = 0, totalGross = 0;
   const byCounty = {};
+  const invoiceDetails = [];
 
   (invoices||[]).forEach(inv => {
-    const custZip   = inv.customers?.billing_zip?.replace(/\D/g,'').slice(0,5) || '';
-    const custState = inv.customers?.billing_state || '';
+    const sub      = parseFloat(inv.subtotal || 0);
+    const taxAmt   = parseFloat(inv.tax_amount || 0);
+    const custZip  = (inv.customers?.billing_zip || '').replace(/\D/g,'').slice(0,5);
+    const custState= inv.customers?.billing_state || '';
+    const isExempt = inv.customers?.is_tax_exempt || false;
+    totalGross += sub;
+
+    // Determine if this invoice belongs to this state
+    // Check: customer state matches, OR zip is in our zip table, OR tax was collected
     const zipRate   = zipMap[custZip];
-    if (!zipRate) return; // not in this state
-    const subtotal  = parseFloat(inv.subtotal || 0);
-    const taxAmt    = parseFloat(inv.tax_amount || 0);
-    totalTaxableSales += subtotal;
+    const stateMatch = custState === stateAbbr ||
+                       custState === (state === 'fl' ? 'Florida' : 'Georgia') ||
+                       (zipRate && zipRate.state === stateAbbr) ||
+                       (taxAmt > 0 && !custState); // has tax but no state — include
+
+    if (!stateMatch && custState && custState !== stateAbbr &&
+        custState !== (state === 'fl' ? 'Florida' : 'Georgia')) return;
+
+    if (isExempt) {
+      totalExemptSales += sub;
+      invoiceDetails.push({ ...inv, county:'Exempt', rate:0, included:true, exempt:true });
+      return;
+    }
+
+    totalTaxableSales += sub;
     totalTax += taxAmt;
-    const county = zipRate.county || 'Unknown';
-    if (!byCounty[county]) byCounty[county] = { taxable:0, tax:0, rate:zipRate.total_rate };
-    byCounty[county].taxable += subtotal;
+
+    const county = zipRate?.county || (companyRates?.[0] ? companyRates[0].county || 'Unspecified County' : 'Unspecified County');
+    const rate   = zipRate?.total_rate || (companyRates?.[0] ? parseFloat(companyRates[0].rate) : (state==='fl'?0.075:0.08));
+    if (!byCounty[county]) byCounty[county] = { taxable:0, tax:0, rate };
+    byCounty[county].taxable += sub;
     byCounty[county].tax     += taxAmt;
+    invoiceDetails.push({ ...inv, county, rate, included:true, exempt:false });
   });
 
   hideLoading();
-  if (state === 'fl') renderDR15(period, totalTaxableSales, totalExemptSales, totalTax, byCounty);
-  else renderST3(period, totalTaxableSales, totalExemptSales, totalTax, byCounty);
+
+  if (state === 'fl') renderDR15(period, totalTaxableSales, totalExemptSales, totalTax, byCounty, invoiceDetails, totalGross);
+  else renderST3(period, totalTaxableSales, totalExemptSales, totalTax, byCounty, invoiceDetails, totalGross);
 }
 
-function renderDR15(period, taxable, exempt, tax, byCounty) {
+function renderDR15(period, taxable, exempt, tax, byCounty, invoiceDetails, grossSales) {
   const fmt2 = v => parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
   const [yr, mo] = period.split('-');
   const monthName = new Date(parseInt(yr), parseInt(mo)-1, 1).toLocaleString('default',{month:'long'});
+  const stateTax  = Math.round((taxable - exempt) * 0.06 * 100) / 100;
+  const surtax    = Math.round(Math.max(0, tax - stateTax) * 100) / 100;
 
   let countyRows = Object.entries(byCounty).map(([county,d]) =>
-    `<tr><td>${county} County</td><td style="text-align:right;font-family:monospace;">${fmt2(d.taxable)}</td><td style="text-align:right;font-family:monospace;">${(d.rate*100).toFixed(4)}%</td><td style="text-align:right;font-family:monospace;">${fmt2(d.tax)}</td></tr>`
-  ).join('') || '<tr><td colspan="4" style="text-align:center;color:#888;">No FL sales this period</td></tr>';
+    `<tr><td>${county} County</td><td style="text-align:right;font-family:monospace;">${fmt2(d.taxable)}</td><td style="text-align:right;font-family:monospace;">${(parseFloat(d.rate||0)*100).toFixed(4)}%</td><td style="text-align:right;font-family:monospace;">${fmt2(d.tax)}</td></tr>`
+  ).join('');
+  if (!countyRows) countyRows = `<tr><td colspan="4" style="text-align:center;color:var(--text-light);padding:12px;">
+    No FL invoices found for this period. Invoices are matched to FL when the customer's billing state is Florida or billing zip matches a known FL zip code.</td></tr>`;
+
+  let invRows = (invoiceDetails||[]).filter(i=>i.included).map(i =>
+    `<tr><td class="number">${i.invoice_number||'—'}</td><td>${i.customers?.name||'—'}</td><td>${i.invoice_date||'—'}</td>
+     <td>${i.customers?.billing_zip||'—'}</td><td>${i.county||'—'}</td>
+     <td class="amount">${fmt2(i.subtotal)}</td>
+     <td class="amount">${i.exempt?'<span style="color:var(--gold);">Exempt</span>':fmt2(i.tax_amount)}</td></tr>`
+  ).join('') || `<tr><td colspan="7" style="text-align:center;color:var(--text-light);padding:12px;">No invoices matched for this period.</td></tr>`;
 
   document.getElementById('form-dr15-body').innerHTML = `
-    <div style="border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
-      <div class="tax-form-line section-header"><div class="tfl-num"></div><div class="tfl-label" style="grid-column:span 3;padding:8px 12px;">Florida DR-15 — Sales & Use Tax Return · ${monthName} ${yr}</div></div>
-      <div class="tax-form-line"><div class="tfl-num">A</div><div class="tfl-label">Gross Sales</div><div class="tfl-amount"><input class="tfl-input" id="dr15-gross" value="${fmt2(taxable)}" oninput=""></div><div class="tfl-override"></div></div>
-      <div class="tax-form-line"><div class="tfl-num">B</div><div class="tfl-label">Exempt Sales</div><div class="tfl-amount"><input class="tfl-input" id="dr15-exempt" value="${fmt2(exempt)}"></div><div class="tfl-override"></div></div>
-      <div class="tax-form-line subtotal"><div class="tfl-num">C</div><div class="tfl-label">Taxable Sales (A minus B)</div><div class="tfl-amount"><input class="tfl-input" id="dr15-taxable" value="${fmt2(taxable - exempt)}" readonly style="background:var(--section-bg);"></div><div></div></div>
-      <div class="tax-form-line"><div class="tfl-num">D1</div><div class="tfl-label">State Tax (6%)</div><div class="tfl-amount"><input class="tfl-input" id="dr15-state-tax" value="${fmt2((taxable-exempt)*0.06)}"></div><div class="tfl-override"></div></div>
-      <div class="tax-form-line"><div class="tfl-num">D2</div><div class="tfl-label">Surtax (discretionary)</div><div class="tfl-amount"><input class="tfl-input" id="dr15-surtax" value="${fmt2(tax - (taxable-exempt)*0.06)}"></div><div class="tfl-override"></div></div>
-      <div class="tax-form-line total"><div class="tfl-num">E</div><div class="tfl-label">Total Tax Due</div><div class="tfl-amount"><input class="tfl-input" id="dr15-total-tax" value="${fmt2(tax)}" readonly style="background:var(--gold-pale);font-weight:700;"></div><div></div></div>
+    <div style="border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:20px;">
+      <div class="tax-form-line section-header"><div class="tfl-num"></div><div class="tfl-label" style="grid-column:span 3;padding:8px 12px;">Florida DR-15 — Sales &amp; Use Tax Return · ${monthName} ${yr}</div></div>
+      <div class="tax-form-line"><div class="tfl-num">A</div><div class="tfl-label">Gross Sales</div><div class="tfl-amount"><input class="tfl-input" id="dr15-gross" value="${fmt2(grossSales||taxable)}"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line"><div class="tfl-num">B</div><div class="tfl-label">Exempt Sales</div><div class="tfl-amount"><input class="tfl-input" id="dr15-exempt" value="${fmt2(exempt)}"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line subtotal"><div class="tfl-num">C</div><div class="tfl-label">Taxable Sales (A minus B)</div><div class="tfl-amount"><input class="tfl-input" id="dr15-taxable" value="${fmt2(taxable)}" readonly style="background:var(--section-bg);"></div><div></div></div>
+      <div class="tax-form-line"><div class="tfl-num">D1</div><div class="tfl-label">State Sales Tax (6%)</div><div class="tfl-amount"><input class="tfl-input" id="dr15-state-tax" value="${fmt2(stateTax)}"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line"><div class="tfl-num">D2</div><div class="tfl-label">Discretionary Sales Surtax (county rate)</div><div class="tfl-amount"><input class="tfl-input" id="dr15-surtax" value="${fmt2(surtax)}"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line total"><div class="tfl-num">E</div><div class="tfl-label">Total Tax Due (D1 + D2)</div><div class="tfl-amount"><input class="tfl-input" id="dr15-total-tax" value="${fmt2(tax)}" readonly style="background:var(--gold-pale);font-weight:700;"></div><div></div></div>
     </div>
-    <div style="margin-top:20px;">
-      <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;">Sales by County (from invoice billing zip codes)</div>
-      <table class="acct-table"><thead><tr><th>County</th><th style="text-align:right;">Taxable Sales</th><th style="text-align:right;">Rate</th><th style="text-align:right;">Tax</th></tr></thead>
-      <tbody>${countyRows}</tbody>
-      <tfoot><tr style="background:var(--gold-pale);font-weight:700;"><td>Total</td><td style="text-align:right;font-family:monospace;">${fmt2(taxable)}</td><td></td><td style="text-align:right;font-family:monospace;">${fmt2(tax)}</td></tr></tfoot>
-      </table>
-    </div>`;
-  showToast('✓ DR-15 populated from ' + Object.keys(byCounty).length + ' FL zip code(s)');
-}
-
-function renderST3(period, taxable, exempt, tax, byCounty) {
-  const fmt2 = v => parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
-  const [yr, mo] = period.split('-');
-  const monthName = new Date(parseInt(yr), parseInt(mo)-1, 1).toLocaleString('default',{month:'long'});
-
-  let countyRows = Object.entries(byCounty).map(([county,d]) =>
-    `<tr><td>${county} County</td><td style="text-align:right;font-family:monospace;">${fmt2(d.taxable)}</td><td style="text-align:right;font-family:monospace;">${(d.rate*100).toFixed(4)}%</td><td style="text-align:right;font-family:monospace;">${fmt2(d.tax)}</td></tr>`
-  ).join('') || '<tr><td colspan="4" style="text-align:center;color:#888;">No GA sales this period</td></tr>';
-
-  document.getElementById('form-st3-body').innerHTML = `
-    <div style="border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
-      <div class="tax-form-line section-header"><div class="tfl-num"></div><div class="tfl-label" style="grid-column:span 3;padding:8px 12px;">Georgia ST-3 — Sales & Use Tax Return · ${monthName} ${yr}</div></div>
-      <div class="tax-form-line"><div class="tfl-num">1</div><div class="tfl-label">Gross Sales</div><div class="tfl-amount"><input class="tfl-input" id="st3-gross" value="${fmt2(taxable)}"></div><div class="tfl-override"></div></div>
-      <div class="tax-form-line"><div class="tfl-num">2</div><div class="tfl-label">Exempt Sales</div><div class="tfl-amount"><input class="tfl-input" id="st3-exempt" value="${fmt2(exempt)}"></div><div class="tfl-override"></div></div>
-      <div class="tax-form-line subtotal"><div class="tfl-num">3</div><div class="tfl-label">Net Taxable Sales (Line 1 minus Line 2)</div><div class="tfl-amount"><input class="tfl-input" value="${fmt2(taxable-exempt)}" readonly style="background:var(--section-bg);"></div><div></div></div>
-      <div class="tax-form-line"><div class="tfl-num">4</div><div class="tfl-label">State Tax (4%)</div><div class="tfl-amount"><input class="tfl-input" id="st3-state-tax" value="${fmt2((taxable-exempt)*0.04)}"></div><div class="tfl-override"></div></div>
-      <div class="tax-form-line"><div class="tfl-num">5</div><div class="tfl-label">Local Option Tax</div><div class="tfl-amount"><input class="tfl-input" id="st3-local-tax" value="${fmt2(tax-(taxable-exempt)*0.04)}"></div><div class="tfl-override"></div></div>
-      <div class="tax-form-line total"><div class="tfl-num">6</div><div class="tfl-label">Total Tax Due</div><div class="tfl-amount"><input class="tfl-input" id="st3-total-tax" value="${fmt2(tax)}" readonly style="background:var(--gold-pale);font-weight:700;"></div><div></div></div>
-    </div>
-    <div style="margin-top:20px;">
+    <div style="margin-bottom:20px;">
       <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;">Sales by County</div>
       <table class="acct-table"><thead><tr><th>County</th><th style="text-align:right;">Taxable Sales</th><th style="text-align:right;">Rate</th><th style="text-align:right;">Tax</th></tr></thead>
       <tbody>${countyRows}</tbody>
       <tfoot><tr style="background:var(--gold-pale);font-weight:700;"><td>Total</td><td style="text-align:right;font-family:monospace;">${fmt2(taxable)}</td><td></td><td style="text-align:right;font-family:monospace;">${fmt2(tax)}</td></tr></tfoot>
       </table>
+    </div>
+    <div>
+      <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;">Invoice Detail</div>
+      <table class="acct-table"><thead><tr><th>Invoice #</th><th>Customer</th><th>Date</th><th>Billing ZIP</th><th>County</th><th style="text-align:right;">Subtotal</th><th style="text-align:right;">Tax</th></tr></thead>
+      <tbody>${invRows}</tbody></table>
+      <div style="font-size:11px;color:var(--text-light);margin-top:8px;">Invoices matched to Florida based on customer billing state = Florida or billing zip code in FL zip rate table. To add more zip codes, use the ZIP Rate Manager in Sales Tax settings.</div>
     </div>`;
-  showToast('✓ ST-3 populated from GA zip code data');
+  showToast(`✓ DR-15 synced — ${(invoiceDetails||[]).filter(i=>i.included).length} invoices · ${Object.keys(byCounty).length} counties`);
+}
+
+function renderST3(period, taxable, exempt, tax, byCounty, invoiceDetails, grossSales) {
+  const fmt2 = v => parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+  const [yr, mo] = period.split('-');
+  const monthName = new Date(parseInt(yr), parseInt(mo)-1, 1).toLocaleString('default',{month:'long'});
+  const stateTax = Math.round((taxable - exempt) * 0.04 * 100) / 100;
+  const localTax = Math.round(Math.max(0, tax - stateTax) * 100) / 100;
+
+  let countyRows = Object.entries(byCounty).map(([county,d]) =>
+    `<tr><td>${county} County</td><td style="text-align:right;font-family:monospace;">${fmt2(d.taxable)}</td><td style="text-align:right;font-family:monospace;">${(parseFloat(d.rate||0)*100).toFixed(4)}%</td><td style="text-align:right;font-family:monospace;">${fmt2(d.tax)}</td></tr>`
+  ).join('');
+  if (!countyRows) countyRows = `<tr><td colspan="4" style="text-align:center;color:var(--text-light);padding:12px;">
+    No GA invoices found. Invoices matched when customer billing state is Georgia or zip matches GA zip table.</td></tr>`;
+
+  let invRows = (invoiceDetails||[]).filter(i=>i.included).map(i =>
+    `<tr><td class="number">${i.invoice_number||'—'}</td><td>${i.customers?.name||'—'}</td><td>${i.invoice_date||'—'}</td>
+     <td>${i.customers?.billing_zip||'—'}</td><td>${i.county||'—'}</td>
+     <td class="amount">${fmt2(i.subtotal)}</td>
+     <td class="amount">${i.exempt?'<span style="color:var(--gold);">Exempt</span>':fmt2(i.tax_amount)}</td></tr>`
+  ).join('') || `<tr><td colspan="7" style="text-align:center;color:var(--text-light);padding:12px;">No invoices matched for this period.</td></tr>`;
+
+  document.getElementById('form-st3-body').innerHTML = `
+    <div style="border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:20px;">
+      <div class="tax-form-line section-header"><div class="tfl-num"></div><div class="tfl-label" style="grid-column:span 3;padding:8px 12px;">Georgia ST-3 — Sales &amp; Use Tax Return · ${monthName} ${yr}</div></div>
+      <div class="tax-form-line"><div class="tfl-num">1</div><div class="tfl-label">Gross Sales</div><div class="tfl-amount"><input class="tfl-input" id="st3-gross" value="${fmt2(grossSales||taxable)}"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line"><div class="tfl-num">2</div><div class="tfl-label">Exempt Sales</div><div class="tfl-amount"><input class="tfl-input" id="st3-exempt" value="${fmt2(exempt)}"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line subtotal"><div class="tfl-num">3</div><div class="tfl-label">Net Taxable Sales (Line 1 minus Line 2)</div><div class="tfl-amount"><input class="tfl-input" value="${fmt2(taxable)}" readonly style="background:var(--section-bg);"></div><div></div></div>
+      <div class="tax-form-line"><div class="tfl-num">4</div><div class="tfl-label">State Sales Tax (4%)</div><div class="tfl-amount"><input class="tfl-input" id="st3-state-tax" value="${fmt2(stateTax)}"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line"><div class="tfl-num">5</div><div class="tfl-label">Local Option Sales Tax (LOST/SPLOST)</div><div class="tfl-amount"><input class="tfl-input" id="st3-local-tax" value="${fmt2(localTax)}"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line total"><div class="tfl-num">6</div><div class="tfl-label">Total Tax Due (Lines 4 + 5)</div><div class="tfl-amount"><input class="tfl-input" id="st3-total-tax" value="${fmt2(tax)}" readonly style="background:var(--gold-pale);font-weight:700;"></div><div></div></div>
+    </div>
+    <div style="margin-bottom:20px;">
+      <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;">Sales by County</div>
+      <table class="acct-table"><thead><tr><th>County</th><th style="text-align:right;">Taxable Sales</th><th style="text-align:right;">Rate</th><th style="text-align:right;">Tax</th></tr></thead>
+      <tbody>${countyRows}</tbody>
+      <tfoot><tr style="background:var(--gold-pale);font-weight:700;"><td>Total</td><td style="text-align:right;font-family:monospace;">${fmt2(taxable)}</td><td></td><td style="text-align:right;font-family:monospace;">${fmt2(tax)}</td></tr></tfoot>
+      </table>
+    </div>
+    <div>
+      <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;">Invoice Detail</div>
+      <table class="acct-table"><thead><tr><th>Invoice #</th><th>Customer</th><th>Date</th><th>Billing ZIP</th><th>County</th><th style="text-align:right;">Subtotal</th><th style="text-align:right;">Tax</th></tr></thead>
+      <tbody>${invRows}</tbody></table>
+      <div style="font-size:11px;color:var(--text-light);margin-top:8px;">Invoices matched to Georgia based on customer billing state = Georgia or billing zip in GA zip rate table.</div>
+    </div>`;
+  showToast(`✓ ST-3 synced — ${(invoiceDetails||[]).filter(i=>i.included).length} invoices · ${Object.keys(byCounty).length} counties`);
 }
 
 function saveSalesTaxReturn(state) { showToast('✓ ' + state.toUpperCase() + ' return saved (draft)'); }
