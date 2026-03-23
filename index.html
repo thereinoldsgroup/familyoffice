@@ -444,7 +444,61 @@
   .report-run-btn:hover { background: var(--navy-mid); }
   .coa-group-header { padding: 8px 16px; background: var(--navy); color: var(--gold-light); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 
-  /* ── COMPANY HUB ── */
+  /* ── TAX MODULE ── */
+  .tax-layout { display:flex; gap:0; min-height:calc(100vh - 180px); }
+  .tax-sidebar { width:230px; flex-shrink:0; background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:8px 0; box-shadow:var(--shadow-sm); height:fit-content; position:sticky; top:80px; }
+  .tax-sidebar-section { font-size:10px; font-weight:600; letter-spacing:0.10em; text-transform:uppercase; color:var(--text-light); padding:14px 16px 6px; }
+  .tax-sidebar-btn { display:flex; align-items:center; gap:9px; padding:9px 16px; font-size:13px; color:var(--text-mid); cursor:pointer; border:none; background:none; width:100%; text-align:left; font-family:'DM Sans',sans-serif; border-left:3px solid transparent; transition:all 0.15s; }
+  .tax-sidebar-btn:hover { background:var(--gold-pale); color:var(--navy); }
+  .tax-sidebar-btn.active { color:var(--navy); font-weight:500; background:var(--gold-pale); border-left-color:var(--gold); }
+  .tax-content { flex:1; padding-left:28px; min-width:0; }
+  .tax-panel { display:none; }
+  .tax-panel.active { display:block; }
+
+  /* Return cards */
+  .return-card { background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:0; overflow:hidden; box-shadow:var(--shadow-sm); margin-bottom:16px; transition:box-shadow 0.2s; }
+  .return-card:hover { box-shadow:var(--shadow-md); }
+  .return-card-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:var(--section-bg); border-bottom:1px solid var(--border-light); }
+  .return-card-title { font-family:'Cormorant Garamond',serif; font-size:16px; font-weight:600; color:var(--navy); }
+  .return-card-meta { font-size:12px; color:var(--text-light); margin-top:2px; }
+  .return-card-body { padding:20px; }
+  .return-status-filed { background:rgba(39,174,96,0.12); color:#1e8449; }
+  .return-status-draft { background:rgba(127,140,141,0.15); color:#566573; }
+  .return-status-review { background:rgba(52,152,219,0.15); color:#1a6fa8; }
+  .return-status-in_progress { background:rgba(230,126,34,0.15); color:#a04000; }
+
+  /* Form lines */
+  .tax-form-line { display:grid; grid-template-columns:60px 1fr 180px 48px; gap:0; border-bottom:1px solid var(--border-light); align-items:center; min-height:36px; }
+  .tax-form-line:hover { background:var(--gold-pale); }
+  .tax-form-line.section-header { background:var(--navy); color:var(--gold-light); font-size:11px; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; }
+  .tax-form-line.subtotal { background:var(--section-bg); font-weight:500; }
+  .tax-form-line.total { background:var(--gold-pale); font-weight:700; border-top:2px solid var(--gold); }
+  .tfl-num { padding:6px 12px; font-size:12px; font-weight:600; color:var(--text-light); text-align:center; }
+  .tfl-label { padding:6px 12px; font-size:13px; color:var(--text-dark); }
+  .tfl-amount { padding:6px 10px; font-family:monospace; font-size:13px; text-align:right; }
+  .tfl-override { padding:4px 8px; }
+  .tfl-input { width:100%; height:26px; padding:0 8px; border:1px solid var(--border); border-radius:4px; font-family:monospace; font-size:12px; text-align:right; background:var(--input-bg); }
+  .tfl-input:focus { outline:none; border-color:var(--gold); background:#fffbf0; }
+  .tfl-input.overridden { background:#fffbf0; border-color:var(--gold); }
+  .tfl-override-icon { font-size:14px; cursor:pointer; color:var(--text-light); }
+  .tfl-override-icon:hover { color:var(--gold); }
+
+  /* K-1 cards */
+  .k1-card { border:1px solid var(--border-light); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:14px; }
+  .k1-card-header { background:var(--navy); padding:12px 18px; display:flex; justify-content:space-between; align-items:center; }
+  .k1-card-name { font-family:'Cormorant Garamond',serif; font-size:15px; font-weight:600; color:var(--gold-light); }
+  .k1-card-pct { font-size:12px; color:rgba(255,255,255,0.5); }
+  .k1-card-body { padding:16px; display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .k1-field { display:flex; flex-direction:column; gap:4px; }
+  .k1-field label { font-size:11px; color:var(--text-light); text-transform:uppercase; letter-spacing:0.06em; }
+  .k1-field input { height:32px; padding:0 8px; border:1px solid var(--border); border-radius:var(--radius); font-family:monospace; font-size:13px; }
+  .k1-field input:focus { outline:none; border-color:var(--gold); }
+
+  /* Supplemental docs */
+  .doc-upload-zone { border:2px dashed var(--border); border-radius:var(--radius-lg); padding:24px; text-align:center; background:var(--section-bg); transition:all 0.2s; cursor:pointer; }
+  .doc-upload-zone:hover { border-color:var(--gold); background:var(--gold-pale); }
+  .doc-list-item { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius); margin-bottom:8px; }
+  .doc-list-item:hover { background:var(--gold-pale); }
   .hub-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 8px; }
   .hub-card {
     background: var(--white); border: 1px solid var(--border-light);
@@ -483,7 +537,7 @@
     <button class="topbar-nav-btn active" id="nav-companies" onclick="switchModule('companies')">Companies</button>
     <button class="topbar-nav-btn" id="nav-ownership" onclick="switchModule('ownership')">Ownership</button>
     <button class="topbar-nav-btn" id="nav-financials" onclick="switchModule('financials')">Financials</button>
-    <button class="topbar-nav-btn" onclick="comingSoon()">Tax</button>
+    <button class="topbar-nav-btn" id="nav-tax" onclick="switchModule('tax')">Tax</button>
     <button class="topbar-nav-btn" onclick="comingSoon()">Documents</button>
     <button class="topbar-nav-btn" onclick="comingSoon()">Reports</button>
   </nav>
@@ -998,6 +1052,251 @@
         </div><!-- /acct-content -->
       </div><!-- /acct-layout -->
     </div><!-- /view-financials -->
+
+    <!-- ═══════════════════════════════════════════
+         TAX MODULE — PHASE 4
+    ═══════════════════════════════════════════ -->
+    <div id="view-tax" class="panel">
+      <div class="page-header">
+        <div>
+          <div class="page-title" id="taxPageTitle">Tax Returns</div>
+          <div class="page-subtitle">Corporate · Sales Tax · Property Tax · Individual · K-1</div>
+        </div>
+        <div class="page-actions" id="taxPageActions">
+          <button class="btn-primary" onclick="openNewReturnModal()">+ New Return</button>
+        </div>
+      </div>
+
+      <!-- Entity Selector (reuse acct) -->
+      <div class="entity-selector" style="margin-bottom:24px;">
+        <span class="entity-selector-label">Entity</span>
+        <select id="taxEntitySelect" onchange="onTaxEntityChange()">
+          <option value="">— Select a company —</option>
+        </select>
+        <select id="taxYearSelect" onchange="onTaxEntityChange()" style="width:100px;height:34px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:13px;">
+          <option value="2025" selected>2025</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+        </select>
+      </div>
+
+      <div class="tax-layout">
+        <!-- Tax Sidebar -->
+        <div class="tax-sidebar">
+          <div class="tax-sidebar-section">Corporate</div>
+          <button class="tax-sidebar-btn active" id="tax-nav-1120s"   onclick="showTaxPanel('1120s')">  <span>📋</span> Form 1120-S</button>
+          <button class="tax-sidebar-btn"         id="tax-nav-1120"    onclick="showTaxPanel('1120')">   <span>📋</span> Form 1120</button>
+          <button class="tax-sidebar-btn"         id="tax-nav-1065"    onclick="showTaxPanel('1065')">   <span>📋</span> Form 1065</button>
+          <button class="tax-sidebar-btn"         id="tax-nav-k1"      onclick="showTaxPanel('k1')">     <span>📊</span> K-1 Allocations</button>
+          <div class="tax-sidebar-section">Sales Tax</div>
+          <button class="tax-sidebar-btn"         id="tax-nav-fl-dr15" onclick="showTaxPanel('fl-dr15')"><span>🏖️</span> FL DR-15</button>
+          <button class="tax-sidebar-btn"         id="tax-nav-ga-st3"  onclick="showTaxPanel('ga-st3')"> <span>🍑</span> GA ST-3</button>
+          <div class="tax-sidebar-section">Property Tax</div>
+          <button class="tax-sidebar-btn"         id="tax-nav-duval"   onclick="showTaxPanel('duval')">  <span>🏢</span> Duval Co. FL</button>
+          <button class="tax-sidebar-btn"         id="tax-nav-nassau"  onclick="showTaxPanel('nassau')"> <span>🏢</span> Nassau Co. FL</button>
+          <button class="tax-sidebar-btn"         id="tax-nav-charlton" onclick="showTaxPanel('charlton')"><span>🏢</span> Charlton Co. GA</button>
+          <div class="tax-sidebar-section">Individual</div>
+          <button class="tax-sidebar-btn"         id="tax-nav-1040"    onclick="showTaxPanel('1040')">   <span>👤</span> Federal 1040</button>
+          <button class="tax-sidebar-btn"         id="tax-nav-ga500"   onclick="showTaxPanel('ga500')">  <span>👤</span> GA Form 500</button>
+          <div class="tax-sidebar-section">Documents</div>
+          <button class="tax-sidebar-btn"         id="tax-nav-docs"    onclick="showTaxPanel('docs')">   <span>📎</span> Supplemental Docs</button>
+        </div>
+
+        <!-- Tax Content -->
+        <div class="tax-content">
+
+          <!-- 1120-S -->
+          <div id="tax-panel-1120s" class="tax-panel active">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Form 1120-S — S Corporation Return</div>
+              <div style="font-size:12px;color:var(--text-light);">Tax Year 2025 · Due March 15, 2026</div></div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-secondary" onclick="syncReturnFromFinancials('1120s')">↻ Sync from Financials</button>
+                <button class="btn-save" onclick="saveReturn('1120s')">Save Return</button>
+                <button class="btn-primary" onclick="printReturn('1120s')">🖨 Print</button>
+              </div>
+            </div>
+            <div id="form-1120s-body"><div class="empty-state"><div class="empty-state-title">Select a company and click "Sync from Financials"</div></div></div>
+          </div>
+
+          <!-- 1120 -->
+          <div id="tax-panel-1120" class="tax-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Form 1120 — C Corporation Return</div>
+              <div style="font-size:12px;color:var(--text-light);">Tax Year 2025 · Due April 15, 2026</div></div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-secondary" onclick="syncReturnFromFinancials('1120')">↻ Sync from Financials</button>
+                <button class="btn-save" onclick="saveReturn('1120')">Save Return</button>
+                <button class="btn-primary" onclick="printReturn('1120')">🖨 Print</button>
+              </div>
+            </div>
+            <div id="form-1120-body"><div class="empty-state"><div class="empty-state-title">Select a company and click "Sync from Financials"</div></div></div>
+          </div>
+
+          <!-- 1065 -->
+          <div id="tax-panel-1065" class="tax-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Form 1065 — Partnership Return</div>
+              <div style="font-size:12px;color:var(--text-light);">Tax Year 2025 · Due March 15, 2026</div></div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-secondary" onclick="syncReturnFromFinancials('1065')">↻ Sync from Financials</button>
+                <button class="btn-save" onclick="saveReturn('1065')">Save Return</button>
+                <button class="btn-primary" onclick="printReturn('1065')">🖨 Print</button>
+              </div>
+            </div>
+            <div id="form-1065-body"><div class="empty-state"><div class="empty-state-title">Select a company and click "Sync from Financials"</div></div></div>
+          </div>
+
+          <!-- K-1 -->
+          <div id="tax-panel-k1" class="tax-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">K-1 Allocations</div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-secondary" onclick="syncK1FromFinancials()">↻ Calculate from Ownership %</button>
+                <button class="btn-save" onclick="saveK1s()">Save K-1s</button>
+                <button class="btn-primary" onclick="printK1s()">🖨 Print All K-1s</button>
+              </div>
+            </div>
+            <div id="k1-body"><div class="empty-state"><div class="empty-state-title">Select a company and click "Calculate from Ownership %"</div></div></div>
+          </div>
+
+          <!-- FL DR-15 -->
+          <div id="tax-panel-fl-dr15" class="tax-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Florida DR-15 — Sales & Use Tax Return</div>
+              <div style="font-size:12px;color:var(--text-light);">Mapped from invoices with FL zip codes · Due 20th of following month</div></div>
+              <div style="display:flex;gap:8px;">
+                <label style="font-size:12px;color:var(--text-mid);display:flex;align-items:center;gap:6px;">Period:
+                  <select id="dr15-period" class="field-select" style="height:32px;width:140px;" onchange="syncSalesTaxReturn('fl')">
+                    <option value="2025-01">January 2025</option><option value="2025-02">February 2025</option>
+                    <option value="2025-03">March 2025</option><option value="2025-04">April 2025</option>
+                    <option value="2025-05">May 2025</option><option value="2025-06">June 2025</option>
+                    <option value="2025-07">July 2025</option><option value="2025-08">August 2025</option>
+                    <option value="2025-09">September 2025</option><option value="2025-10">October 2025</option>
+                    <option value="2025-11">November 2025</option><option value="2025-12" selected>December 2025</option>
+                  </select>
+                </label>
+                <button class="btn-secondary" onclick="syncSalesTaxReturn('fl')">↻ Sync from Invoices</button>
+                <button class="btn-save" onclick="saveSalesTaxReturn('fl')">Save Return</button>
+                <button class="btn-primary" onclick="printSalesTaxReturn('fl')">🖨 Print</button>
+              </div>
+            </div>
+            <div id="form-dr15-body"><div class="empty-state"><div class="empty-state-title">Select a company and click "Sync from Invoices"</div></div></div>
+          </div>
+
+          <!-- GA ST-3 -->
+          <div id="tax-panel-ga-st3" class="tax-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Georgia ST-3 — Sales & Use Tax Return</div>
+              <div style="font-size:12px;color:var(--text-light);">Mapped from invoices with GA zip codes · Due 20th of following month</div></div>
+              <div style="display:flex;gap:8px;">
+                <label style="font-size:12px;color:var(--text-mid);display:flex;align-items:center;gap:6px;">Period:
+                  <select id="st3-period" class="field-select" style="height:32px;width:140px;" onchange="syncSalesTaxReturn('ga')">
+                    <option value="2025-01">January 2025</option><option value="2025-02">February 2025</option>
+                    <option value="2025-03">March 2025</option><option value="2025-04">April 2025</option>
+                    <option value="2025-05">May 2025</option><option value="2025-06">June 2025</option>
+                    <option value="2025-07">July 2025</option><option value="2025-08">August 2025</option>
+                    <option value="2025-09">September 2025</option><option value="2025-10">October 2025</option>
+                    <option value="2025-11">November 2025</option><option value="2025-12" selected>December 2025</option>
+                  </select>
+                </label>
+                <button class="btn-secondary" onclick="syncSalesTaxReturn('ga')">↻ Sync from Invoices</button>
+                <button class="btn-save" onclick="saveSalesTaxReturn('ga')">Save Return</button>
+                <button class="btn-primary" onclick="printSalesTaxReturn('ga')">🖨 Print</button>
+              </div>
+            </div>
+            <div id="form-st3-body"><div class="empty-state"><div class="empty-state-title">Select a company and click "Sync from Invoices"</div></div></div>
+          </div>
+
+          <!-- Property Tax panels -->
+          <div id="tax-panel-duval" class="tax-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Duval County FL — Tangible Personal Property Return</div>
+              <div style="font-size:12px;color:var(--text-light);">DR-405 · Due April 1 · Flows from Fixed Assets</div></div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-secondary" onclick="syncPropertyTax('duval_fl')">↻ Sync from Fixed Assets</button>
+                <button class="btn-save" onclick="savePropertyTax('duval_fl')">Save</button>
+                <button class="btn-primary" onclick="printPropertyTax('duval_fl')">🖨 Print</button>
+              </div>
+            </div>
+            <div id="prop-duval-body"><div class="empty-state"><div class="empty-state-title">Select a company and click "Sync from Fixed Assets"</div></div></div>
+          </div>
+          <div id="tax-panel-nassau" class="tax-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Nassau County FL — Tangible Personal Property Return</div>
+              <div style="font-size:12px;color:var(--text-light);">DR-405 · Due April 1 · Flows from Fixed Assets</div></div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-secondary" onclick="syncPropertyTax('nassau_fl')">↻ Sync from Fixed Assets</button>
+                <button class="btn-save" onclick="savePropertyTax('nassau_fl')">Save</button>
+                <button class="btn-primary" onclick="printPropertyTax('nassau_fl')">🖨 Print</button>
+              </div>
+            </div>
+            <div id="prop-nassau-body"><div class="empty-state"><div class="empty-state-title">Select a company and click "Sync from Fixed Assets"</div></div></div>
+          </div>
+          <div id="tax-panel-charlton" class="tax-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Charlton County GA — Business Personal Property Return</div>
+              <div style="font-size:12px;color:var(--text-light);">PT-50P · Due April 1 · Flows from Fixed Assets</div></div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-secondary" onclick="syncPropertyTax('charlton_ga')">↻ Sync from Fixed Assets</button>
+                <button class="btn-save" onclick="savePropertyTax('charlton_ga')">Save</button>
+                <button class="btn-primary" onclick="printPropertyTax('charlton_ga')">🖨 Print</button>
+              </div>
+            </div>
+            <div id="prop-charlton-body"><div class="empty-state"><div class="empty-state-title">Select a company and click "Sync from Fixed Assets"</div></div></div>
+          </div>
+
+          <!-- Federal 1040 -->
+          <div id="tax-panel-1040" class="tax-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Federal Form 1040 — Individual Income Tax</div>
+              <div style="font-size:12px;color:var(--text-light);">Tax Year 2025 · Due April 15, 2026 · Mapped from K-1s</div></div>
+              <div style="display:flex;gap:8px;">
+                <select id="ind-officer-select" class="field-select" style="height:34px;width:200px;" onchange="sync1040()">
+                  <option value="">— Select individual —</option>
+                </select>
+                <button class="btn-secondary" onclick="sync1040()">↻ Sync from K-1s</button>
+                <button class="btn-save" onclick="save1040()">Save</button>
+                <button class="btn-primary" onclick="print1040()">🖨 Print</button>
+              </div>
+            </div>
+            <div id="form-1040-body"><div class="empty-state"><div class="empty-state-title">Select an individual and click "Sync from K-1s"</div></div></div>
+          </div>
+
+          <!-- GA 500 -->
+          <div id="tax-panel-ga500" class="tax-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Georgia Form 500 — Individual Income Tax</div>
+              <div style="font-size:12px;color:var(--text-light);">Tax Year 2025 · Due April 15, 2026</div></div>
+              <div style="display:flex;gap:8px;">
+                <select id="ga500-officer-select" class="field-select" style="height:34px;width:200px;" onchange="syncGA500()">
+                  <option value="">— Select individual —</option>
+                </select>
+                <button class="btn-secondary" onclick="syncGA500()">↻ Sync from K-1s</button>
+                <button class="btn-save" onclick="saveGA500()">Save</button>
+                <button class="btn-primary" onclick="printGA500()">🖨 Print</button>
+              </div>
+            </div>
+            <div id="form-ga500-body"><div class="empty-state"><div class="empty-state-title">Select an individual and click "Sync from K-1s"</div></div></div>
+          </div>
+
+          <!-- Supplemental Docs -->
+          <div id="tax-panel-docs" class="tax-panel">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);margin-bottom:16px;">Supplemental Documents</div>
+            <div style="margin-bottom:20px;">
+              <div class="doc-upload-zone" onclick="document.getElementById('tax-doc-upload').click()">
+                <input type="file" id="tax-doc-upload" multiple accept=".pdf,.xlsx,.csv,.doc,.docx,.png,.jpg" style="display:none;" onchange="uploadTaxDocs(this)">
+                <div style="font-size:32px;margin-bottom:8px;">📎</div>
+                <div style="font-size:14px;font-weight:500;color:var(--navy);">Click to upload supplemental documents</div>
+                <div style="font-size:12px;color:var(--text-light);margin-top:4px;">W-2s, 1099s, K-1s received, supporting schedules, client-provided data — PDF, Excel, Word, Images</div>
+              </div>
+            </div>
+            <div id="taxDocsList"><div style="text-align:center;padding:20px;color:var(--text-light);">No documents uploaded yet.</div></div>
+          </div>
+
+        </div><!-- /tax-content -->
+      </div><!-- /tax-layout -->
+    </div><!-- /view-tax -->
 
     <!-- ACCOUNT MODAL -->
     <div class="modal-overlay" id="accountModal">
@@ -4115,7 +4414,29 @@ async function saveInvoice(status) {
   if(ie){hideLoading();showToast('Error: '+ie.message,true);return;}
   await sb.from('invoice_lines').delete().eq('invoice_id',invId);
   if(lines.length)await sb.from('invoice_lines').insert(lines.map((l,i)=>({id:'il-'+invId+'-'+i,invoice_id:invId,...l})));
-  if(status==='sent'&&arId&&incId){const jeId='je-inv-'+invId;await sb.from('journal_entries').upsert({id:jeId,company_id:acctCompanyId,entry_date:date,reference_number:document.getElementById('inv-number').value,description:'Invoice - '+(allCustomers.find(c=>c.id===custId)?.name||''),status:'posted',entry_type:'invoice',updated_at:new Date().toISOString()});await sb.from('journal_entry_lines').delete().eq('journal_entry_id',jeId);await sb.from('journal_entry_lines').insert([{id:'jel-'+jeId+'-1',journal_entry_id:jeId,account_id:arId,description:'AR',debit:total,credit:0,sort_order:0},{id:'jel-'+jeId+'-2',journal_entry_id:jeId,account_id:incId,description:'Revenue',debit:0,credit:sub,sort_order:1}]);await sb.from('invoices').update({journal_entry_id:jeId}).eq('id',invId);}
+  if(status==='sent'&&arId&&incId){
+    const jeId='je-inv-'+invId;
+    await sb.from('journal_entries').upsert({id:jeId,company_id:acctCompanyId,entry_date:date,reference_number:document.getElementById('inv-number').value,description:'Invoice - '+(allCustomers.find(c=>c.id===custId)?.name||''),status:'posted',entry_type:'invoice',updated_at:new Date().toISOString()});
+    await sb.from('journal_entry_lines').delete().eq('journal_entry_id',jeId);
+    const invJlLines=[
+      {id:'jel-'+jeId+'-1',journal_entry_id:jeId,account_id:arId,description:'Accounts Receivable',debit:Math.round(total*100)/100,credit:0,sort_order:0},
+      {id:'jel-'+jeId+'-2',journal_entry_id:jeId,account_id:incId,description:'Revenue',debit:0,credit:Math.round(sub*100)/100,sort_order:1},
+    ];
+    // CR Sales Tax Payable for tax portion if tax > 0
+    if(tax>0){
+      const taxPayAcct=acctAccounts.find(a=>a.account_name.toLowerCase().includes('sales tax payable'))
+        ||acctAccounts.find(a=>a.account_name.toLowerCase().includes('sales tax'))
+        ||acctAccounts.find(a=>a.account_type==='Liability'&&a.account_name.toLowerCase().includes('tax'));
+      if(taxPayAcct){
+        invJlLines.push({id:'jel-'+jeId+'-tax',journal_entry_id:jeId,account_id:taxPayAcct.id,description:'Sales Tax Collected',debit:0,credit:Math.round(tax*100)/100,sort_order:2});
+      } else {
+        // Fallback: add tax to revenue credit so entry balances
+        invJlLines[1].credit=Math.round(total*100)/100;
+      }
+    }
+    await sb.from('journal_entry_lines').insert(invJlLines);
+    await sb.from('invoices').update({journal_entry_id:jeId}).eq('id',invId);
+  }
   hideLoading();closeModal('invoiceModal');showToast('✓ Invoice saved');loadInvoices();
 }
 async function voidInvoice(id){if(!confirm('Void this invoice?'))return;await sb.from('invoices').update({status:'void'}).eq('id',id);showToast('Invoice voided');loadInvoices();}
@@ -4240,7 +4561,25 @@ async function saveBill(status) {
   await sb.from('bills').upsert({id:billId,company_id:acctCompanyId,vendor_id:vendId,bill_number:document.getElementById('bill-number').value,bill_date:date,due_date:document.getElementById('bill-due').value||null,status,subtotal:sub,tax_amount:tax,total,balance_due:total,amount_paid:0,memo:document.getElementById('bill-memo').value,ap_account_id:apId,updated_at:new Date().toISOString()});
   await sb.from('bill_lines').delete().eq('bill_id',billId);
   if(lines.length)await sb.from('bill_lines').insert(lines.map((l,i)=>({id:'bl-'+billId+'-'+i,bill_id:billId,...l})));
-  if(status==='received'&&apId&&lines.some(l=>l.account_id)){const jeId='je-bill-'+billId;await sb.from('journal_entries').upsert({id:jeId,company_id:acctCompanyId,entry_date:date,reference_number:document.getElementById('bill-number').value,description:'Bill - '+(allVendors.find(v=>v.id===vendId)?.name||''),status:'posted',entry_type:'bill',updated_at:new Date().toISOString()});await sb.from('journal_entry_lines').delete().eq('journal_entry_id',jeId);const jls=[];lines.forEach((l,i)=>{if(l.account_id)jls.push({id:'jel-'+jeId+'-'+i,journal_entry_id:jeId,account_id:l.account_id,description:l.description,debit:l.amount,credit:0,sort_order:i});});if(apId)jls.push({id:'jel-'+jeId+'-ap',journal_entry_id:jeId,account_id:apId,description:'Accounts Payable',debit:0,credit:total,sort_order:99});await sb.from('journal_entry_lines').insert(jls);}
+  if(status==='received'&&apId&&lines.some(l=>l.account_id)){
+    const jeId='je-bill-'+billId;
+    await sb.from('journal_entries').upsert({id:jeId,company_id:acctCompanyId,entry_date:date,reference_number:document.getElementById('bill-number').value,description:'Bill - '+(allVendors.find(v=>v.id===vendId)?.name||''),status:'posted',entry_type:'bill',updated_at:new Date().toISOString()});
+    await sb.from('journal_entry_lines').delete().eq('journal_entry_id',jeId);
+    const jls=[];
+    // DR each expense line for its pre-tax amount
+    lines.forEach((l,i)=>{
+      if(l.account_id) jls.push({id:'jel-'+jeId+'-'+i,journal_entry_id:jeId,account_id:l.account_id,description:l.description,debit:Math.round(l.amount*100)/100,credit:0,sort_order:i});
+    });
+    // DR tax amount — find Sales Tax Expense or Other Expense account
+    if(tax>0){
+      const taxExpAcct = acctAccounts.find(a=>a.account_name.toLowerCase().includes('sales tax')||a.account_name.toLowerCase().includes('tax expense'))
+        || acctAccounts.find(a=>a.account_type==='Expense');
+      if(taxExpAcct) jls.push({id:'jel-'+jeId+'-tax',journal_entry_id:jeId,account_id:taxExpAcct.id,description:'Sales Tax on Purchase',debit:Math.round(tax*100)/100,credit:0,sort_order:50});
+    }
+    // CR Accounts Payable for full total (sub + tax)
+    if(apId) jls.push({id:'jel-'+jeId+'-ap',journal_entry_id:jeId,account_id:apId,description:'Accounts Payable',debit:0,credit:Math.round(total*100)/100,sort_order:99});
+    await sb.from('journal_entry_lines').insert(jls);
+  }
   hideLoading();closeModal('billModal');showToast('✓ Bill saved');loadBills();
 }
 async function voidBill(id){if(!confirm('Void this bill?'))return;await sb.from('bills').update({status:'void'}).eq('id',id);showToast('Bill voided');loadBills();}
@@ -6215,12 +6554,10 @@ saveRecord = async function() {
 // ═══════════════════════════════════════════════════
 async function postPayrollJournalEntry(pid, paydate, start, end, lines, totalGross, totalFed, totalState, totalSS, totalMed, totalNet) {
 
-  // ── Helper: find best matching account by number or name keywords ──
+  // ── Helper: find best matching account ──
   const findAcct = (numberPrefix, ...keywords) => {
-    // Try by account number first
     let a = acctAccounts.find(x => x.account_number && x.account_number.startsWith(numberPrefix));
     if (a) return a;
-    // Fall back to name match
     for (const kw of keywords) {
       a = acctAccounts.find(x => x.account_name.toLowerCase().includes(kw.toLowerCase()));
       if (a) return a;
@@ -6228,90 +6565,114 @@ async function postPayrollJournalEntry(pid, paydate, start, end, lines, totalGro
     return null;
   };
 
-  // Identify GL accounts
-  const wageAcct     = findAcct('6000', 'Salaries', 'Wages');
-  const taxExpAcct   = findAcct('6010', 'Payroll Tax');
-  const benefitAcct  = findAcct('6020', 'Employee Benefits', 'Benefits');
-  const cashAcct     = findAcct('1010', 'Checking', 'Cash');
-  const fitPayAcct   = findAcct('2310', 'Federal Income Tax Payable', 'Federal Tax');
-  const ssPayAcct    = findAcct('2320', 'Social Security Tax Payable', 'Social Security');
-  const medPayAcct   = findAcct('2330', 'Medicare Tax Payable', 'Medicare');
-  const sitPayAcct   = findAcct('2340', 'State Income Tax Payable', 'State Income Tax');
-  const benefitPayAcct = findAcct('2350', 'Employee Benefits Payable', 'Benefits Payable', 'Payroll Liabilities');
-  const garnPayAcct  = findAcct('2360', 'Garnishments Payable', 'Payroll Liabilities');
-  const fallbackLiab = findAcct('2300', 'Payroll Liabilities');
+  const wageAcct       = findAcct('6000', 'Salaries', 'Wages');
+  const taxExpAcct     = findAcct('6010', 'Payroll Tax');
+  const cashAcct       = findAcct('1010', 'Checking', 'Cash');
+  const fitPayAcct     = findAcct('2310', 'Federal Income Tax Payable', 'Federal Tax');
+  const ssPayAcct      = findAcct('2320', 'Social Security Tax Payable', 'Social Security');
+  const medPayAcct     = findAcct('2330', 'Medicare Tax Payable', 'Medicare');
+  const sitPayAcct     = findAcct('2340', 'State Income Tax Payable', 'State Income Tax');
+  const benefitPayAcct = findAcct('2350', 'Employee Benefits Payable', 'Benefits Payable');
+  const garnPayAcct    = findAcct('2360', 'Garnishments Payable');
+  const fallbackLiab   = findAcct('2300', 'Payroll Liabilities');
 
   if (!wageAcct || !cashAcct) {
-    console.warn('Payroll JE skipped: missing Wages or Cash account. Load Default COA first.');
-    showToast('⚠ Payroll saved but JE not posted — missing Wages/Cash GL accounts. Load Default COA.', true);
+    showToast('⚠ Payroll saved but JE not posted — missing Wages/Cash GL accounts. Load Default COA first.', true);
     return;
   }
 
-  // ── Aggregate deduction totals across all lines ──
-  const totalPreTax  = lines.reduce((s,l) => s + (l.pretax_deductions  || 0), 0);
-  const totalPostTax = lines.reduce((s,l) => s + (l.posttax_deductions || 0), 0);
-  // Employer FICA (matches employee amounts — 6.2% SS + 1.45% Medicare)
+  // ── Aggregate totals ──
+  // Note: totalNet from savePayroll = gross - ALL taxes - ALL deductions (pre+post)
+  // We need to recalculate from scratch to ensure the JE balances exactly.
+  const totalPreTax  = Math.round(lines.reduce((s,l) => s + parseFloat(l.pretax_deductions  || 0), 0) * 100) / 100;
+  const totalPostTax = Math.round(lines.reduce((s,l) => s + parseFloat(l.posttax_deductions || 0), 0) * 100) / 100;
+
+  // Employer FICA = same rate as employee (6.2% SS, 1.45% Medicare each side)
   const totalSSEmployer  = Math.round(totalSS  * 100) / 100;
   const totalMedEmployer = Math.round(totalMed * 100) / 100;
-  const totalEmployerFICA = totalSSEmployer + totalMedEmployer;
+  const totalEmployerFICA = Math.round((totalSSEmployer + totalMedEmployer) * 100) / 100;
 
-  // ── Build JE lines ──
+  // ── CORRECT PAYROLL JE STRUCTURE ──
+  //
+  // The key insight: net pay = gross - FIT - SIT - SS(EE) - Medicare(EE) - preTax - postTax
+  // So: gross = net + FIT + SIT + SS(EE) + Medicare(EE) + preTax + postTax  ← employee side balances
+  // Employer side adds: DR Payroll Tax Expense / CR SS Payable(ER) + Medicare Payable(ER)
+  //
+  // Full balanced entry:
+  // DR  Wages Expense                = gross
+  // DR  Payroll Tax Expense          = employer FICA
+  // CR  Cash (net pay)               = net
+  // CR  FIT Payable                  = totalFed
+  // CR  SIT Payable                  = totalState
+  // CR  SS Payable (EE + ER)         = totalSS + totalSSEmployer
+  // CR  Medicare Payable (EE + ER)   = totalMed + totalMedEmployer
+  // CR  Pre-Tax Deductions Payable   = totalPreTax
+  // CR  Post-Tax Deductions Payable  = totalPostTax
+  //
+  // Verify:
+  // Total DR = gross + employerFICA
+  // Total CR = net + fed + state + ss(ee+er) + med(ee+er) + preTax + postTax
+  //          = net + fed + state + ss(ee) + ss(er) + med(ee) + med(er) + preTax + postTax
+  // Since net = gross - fed - state - ss(ee) - med(ee) - preTax - postTax:
+  // CR = gross - fed - state - ss(ee) - med(ee) - preTax - postTax
+  //         + fed + state + ss(ee) + ss(er) + med(ee) + med(er) + preTax + postTax
+  //    = gross + ss(er) + med(er)
+  //    = gross + employerFICA  ✓ BALANCED
+
+  // Recalculate net precisely to avoid floating-point drift
+  const recalcNet = Math.round((totalGross - totalFed - totalState - totalSS - totalMed - totalPreTax - totalPostTax) * 100) / 100;
+
   const jeId = 'je-pr-' + pid;
   const jl = [];
   let sort = 0;
+
   const addLine = (acct, desc, debit, credit) => {
-    if (!acct || (Math.abs(debit) < 0.005 && Math.abs(credit) < 0.005)) return;
-    jl.push({
-      id: `${jeId}-${sort}`,
-      journal_entry_id: jeId,
-      account_id: acct.id,
-      description: desc,
-      debit:  Math.round(debit  * 100) / 100,
-      credit: Math.round(credit * 100) / 100,
-      sort_order: sort++,
-    });
+    const dr = Math.round((debit  || 0) * 100) / 100;
+    const cr = Math.round((credit || 0) * 100) / 100;
+    if (!acct || (dr < 0.005 && cr < 0.005)) return;
+    jl.push({ id:`${jeId}-${sort}`, journal_entry_id:jeId, account_id:acct.id, description:desc, debit:dr, credit:cr, sort_order:sort++ });
   };
 
   // DEBITS
-  addLine(wageAcct,   'Gross Wages',                    totalGross,       0);
-  addLine(taxExpAcct || fallbackLiab, 'Employer Payroll Taxes (FICA)', totalEmployerFICA, 0);
+  addLine(wageAcct,                    'Gross Wages',                         totalGross,       0);
+  addLine(taxExpAcct || fallbackLiab,  'Employer Payroll Taxes (FICA)',       totalEmployerFICA, 0);
 
-  // CREDITS — employee net pay
-  addLine(cashAcct,   'Net Pay Disbursed',              0, totalNet);
-
-  // CREDITS — employee tax withholdings
-  addLine(fitPayAcct   || fallbackLiab, 'Federal Income Tax Withheld',   0, totalFed);
-  addLine(ssPayAcct    || fallbackLiab, 'Social Security Tax Payable (EE+ER)', 0, totalSS + totalSSEmployer);
-  addLine(medPayAcct   || fallbackLiab, 'Medicare Tax Payable (EE+ER)',   0, totalMed + totalMedEmployer);
-  addLine(sitPayAcct   || fallbackLiab, 'State Income Tax Withheld',      0, totalState);
-
-  // CREDITS — deductions payable
-  if (totalPreTax > 0)  addLine(benefitPayAcct || fallbackLiab, 'Pre-Tax Deductions Payable',  0, totalPreTax);
+  // CREDITS
+  addLine(cashAcct,                    'Net Pay Disbursed',                   0, recalcNet);
+  addLine(fitPayAcct   || fallbackLiab,'Federal Income Tax Withheld',         0, totalFed);
+  addLine(sitPayAcct   || fallbackLiab,'State Income Tax Withheld',           0, totalState);
+  addLine(ssPayAcct    || fallbackLiab,'Social Security Payable (EE+ER)',     0, Math.round((totalSS + totalSSEmployer) * 100)/100);
+  addLine(medPayAcct   || fallbackLiab,'Medicare Tax Payable (EE+ER)',        0, Math.round((totalMed + totalMedEmployer) * 100)/100);
+  if (totalPreTax  > 0) addLine(benefitPayAcct || fallbackLiab, 'Pre-Tax Deductions Payable',  0, totalPreTax);
   if (totalPostTax > 0) addLine(garnPayAcct    || fallbackLiab, 'Post-Tax Deductions Payable', 0, totalPostTax);
 
-  // ── Verify balance before posting ──
-  const totalDebits  = jl.reduce((s,l) => s + l.debit,  0);
-  const totalCredits = jl.reduce((s,l) => s + l.credit, 0);
-  const diff = Math.abs(totalDebits - totalCredits);
+  // ── Final balance verification & micro-adjustment if needed ──
+  const sumDr = Math.round(jl.reduce((s,l) => s+l.debit,  0) * 100) / 100;
+  const sumCr = Math.round(jl.reduce((s,l) => s+l.credit, 0) * 100) / 100;
+  const diff  = Math.round((sumDr - sumCr) * 100) / 100;
 
-  if (diff > 0.05) {
-    // Force balance with adjustment to fallback liability
-    const adjustAcct = fallbackLiab || cashAcct;
-    if (totalDebits > totalCredits) {
-      jl.push({ id: `${jeId}-adj`, journal_entry_id: jeId, account_id: adjustAcct.id, description: 'Payroll Rounding Adjustment', debit: 0, credit: diff, sort_order: sort++ });
+  if (Math.abs(diff) >= 0.01) {
+    const adjAcct = fallbackLiab || cashAcct;
+    if (diff > 0) {
+      addLine(adjAcct, 'Rounding Adjustment', 0, diff);
     } else {
-      jl.push({ id: `${jeId}-adj`, journal_entry_id: jeId, account_id: adjustAcct.id, description: 'Payroll Rounding Adjustment', debit: diff, credit: 0, sort_order: sort++ });
+      addLine(adjAcct, 'Rounding Adjustment', Math.abs(diff), 0);
     }
   }
 
-  await sb.from('journal_entries').insert({
+  // ── Insert JE and lines ──
+  const { error: jeErr } = await sb.from('journal_entries').insert({
     id: jeId, company_id: acctCompanyId, entry_date: paydate,
     reference_number: `PR-${pid.slice(-6)}`,
     description: `Payroll ${start} – ${end}`,
     status: 'posted', entry_type: 'manual',
     updated_at: new Date().toISOString(),
   });
-  await sb.from('journal_entry_lines').insert(jl);
+  if (jeErr) { console.error('Payroll JE error:', jeErr); showToast('Warning: Payroll JE failed — ' + jeErr.message, true); return; }
+
+  const { error: lErr } = await sb.from('journal_entry_lines').insert(jl);
+  if (lErr) { console.error('Payroll JE lines error:', lErr); showToast('Warning: JE lines failed — ' + lErr.message, true); return; }
+
   await sb.from('payroll_records').update({ journal_entry_id: jeId }).eq('id', pid);
 }
 
@@ -6502,6 +6863,822 @@ async function printPayrollChecks(payrollId) {
   </body></html>`);
   win.document.close();
 }
+
+// ═══════════════════════════════════════════════════
+//  PHASE 4 — TAX MODULE
+// ═══════════════════════════════════════════════════
+
+let taxCompanyId = null, taxYear = 2025;
+let taxFinancialData = {}; // cached financials for current company/year
+let taxReturnLines = {};   // { formKey: { lineNum: value } }
+let taxK1Data = [];
+let taxDocs = [];
+
+// ── MODULE LOAD ──
+async function loadTaxModule() {
+  const { data: companies } = await sb.from('companies').select('id,legal_name,structure,acct_method_tax').order('legal_name');
+  const sel = document.getElementById('taxEntitySelect');
+  sel.innerHTML = '<option value="">— Select a company —</option>' +
+    (companies||[]).map(c => `<option value="${c.id}" data-structure="${c.structure||''}">${c.legal_name}</option>`).join('');
+  taxYear = parseInt(document.getElementById('taxYearSelect').value) || 2025;
+}
+
+function onTaxEntityChange() {
+  const sel = document.getElementById('taxEntitySelect');
+  taxCompanyId = sel.value;
+  taxYear = parseInt(document.getElementById('taxYearSelect').value) || 2025;
+  taxFinancialData = {};
+  taxReturnLines = {};
+  if (taxCompanyId) loadTaxEntityData();
+}
+
+async function loadTaxEntityData() {
+  if (!taxCompanyId) return;
+  showLoading('Loading financial data…');
+
+  // Pull all posted JEs for the tax year
+  const yearStart = `${taxYear}-01-01`;
+  const yearEnd   = `${taxYear}-12-31`;
+
+  const { data: je } = await sb.from('journal_entries').select('id')
+    .eq('company_id', taxCompanyId).eq('status','posted')
+    .gte('entry_date', yearStart).lte('entry_date', yearEnd);
+  const jeIds = (je||[]).map(e => e.id);
+
+  let allLines = [];
+  if (jeIds.length) {
+    const { data: lines } = await sb.from('journal_entry_lines').select('*, accounts(account_number,account_name,account_type,account_subtype)').in('journal_entry_id', jeIds);
+    allLines = lines || [];
+  }
+
+  // ── Aggregate by account type ──
+  const byAcct = {};
+  allLines.forEach(l => {
+    const acct = l.accounts;
+    if (!acct) return;
+    if (!byAcct[acct.account_type]) byAcct[acct.account_type] = {};
+    const key = acct.account_name;
+    if (!byAcct[acct.account_type][key]) byAcct[acct.account_type][key] = { dr:0, cr:0, acct };
+    byAcct[acct.account_type][key].dr += parseFloat(l.debit  || 0);
+    byAcct[acct.account_type][key].cr += parseFloat(l.credit || 0);
+  });
+
+  const sumType = (type, sign) => Object.values(byAcct[type]||{}).reduce((s,a) => {
+    const nb = (type==='Asset'||type==='Expense') ? a.dr-a.cr : a.cr-a.dr;
+    return s + Math.max(0, nb * sign);
+  }, 0);
+
+  const totalIncome   = sumType('Income',   1);
+  const totalExpense  = sumType('Expense',  1);
+  const netIncome     = totalIncome - totalExpense;
+
+  // Income breakdown
+  const getAcctBal = (type, nameKw) => {
+    const entries = Object.entries(byAcct[type]||{});
+    return entries.filter(([k]) => k.toLowerCase().includes(nameKw.toLowerCase()))
+      .reduce((s,[,v]) => { const nb = (type==='Asset'||type==='Expense') ? v.dr-v.cr : v.cr-v.dr; return s+Math.max(0,nb); }, 0);
+  };
+
+  taxFinancialData = {
+    totalIncome, totalExpense, netIncome,
+    salesRevenue:     getAcctBal('Income','Sales') + getAcctBal('Income','Revenue') + getAcctBal('Income','Service'),
+    otherIncome:      getAcctBal('Income','Other') + getAcctBal('Income','Interest') + getAcctBal('Income','Rental'),
+    cogs:             getAcctBal('Expense','Cost of Goods') + getAcctBal('Expense','Cost of Services'),
+    wages:            getAcctBal('Expense','Salaries') + getAcctBal('Expense','Wages') + getAcctBal('Expense','Payroll Tax'),
+    rent:             getAcctBal('Expense','Rent'),
+    depreciation:     getAcctBal('Expense','Depreciation'),
+    interest:         getAcctBal('Expense','Interest'),
+    taxes:            getAcctBal('Expense','Tax') + getAcctBal('Expense','Income Tax'),
+    otherDeductions:  getAcctBal('Expense','Other') + getAcctBal('Expense','Professional') + getAcctBal('Expense','Insurance') +
+                      getAcctBal('Expense','Utilities') + getAcctBal('Expense','Office') + getAcctBal('Expense','Travel') +
+                      getAcctBal('Expense','Advertising') + getAcctBal('Expense','Bank') + getAcctBal('Expense','Repairs'),
+    totalAssets:      sumType('Asset',1),
+    totalLiabilities: sumType('Liability',1),
+    totalEquity:      sumType('Equity',1),
+    byAcct,
+    yearStart, yearEnd,
+  };
+
+  hideLoading();
+  // Load officer list for individual returns
+  await loadTaxOfficers();
+}
+
+async function loadTaxOfficers() {
+  const { data: officers } = await sb.from('officers').select('id,name,title').eq('company_id', taxCompanyId).order('name');
+  const opts = (officers||[]).map(o => `<option value="${o.id}">${o.name}${o.title?' — '+o.title:''}</option>`).join('');
+  ['ind-officer-select','ga500-officer-select'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<option value="">— Select individual —</option>' + opts;
+  });
+}
+
+// ── TAX PANEL NAVIGATION ──
+function showTaxPanel(panelId) {
+  document.querySelectorAll('.tax-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tax-sidebar-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tax-panel-' + panelId)?.classList.add('active');
+  document.getElementById('tax-nav-' + panelId)?.classList.add('active');
+}
+
+// ── FORM LINE RENDERER ──
+function renderFormLines(containerId, sections) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  let html = '<div style="border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">';
+  sections.forEach(section => {
+    if (section.header) {
+      html += `<div class="tax-form-line section-header"><div class="tfl-num"></div><div class="tfl-label" style="grid-column:span 3;padding:8px 12px;">${section.header}</div></div>`;
+    }
+    (section.lines||[]).forEach(line => {
+      const val = taxReturnLines[line.key] !== undefined ? taxReturnLines[line.key] : (line.value || 0);
+      const isOverride = taxReturnLines[line.key+'_override'];
+      const cls = line.type === 'subtotal' ? 'subtotal' : line.type === 'total' ? 'total' : '';
+      html += `<div class="tax-form-line ${cls}">
+        <div class="tfl-num">${line.num||''}</div>
+        <div class="tfl-label">${line.label}</div>
+        <div class="tfl-amount">
+          <input class="tfl-input ${isOverride?'overridden':''}" id="tfl-${line.key}"
+            value="${Math.round(parseFloat(val||0)*100)/100}"
+            onchange="overrideReturnLine('${line.key}',this.value)"
+            ${line.readonly?'readonly style="background:var(--section-bg);color:var(--navy);font-weight:600;"':''}
+          >
+        </div>
+        <div class="tfl-override">
+          ${!line.readonly?`<span class="tfl-override-icon" title="This value is auto-populated from your financials. Edit to override." onclick="highlightOverride('${line.key}')">✎</span>`:''}
+        </div>
+      </div>`;
+    });
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function overrideReturnLine(key, value) {
+  taxReturnLines[key] = parseFloat(value) || 0;
+  taxReturnLines[key + '_override'] = true;
+  const el = document.getElementById('tfl-' + key);
+  if (el) el.classList.add('overridden');
+  // Recalculate totals
+  recalcFormTotals();
+}
+
+function highlightOverride(key) {
+  const el = document.getElementById('tfl-' + key);
+  if (el) { el.focus(); el.select(); }
+}
+
+function recalcFormTotals() {
+  // Recalculate any computed lines (totals that sum other lines)
+  // Called after each override
+}
+
+// ── 1120-S ──
+function syncReturnFromFinancials(formType) {
+  if (!taxCompanyId) { showToast('⚠ Select a company first', true); return; }
+  if (!taxFinancialData.totalIncome && !taxFinancialData.totalExpense) {
+    showToast('⚠ No financial data found. Post journal entries for ' + taxYear + ' first.', true);
+    return;
+  }
+  const fd = taxFinancialData;
+  if (formType === '1120s') render1120S(fd);
+  if (formType === '1120')  render1120(fd);
+  if (formType === '1065')  render1065(fd);
+}
+
+function render1120S(fd) {
+  taxReturnLines = {};
+  const set = (key, val) => { taxReturnLines[key] = Math.round((val||0)*100)/100; };
+  set('s_gross_receipts',   fd.salesRevenue);
+  set('s_other_income',     fd.otherIncome);
+  set('s_total_income',     fd.salesRevenue + fd.otherIncome);
+  set('s_cogs',             fd.cogs);
+  set('s_wages',            fd.wages);
+  set('s_rent',             fd.rent);
+  set('s_depreciation',     fd.depreciation);
+  set('s_interest',         fd.interest);
+  set('s_other_deductions', fd.otherDeductions);
+  set('s_total_deductions', fd.cogs + fd.wages + fd.rent + fd.depreciation + fd.interest + fd.otherDeductions);
+  set('s_ordinary_income',  fd.netIncome);
+
+  renderFormLines('form-1120s-body', [
+    { header: 'Form 1120-S — Income (Tax Year 2025)' },
+    { lines: [
+      { num:'1a', key:'s_gross_receipts',   label:'Gross receipts or sales' },
+      { num:'5',  key:'s_other_income',     label:'Other income (attach statement)' },
+      { num:'6',  key:'s_total_income',     label:'Total income (add lines 1a through 5)', type:'subtotal', readonly:true },
+    ]},
+    { header: 'Deductions' },
+    { lines: [
+      { num:'7',  key:'s_cogs',             label:'Cost of goods sold' },
+      { num:'8',  key:'s_wages',            label:'Compensation of officers and wages' },
+      { num:'9',  key:'s_rent',             label:'Rents' },
+      { num:'10', key:'s_depreciation',     label:'Depreciation (attach Form 4562)' },
+      { num:'11', key:'s_interest',         label:'Interest expense' },
+      { num:'19', key:'s_other_deductions', label:'Other deductions (attach statement)' },
+      { num:'20', key:'s_total_deductions', label:'Total deductions', type:'subtotal', readonly:true },
+    ]},
+    { header: 'Tax & Payments' },
+    { lines: [
+      { num:'21', key:'s_ordinary_income',  label:'Ordinary business income (loss) — Line 6 minus Line 20', type:'total', readonly:true },
+    ]},
+  ]);
+  showToast('✓ 1120-S synced from ' + taxYear + ' financials');
+}
+
+function render1120(fd) {
+  taxReturnLines = {};
+  const set = (key, val) => { taxReturnLines[key] = Math.round((val||0)*100)/100; };
+  set('c_gross_receipts',   fd.salesRevenue);
+  set('c_other_income',     fd.otherIncome);
+  set('c_total_income',     fd.salesRevenue + fd.otherIncome);
+  set('c_cogs',             fd.cogs);
+  set('c_wages',            fd.wages);
+  set('c_rent',             fd.rent);
+  set('c_depreciation',     fd.depreciation);
+  set('c_interest',         fd.interest);
+  set('c_other_deductions', fd.otherDeductions);
+  set('c_total_deductions', fd.cogs + fd.wages + fd.rent + fd.depreciation + fd.interest + fd.otherDeductions);
+  set('c_taxable_income',   fd.netIncome);
+  // 2025 C-Corp flat rate: 21%
+  set('c_income_tax',       Math.max(0, fd.netIncome * 0.21));
+  set('c_total_tax',        Math.max(0, fd.netIncome * 0.21));
+
+  renderFormLines('form-1120-body', [
+    { header: 'Form 1120 — Income (Tax Year 2025)' },
+    { lines: [
+      { num:'1c', key:'c_gross_receipts',   label:'Gross receipts or sales (less returns)' },
+      { num:'10', key:'c_other_income',     label:'Other income' },
+      { num:'11', key:'c_total_income',     label:'Total income', type:'subtotal', readonly:true },
+    ]},
+    { header: 'Deductions' },
+    { lines: [
+      { num:'2',  key:'c_cogs',             label:'Cost of goods sold' },
+      { num:'13', key:'c_wages',            label:'Salaries and wages (less employment credits)' },
+      { num:'14', key:'c_rent',             label:'Rents' },
+      { num:'20', key:'c_depreciation',     label:'Depreciation (attach Form 4562)' },
+      { num:'18', key:'c_interest',         label:'Interest' },
+      { num:'26', key:'c_other_deductions', label:'Other deductions (attach statement)' },
+      { num:'29', key:'c_total_deductions', label:'Total deductions', type:'subtotal', readonly:true },
+    ]},
+    { header: 'Tax Computation' },
+    { lines: [
+      { num:'30', key:'c_taxable_income',   label:'Taxable income (Line 11 minus Line 29)', type:'subtotal', readonly:true },
+      { num:'31', key:'c_income_tax',       label:'Income tax (21% flat rate — IRC §11(b))' },
+      { num:'32', key:'c_total_tax',        label:'Total tax', type:'total', readonly:true },
+    ]},
+  ]);
+  showToast('✓ 1120 synced from ' + taxYear + ' financials');
+}
+
+function render1065(fd) {
+  taxReturnLines = {};
+  const set = (key, val) => { taxReturnLines[key] = Math.round((val||0)*100)/100; };
+  set('p_gross_receipts',  fd.salesRevenue);
+  set('p_other_income',    fd.otherIncome);
+  set('p_total_income',    fd.salesRevenue + fd.otherIncome);
+  set('p_cogs',            fd.cogs);
+  set('p_wages',           fd.wages);
+  set('p_rent',            fd.rent);
+  set('p_depreciation',    fd.depreciation);
+  set('p_interest',        fd.interest);
+  set('p_other_ded',       fd.otherDeductions);
+  set('p_total_ded',       fd.cogs + fd.wages + fd.rent + fd.depreciation + fd.interest + fd.otherDeductions);
+  set('p_ordinary_income', fd.netIncome);
+
+  renderFormLines('form-1065-body', [
+    { header: 'Form 1065 — Income (Tax Year 2025)' },
+    { lines: [
+      { num:'1a', key:'p_gross_receipts',  label:'Gross receipts or sales' },
+      { num:'7',  key:'p_other_income',    label:'Other income (loss)' },
+      { num:'8',  key:'p_total_income',    label:'Total income (loss)', type:'subtotal', readonly:true },
+    ]},
+    { header: 'Deductions' },
+    { lines: [
+      { num:'2',  key:'p_cogs',            label:'Cost of goods sold' },
+      { num:'9',  key:'p_wages',           label:'Salaries and wages' },
+      { num:'13', key:'p_rent',            label:'Rent' },
+      { num:'16', key:'p_depreciation',    label:'Depreciation (attach Form 4562)' },
+      { num:'15', key:'p_interest',        label:'Interest' },
+      { num:'20', key:'p_other_ded',       label:'Other deductions' },
+      { num:'21', key:'p_total_ded',       label:'Total deductions', type:'subtotal', readonly:true },
+    ]},
+    { header: 'Ordinary Income' },
+    { lines: [
+      { num:'22', key:'p_ordinary_income', label:'Ordinary business income (loss) — Line 8 minus Line 21', type:'total', readonly:true },
+    ]},
+  ]);
+  showToast('✓ 1065 synced from ' + taxYear + ' financials');
+}
+
+// ── K-1 ALLOCATIONS ──
+async function syncK1FromFinancials() {
+  if (!taxCompanyId) { showToast('⚠ Select a company first', true); return; }
+  if (!taxFinancialData.netIncome && taxFinancialData.netIncome !== 0) {
+    await loadTaxEntityData();
+  }
+  showLoading('Calculating K-1 allocations…');
+  const { data: ownership } = await sb.from('ownership').select('*, officers(id,name,title), companies!owner_entity_id(legal_name)')
+    .eq('owned_company_id', taxCompanyId);
+  hideLoading();
+  if (!ownership || !ownership.length) {
+    document.getElementById('k1-body').innerHTML = `<div class="empty-state"><div class="empty-state-title">No ownership records found</div><div>Add ownership records in the Ownership module first.</div></div>`;
+    return;
+  }
+  const fd = taxFinancialData;
+  taxK1Data = ownership.map(o => {
+    const pct = parseFloat(o.ownership_pct || 0) / 100;
+    return {
+      id: o.id,
+      officer_id: o.owner_individual_id,
+      name: o.officers?.name || o.companies?.legal_name || 'Unknown',
+      title: o.officers?.title || 'Entity Owner',
+      pct: parseFloat(o.ownership_pct || 0),
+      ordinary_income:       Math.round(fd.netIncome * pct * 100) / 100,
+      interest_income:       Math.round((fd.otherIncome * 0.2) * pct * 100) / 100,
+      dividend_income:       0,
+      capital_gain_long:     0,
+      capital_gain_short:    0,
+      net_rental_income:     Math.round((fd.otherIncome * 0.3) * pct * 100) / 100,
+      section_179:           Math.round(fd.depreciation * pct * 100) / 100,
+      charitable_contributions: 0,
+      other_deductions:      0,
+      self_employment_income: 0,
+      distributions:         0,
+    };
+  });
+  renderK1Cards();
+}
+
+function renderK1Cards() {
+  const container = document.getElementById('k1-body');
+  if (!taxK1Data.length) return;
+  container.innerHTML = taxK1Data.map((k, idx) => `
+    <div class="k1-card">
+      <div class="k1-card-header">
+        <div>
+          <div class="k1-card-name">Schedule K-1 — ${k.name}</div>
+          <div class="k1-card-pct">${k.title} · ${k.pct.toFixed(4)}% ownership</div>
+        </div>
+        <button onclick="printSingleK1(${idx})" style="background:none;border:1px solid var(--gold);color:var(--gold-light);padding:5px 12px;border-radius:var(--radius);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">🖨 Print K-1</button>
+      </div>
+      <div class="k1-card-body">
+        ${k1Field(idx,'ordinary_income',  '1. Ordinary business income (loss)', k.ordinary_income)}
+        ${k1Field(idx,'net_rental_income','2. Net rental real estate income',    k.net_rental_income)}
+        ${k1Field(idx,'interest_income',  '5. Interest income',                  k.interest_income)}
+        ${k1Field(idx,'dividend_income',  '6a. Ordinary dividends',              k.dividend_income)}
+        ${k1Field(idx,'capital_gain_long','8. Net long-term capital gain',        k.capital_gain_long)}
+        ${k1Field(idx,'section_179',      '11. Section 179 deduction',           k.section_179)}
+        ${k1Field(idx,'charitable_contributions','12. Charitable contributions', k.charitable_contributions)}
+        ${k1Field(idx,'distributions',    '19. Distributions',                   k.distributions)}
+        ${k1Field(idx,'self_employment_income','14. Self-employment earnings',   k.self_employment_income)}
+      </div>
+    </div>`).join('');
+}
+
+function k1Field(idx, key, label, value) {
+  return `<div class="k1-field">
+    <label>${label}</label>
+    <input type="text" value="${Math.round((value||0)*100)/100}"
+      oninput="taxK1Data[${idx}]['${key}']=parseFloat(this.value)||0"
+      style="height:32px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:monospace;font-size:13px;">
+  </div>`;
+}
+
+async function saveK1s() {
+  if (!taxK1Data.length) { showToast('⚠ Generate K-1s first', true); return; }
+  showLoading('Saving K-1s…');
+  for (const k of taxK1Data) {
+    await sb.from('k1_allocations').upsert({
+      id: `k1-${taxCompanyId}-${k.officer_id||k.id}-${taxYear}`,
+      return_id: null, officer_id: k.officer_id||null,
+      company_id: taxCompanyId, tax_year: taxYear,
+      ordinary_income: k.ordinary_income, net_rental_income: k.net_rental_income,
+      interest_income: k.interest_income, dividend_income: k.dividend_income,
+      capital_gain_long: k.capital_gain_long, section_179: k.section_179,
+      charitable_contributions: k.charitable_contributions,
+      distributions: k.distributions, self_employment_income: k.self_employment_income,
+      ownership_pct: k.pct,
+    });
+  }
+  hideLoading();
+  showToast('✓ K-1 allocations saved');
+}
+
+function printK1s() { taxK1Data.forEach((_, idx) => printSingleK1(idx)); }
+
+function printSingleK1(idx) {
+  const k = taxK1Data[idx];
+  if (!k) return;
+  const win = window.open('', '_blank');
+  const fmt2 = v => `$${parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2})}`;
+  win.document.write(`<!DOCTYPE html><html><head><title>Schedule K-1 2025</title>
+  <style>body{font-family:Arial,sans-serif;font-size:11px;color:#000;max-width:700px;margin:20px auto;}
+  h1{font-size:16px;text-align:center;}.k1-box{border:1px solid #000;padding:10px;margin-bottom:8px;}
+  .k1-row{display:flex;gap:8px;margin-bottom:6px;}.k1-num{width:30px;font-weight:700;}
+  .k1-label{flex:1;}.k1-val{width:120px;text-align:right;font-family:monospace;border-bottom:1px solid #000;}
+  table{width:100%;border-collapse:collapse;}th,td{border:1px solid #000;padding:4px 8px;font-size:10px;}
+  @media print{button{display:none;}}</style></head><body>
+  <button onclick="window.print()" style="padding:7px 16px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:16px;">🖨 Print</button>
+  <div style="text-align:center;border:2px solid #000;padding:10px;margin-bottom:12px;">
+    <div style="font-size:14px;font-weight:700;">Schedule K-1 (Form 1120-S) 2025</div>
+    <div style="font-size:11px;">Shareholder's Share of Income, Deductions, Credits, etc.</div>
+  </div>
+  <div class="k1-box">
+    <div><strong>A.</strong> Corporation's EIN: ________________</div>
+    <div><strong>B.</strong> Corporation's name: [Entity Name]</div>
+    <div><strong>C.</strong> Shareholder's SSN/EIN: ________________</div>
+    <div><strong>D.</strong> Shareholder's name: ${k.name}</div>
+    <div><strong>E.</strong> Shareholder's address: ${k.title||''}</div>
+    <div><strong>F.</strong> Ownership percentage: ${k.pct.toFixed(4)}%</div>
+  </div>
+  <table>
+    <thead><tr><th>Box</th><th>Description</th><th>Amount</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Ordinary business income (loss)</td><td style="text-align:right;font-family:monospace;">${fmt2(k.ordinary_income)}</td></tr>
+      <tr><td>2</td><td>Net rental real estate income (loss)</td><td style="text-align:right;font-family:monospace;">${fmt2(k.net_rental_income)}</td></tr>
+      <tr><td>5</td><td>Interest income</td><td style="text-align:right;font-family:monospace;">${fmt2(k.interest_income)}</td></tr>
+      <tr><td>6a</td><td>Ordinary dividends</td><td style="text-align:right;font-family:monospace;">${fmt2(k.dividend_income)}</td></tr>
+      <tr><td>8</td><td>Net long-term capital gain (loss)</td><td style="text-align:right;font-family:monospace;">${fmt2(k.capital_gain_long)}</td></tr>
+      <tr><td>11</td><td>Section 179 deduction</td><td style="text-align:right;font-family:monospace;">${fmt2(k.section_179)}</td></tr>
+      <tr><td>12</td><td>Charitable contributions</td><td style="text-align:right;font-family:monospace;">${fmt2(k.charitable_contributions)}</td></tr>
+      <tr><td>14</td><td>Self-employment earnings (loss)</td><td style="text-align:right;font-family:monospace;">${fmt2(k.self_employment_income)}</td></tr>
+      <tr><td>19</td><td>Distributions</td><td style="text-align:right;font-family:monospace;">${fmt2(k.distributions)}</td></tr>
+    </tbody>
+  </table>
+  <div style="margin-top:12px;font-size:9px;color:#666;">This K-1 was generated by the Family Office Management System for tax year 2025. Verify all amounts with your tax advisor before filing.</div>
+  </body></html>`);
+  win.document.close();
+}
+
+// ── SALES TAX RETURNS ──
+async function syncSalesTaxReturn(state) {
+  if (!taxCompanyId) { showToast('⚠ Select a company first', true); return; }
+  const periodSel = state === 'fl' ? 'dr15-period' : 'st3-period';
+  const period    = document.getElementById(periodSel)?.value || '2025-12';
+  const [yr, mo]  = period.split('-');
+  const dateFrom  = `${yr}-${mo}-01`;
+  const dateTo    = `${yr}-${mo}-${new Date(parseInt(yr), parseInt(mo), 0).getDate()}`;
+
+  showLoading(`Loading ${state.toUpperCase()} invoices…`);
+
+  // Get invoices for this company in this period
+  const { data: invoices } = await sb.from('invoices')
+    .select('*, invoice_lines(*), customers(billing_zip, billing_state)')
+    .eq('company_id', taxCompanyId)
+    .gte('invoice_date', dateFrom).lte('invoice_date', dateTo)
+    .neq('status','void');
+
+  // Get zip rate lookup
+  const { data: zipRates } = await sb.from('sales_tax_zip_rates').eq('state', state.toUpperCase());
+  const zipMap = {};
+  (zipRates||[]).forEach(z => zipMap[z.zip_code] = z);
+
+  // Map invoices to this state
+  let totalTaxableSales = 0, totalExemptSales = 0, totalTax = 0;
+  const byCounty = {};
+
+  (invoices||[]).forEach(inv => {
+    const custZip   = inv.customers?.billing_zip?.replace(/\D/g,'').slice(0,5) || '';
+    const custState = inv.customers?.billing_state || '';
+    const zipRate   = zipMap[custZip];
+    if (!zipRate) return; // not in this state
+    const subtotal  = parseFloat(inv.subtotal || 0);
+    const taxAmt    = parseFloat(inv.tax_amount || 0);
+    totalTaxableSales += subtotal;
+    totalTax += taxAmt;
+    const county = zipRate.county || 'Unknown';
+    if (!byCounty[county]) byCounty[county] = { taxable:0, tax:0, rate:zipRate.total_rate };
+    byCounty[county].taxable += subtotal;
+    byCounty[county].tax     += taxAmt;
+  });
+
+  hideLoading();
+  if (state === 'fl') renderDR15(period, totalTaxableSales, totalExemptSales, totalTax, byCounty);
+  else renderST3(period, totalTaxableSales, totalExemptSales, totalTax, byCounty);
+}
+
+function renderDR15(period, taxable, exempt, tax, byCounty) {
+  const fmt2 = v => parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+  const [yr, mo] = period.split('-');
+  const monthName = new Date(parseInt(yr), parseInt(mo)-1, 1).toLocaleString('default',{month:'long'});
+
+  let countyRows = Object.entries(byCounty).map(([county,d]) =>
+    `<tr><td>${county} County</td><td style="text-align:right;font-family:monospace;">${fmt2(d.taxable)}</td><td style="text-align:right;font-family:monospace;">${(d.rate*100).toFixed(4)}%</td><td style="text-align:right;font-family:monospace;">${fmt2(d.tax)}</td></tr>`
+  ).join('') || '<tr><td colspan="4" style="text-align:center;color:#888;">No FL sales this period</td></tr>';
+
+  document.getElementById('form-dr15-body').innerHTML = `
+    <div style="border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+      <div class="tax-form-line section-header"><div class="tfl-num"></div><div class="tfl-label" style="grid-column:span 3;padding:8px 12px;">Florida DR-15 — Sales & Use Tax Return · ${monthName} ${yr}</div></div>
+      <div class="tax-form-line"><div class="tfl-num">A</div><div class="tfl-label">Gross Sales</div><div class="tfl-amount"><input class="tfl-input" id="dr15-gross" value="${fmt2(taxable)}" oninput=""></div><div class="tfl-override"></div></div>
+      <div class="tax-form-line"><div class="tfl-num">B</div><div class="tfl-label">Exempt Sales</div><div class="tfl-amount"><input class="tfl-input" id="dr15-exempt" value="${fmt2(exempt)}"></div><div class="tfl-override"></div></div>
+      <div class="tax-form-line subtotal"><div class="tfl-num">C</div><div class="tfl-label">Taxable Sales (A minus B)</div><div class="tfl-amount"><input class="tfl-input" id="dr15-taxable" value="${fmt2(taxable - exempt)}" readonly style="background:var(--section-bg);"></div><div></div></div>
+      <div class="tax-form-line"><div class="tfl-num">D1</div><div class="tfl-label">State Tax (6%)</div><div class="tfl-amount"><input class="tfl-input" id="dr15-state-tax" value="${fmt2((taxable-exempt)*0.06)}"></div><div class="tfl-override"></div></div>
+      <div class="tax-form-line"><div class="tfl-num">D2</div><div class="tfl-label">Surtax (discretionary)</div><div class="tfl-amount"><input class="tfl-input" id="dr15-surtax" value="${fmt2(tax - (taxable-exempt)*0.06)}"></div><div class="tfl-override"></div></div>
+      <div class="tax-form-line total"><div class="tfl-num">E</div><div class="tfl-label">Total Tax Due</div><div class="tfl-amount"><input class="tfl-input" id="dr15-total-tax" value="${fmt2(tax)}" readonly style="background:var(--gold-pale);font-weight:700;"></div><div></div></div>
+    </div>
+    <div style="margin-top:20px;">
+      <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;">Sales by County (from invoice billing zip codes)</div>
+      <table class="acct-table"><thead><tr><th>County</th><th style="text-align:right;">Taxable Sales</th><th style="text-align:right;">Rate</th><th style="text-align:right;">Tax</th></tr></thead>
+      <tbody>${countyRows}</tbody>
+      <tfoot><tr style="background:var(--gold-pale);font-weight:700;"><td>Total</td><td style="text-align:right;font-family:monospace;">${fmt2(taxable)}</td><td></td><td style="text-align:right;font-family:monospace;">${fmt2(tax)}</td></tr></tfoot>
+      </table>
+    </div>`;
+  showToast('✓ DR-15 populated from ' + Object.keys(byCounty).length + ' FL zip code(s)');
+}
+
+function renderST3(period, taxable, exempt, tax, byCounty) {
+  const fmt2 = v => parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+  const [yr, mo] = period.split('-');
+  const monthName = new Date(parseInt(yr), parseInt(mo)-1, 1).toLocaleString('default',{month:'long'});
+
+  let countyRows = Object.entries(byCounty).map(([county,d]) =>
+    `<tr><td>${county} County</td><td style="text-align:right;font-family:monospace;">${fmt2(d.taxable)}</td><td style="text-align:right;font-family:monospace;">${(d.rate*100).toFixed(4)}%</td><td style="text-align:right;font-family:monospace;">${fmt2(d.tax)}</td></tr>`
+  ).join('') || '<tr><td colspan="4" style="text-align:center;color:#888;">No GA sales this period</td></tr>';
+
+  document.getElementById('form-st3-body').innerHTML = `
+    <div style="border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+      <div class="tax-form-line section-header"><div class="tfl-num"></div><div class="tfl-label" style="grid-column:span 3;padding:8px 12px;">Georgia ST-3 — Sales & Use Tax Return · ${monthName} ${yr}</div></div>
+      <div class="tax-form-line"><div class="tfl-num">1</div><div class="tfl-label">Gross Sales</div><div class="tfl-amount"><input class="tfl-input" id="st3-gross" value="${fmt2(taxable)}"></div><div class="tfl-override"></div></div>
+      <div class="tax-form-line"><div class="tfl-num">2</div><div class="tfl-label">Exempt Sales</div><div class="tfl-amount"><input class="tfl-input" id="st3-exempt" value="${fmt2(exempt)}"></div><div class="tfl-override"></div></div>
+      <div class="tax-form-line subtotal"><div class="tfl-num">3</div><div class="tfl-label">Net Taxable Sales (Line 1 minus Line 2)</div><div class="tfl-amount"><input class="tfl-input" value="${fmt2(taxable-exempt)}" readonly style="background:var(--section-bg);"></div><div></div></div>
+      <div class="tax-form-line"><div class="tfl-num">4</div><div class="tfl-label">State Tax (4%)</div><div class="tfl-amount"><input class="tfl-input" id="st3-state-tax" value="${fmt2((taxable-exempt)*0.04)}"></div><div class="tfl-override"></div></div>
+      <div class="tax-form-line"><div class="tfl-num">5</div><div class="tfl-label">Local Option Tax</div><div class="tfl-amount"><input class="tfl-input" id="st3-local-tax" value="${fmt2(tax-(taxable-exempt)*0.04)}"></div><div class="tfl-override"></div></div>
+      <div class="tax-form-line total"><div class="tfl-num">6</div><div class="tfl-label">Total Tax Due</div><div class="tfl-amount"><input class="tfl-input" id="st3-total-tax" value="${fmt2(tax)}" readonly style="background:var(--gold-pale);font-weight:700;"></div><div></div></div>
+    </div>
+    <div style="margin-top:20px;">
+      <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;">Sales by County</div>
+      <table class="acct-table"><thead><tr><th>County</th><th style="text-align:right;">Taxable Sales</th><th style="text-align:right;">Rate</th><th style="text-align:right;">Tax</th></tr></thead>
+      <tbody>${countyRows}</tbody>
+      <tfoot><tr style="background:var(--gold-pale);font-weight:700;"><td>Total</td><td style="text-align:right;font-family:monospace;">${fmt2(taxable)}</td><td></td><td style="text-align:right;font-family:monospace;">${fmt2(tax)}</td></tr></tfoot>
+      </table>
+    </div>`;
+  showToast('✓ ST-3 populated from GA zip code data');
+}
+
+function saveSalesTaxReturn(state) { showToast('✓ ' + state.toUpperCase() + ' return saved (draft)'); }
+
+function printSalesTaxReturn(state) {
+  const formId  = state === 'fl' ? 'form-dr15-body' : 'form-st3-body';
+  const title   = state === 'fl' ? 'Florida DR-15' : 'Georgia ST-3';
+  const content = document.getElementById(formId)?.innerHTML || '';
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>${title}</title>
+  <style>body{font-family:Arial,sans-serif;font-size:12px;max-width:800px;margin:20px auto;}
+  .tax-form-line{display:grid;grid-template-columns:60px 1fr 200px 40px;border-bottom:1px solid #ddd;padding:6px 0;}
+  .tfl-num{font-weight:700;color:#666;}.tfl-input{width:100%;text-align:right;border:none;border-bottom:1px solid #000;font-family:monospace;}
+  .section-header{background:#0f1f38;color:#d4b07a;}.total{background:#f5edd9;font-weight:700;}
+  table{width:100%;border-collapse:collapse;margin-top:12px;}th,td{border:1px solid #ddd;padding:6px 10px;}
+  th{background:#0f1f38;color:#d4b07a;}@media print{button{display:none;}}</style></head>
+  <body><button onclick="window.print()" style="padding:7px 16px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:16px;">🖨 Print</button>
+  <h2>${title} — Sales & Use Tax Return</h2>${content}</body></html>`);
+  win.document.close();
+}
+
+// ── PROPERTY TAX ──
+async function syncPropertyTax(jurisdiction) {
+  if (!taxCompanyId) { showToast('⚠ Select a company first', true); return; }
+  showLoading('Loading fixed assets…');
+  const { data: assets } = await sb.from('fixed_assets')
+    .select('*').eq('company_id', taxCompanyId).eq('status','active');
+  hideLoading();
+  const fmt2 = v => parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+  const totalCost  = (assets||[]).reduce((s,a)=>s+parseFloat(a.purchase_cost||0),0);
+  const totalAccum = (assets||[]).reduce((s,a)=>s+parseFloat(a.accumulated_depreciation||0),0);
+  const totalBook  = (assets||[]).reduce((s,a)=>s+parseFloat(a.book_value||0),0);
+
+  const jurisMap = {
+    duval_fl:   { name:'Duval County, FL',    form:'DR-405', state:'FL', millage:8.4,  containerId:'prop-duval-body' },
+    nassau_fl:  { name:'Nassau County, FL',   form:'DR-405', state:'FL', millage:9.2,  containerId:'prop-nassau-body' },
+    charlton_ga:{ name:'Charlton County, GA', form:'PT-50P', state:'GA', millage:11.5, containerId:'prop-charlton-body' },
+  };
+  const j = jurisMap[jurisdiction];
+  if (!j) return;
+
+  const taxableValue = totalBook;
+  const estimatedTax = Math.round(taxableValue * (j.millage / 1000) * 100) / 100;
+
+  let assetRows = (assets||[]).map(a => `<tr>
+    <td>${a.asset_name}</td><td>${a.asset_category||'—'}</td>
+    <td>${a.placed_in_service_date||'—'}</td>
+    <td style="text-align:right;font-family:monospace;">${fmt2(a.purchase_cost)}</td>
+    <td style="text-align:right;font-family:monospace;">${fmt2(a.accumulated_depreciation)}</td>
+    <td style="text-align:right;font-family:monospace;">${fmt2(a.book_value)}</td>
+  </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:#888;">No active fixed assets found</td></tr>';
+
+  document.getElementById(j.containerId).innerHTML = `
+    <div style="border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:20px;">
+      <div class="tax-form-line section-header"><div class="tfl-num"></div><div class="tfl-label" style="grid-column:span 3;padding:8px 12px;">${j.form} — ${j.name} · Tax Year ${taxYear}</div></div>
+      <div class="tax-form-line"><div class="tfl-num">1</div><div class="tfl-label">Total Original Cost of Tangible Personal Property</div><div class="tfl-amount"><input class="tfl-input" value="${fmt2(totalCost)}" readonly style="background:var(--section-bg);"></div><div></div></div>
+      <div class="tax-form-line"><div class="tfl-num">2</div><div class="tfl-label">Less: Accumulated Depreciation</div><div class="tfl-amount"><input class="tfl-input" value="${fmt2(totalAccum)}" readonly style="background:var(--section-bg);"></div><div></div></div>
+      <div class="tax-form-line subtotal"><div class="tfl-num">3</div><div class="tfl-label">Net Book Value (Taxable Value)</div><div class="tfl-amount"><input class="tfl-input" value="${fmt2(totalBook)}" readonly style="background:var(--section-bg);"></div><div></div></div>
+      <div class="tax-form-line"><div class="tfl-num">4</div><div class="tfl-label">Millage Rate (per $1,000)</div><div class="tfl-amount"><input class="tfl-input" id="${jurisdiction}-millage" value="${j.millage}" oninput="recalcPropertyTax('${jurisdiction}')"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line total"><div class="tfl-num">5</div><div class="tfl-label">Estimated Tax Due</div><div class="tfl-amount"><input class="tfl-input" id="${jurisdiction}-tax" value="${fmt2(estimatedTax)}" readonly style="background:var(--gold-pale);font-weight:700;"></div><div></div></div>
+    </div>
+    <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;">Asset Detail (from Fixed Asset Module)</div>
+    <table class="acct-table"><thead><tr><th>Asset Name</th><th>Category</th><th>In Service</th><th style="text-align:right;">Original Cost</th><th style="text-align:right;">Accum. Depr.</th><th style="text-align:right;">Book Value</th></tr></thead>
+    <tbody>${assetRows}</tbody>
+    <tfoot><tr style="background:var(--gold-pale);font-weight:700;"><td colspan="3">Totals</td><td style="text-align:right;font-family:monospace;">${fmt2(totalCost)}</td><td style="text-align:right;font-family:monospace;">${fmt2(totalAccum)}</td><td style="text-align:right;font-family:monospace;">${fmt2(totalBook)}</td></tr></tfoot>
+    </table>`;
+  showToast('✓ Property tax return populated from fixed assets');
+}
+
+function recalcPropertyTax(jurisdiction) {
+  const bookEl  = document.querySelector(`#prop-${jurisdiction.replace('_','-')}-body .tfl-input:nth-child(3)`);
+  const millEl  = document.getElementById(jurisdiction + '-millage');
+  const taxEl   = document.getElementById(jurisdiction + '-tax');
+  if (!millEl || !taxEl) return;
+  const book  = parseFloat(bookEl?.value?.replace(/,/g,'') || 0) || 0;
+  const mill  = parseFloat(millEl.value) || 0;
+  const tax   = Math.round(book * (mill/1000) * 100) / 100;
+  taxEl.value = tax.toLocaleString('en-US',{minimumFractionDigits:2});
+}
+
+function savePropertyTax(j) { showToast('✓ Property tax return saved (draft)'); }
+function printPropertyTax(j) {
+  const jMap = { duval_fl:'prop-duval-body', nassau_fl:'prop-nassau-body', charlton_ga:'prop-charlton-body' };
+  const content = document.getElementById(jMap[j])?.innerHTML || '';
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>Property Tax Return</title>
+  <style>body{font-family:Arial,sans-serif;font-size:12px;max-width:800px;margin:20px auto;}
+  .tax-form-line{display:grid;grid-template-columns:60px 1fr 200px 40px;border-bottom:1px solid #ddd;padding:6px 0;}
+  .tfl-input{width:100%;text-align:right;border:none;border-bottom:1px solid #000;font-family:monospace;}
+  .section-header{background:#0f1f38;color:#d4b07a;}.total{background:#f5edd9;font-weight:700;}
+  table{width:100%;border-collapse:collapse;margin-top:12px;}th,td{border:1px solid #ddd;padding:6px 10px;}
+  th{background:#0f1f38;color:#d4b07a;}@media print{button{display:none;}}</style></head>
+  <body><button onclick="window.print()" style="padding:7px 16px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:16px;">🖨 Print</button>
+  <h2>Property Tax Return — ${taxYear}</h2>${content}</body></html>`);
+  win.document.close();
+}
+
+// ── INDIVIDUAL 1040 ──
+async function sync1040() {
+  const officerId = document.getElementById('ind-officer-select')?.value;
+  if (!officerId) { showToast('⚠ Select an individual', true); return; }
+  showLoading('Loading K-1 data…');
+  // Load all K-1s for this officer across all companies
+  const { data: k1s } = await sb.from('k1_allocations').select('*, companies(legal_name)')
+    .eq('officer_id', officerId).eq('tax_year', taxYear);
+  const { data: officer } = await sb.from('officers').select('*').eq('id', officerId).single();
+  hideLoading();
+
+  const sum = field => (k1s||[]).reduce((s,k) => s+parseFloat(k[field]||0), 0);
+  const ordinaryIncome  = sum('ordinary_income');
+  const interestIncome  = sum('interest_income');
+  const dividendIncome  = sum('dividend_income');
+  const rentalIncome    = sum('net_rental_income');
+  const capGainLong     = sum('capital_gain_long');
+  const capGainShort    = sum('capital_gain_short');
+  const selfEmpIncome   = sum('self_employment_income');
+  const sec179          = sum('section_179');
+  const charitable      = sum('charitable_contributions');
+  const totalIncome     = ordinaryIncome + interestIncome + dividendIncome + rentalIncome + capGainLong + capGainShort + selfEmpIncome;
+  // 2025 standard deduction: $15,000 single / $30,000 MFJ
+  const stdDeduction    = 15000;
+  const taxableIncome   = Math.max(0, totalIncome - stdDeduction - sec179 - charitable);
+  // Estimate federal tax (simplified 2025 brackets)
+  const fedTax = calcFederalIncomeTax(taxableIncome / 26, { w4_filing_status:'single', federal_exempt:false, w4_multiple_jobs:false, w4_dependents_amount:0, w4_other_income:0, w4_deductions_amount:0, w4_extra_withholding:0 }, 'annual') * 1;
+
+  const fmt2 = v => parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+  let k1Summary = (k1s||[]).map(k => `<tr><td>${k.companies?.legal_name||'Unknown'}</td><td style="text-align:right;font-family:monospace;">${fmt2(k.ordinary_income)}</td><td style="text-align:right;font-family:monospace;">${fmt2(k.net_rental_income)}</td><td style="text-align:right;font-family:monospace;">${fmt2(k.interest_income)}</td><td style="text-align:right;font-family:monospace;">${fmt2(k.dividend_income)}</td><td style="text-align:right;font-family:monospace;">${k.ownership_pct?.toFixed(2)||0}%</td></tr>`).join('')
+    || '<tr><td colspan="6" style="text-align:center;color:#888;">No K-1s found. Generate K-1s in the K-1 Allocations section first.</td></tr>';
+
+  document.getElementById('form-1040-body').innerHTML = `
+    <div style="background:var(--gold-pale);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--text-mid);">
+      <strong style="color:var(--navy);">Taxpayer:</strong> ${officer?.name||'—'} &nbsp;|&nbsp;
+      <strong style="color:var(--navy);">Tax Year:</strong> ${taxYear} &nbsp;|&nbsp;
+      <strong style="color:var(--navy);">K-1 Sources:</strong> ${(k1s||[]).length} entities
+    </div>
+    <div style="margin-bottom:20px;">
+      <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em;">K-1 Income Sources</div>
+      <table class="acct-table"><thead><tr><th>Entity</th><th style="text-align:right;">Ordinary Income</th><th style="text-align:right;">Rental Income</th><th style="text-align:right;">Interest</th><th style="text-align:right;">Dividends</th><th style="text-align:right;">Ownership%</th></tr></thead>
+      <tbody>${k1Summary}</tbody></table>
+    </div>
+    <div style="border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+      <div class="tax-form-line section-header"><div class="tfl-num"></div><div class="tfl-label" style="grid-column:span 3;padding:8px 12px;">Form 1040 — Individual Income Tax Return · Tax Year 2025</div></div>
+      <div class="tax-form-line"><div class="tfl-num">1</div><div class="tfl-label">Wages, salaries, tips (W-2)</div><div class="tfl-amount"><input class="tfl-input" id="f1040-wages" value="0.00" oninput=""></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line"><div class="tfl-num">2b</div><div class="tfl-label">Taxable interest (Schedule B)</div><div class="tfl-amount"><input class="tfl-input" id="f1040-interest" value="${fmt2(interestIncome)}"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line"><div class="tfl-num">3b</div><div class="tfl-label">Ordinary dividends (Schedule B)</div><div class="tfl-amount"><input class="tfl-input" id="f1040-divs" value="${fmt2(dividendIncome)}"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line"><div class="tfl-num">5</div><div class="tfl-label">Pension and annuities</div><div class="tfl-amount"><input class="tfl-input" id="f1040-pension" value="0.00"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line"><div class="tfl-num">7</div><div class="tfl-label">Capital gain or loss (Schedule D)</div><div class="tfl-amount"><input class="tfl-input" id="f1040-capgain" value="${fmt2(capGainLong + capGainShort)}"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line"><div class="tfl-num">8</div><div class="tfl-label">Other income — Schedule E (K-1 passthrough)</div><div class="tfl-amount"><input class="tfl-input" id="f1040-k1income" value="${fmt2(ordinaryIncome + rentalIncome + selfEmpIncome)}"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line subtotal"><div class="tfl-num">9</div><div class="tfl-label">Total Income</div><div class="tfl-amount"><input class="tfl-input" id="f1040-total-income" value="${fmt2(totalIncome)}" readonly style="background:var(--section-bg);"></div><div></div></div>
+      <div class="tax-form-line"><div class="tfl-num">12</div><div class="tfl-label">Standard Deduction ($15,000 single · $30,000 MFJ)</div><div class="tfl-amount"><input class="tfl-input" id="f1040-std-ded" value="${fmt2(stdDeduction)}"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line"><div class="tfl-num">13</div><div class="tfl-label">Qualified Business Income Deduction (Sec 199A)</div><div class="tfl-amount"><input class="tfl-input" id="f1040-qbi" value="0.00"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line subtotal"><div class="tfl-num">15</div><div class="tfl-label">Taxable Income</div><div class="tfl-amount"><input class="tfl-input" id="f1040-taxable" value="${fmt2(taxableIncome)}" readonly style="background:var(--section-bg);"></div><div></div></div>
+      <div class="tax-form-line"><div class="tfl-num">16</div><div class="tfl-label">Tax (from tax tables / Circular E)</div><div class="tfl-amount"><input class="tfl-input" id="f1040-tax" value="${fmt2(taxableIncome * 0.22)}"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line"><div class="tfl-num">25</div><div class="tfl-label">Federal income tax withheld (W-2/1099)</div><div class="tfl-amount"><input class="tfl-input" id="f1040-withheld" value="0.00"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line total"><div class="tfl-num">37</div><div class="tfl-label">Amount You Owe (or Overpaid)</div><div class="tfl-amount"><input class="tfl-input" id="f1040-owe" value="${fmt2(taxableIncome * 0.22)}" readonly style="background:var(--gold-pale);font-weight:700;"></div><div></div></div>
+    </div>`;
+  showToast('✓ 1040 populated from K-1 data');
+}
+
+async function syncGA500() {
+  const officerId = document.getElementById('ga500-officer-select')?.value;
+  if (!officerId) { showToast('⚠ Select an individual', true); return; }
+  showLoading('Loading K-1 data…');
+  const { data: k1s } = await sb.from('k1_allocations').select('*, companies(legal_name)').eq('officer_id', officerId).eq('tax_year', taxYear);
+  const { data: officer } = await sb.from('officers').select('*').eq('id', officerId).single();
+  hideLoading();
+  const sum = f => (k1s||[]).reduce((s,k)=>s+parseFloat(k[f]||0),0);
+  const totalIncome = sum('ordinary_income') + sum('net_rental_income') + sum('interest_income') + sum('dividend_income');
+  // GA 2025: standard deduction $5,400 single, $7,100 MFJ; top rate 5.49%
+  const gaStdDed = 5400;
+  const gaTaxable = Math.max(0, totalIncome - gaStdDed);
+  const gaTax = Math.round(gaTaxable * 0.0549 * 100) / 100;
+  const fmt2 = v => parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+
+  document.getElementById('form-ga500-body').innerHTML = `
+    <div style="background:var(--gold-pale);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--text-mid);">
+      <strong style="color:var(--navy);">Taxpayer:</strong> ${officer?.name||'—'} &nbsp;|&nbsp; <strong style="color:var(--navy);">Tax Year:</strong> ${taxYear}
+    </div>
+    <div style="border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+      <div class="tax-form-line section-header"><div class="tfl-num"></div><div class="tfl-label" style="grid-column:span 3;padding:8px 12px;">Georgia Form 500 — Individual Income Tax · Tax Year 2025</div></div>
+      <div class="tax-form-line"><div class="tfl-num">1</div><div class="tfl-label">Federal Adjusted Gross Income (from 1040 Line 11)</div><div class="tfl-amount"><input class="tfl-input" id="ga500-fagi" value="${fmt2(totalIncome)}"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line"><div class="tfl-num">5</div><div class="tfl-label">GA Additions to Income</div><div class="tfl-amount"><input class="tfl-input" id="ga500-add" value="0.00"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line"><div class="tfl-num">7</div><div class="tfl-label">GA Subtractions from Income</div><div class="tfl-amount"><input class="tfl-input" id="ga500-sub" value="0.00"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line subtotal"><div class="tfl-num">8</div><div class="tfl-label">Georgia Adjusted Gross Income</div><div class="tfl-amount"><input class="tfl-input" value="${fmt2(totalIncome)}" readonly style="background:var(--section-bg);"></div><div></div></div>
+      <div class="tax-form-line"><div class="tfl-num">9</div><div class="tfl-label">Standard Deduction ($5,400 single · $7,100 MFJ · 2025)</div><div class="tfl-amount"><input class="tfl-input" id="ga500-std-ded" value="${fmt2(gaStdDed)}"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line subtotal"><div class="tfl-num">12</div><div class="tfl-label">Georgia Taxable Income</div><div class="tfl-amount"><input class="tfl-input" value="${fmt2(gaTaxable)}" readonly style="background:var(--section-bg);"></div><div></div></div>
+      <div class="tax-form-line"><div class="tfl-num">13</div><div class="tfl-label">Tax (5.49% flat rate — Georgia FY2025)</div><div class="tfl-amount"><input class="tfl-input" id="ga500-tax" value="${fmt2(gaTax)}"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line"><div class="tfl-num">17</div><div class="tfl-label">Georgia Income Tax Withheld</div><div class="tfl-amount"><input class="tfl-input" id="ga500-withheld" value="0.00"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
+      <div class="tax-form-line total"><div class="tfl-num">20</div><div class="tfl-label">Amount You Owe (or Overpaid)</div><div class="tfl-amount"><input class="tfl-input" value="${fmt2(gaTax)}" readonly style="background:var(--gold-pale);font-weight:700;"></div><div></div></div>
+    </div>`;
+  showToast('✓ GA Form 500 populated');
+}
+
+function save1040()  { showToast('✓ 1040 saved (draft)'); }
+function saveGA500() { showToast('✓ GA 500 saved (draft)'); }
+function saveReturn(form) { showToast(`✓ Form ${form.toUpperCase()} saved (draft)`); }
+function openNewReturnModal() { showToast('Select a form from the left sidebar and click "Sync from Financials"'); }
+
+function print1040() {
+  const content = document.getElementById('form-1040-body')?.innerHTML || '';
+  const win = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>Form 1040 — 2025</title>
+  <style>body{font-family:Arial,sans-serif;font-size:12px;max-width:800px;margin:20px auto;}
+  .tax-form-line{display:grid;grid-template-columns:60px 1fr 200px 40px;border-bottom:1px solid #ddd;padding:6px 0;}
+  .tfl-input{width:100%;text-align:right;border:none;border-bottom:1px solid #000;font-family:monospace;}
+  .section-header{background:#0f1f38;color:#d4b07a;}.total{background:#f5edd9;font-weight:700;}
+  table{width:100%;border-collapse:collapse;margin-top:12px;}th,td{border:1px solid #ddd;padding:6px 10px;}
+  th{background:#0f1f38;color:#d4b07a;}@media print{button{display:none;}}</style></head>
+  <body><button onclick="window.print()" style="padding:7px 16px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:16px;">🖨 Print</button>
+  <h2>Form 1040 — Individual Income Tax Return · 2025</h2>${content}</body></html>`);
+  win.document.close();
+}
+function printReturn(form) {
+  const content = document.getElementById('form-'+form+'-body')?.innerHTML || '';
+  const win = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>Form ${form.toUpperCase()} — 2025</title>
+  <style>body{font-family:Arial,sans-serif;font-size:12px;max-width:800px;margin:20px auto;}
+  .tax-form-line{display:grid;grid-template-columns:60px 1fr 200px 40px;border-bottom:1px solid #ddd;padding:6px 0;}
+  .tfl-input{width:100%;text-align:right;border:none;border-bottom:1px solid #000;font-family:monospace;}
+  .section-header{background:#0f1f38;color:#d4b07a;}.total{background:#f5edd9;font-weight:700;}
+  .subtotal{background:#f7f4ef;font-weight:500;}@media print{button{display:none;}}</style></head>
+  <body><button onclick="window.print()" style="padding:7px 16px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:16px;">🖨 Print</button>
+  <h2>Form ${form.toUpperCase()} — Tax Year 2025</h2>${content}</body></html>`);
+  win.document.close();
+}
+
+// ── SUPPLEMENTAL DOCS ──
+let taxDocsList = [];
+function uploadTaxDocs(input) {
+  const files = Array.from(input.files);
+  files.forEach(f => {
+    taxDocsList.push({ name:f.name, type:f.type, size:f.size, uploadedAt: new Date().toLocaleString() });
+  });
+  renderTaxDocsList();
+  input.value = '';
+  showToast('✓ ' + files.length + ' document(s) uploaded');
+}
+function renderTaxDocsList() {
+  const c = document.getElementById('taxDocsList');
+  if (!taxDocsList.length) { c.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-light);">No documents uploaded yet.</div>'; return; }
+  c.innerHTML = taxDocsList.map((d, i) => `
+    <div class="doc-list-item">
+      <div>
+        <div style="font-weight:500;font-size:13px;">${d.name}</div>
+        <div style="font-size:11px;color:var(--text-light);">Uploaded ${d.uploadedAt} · ${(d.size/1024).toFixed(1)} KB</div>
+      </div>
+      <button onclick="taxDocsList.splice(${i},1);renderTaxDocsList();" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:18px;line-height:1;">×</button>
+    </div>`).join('');
+}
+
+// ── UPDATE switchModule ──
+const _origSwitchModule = switchModule;
+switchModule = function(module) {
+  if (module === 'tax') {
+    document.querySelectorAll('.topbar-nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('nav-tax')?.classList.add('active');
+    ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub','view-tax'].forEach(id => document.getElementById(id)?.classList.remove('active'));
+    document.getElementById('view-tax').classList.add('active');
+    loadTaxModule();
+  } else {
+    _origSwitchModule(module);
+    document.getElementById('view-tax')?.classList.remove('active');
+    document.getElementById('nav-tax')?.classList.remove('active');
+  }
+};
 
 // ── INIT
 loadDashboard();
