@@ -1925,7 +1925,7 @@
 
 <!-- PAYROLL MODAL -->
 <div class="modal-overlay" id="payrollModal">
-  <div class="modal" style="max-width:900px;">
+  <div class="modal" style="max-width:1100px;">
     <div class="modal-header">
       <span class="modal-title" id="payrollModalTitle">New Payroll Run</span>
       <button class="modal-close" onclick="closeModal('payrollModal')">×</button>
@@ -1937,25 +1937,52 @@
         <div class="field-group"><label class="field-label required">Pay Date</label><input type="date" class="field-input" id="pr-paydate"></div>
         <div class="field-group"><label class="field-label">Notes</label><input type="text" class="field-input" id="pr-notes" placeholder="Optional notes"></div>
       </div>
-      <div style="border:1px solid var(--border-light);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;">
-        <table class="je-lines-table">
+
+      <!-- Add Employee Picker -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:12px 14px;background:var(--gold-pale);border:1px solid var(--border);border-radius:var(--radius);">
+        <label style="font-size:12px;font-weight:500;color:var(--navy);white-space:nowrap;">Add Employee:</label>
+        <select id="pr-emp-picker" class="field-select" style="flex:1;max-width:320px;">
+          <option value="">— Select employee to add —</option>
+        </select>
+        <div class="field-group" style="margin:0;">
+          <input type="text" id="pr-add-reg-hrs" style="width:70px;height:36px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:13px;" placeholder="Reg hrs" value="40">
+        </div>
+        <div class="field-group" style="margin:0;">
+          <input type="text" id="pr-add-ot-hrs" style="width:70px;height:36px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:13px;" placeholder="OT hrs" value="0">
+        </div>
+        <button class="btn-primary" onclick="addEmployeeToPayroll()" style="white-space:nowrap;">+ Add to Run</button>
+        <span style="font-size:11px;color:var(--text-light);">Taxes auto-calculate from employee W-4 settings</span>
+      </div>
+
+      <div style="border:1px solid var(--border-light);border-radius:var(--radius);overflow:auto;margin-bottom:12px;max-height:420px;">
+        <table class="je-lines-table" style="min-width:1000px;">
           <thead><tr>
-            <th>Employee / Owner</th><th style="width:100px;">Type</th><th style="width:90px;">Pay Type</th>
-            <th style="width:70px;">Hours</th><th style="width:100px;">Rate / Amount</th>
-            <th style="width:90px;">Gross Pay</th><th style="width:80px;">Fed Tax</th>
-            <th style="width:80px;">State Tax</th><th style="width:80px;">SS (EE)</th>
-            <th style="width:80px;">Medicare</th><th style="width:80px;">Other Ded.</th>
-            <th style="width:90px;">Net Pay</th><th style="width:36px;"></th>
+            <th style="min-width:160px;">Employee</th>
+            <th style="width:80px;">Pay Type</th>
+            <th style="width:70px;">Reg Hrs</th>
+            <th style="width:70px;">OT Hrs</th>
+            <th style="width:90px;">Gross Pay</th>
+            <th style="width:80px;">Fed Tax</th>
+            <th style="width:80px;">State Tax</th>
+            <th style="width:75px;">SS (EE)</th>
+            <th style="width:75px;">Medicare</th>
+            <th style="width:80px;">Pre-Tax Ded.</th>
+            <th style="width:80px;">Post-Tax Ded.</th>
+            <th style="width:90px;">Net Pay</th>
+            <th style="width:36px;"></th>
           </tr></thead>
           <tbody id="payrollLinesTbody"></tbody>
         </table>
-        <div style="padding:8px 10px;background:var(--section-bg);border-top:1px solid var(--border-light);">
-          <button class="je-add-line-btn" onclick="addPayrollLine()">+ Add Employee / Owner</button>
+        <div id="payroll-empty-state" style="padding:24px;text-align:center;color:var(--text-light);font-size:13px;">
+          No employees added yet. Select an employee above and click "+ Add to Run".
         </div>
       </div>
+
       <div class="je-totals-row">
         <div class="je-total-item"><div class="je-total-label">Total Gross</div><div class="je-total-value" id="pr-total-gross">0.00</div></div>
-        <div class="je-total-item"><div class="je-total-label">Total Taxes</div><div class="je-total-value" id="pr-total-taxes">0.00</div></div>
+        <div class="je-total-item"><div class="je-total-label">Total Fed Tax</div><div class="je-total-value" id="pr-total-fed">0.00</div></div>
+        <div class="je-total-item"><div class="je-total-label">Total SS+Medicare</div><div class="je-total-value" id="pr-total-fica">0.00</div></div>
+        <div class="je-total-item"><div class="je-total-label">Total Deductions</div><div class="je-total-value" id="pr-total-ded">0.00</div></div>
         <div class="je-total-item"><div class="je-total-label">Total Net Pay</div><div class="je-total-value" id="pr-total-net">0.00</div></div>
       </div>
     </div>
@@ -4748,137 +4775,252 @@ async function loadPayroll() {
     </tr>`).join('')+'</tbody></table>';
 }
 
-function openPayrollModal() {
-  if (!acctCompanyId) { showToast('⚠ Select a company first',true); return; }
-  document.getElementById('payrollModalTitle').textContent='New Payroll Run';
-  document.getElementById('pr-start').value='';
-  document.getElementById('pr-end').value='';
-  document.getElementById('pr-paydate').value=new Date().toISOString().slice(0,10);
-  document.getElementById('pr-notes').value='';
-  document.getElementById('payrollLinesTbody').innerHTML='';
-  addPayrollLine();
+let payrollEmployeeCache = {}; // empId -> { employee, deductions }
+
+async function openPayrollModal() {
+  if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
+  document.getElementById('payrollModalTitle').textContent = 'New Payroll Run';
+  document.getElementById('pr-start').value   = '';
+  document.getElementById('pr-end').value     = '';
+  document.getElementById('pr-paydate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('pr-notes').value   = '';
+  document.getElementById('payrollLinesTbody').innerHTML = '';
+  document.getElementById('payroll-empty-state').style.display = '';
+  payrollEmployeeCache = {};
   updatePayrollTotals();
+
+  // Populate employee picker from database
+  const { data: emps } = await sb.from('employees')
+    .select('id,first_name,last_name,employee_type,pay_type,pay_rate,pay_frequency,regular_hours_per_week')
+    .eq('company_id', acctCompanyId).eq('status','active').order('last_name');
+
+  const picker = document.getElementById('pr-emp-picker');
+  picker.innerHTML = '<option value="">— Select employee to add —</option>' +
+    (emps||[]).map(e =>
+      `<option value="${e.id}">${e.last_name}, ${e.first_name} · ${e.pay_type==='salary'?'Salary':'Hourly'} · $${parseFloat(e.pay_rate||0).toFixed(2)}</option>`
+    ).join('');
+
   document.getElementById('payrollModal').classList.add('show');
 }
 
-function addPayrollLine(data=null) {
-  const tr=document.createElement('tr');
-  tr.innerHTML=`
-    <td><input type="text" class="pl-name" placeholder="Employee name" value="${data?.employee_name||''}"></td>
-    <td><select class="pl-etype" style="height:32px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;width:100%;">
-      <option value="employee" ${(!data||data.employee_type==='employee')?'selected':''}>Employee</option>
-      <option value="owner" ${data?.employee_type==='owner'?'selected':''}>Owner</option>
-      <option value="contractor" ${data?.employee_type==='contractor'?'selected':''}>Contractor</option>
-    </select></td>
-    <td><select class="pl-ptype" style="height:32px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;width:100%;" onchange="updatePayrollTotals()">
-      <option value="salary" ${(!data||data.pay_type==='salary')?'selected':''}>Salary</option>
-      <option value="hourly" ${data?.pay_type==='hourly'?'selected':''}>Hourly</option>
-      <option value="bonus" ${data?.pay_type==='bonus'?'selected':''}>Bonus</option>
-      <option value="commission" ${data?.pay_type==='commission'?'selected':''}>Commission</option>
-    </select></td>
-    <td><input type="text" class="pl-hours" placeholder="—" value="${data?.hours_worked||''}" style="text-align:right;" oninput="calcPayrollGross(this)"></td>
-    <td><input type="text" class="pl-rate" placeholder="0.00" value="${data?.pay_rate?parseFloat(data.pay_rate).toFixed(2):''}" style="text-align:right;" oninput="calcPayrollGross(this)"></td>
-    <td><input type="text" class="pl-gross" placeholder="0.00" value="${data?.gross_pay?parseFloat(data.gross_pay).toFixed(2):''}" style="text-align:right;background:var(--section-bg);" oninput="updatePayrollTotals()"></td>
-    <td><input type="text" class="pl-fed" placeholder="0.00" value="${data?.federal_income_tax?parseFloat(data.federal_income_tax).toFixed(2):''}" style="text-align:right;" oninput="updatePayrollTotals()"></td>
-    <td><input type="text" class="pl-state" placeholder="0.00" value="${data?.state_income_tax?parseFloat(data.state_income_tax).toFixed(2):''}" style="text-align:right;" oninput="updatePayrollTotals()"></td>
-    <td><input type="text" class="pl-ss" placeholder="0.00" value="${data?.ss_employee?parseFloat(data.ss_employee).toFixed(2):''}" style="text-align:right;" oninput="updatePayrollTotals()"></td>
-    <td><input type="text" class="pl-medicare" placeholder="0.00" value="${data?.medicare_employee?parseFloat(data.medicare_employee).toFixed(2):''}" style="text-align:right;" oninput="updatePayrollTotals()"></td>
-    <td><input type="text" class="pl-other" placeholder="0.00" value="${data?.other_deductions?parseFloat(data.other_deductions).toFixed(2):''}" style="text-align:right;" oninput="updatePayrollTotals()"></td>
-    <td><input type="text" class="pl-net" placeholder="0.00" value="${data?.net_pay?parseFloat(data.net_pay).toFixed(2):''}" style="text-align:right;background:var(--section-bg);" readonly></td>
-    <td><button onclick="this.closest('tr').remove();updatePayrollTotals();" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:18px;line-height:1;padding:0;">×</button></td>`;
-  document.getElementById('payrollLinesTbody').appendChild(tr);
+async function addEmployeeToPayroll() {
+  const empId  = document.getElementById('pr-emp-picker').value;
+  const regHrs = parseFloat(document.getElementById('pr-add-reg-hrs').value || 40) || 40;
+  const otHrs  = parseFloat(document.getElementById('pr-add-ot-hrs').value  || 0)  || 0;
+
+  if (!empId) { showToast('⚠ Select an employee first', true); return; }
+
+  // Check not already added
+  if (document.querySelector(`#payrollLinesTbody tr[data-emp-id="${empId}"]`)) {
+    showToast('⚠ That employee is already in this payroll run', true); return;
+  }
+
+  showLoading('Loading employee data…');
+
+  // Load employee + deductions (cache them)
+  if (!payrollEmployeeCache[empId]) {
+    const { data: emp }  = await sb.from('employees').select('*').eq('id', empId).single();
+    const { data: deds } = await sb.from('employee_deductions').select('*').eq('employee_id', empId).eq('is_active', true);
+    payrollEmployeeCache[empId] = { employee: emp, deductions: deds || [] };
+  }
+
+  const { employee: emp, deductions: deds } = payrollEmployeeCache[empId];
+  hideLoading();
+
+  // Calculate paycheck
+  const pc = calculatePaycheck(emp, deds, regHrs, otHrs, 0, 0);
+
+  addPayrollLine({
+    employee_id:        empId,
+    employee_name:      `${emp.last_name}, ${emp.first_name}`,
+    employee_type:      emp.employee_type,
+    pay_type:           emp.pay_type,
+    regular_hours:      regHrs,
+    overtime_hours:     otHrs,
+    pay_rate:           emp.pay_rate,
+    gross_pay:          pc.grossPay,
+    federal_income_tax: pc.fedTax,
+    state_income_tax:   pc.stateTax,
+    ss_employee:        pc.ss,
+    medicare_employee:  pc.medicare,
+    pretax_deductions:  pc.preTaxDeductions,
+    posttax_deductions: pc.postTaxDeductions,
+    net_pay:            pc.netPay,
+    ss_employer:        pc.ssEmployer,
+    medicare_employer:  pc.medicareEmployer,
+  });
+
+  // Reset picker
+  document.getElementById('pr-emp-picker').value  = '';
+  document.getElementById('pr-add-reg-hrs').value = '40';
+  document.getElementById('pr-add-ot-hrs').value  = '0';
+  document.getElementById('payroll-empty-state').style.display = 'none';
 }
 
-function calcPayrollGross(input) {
-  const tr=input.closest('tr');
-  const hours=parseFloat(tr.querySelector('.pl-hours')?.value||0)||0;
-  const rate=parseFloat(tr.querySelector('.pl-rate')?.value||0)||0;
-  const ptype=tr.querySelector('.pl-ptype')?.value;
-  const grossEl=tr.querySelector('.pl-gross');
-  if (ptype==='hourly' && hours && rate) grossEl.value=(hours*rate).toFixed(2);
-  else if (ptype!=='hourly' && rate) grossEl.value=rate.toFixed(2);
+function addPayrollLine(data = null) {
+  const tr = document.createElement('tr');
+  tr.dataset.empId = data?.employee_id || '';
+  const fmt = v => parseFloat(v||0).toFixed(2);
+  tr.innerHTML = `
+    <td>
+      <div style="font-weight:500;font-size:13px;">${data?.employee_name || '<em style="color:var(--text-light)">Manual entry</em>'}</div>
+      <div style="font-size:11px;color:var(--text-light);text-transform:capitalize;">${({w2:'W-2',contractor_1099:'1099',owner_officer:'Owner/Officer',tipped:'Tipped',employee:'Employee',owner:'Owner',contractor:'Contractor'})[data?.employee_type]||data?.employee_type||''}</div>
+      <input type="hidden" class="pl-emp-id" value="${data?.employee_id||''}">
+      <input type="hidden" class="pl-name" value="${data?.employee_name||''}">
+      <input type="hidden" class="pl-etype" value="${data?.employee_type||'employee'}">
+    </td>
+    <td style="font-size:12px;text-transform:capitalize;">${data?.pay_type||'hourly'}<input type="hidden" class="pl-ptype" value="${data?.pay_type||'hourly'}"></td>
+    <td><input type="text" class="pl-reg-hours" value="${fmt(data?.regular_hours||data?.hours_worked)}" style="width:55px;text-align:right;height:28px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;" oninput="recalcPayrollLine(this)"></td>
+    <td><input type="text" class="pl-ot-hours" value="${fmt(data?.overtime_hours||0)}" style="width:55px;text-align:right;height:28px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;" oninput="recalcPayrollLine(this)"></td>
+    <td><input type="text" class="pl-gross" value="${fmt(data?.gross_pay)}" style="width:80px;text-align:right;height:28px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;background:var(--section-bg);" readonly></td>
+    <td><input type="text" class="pl-fed" value="${fmt(data?.federal_income_tax)}" style="width:68px;text-align:right;height:28px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;" oninput="updatePayrollTotals()"></td>
+    <td><input type="text" class="pl-state" value="${fmt(data?.state_income_tax)}" style="width:68px;text-align:right;height:28px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;" oninput="updatePayrollTotals()"></td>
+    <td><input type="text" class="pl-ss" value="${fmt(data?.ss_employee)}" style="width:62px;text-align:right;height:28px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;" oninput="updatePayrollTotals()"></td>
+    <td><input type="text" class="pl-medicare" value="${fmt(data?.medicare_employee)}" style="width:62px;text-align:right;height:28px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;" oninput="updatePayrollTotals()"></td>
+    <td><input type="text" class="pl-pretax" value="${fmt(data?.pretax_deductions)}" style="width:68px;text-align:right;height:28px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;" oninput="updatePayrollTotals()"></td>
+    <td><input type="text" class="pl-posttax" value="${fmt(data?.posttax_deductions)}" style="width:68px;text-align:right;height:28px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;" oninput="updatePayrollTotals()"></td>
+    <td><input type="text" class="pl-net" value="${fmt(data?.net_pay)}" style="width:80px;text-align:right;height:28px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;background:var(--gold-pale);" readonly></td>
+    <td><button onclick="this.closest('tr').remove();updatePayrollTotals();togglePayrollEmptyState();" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:18px;line-height:1;padding:0;">×</button></td>`;
+  document.getElementById('payrollLinesTbody').appendChild(tr);
+  updatePayrollTotals();
+}
+
+function togglePayrollEmptyState() {
+  const tbody = document.getElementById('payrollLinesTbody');
+  const empty = document.getElementById('payroll-empty-state');
+  if (empty) empty.style.display = tbody.children.length === 0 ? '' : 'none';
+}
+
+async function recalcPayrollLine(input) {
+  const tr    = input.closest('tr');
+  const empId = tr.dataset.empId;
+  if (!empId || !payrollEmployeeCache[empId]) { updatePayrollTotals(); return; }
+
+  const { employee: emp, deductions: deds } = payrollEmployeeCache[empId];
+  const regHrs = parseFloat(tr.querySelector('.pl-reg-hours')?.value || 0) || 0;
+  const otHrs  = parseFloat(tr.querySelector('.pl-ot-hours')?.value  || 0) || 0;
+  const pc = calculatePaycheck(emp, deds, regHrs, otHrs, 0, 0);
+
+  const fmt = v => parseFloat(v||0).toFixed(2);
+  tr.querySelector('.pl-gross').value    = fmt(pc.grossPay);
+  tr.querySelector('.pl-fed').value      = fmt(pc.fedTax);
+  tr.querySelector('.pl-state').value    = fmt(pc.stateTax);
+  tr.querySelector('.pl-ss').value       = fmt(pc.ss);
+  tr.querySelector('.pl-medicare').value = fmt(pc.medicare);
+  tr.querySelector('.pl-pretax').value   = fmt(pc.preTaxDeductions);
+  tr.querySelector('.pl-posttax').value  = fmt(pc.postTaxDeductions);
+  tr.querySelector('.pl-net').value      = fmt(pc.netPay);
   updatePayrollTotals();
 }
 
 function updatePayrollTotals() {
-  let gross=0,taxes=0,net=0;
-  document.querySelectorAll('#payrollLinesTbody tr').forEach(tr=>{
-    const g=parseFloat(tr.querySelector('.pl-gross')?.value||0)||0;
-    const fed=parseFloat(tr.querySelector('.pl-fed')?.value||0)||0;
-    const st=parseFloat(tr.querySelector('.pl-state')?.value||0)||0;
-    const ss=parseFloat(tr.querySelector('.pl-ss')?.value||0)||0;
-    const med=parseFloat(tr.querySelector('.pl-medicare')?.value||0)||0;
-    const oth=parseFloat(tr.querySelector('.pl-other')?.value||0)||0;
-    const totalDed=fed+st+ss+med+oth;
-    const n=g-totalDed;
-    const netEl=tr.querySelector('.pl-net'); if(netEl) netEl.value=n.toFixed(2);
-    gross+=g; taxes+=totalDed; net+=n;
+  let gross=0, fed=0, fica=0, ded=0, net=0;
+  document.querySelectorAll('#payrollLinesTbody tr').forEach(tr => {
+    const g   = parseFloat(tr.querySelector('.pl-gross')?.value    || 0) || 0;
+    const f   = parseFloat(tr.querySelector('.pl-fed')?.value      || 0) || 0;
+    const st  = parseFloat(tr.querySelector('.pl-state')?.value    || 0) || 0;
+    const ss  = parseFloat(tr.querySelector('.pl-ss')?.value       || 0) || 0;
+    const med = parseFloat(tr.querySelector('.pl-medicare')?.value || 0) || 0;
+    const pre = parseFloat(tr.querySelector('.pl-pretax')?.value   || 0) || 0;
+    const pst = parseFloat(tr.querySelector('.pl-posttax')?.value  || 0) || 0;
+    const totalWithheld = f + st + ss + med + pst;
+    const n = g - totalWithheld - pre;
+    const netEl = tr.querySelector('.pl-net');
+    if (netEl && !netEl.readOnly) netEl.value = Math.max(0, n).toFixed(2);
+    gross += g; fed += f; fica += ss + med; ded += pre + pst;
+    net += parseFloat(tr.querySelector('.pl-net')?.value || 0) || 0;
   });
-  document.getElementById('pr-total-gross').textContent=gross.toLocaleString('en-US',{minimumFractionDigits:2});
-  document.getElementById('pr-total-taxes').textContent=taxes.toLocaleString('en-US',{minimumFractionDigits:2});
-  document.getElementById('pr-total-net').textContent=net.toLocaleString('en-US',{minimumFractionDigits:2});
+  document.getElementById('pr-total-gross').textContent = gross.toLocaleString('en-US',{minimumFractionDigits:2});
+  document.getElementById('pr-total-fed').textContent   = fed.toLocaleString('en-US',{minimumFractionDigits:2});
+  document.getElementById('pr-total-fica').textContent  = fica.toLocaleString('en-US',{minimumFractionDigits:2});
+  document.getElementById('pr-total-ded').textContent   = ded.toLocaleString('en-US',{minimumFractionDigits:2});
+  document.getElementById('pr-total-net').textContent   = net.toLocaleString('en-US',{minimumFractionDigits:2});
 }
 
 async function savePayroll(status) {
-  const start=document.getElementById('pr-start').value;
-  const end=document.getElementById('pr-end').value;
-  const paydate=document.getElementById('pr-paydate').value;
-  if (!start||!end||!paydate) { showToast('⚠ Pay period and pay date required',true); return; }
-  const lines=[];
-  document.querySelectorAll('#payrollLinesTbody tr').forEach((tr,i)=>{
-    const name=tr.querySelector('.pl-name')?.value||'';
-    const gross=parseFloat(tr.querySelector('.pl-gross')?.value||0)||0;
-    if (!name&&!gross) return;
+  const start   = document.getElementById('pr-start').value;
+  const end     = document.getElementById('pr-end').value;
+  const paydate = document.getElementById('pr-paydate').value;
+  if (!start||!end||!paydate) { showToast('⚠ Pay period and pay date required', true); return; }
+
+  const rows = document.querySelectorAll('#payrollLinesTbody tr');
+  if (!rows.length) { showToast('⚠ Add at least one employee', true); return; }
+
+  const lines = [];
+  rows.forEach((tr, i) => {
+    const gross = parseFloat(tr.querySelector('.pl-gross')?.value || 0) || 0;
     lines.push({
-      id:'pl-'+Date.now()+'-'+i,
-      employee_name:name,
-      employee_type:tr.querySelector('.pl-etype')?.value||'employee',
-      pay_type:tr.querySelector('.pl-ptype')?.value||'salary',
-      hours_worked:parseFloat(tr.querySelector('.pl-hours')?.value||0)||null,
-      pay_rate:parseFloat(tr.querySelector('.pl-rate')?.value||0)||0,
-      gross_pay:gross,
-      federal_income_tax:parseFloat(tr.querySelector('.pl-fed')?.value||0)||0,
-      state_income_tax:parseFloat(tr.querySelector('.pl-state')?.value||0)||0,
-      ss_employee:parseFloat(tr.querySelector('.pl-ss')?.value||0)||0,
-      medicare_employee:parseFloat(tr.querySelector('.pl-medicare')?.value||0)||0,
-      other_deductions:parseFloat(tr.querySelector('.pl-other')?.value||0)||0,
-      net_pay:parseFloat(tr.querySelector('.pl-net')?.value||0)||0,
-      sort_order:i,
+      id:                   'pl-' + Date.now() + '-' + i,
+      employee_id:          tr.querySelector('.pl-emp-id')?.value  || null,
+      employee_name:        tr.querySelector('.pl-name')?.value    || '',
+      employee_type:        tr.querySelector('.pl-etype')?.value   || 'employee',
+      pay_type:             tr.querySelector('.pl-ptype')?.value   || 'salary',
+      regular_hours:        parseFloat(tr.querySelector('.pl-reg-hours')?.value || 0) || 0,
+      overtime_hours:       parseFloat(tr.querySelector('.pl-ot-hours')?.value  || 0) || 0,
+      hours_worked:         parseFloat(tr.querySelector('.pl-reg-hours')?.value || 0) || 0,
+      pay_rate:             0,
+      gross_pay:            gross,
+      federal_income_tax:   parseFloat(tr.querySelector('.pl-fed')?.value      || 0) || 0,
+      state_income_tax:     parseFloat(tr.querySelector('.pl-state')?.value    || 0) || 0,
+      ss_employee:          parseFloat(tr.querySelector('.pl-ss')?.value       || 0) || 0,
+      medicare_employee:    parseFloat(tr.querySelector('.pl-medicare')?.value || 0) || 0,
+      pretax_deductions:    parseFloat(tr.querySelector('.pl-pretax')?.value   || 0) || 0,
+      posttax_deductions:   parseFloat(tr.querySelector('.pl-posttax')?.value  || 0) || 0,
+      other_deductions:     parseFloat(tr.querySelector('.pl-posttax')?.value  || 0) || 0,
+      net_pay:              parseFloat(tr.querySelector('.pl-net')?.value      || 0) || 0,
+      sort_order:           i,
     });
   });
-  if (!lines.length) { showToast('⚠ Add at least one employee',true); return; }
+
   showLoading('Processing payroll…');
-  const pid='pr-'+Date.now();
-  const totalGross=lines.reduce((s,l)=>s+l.gross_pay,0);
-  const totalFed=lines.reduce((s,l)=>s+l.federal_income_tax,0);
-  const totalState=lines.reduce((s,l)=>s+l.state_income_tax,0);
-  const totalSS=lines.reduce((s,l)=>s+l.ss_employee,0);
-  const totalMed=lines.reduce((s,l)=>s+l.medicare_employee,0);
-  const totalOther=lines.reduce((s,l)=>s+l.other_deductions,0);
-  const totalNet=lines.reduce((s,l)=>s+l.net_pay,0);
-  const {error}=await sb.from('payroll_records').insert({
-    id:pid,company_id:acctCompanyId,pay_period_start:start,pay_period_end:end,pay_date:paydate,
-    status,total_gross_pay:totalGross,total_federal_tax:totalFed,total_state_tax:totalState,
-    total_ss_employee:totalSS,total_medicare_employee:totalMed,total_other_deductions:totalOther,
-    total_net_pay:totalNet,notes:document.getElementById('pr-notes').value,
+  const pid       = 'pr-' + Date.now();
+  const totalGross = lines.reduce((s,l) => s + l.gross_pay, 0);
+  const totalFed   = lines.reduce((s,l) => s + l.federal_income_tax, 0);
+  const totalState = lines.reduce((s,l) => s + l.state_income_tax, 0);
+  const totalSS    = lines.reduce((s,l) => s + l.ss_employee, 0);
+  const totalMed   = lines.reduce((s,l) => s + l.medicare_employee, 0);
+  const totalOther = lines.reduce((s,l) => s + l.other_deductions, 0);
+  const totalNet   = lines.reduce((s,l) => s + l.net_pay, 0);
+
+  const { error } = await sb.from('payroll_records').insert({
+    id: pid, company_id: acctCompanyId,
+    pay_period_start: start, pay_period_end: end, pay_date: paydate,
+    status, total_gross_pay: totalGross, total_federal_tax: totalFed,
+    total_state_tax: totalState, total_ss_employee: totalSS,
+    total_medicare_employee: totalMed, total_other_deductions: totalOther,
+    total_net_pay: totalNet, notes: document.getElementById('pr-notes').value,
   });
-  if (error) { hideLoading(); showToast('Error: '+error.message,true); return; }
-  await sb.from('payroll_lines').insert(lines.map(l=>({...l,payroll_id:pid})));
+  if (error) { hideLoading(); showToast('Error: ' + error.message, true); return; }
+  await sb.from('payroll_lines').insert(lines.map(l => ({ ...l, payroll_id: pid })));
+
   // Auto-post JE if processed
-  if (status==='processed') {
-    const wageAccts=acctAccounts.filter(a=>a.account_name.toLowerCase().includes('salari')||a.account_name.toLowerCase().includes('wage'));
-    const cashAccts=acctAccounts.filter(a=>a.account_type==='Asset'&&a.account_subtype==='Current Asset');
-    if (wageAccts.length&&cashAccts.length) {
-      const jeId='je-pr-'+pid;
-      await sb.from('journal_entries').insert({id:jeId,company_id:acctCompanyId,entry_date:paydate,description:`Payroll ${start} – ${end}`,status:'posted',entry_type:'manual',updated_at:new Date().toISOString()});
-      await sb.from('journal_entry_lines').insert([
-        {id:jeId+'-1',journal_entry_id:jeId,account_id:wageAccts[0].id,description:'Gross Wages',debit:totalGross,credit:0,sort_order:0},
-        {id:jeId+'-2',journal_entry_id:jeId,account_id:cashAccts[0].id,description:'Net Pay',debit:0,credit:totalNet,sort_order:1},
-      ]);
-      await sb.from('payroll_records').update({journal_entry_id:jeId}).eq('id',pid);
+  if (status === 'processed') {
+    const wageAccts = acctAccounts.filter(a => a.account_name.toLowerCase().includes('salari') || a.account_name.toLowerCase().includes('wage'));
+    const cashAccts = acctAccounts.filter(a => a.account_type === 'Asset' && a.account_subtype === 'Current Asset');
+    const liabAccts = acctAccounts.filter(a => a.account_name.toLowerCase().includes('payroll'));
+    if (wageAccts.length && cashAccts.length) {
+      const jeId = 'je-pr-' + pid;
+      await sb.from('journal_entries').insert({
+        id: jeId, company_id: acctCompanyId, entry_date: paydate,
+        description: `Payroll ${start} – ${end}`, status: 'posted',
+        entry_type: 'manual', updated_at: new Date().toISOString()
+      });
+      const jeLines = [
+        { id: jeId+'-gross', journal_entry_id: jeId, account_id: wageAccts[0].id, description: 'Gross Wages', debit: totalGross, credit: 0, sort_order: 0 },
+        { id: jeId+'-net',   journal_entry_id: jeId, account_id: cashAccts[0].id, description: 'Net Pay', debit: 0, credit: totalNet, sort_order: 1 },
+      ];
+      if (totalFed + totalState + totalSS + totalMed > 0 && liabAccts.length) {
+        jeLines.push({ id: jeId+'-liab', journal_entry_id: jeId, account_id: liabAccts[0].id, description: 'Payroll Tax Liabilities', debit: 0, credit: totalFed + totalState + totalSS + totalMed, sort_order: 2 });
+      }
+      await sb.from('journal_entry_lines').insert(jeLines);
+      await sb.from('payroll_records').update({ journal_entry_id: jeId }).eq('id', pid);
     }
   }
-  hideLoading(); closeModal('payrollModal'); showToast('✓ Payroll '+status); loadPayroll();
+
+  hideLoading();
+  closeModal('payrollModal');
+  showToast('✓ Payroll ' + status);
+  loadPayroll();
 }
 
 async function voidPayroll(id) {
@@ -6085,6 +6227,7 @@ loadDashboard();
 </script>
 </body>
 </html>
+
 
 
 
