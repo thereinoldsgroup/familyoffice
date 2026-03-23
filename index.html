@@ -651,6 +651,7 @@
           <button class="acct-sidebar-btn"         id="acct-nav-bills"      onclick="showAcctView('bills')">      <span class="acct-icon">📄</span> Bills</button>
           <button class="acct-sidebar-btn"         id="acct-nav-payments-out" onclick="showAcctView('payments-out')"><span class="acct-icon">💸</span> Payments Made</button>
           <button class="acct-sidebar-btn"         id="acct-nav-bank"       onclick="showAcctView('bank')">       <span class="acct-icon">🏛️</span> Bank Transactions</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-reconcile"  onclick="showAcctView('reconcile')">  <span class="acct-icon">✅</span> Reconciliation</button>
           <button class="acct-sidebar-btn"         id="acct-nav-ic"         onclick="showAcctView('ic')">         <span class="acct-icon">🔄</span> Intercompany</button>
           <div class="acct-sidebar-section">Reports</div>
           <button class="acct-sidebar-btn"         id="acct-nav-tb"        onclick="showAcctView('tb')">        <span class="acct-icon">⚖️</span> Trial Balance</button>
@@ -814,6 +815,18 @@
               <button class="report-run-btn" onclick="runAPaging()">Run Report</button>
             </div>
             <div id="apAgingContent"><div class="empty-state"><div class="empty-state-title">Select a date and run report</div></div></div>
+          </div>
+
+          <!-- RECONCILIATION -->
+          <div id="acct-view-reconcile" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Bank &amp; Credit Card Reconciliation</div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-primary" onclick="openReconcileHistoryModal()">View History</button>
+                <button class="btn-save" onclick="openNewReconcileModal()">+ New Reconciliation</button>
+              </div>
+            </div>
+            <div id="reconcileContent"><div class="empty-state"><div class="empty-state-title">Select an account to reconcile</div><div>Click "+ New Reconciliation" to get started.</div></div></div>
           </div>
 
         </div><!-- /acct-content -->
@@ -1370,13 +1383,15 @@
 
 <!-- CUSTOMER MODAL -->
 <div class="modal-overlay" id="customerModal">
-  <div class="modal" style="max-width:520px;">
+  <div class="modal" style="max-width:600px;">
     <div class="modal-header">
       <span class="modal-title" id="customerModalTitle">New Customer</span>
       <button class="modal-close" onclick="closeModal('customerModal')">×</button>
     </div>
     <div class="modal-body">
-      <div class="form-grid">
+      <!-- Basic Info -->
+      <p style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);margin-bottom:12px;">Contact Information</p>
+      <div class="form-grid" style="margin-bottom:20px;">
         <div class="field-group col-span-2"><label class="field-label required">Customer Name</label><input type="text" class="field-input" id="cust-name" placeholder="Individual or business name"></div>
         <div class="field-group"><label class="field-label">Email</label><input type="email" class="field-input" id="cust-email" placeholder="email@example.com"></div>
         <div class="field-group"><label class="field-label">Phone</label><input type="tel" class="field-input" id="cust-phone" placeholder="(000) 000-0000" oninput="formatPhone(this)"></div>
@@ -1388,6 +1403,42 @@
         <div class="field-group"><label class="field-label">State</label><select class="field-select" id="cust-state"><option value="">— State —</option><option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option></select></div>
         <div class="field-group"><label class="field-label">ZIP</label><input type="text" class="field-input" id="cust-zip" placeholder="00000"></div>
         <div class="field-group"><label class="field-label">Country</label><select class="field-select" id="cust-country"><option>United States</option><option>Canada</option><option>Other</option></select></div>
+      </div>
+      <!-- Tax Exemption -->
+      <hr style="border:none;border-top:1px solid var(--border-light);margin-bottom:16px;">
+      <p style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);margin-bottom:12px;">Sales Tax Exemption</p>
+      <div class="form-grid" style="margin-bottom:20px;">
+        <div class="field-group col-span-2">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13.5px;color:var(--text-mid);">
+            <input type="checkbox" id="cust-tax-exempt" style="accent-color:var(--gold);width:16px;height:16px;" onchange="toggleCustTaxExempt(this)">
+            This customer is tax exempt
+          </label>
+        </div>
+        <div class="field-group" id="cust-exempt-state-group" style="display:none;">
+          <label class="field-label required">State of Exemption</label>
+          <select class="field-select" id="cust-exempt-state"><option value="">— State —</option><option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option></select>
+        </div>
+        <div class="field-group" id="cust-exempt-cert-group" style="display:none;">
+          <label class="field-label">Exemption Certificate #</label>
+          <input type="text" class="field-input" id="cust-exempt-cert" placeholder="Certificate number">
+        </div>
+      </div>
+      <!-- W9 Upload -->
+      <hr style="border:none;border-top:1px solid var(--border-light);margin-bottom:16px;">
+      <p style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);margin-bottom:12px;">W-9 / Tax Document</p>
+      <div style="border:2px dashed var(--border);border-radius:var(--radius);padding:16px 20px;background:var(--section-bg);">
+        <div id="cust-w9-existing" style="display:none;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius);">
+            <span style="font-size:13px;color:var(--navy);" id="cust-w9-filename">—</span>
+            <button onclick="removeCustW9()" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:18px;line-height:1;">×</button>
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+          <input type="file" id="cust-w9-file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleW9Upload(this)">
+          <button class="btn-secondary" onclick="document.getElementById('cust-w9-file').click()" type="button" style="font-size:12px;padding:7px 16px;">📎 Upload W-9</button>
+          <span style="font-size:12px;color:var(--text-light);">PDF, JPG, or PNG accepted</span>
+        </label>
+        <div id="cust-w9-uploading" style="display:none;margin-top:8px;font-size:12px;color:var(--text-light);">Uploading…</div>
       </div>
     </div>
     <div class="modal-footer">
@@ -1615,6 +1666,60 @@
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal('icModal')">Cancel</button>
       <button class="btn-save" onclick="saveICTransaction()">Post Transaction</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW RECONCILIATION MODAL -->
+<div class="modal-overlay" id="newReconcileModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <span class="modal-title">New Reconciliation</span>
+      <button class="modal-close" onclick="closeModal('newReconcileModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group col-span-2">
+          <label class="field-label required">Bank / Credit Card Account</label>
+          <select class="field-select" id="recon-account"></select>
+        </div>
+        <div class="field-group">
+          <label class="field-label required">Statement Date</label>
+          <input type="date" class="field-input" id="recon-stmt-date">
+        </div>
+        <div class="field-group">
+          <label class="field-label required">Statement Ending Balance</label>
+          <input type="text" class="field-input" id="recon-stmt-balance" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.\-]/g,'')">
+        </div>
+        <div class="field-group col-span-2">
+          <label class="field-label">Reconciled By</label>
+          <input type="text" class="field-input" id="recon-by" placeholder="Name of person reconciling">
+        </div>
+        <div class="field-group col-span-2">
+          <label class="field-label">Notes</label>
+          <textarea class="field-textarea" id="recon-notes" placeholder="Optional notes" style="min-height:60px;"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('newReconcileModal')">Cancel</button>
+      <button class="btn-save" onclick="startReconciliation()">Begin Reconciliation</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECONCILIATION HISTORY MODAL -->
+<div class="modal-overlay" id="reconcileHistoryModal">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-header">
+      <span class="modal-title">Reconciliation History</span>
+      <button class="modal-close" onclick="closeModal('reconcileHistoryModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="reconcileHistoryContent"><div style="text-align:center;padding:24px;color:var(--text-light);">Loading…</div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('reconcileHistoryModal')">Close</button>
     </div>
   </div>
 </div>
@@ -3052,6 +3157,8 @@ async function runBalanceSheet() {
   const assetAccts = acctAccounts.filter(a=>a.account_type==='Asset');
   const liabAccts  = acctAccounts.filter(a=>a.account_type==='Liability');
   const eqAccts    = acctAccounts.filter(a=>a.account_type==='Equity');
+  const incAccts   = acctAccounts.filter(a=>a.account_type==='Income');
+  const expAccts   = acctAccounts.filter(a=>a.account_type==='Expense');
 
   const currAssets = assetAccts.filter(a=>a.account_subtype==='Current Asset');
   const fixedAssets= assetAccts.filter(a=>a.account_subtype==='Fixed Asset');
@@ -3068,6 +3175,22 @@ async function runBalanceSheet() {
   const totalL   = totalCL + totalLTL;
   const totalEq  = eqAccts.reduce((s,a)=>s+bal(a),0);
 
+  // Calculate net income for the period (all income/expense activity through asof)
+  const totalIncome  = incAccts.reduce((s,a)=>{
+    const lines = (allLines||[]).filter(l=>l.account_id===a.id);
+    const dr = lines.reduce((s,l)=>s+parseFloat(l.debit||0),0);
+    const cr = lines.reduce((s,l)=>s+parseFloat(l.credit||0),0);
+    return s + (cr - dr);
+  }, 0);
+  const totalExpense = expAccts.reduce((s,a)=>{
+    const lines = (allLines||[]).filter(l=>l.account_id===a.id);
+    const dr = lines.reduce((s,l)=>s+parseFloat(l.debit||0),0);
+    const cr = lines.reduce((s,l)=>s+parseFloat(l.credit||0),0);
+    return s + (dr - cr);
+  }, 0);
+  const netIncome = totalIncome - totalExpense;
+  const totalEqWithNI = totalEq + netIncome;
+
   const section = (label, accts) => {
     let h = accts.map(a=>{const b=bal(a);return b?`<div class="report-data-row"><span>${a.account_number} ${a.account_name}</span>${fmt(b)}</div>`:''}).join('');
     return h ? `<div class="report-section-row">${label}</div>${h}` : '';
@@ -3079,15 +3202,19 @@ async function runBalanceSheet() {
   html += section('Fixed Assets', fixedAssets);
   if(totalFA) html += `<div class="report-subtotal-row"><span>Total Fixed Assets</span>${fmt(totalFA)}</div>`;
   html += section('Other Assets', otherAssets);
+  if(totalOA) html += `<div class="report-subtotal-row"><span>Total Other Assets</span>${fmt(totalOA)}</div>`;
   html += `<div class="report-total-row"><span>Total Assets</span>${fmt(totalA)}</div>`;
   html += section('Current Liabilities', currLiab);
   if(totalCL) html += `<div class="report-subtotal-row"><span>Total Current Liabilities</span>${fmt(totalCL)}</div>`;
   html += section('Long-Term Liabilities', ltLiab);
   if(totalLTL) html += `<div class="report-subtotal-row"><span>Total Long-Term Liabilities</span>${fmt(totalLTL)}</div>`;
   if(totalL) html += `<div class="report-total-row"><span>Total Liabilities</span>${fmt(totalL)}</div>`;
-  html += section('Equity', eqAccts);
-  html += `<div class="report-total-row"><span>Total Equity</span>${fmt(totalEq)}</div>`;
-  html += `<div class="report-total-row" style="border-top:3px solid var(--navy);"><span>Total Liabilities + Equity</span>${fmt(totalL+totalEq)}</div>`;
+  html += `<div class="report-section-row">Equity</div>`;
+  html += section('', eqAccts).replace('<div class="report-section-row"></div>','');
+  // Add net income as a line in equity
+  html += `<div class="report-data-row" style="font-style:italic;"><span>Net Income (Current Period)</span>${fmt(netIncome)}</div>`;
+  html += `<div class="report-subtotal-row"><span>Total Equity</span>${fmt(totalEqWithNI)}</div>`;
+  html += `<div class="report-total-row" style="border-top:3px solid var(--navy);"><span>Total Liabilities + Equity</span>${fmt(totalL+totalEqWithNI)}</div>`;
   html += '</div>';
   hideLoading();
   document.getElementById('bsContent').innerHTML = html;
@@ -3110,6 +3237,7 @@ showAcctView = function(view) {
   if (view==='bills')        { loadVendors(); loadBills(); }
   if (view==='payments-out') { loadVendors(); loadPaymentsOut(); }
   if (view==='bank')         loadBankTxns();
+  if (view==='reconcile')    loadReconcileView();
   if (view==='ic')           loadICTxns();
 };
 
@@ -3137,12 +3265,70 @@ async function loadCustomers() {
   c.innerHTML=`<table class="acct-table"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Terms</th><th>Status</th><th></th></tr></thead><tbody>`+
     allCustomers.map(cu=>`<tr><td><strong>${cu.name}</strong></td><td style="color:var(--text-mid);">${cu.email||'—'}</td><td style="color:var(--text-mid);">${cu.phone||'—'}</td><td>${cu.payment_terms||'—'}</td><td><span class="status-pill ${cu.is_active?'status-active':''}">${cu.is_active?'Active':'Inactive'}</span></td><td><button onclick="editCustomer('${cu.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button></td></tr>`).join('')+'</tbody></table>';
 }
+function toggleCustTaxExempt(cb) {
+  document.getElementById('cust-exempt-state-group').style.display = cb.checked ? '' : 'none';
+  document.getElementById('cust-exempt-cert-group').style.display  = cb.checked ? '' : 'none';
+}
+
+let custW9FileName = null, custW9FileUrl = null;
+
+function handleW9Upload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  custW9FileName = file.name;
+  // Store as base64 for now (no storage bucket needed)
+  const reader = new FileReader();
+  document.getElementById('cust-w9-uploading').style.display = '';
+  reader.onload = e => {
+    custW9FileUrl = e.target.result;
+    document.getElementById('cust-w9-uploading').style.display = 'none';
+    document.getElementById('cust-w9-existing').style.display = '';
+    document.getElementById('cust-w9-filename').textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeCustW9() {
+  custW9FileName = null; custW9FileUrl = null;
+  document.getElementById('cust-w9-existing').style.display = 'none';
+  document.getElementById('cust-w9-file').value = '';
+}
+
 function openCustomerModal(id=null) {
   editingCustomerId=id;
+  custW9FileName=null; custW9FileUrl=null;
   document.getElementById('customerModalTitle').textContent=id?'Edit Customer':'New Customer';
-  ['cust-name','cust-email','cust-phone','cust-addr1','cust-city','cust-zip'].forEach(f=>document.getElementById(f).value='');
+  ['cust-name','cust-email','cust-phone','cust-addr1','cust-city','cust-zip','cust-exempt-cert'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
   document.getElementById('cust-terms').value='Net 30';
-  if (id) { const cu=allCustomers.find(x=>x.id===id); if(cu){ document.getElementById('cust-name').value=cu.name||''; document.getElementById('cust-email').value=cu.email||''; document.getElementById('cust-phone').value=cu.phone||''; document.getElementById('cust-terms').value=cu.payment_terms||'Net 30'; document.getElementById('cust-addr1').value=cu.billing_addr1||''; document.getElementById('cust-city').value=cu.billing_city||''; document.getElementById('cust-state').value=cu.billing_state||''; document.getElementById('cust-zip').value=cu.billing_zip||''; document.getElementById('cust-country').value=cu.billing_country||'United States'; } }
+  document.getElementById('cust-tax-exempt').checked=false;
+  document.getElementById('cust-exempt-state-group').style.display='none';
+  document.getElementById('cust-exempt-cert-group').style.display='none';
+  document.getElementById('cust-w9-existing').style.display='none';
+  if (id) {
+    const cu=allCustomers.find(x=>x.id===id); if(cu){
+      document.getElementById('cust-name').value=cu.name||'';
+      document.getElementById('cust-email').value=cu.email||'';
+      document.getElementById('cust-phone').value=cu.phone||'';
+      document.getElementById('cust-terms').value=cu.payment_terms||'Net 30';
+      document.getElementById('cust-addr1').value=cu.billing_addr1||'';
+      document.getElementById('cust-city').value=cu.billing_city||'';
+      document.getElementById('cust-state').value=cu.billing_state||'';
+      document.getElementById('cust-zip').value=cu.billing_zip||'';
+      document.getElementById('cust-country').value=cu.billing_country||'United States';
+      if (cu.is_tax_exempt) {
+        document.getElementById('cust-tax-exempt').checked=true;
+        document.getElementById('cust-exempt-state-group').style.display='';
+        document.getElementById('cust-exempt-cert-group').style.display='';
+        document.getElementById('cust-exempt-state').value=cu.tax_exempt_state||'';
+        document.getElementById('cust-exempt-cert').value=cu.tax_exempt_cert||'';
+      }
+      if (cu.w9_file_name) {
+        custW9FileName=cu.w9_file_name; custW9FileUrl=cu.w9_file_url||null;
+        document.getElementById('cust-w9-existing').style.display='';
+        document.getElementById('cust-w9-filename').textContent=cu.w9_file_name;
+      }
+    }
+  }
   document.getElementById('customerModal').classList.add('show');
 }
 function editCustomer(id) { openCustomerModal(id); }
@@ -3150,8 +3336,27 @@ async function saveCustomer() {
   const name=document.getElementById('cust-name').value.trim();
   if (!name) { showToast('⚠ Name required',true); return; }
   showLoading('Saving…');
-  const {error}=await sb.from('customers').upsert({id:editingCustomerId||('cust-'+Date.now()),company_id:acctCompanyId,name,email:document.getElementById('cust-email').value,phone:document.getElementById('cust-phone').value,payment_terms:document.getElementById('cust-terms').value,billing_addr1:document.getElementById('cust-addr1').value,billing_city:document.getElementById('cust-city').value,billing_state:document.getElementById('cust-state').value,billing_zip:document.getElementById('cust-zip').value,billing_country:document.getElementById('cust-country').value,is_active:true});
-  hideLoading(); if(error){showToast('Error: '+error.message,true);return;} closeModal('customerModal'); showToast('✓ Customer saved'); loadCustomers();
+  const isTaxExempt=document.getElementById('cust-tax-exempt').checked;
+  const {error}=await sb.from('customers').upsert({
+    id:editingCustomerId||('cust-'+Date.now()),
+    company_id:acctCompanyId, name,
+    email:document.getElementById('cust-email').value,
+    phone:document.getElementById('cust-phone').value,
+    payment_terms:document.getElementById('cust-terms').value,
+    billing_addr1:document.getElementById('cust-addr1').value,
+    billing_city:document.getElementById('cust-city').value,
+    billing_state:document.getElementById('cust-state').value,
+    billing_zip:document.getElementById('cust-zip').value,
+    billing_country:document.getElementById('cust-country').value,
+    is_active:true,
+    is_tax_exempt:isTaxExempt,
+    tax_exempt_state:isTaxExempt?document.getElementById('cust-exempt-state').value:null,
+    tax_exempt_cert:isTaxExempt?document.getElementById('cust-exempt-cert').value:null,
+    w9_file_name:custW9FileName||null,
+    w9_file_url:custW9FileUrl||null,
+  });
+  hideLoading(); if(error){showToast('Error: '+error.message,true);return;}
+  closeModal('customerModal'); showToast('✓ Customer saved'); loadCustomers();
 }
 
 // VENDORS
@@ -3225,10 +3430,23 @@ function addInvoiceLine(data=null) {
 }
 function updateInvoiceTotals() {
   let sub=0,tax=0;
-  document.querySelectorAll('#invLinesTbody tr').forEach(tr=>{const i=tr.querySelectorAll('input');const qty=parseFloat(i[1]?.value||1)||1;const price=parseFloat(i[2]?.value||0)||0;const taxR=parseFloat(i[3]?.value||0)||0;const amt=qty*price;sub+=amt;tax+=amt*(taxR/100);if(i[4])i[4].value=amt.toFixed(2);});
+  document.querySelectorAll('#invLinesTbody tr').forEach(tr=>{
+    const i=tr.querySelectorAll('input');
+    const qty=parseFloat(i[1]?.value||1)||1;
+    const price=parseFloat(i[2]?.value||0)||0;
+    const taxR=parseFloat(i[3]?.value||0)||0;
+    const lineAmt=qty*price;
+    const lineTax=lineAmt*(taxR/100);
+    sub+=lineAmt;
+    tax+=lineTax;
+    if(i[4])i[4].value=lineAmt.toFixed(2);
+  });
   document.getElementById('invSubtotal').textContent=sub.toLocaleString('en-US',{minimumFractionDigits:2});
   document.getElementById('invTax').textContent=tax.toLocaleString('en-US',{minimumFractionDigits:2});
   document.getElementById('invTotal').textContent=(sub+tax).toLocaleString('en-US',{minimumFractionDigits:2});
+  // Color tax red if zero but rates exist (warning)
+  const hasTaxRate = Array.from(document.querySelectorAll('#invLinesTbody tr')).some(tr=>{const i=tr.querySelectorAll('input');return parseFloat(i[3]?.value||0)>0;});
+  document.getElementById('invTax').style.color = hasTaxRate && tax===0 ? 'var(--error)' : '';
 }
 async function saveInvoice(status) {
   const custId=document.getElementById('inv-customer').value,date=document.getElementById('inv-date').value;
@@ -3288,7 +3506,24 @@ async function loadBills() {
   const{data}=await sb.from('bills').select('*, vendors(name)').eq('company_id',acctCompanyId).order('bill_date',{ascending:false});
   const c=document.getElementById('billsContent');if(!c)return;
   if(!data||!data.length){c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No bills yet</div></div>`;return;}
-  c.innerHTML=`<table class="acct-table"><thead><tr><th>Bill #</th><th>Vendor</th><th>Date</th><th>Due</th><th>Total</th><th>Balance</th><th>Status</th><th></th></tr></thead><tbody>`+data.map(b=>`<tr><td class="number">${b.bill_number||'—'}</td><td>${b.vendors?.name||'—'}</td><td>${fmtDate(b.bill_date)}</td><td>${fmtDate(b.due_date)}</td><td class="amount">${fmtMoney(b.total)}</td><td class="amount ${parseFloat(b.balance_due||0)>0?'negative':''}">${fmtMoney(b.balance_due)}</td><td>${statusPill(b.status)}</td><td><button onclick="voidBill('${b.id}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Void</button></td></tr>`).join('')+'</tbody></table>';
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Bill #</th><th>Vendor</th><th>Date</th><th>Due</th><th>Total</th><th>Balance</th><th>Status</th><th></th></tr></thead><tbody>`+data.map(b=>`<tr><td class="number">${b.bill_number||'—'}</td><td>${b.vendors?.name||'—'}</td><td>${fmtDate(b.bill_date)}</td><td>${fmtDate(b.due_date)}</td><td class="amount">${fmtMoney(b.total)}</td><td class="amount ${parseFloat(b.balance_due||0)>0?'negative':''}">${fmtMoney(b.balance_due)}</td><td>${statusPill(b.status)}</td><td><button onclick="editBill('${b.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button> <button onclick="voidBill('${b.id}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Void</button></td></tr>`).join('')+'</tbody></table>';
+}
+async function editBill(id) {
+  showLoading('Loading bill…');
+  const{data:bill}=await sb.from('bills').select('*').eq('id',id).single();
+  const{data:lines}=await sb.from('bill_lines').select('*').eq('bill_id',id).order('sort_order');
+  hideLoading(); editingBillId=id;
+  document.getElementById('billModalTitle').textContent='Edit Bill';
+  document.getElementById('bill-vendor').innerHTML='<option value="">— Select —</option>'+allVendors.map(v=>`<option value="${v.id}" ${v.id===bill.vendor_id?'selected':''}>${v.name}</option>`).join('');
+  document.getElementById('bill-ap-account').innerHTML=acctOptsHTML('Liability',bill.ap_account_id);
+  document.getElementById('bill-number').value=bill.bill_number||'';
+  document.getElementById('bill-date').value=bill.bill_date||'';
+  document.getElementById('bill-due').value=bill.due_date||'';
+  document.getElementById('bill-memo').value=bill.memo||'';
+  document.getElementById('billLinesTbody').innerHTML='';
+  (lines||[]).forEach(l=>addBillLine(l));
+  updateBillTotals();
+  document.getElementById('billModal').classList.add('show');
 }
 function openBillModal() {
   if(!acctCompanyId){showToast('⚠ Select a company first',true);return;}
@@ -3460,9 +3695,235 @@ async function runAPaging() {
 }
 
 // ═══════════════════════════════════════════════════
+//  RECONCILIATION
+// ═══════════════════════════════════════════════════
+let activeReconId = null;
+
+async function loadReconcileView() {
+  document.getElementById('reconcileContent').innerHTML = `<div class="empty-state"><div class="empty-state-title">Select an account to reconcile</div><div>Click "+ New Reconciliation" to start, or "View History" to see completed reconciliations.</div></div>`;
+}
+
+function openNewReconcileModal() {
+  if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
+  const bankAccts = acctAccounts.filter(a => a.account_type==='Asset' && a.account_subtype==='Current Asset');
+  document.getElementById('recon-account').innerHTML = '<option value="">— Select account —</option>' + bankAccts.map(a=>`<option value="${a.id}">${a.account_number} — ${a.account_name}</option>`).join('');
+  document.getElementById('recon-stmt-date').value   = new Date().toISOString().slice(0,10);
+  document.getElementById('recon-stmt-balance').value= '';
+  document.getElementById('recon-by').value          = '';
+  document.getElementById('recon-notes').value       = '';
+  document.getElementById('newReconcileModal').classList.add('show');
+}
+
+async function startReconciliation() {
+  const acctId  = document.getElementById('recon-account').value;
+  const stmtDt  = document.getElementById('recon-stmt-date').value;
+  const stmtBal = parseFloat(document.getElementById('recon-stmt-balance').value||0);
+  const reconBy = document.getElementById('recon-by').value;
+  if (!acctId || !stmtDt) { showToast('⚠ Account and statement date required', true); return; }
+  showLoading('Loading transactions…');
+  const reconId = 'recon-' + Date.now();
+  const { error } = await sb.from('reconciliations').insert({
+    id: reconId, company_id: acctCompanyId, account_id: acctId,
+    statement_date: stmtDt, statement_ending_balance: stmtBal,
+    status: 'in_progress', reconciled_by: reconBy,
+    notes: document.getElementById('recon-notes').value,
+  });
+  if (error) { hideLoading(); showToast('Error: '+error.message, true); return; }
+  activeReconId = reconId;
+  closeModal('newReconcileModal');
+  await renderReconcileWorkspace(reconId, acctId, stmtBal, stmtDt, reconBy);
+  hideLoading();
+}
+
+async function renderReconcileWorkspace(reconId, acctId, stmtBal, stmtDt, reconBy) {
+  // Load bank transactions for this account up to statement date
+  const { data: txns } = await sb.from('bank_transactions')
+    .select('*').eq('account_id', acctId).lte('transaction_date', stmtDt)
+    .neq('status','excluded').order('transaction_date');
+
+  // Load existing cleared items
+  const { data: clearedItems } = await sb.from('reconciliation_items')
+    .select('*').eq('reconciliation_id', reconId);
+  const clearedIds = new Set((clearedItems||[]).filter(i=>i.cleared).map(i=>i.transaction_id));
+
+  const acct = acctAccounts.find(a=>a.id===acctId);
+  let html = `
+    <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm);">
+      <div style="background:var(--navy);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--gold-light);">Reconciling: ${acct?.account_name||'Account'}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;">Statement Date: ${stmtDt} · Reconciled by: ${reconBy||'—'}</div>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <div style="text-align:right;">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.4);">Statement Balance</div>
+            <div style="font-family:monospace;font-size:18px;color:var(--gold-light);" id="recon-stmt-display">${fmtMoney(stmtBal)}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.4);">Cleared Balance</div>
+            <div style="font-family:monospace;font-size:18px;color:var(--white);" id="recon-cleared-display">${fmtMoney(0)}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.4);">Difference</div>
+            <div style="font-family:monospace;font-size:18px;" id="recon-diff-display" style="color:var(--gold-light);">${fmtMoney(stmtBal)}</div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:0;">
+        <table class="acct-table" id="reconTxnTable">
+          <thead><tr>
+            <th style="width:40px;text-align:center;">✓</th>
+            <th>Date</th><th>Description</th><th>Reference</th><th>Type</th>
+            <th style="text-align:right;">Amount</th>
+          </tr></thead>
+          <tbody>`;
+
+  (txns||[]).forEach(t => {
+    const checked = clearedIds.has(t.id);
+    const isDeposit = t.transaction_type==='deposit';
+    html += `<tr style="${checked?'background:rgba(39,174,96,0.06);':''}">
+      <td style="text-align:center;">
+        <input type="checkbox" ${checked?'checked':''} style="accent-color:var(--gold);width:16px;height:16px;cursor:pointer;"
+          onchange="toggleReconItem('${reconId}','${t.id}',this.checked,${t.amount},${isDeposit?1:-1},${stmtBal})">
+      </td>
+      <td>${fmtDate(t.transaction_date)}</td>
+      <td>${t.description||'—'}</td>
+      <td class="number">${t.reference||'—'}</td>
+      <td style="text-transform:capitalize;">${t.transaction_type||'—'}</td>
+      <td class="amount ${!isDeposit?'negative':''}">${isDeposit?'':'-'}${fmtMoney(t.amount)}</td>
+    </tr>`;
+  });
+
+  if (!txns||!txns.length) html += `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-light);">No transactions found for this account through ${stmtDt}</td></tr>`;
+  html += `</tbody></table></div>
+      <div style="padding:16px 24px;background:var(--section-bg);border-top:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:13px;color:var(--text-mid);" id="recon-status-msg">Check off transactions that appear on your statement.</div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-secondary" onclick="printReconciliationReport('${reconId}','${acctId}','${stmtDt}','${reconBy}',${stmtBal})">🖨 Print Report</button>
+          <button class="btn-save" id="recon-finish-btn" onclick="finishReconciliation('${reconId}',${stmtBal})" disabled style="opacity:0.5;">Finish Reconciliation</button>
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('reconcileContent').innerHTML = html;
+  recalcReconTotals(reconId, stmtBal, clearedIds, txns||[]);
+}
+
+let reconClearedMap = {};
+function toggleReconItem(reconId, txnId, checked, amount, direction, stmtBal) {
+  if (!reconClearedMap[reconId]) reconClearedMap[reconId] = {};
+  reconClearedMap[reconId][txnId] = checked ? { amount, direction } : null;
+  // Persist to DB
+  sb.from('reconciliation_items').upsert({ id:'ri-'+reconId+'-'+txnId, reconciliation_id:reconId, transaction_id:txnId, transaction_type:'bank_transaction', cleared:checked });
+  // Recalc display
+  const allTxnData = Object.entries(reconClearedMap[reconId]).filter(([,v])=>v).map(([,v])=>v);
+  const clearedBal = allTxnData.reduce((s,v)=>s+(v.amount*(v.direction)),0);
+  const diff = stmtBal - clearedBal;
+  const balanced = Math.abs(diff) < 0.01;
+  const clearedEl = document.getElementById('recon-cleared-display');
+  const diffEl    = document.getElementById('recon-diff-display');
+  const finishBtn = document.getElementById('recon-finish-btn');
+  const statusMsg = document.getElementById('recon-status-msg');
+  if(clearedEl) clearedEl.textContent = fmtMoney(clearedBal);
+  if(diffEl) { diffEl.textContent = (diff<0?'-':'')+fmtMoney(Math.abs(diff)); diffEl.style.color = balanced ? '#7dcea0' : '#e07060'; }
+  if(finishBtn) { finishBtn.disabled = !balanced; finishBtn.style.opacity = balanced ? '1' : '0.5'; }
+  if(statusMsg) statusMsg.textContent = balanced ? '✓ Balanced — ready to finish reconciliation!' : `Difference of ${fmtMoney(Math.abs(diff))} remaining.`;
+}
+
+function recalcReconTotals(reconId, stmtBal, clearedIds, txns) {
+  reconClearedMap[reconId] = {};
+  txns.forEach(t => {
+    if (clearedIds.has(t.id)) {
+      reconClearedMap[reconId][t.id] = { amount: parseFloat(t.amount||0), direction: t.transaction_type==='deposit'?1:-1 };
+    }
+  });
+  const clearedBal = Object.values(reconClearedMap[reconId]).filter(Boolean).reduce((s,v)=>s+(v.amount*v.direction),0);
+  const diff = stmtBal - clearedBal;
+  const balanced = Math.abs(diff) < 0.01;
+  const clearedEl = document.getElementById('recon-cleared-display');
+  const diffEl    = document.getElementById('recon-diff-display');
+  const finishBtn = document.getElementById('recon-finish-btn');
+  const statusMsg = document.getElementById('recon-status-msg');
+  if(clearedEl) clearedEl.textContent = fmtMoney(clearedBal);
+  if(diffEl) { diffEl.textContent = (diff<0?'-':'')+fmtMoney(Math.abs(diff)); diffEl.style.color = balanced ? '#7dcea0' : '#e07060'; }
+  if(finishBtn) { finishBtn.disabled = !balanced; finishBtn.style.opacity = balanced ? '1' : '0.5'; }
+  if(statusMsg) statusMsg.textContent = balanced ? '✓ Balanced — ready to finish reconciliation!' : `Difference of ${fmtMoney(Math.abs(diff))} remaining.`;
+}
+
+async function finishReconciliation(reconId, stmtBal) {
+  showLoading('Completing reconciliation…');
+  const clearedData = reconClearedMap[reconId] || {};
+  const clearedBal  = Object.values(clearedData).filter(Boolean).reduce((s,v)=>s+(v.amount*v.direction),0);
+  await sb.from('reconciliations').update({
+    status:'completed', cleared_balance:clearedBal,
+    difference: stmtBal - clearedBal,
+    reconciled_at: new Date().toISOString(),
+  }).eq('id', reconId);
+  // Mark transactions as reviewed
+  const clearedIds = Object.entries(clearedData).filter(([,v])=>v).map(([id])=>id);
+  if (clearedIds.length) await sb.from('bank_transactions').update({status:'reviewed'}).in('id', clearedIds);
+  hideLoading();
+  showToast('✓ Reconciliation completed successfully');
+  loadReconcileView();
+}
+
+async function openReconcileHistoryModal() {
+  document.getElementById('reconcileHistoryModal').classList.add('show');
+  const container = document.getElementById('reconcileHistoryContent');
+  let q = sb.from('reconciliations').select('*, accounts(account_name)').eq('status','completed').order('statement_date',{ascending:false});
+  if (acctCompanyId) q = q.eq('company_id', acctCompanyId);
+  const { data } = await q;
+  if (!data||!data.length) { container.innerHTML=`<div style="text-align:center;padding:24px;color:var(--text-light);">No completed reconciliations yet.</div>`; return; }
+  container.innerHTML = `<table class="acct-table"><thead><tr><th>Account</th><th>Statement Date</th><th>Statement Balance</th><th>Cleared Balance</th><th>Difference</th><th>Reconciled By</th><th>Date Completed</th><th></th></tr></thead><tbody>` +
+    data.map(r=>`<tr>
+      <td>${r.accounts?.account_name||'—'}</td>
+      <td>${fmtDate(r.statement_date)}</td>
+      <td class="amount">${fmtMoney(r.statement_ending_balance)}</td>
+      <td class="amount">${fmtMoney(r.cleared_balance)}</td>
+      <td class="amount ${Math.abs(parseFloat(r.difference||0))>0.01?'negative':''}">${fmtMoney(r.difference)}</td>
+      <td>${r.reconciled_by||'—'}</td>
+      <td style="color:var(--text-mid);font-size:12px;">${r.reconciled_at?new Date(r.reconciled_at).toLocaleDateString():''}</td>
+      <td><button onclick="printReconciliationReport('${r.id}','${r.account_id}','${r.statement_date}','${r.reconciled_by||''}',${r.statement_ending_balance})" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Print</button></td>
+    </tr>`).join('') + '</tbody></table>';
+}
+
+async function printReconciliationReport(reconId, acctId, stmtDt, reconBy, stmtBal) {
+  showLoading('Generating report…');
+  const { data: items }   = await sb.from('reconciliation_items').select('*').eq('reconciliation_id', reconId).eq('cleared', true);
+  const txnIds = (items||[]).map(i=>i.transaction_id);
+  const { data: txns }    = txnIds.length ? await sb.from('bank_transactions').select('*').in('id', txnIds).order('transaction_date') : {data:[]};
+  const { data: recon }   = await sb.from('reconciliations').select('*, accounts(account_name)').eq('id', reconId).single();
+  hideLoading();
+  const acctName = recon?.accounts?.account_name || 'Account';
+  const completedAt = recon?.reconciled_at ? new Date(recon.reconciled_at).toLocaleString() : new Date().toLocaleString();
+  const clearedBal = (txns||[]).reduce((s,t)=>s+(t.transaction_type==='deposit'?1:-1)*parseFloat(t.amount||0),0);
+  let rows = (txns||[]).map(t=>`<tr><td>${t.transaction_date}</td><td>${t.description||'—'}</td><td>${t.reference||'—'}</td><td style="text-transform:capitalize;">${t.transaction_type}</td><td style="text-align:right;font-family:monospace;">${t.transaction_type==='deposit'?'':'-'}${fmtMoney(t.amount)}</td></tr>`).join('');
+  const win = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>Reconciliation Report</title>
+  <style>body{font-family:'Georgia',serif;max-width:800px;margin:40px auto;color:#1a1a2e;font-size:13px;}h1{font-size:24px;margin-bottom:4px;}h2{font-size:16px;color:#4a4a6a;margin-bottom:20px;font-weight:normal;}table{width:100%;border-collapse:collapse;margin-top:16px;}th{padding:8px 12px;background:#0f1f38;color:#d4b07a;font-size:11px;text-align:left;letter-spacing:0.06em;text-transform:uppercase;}td{padding:8px 12px;border-bottom:1px solid #ede8df;}.summary{background:#f7f4ef;padding:16px 20px;border-radius:6px;margin:20px 0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}.sum-item{}.sum-label{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#8a8aaa;}.sum-value{font-size:18px;font-weight:600;font-family:monospace;margin-top:2px;}.footer{margin-top:32px;padding-top:16px;border-top:2px solid #b8965a;font-size:12px;color:#8a8aaa;}@media print{.no-print{display:none;}}</style></head>
+  <body>
+  <button class="no-print" onclick="window.print()" style="padding:8px 20px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:20px;font-size:13px;">🖨 Print / Save PDF</button>
+  <h1>Bank Reconciliation Report</h1>
+  <h2>${acctName} · Statement Date: ${stmtDt}</h2>
+  <div class="summary">
+    <div class="sum-item"><div class="sum-label">Statement Balance</div><div class="sum-value">${fmtMoney(stmtBal)}</div></div>
+    <div class="sum-item"><div class="sum-label">Cleared Balance</div><div class="sum-value">${fmtMoney(clearedBal)}</div></div>
+    <div class="sum-item"><div class="sum-label">Difference</div><div class="sum-value" style="color:${Math.abs(stmtBal-clearedBal)<0.01?'#229954':'#c0392b'};">${fmtMoney(stmtBal-clearedBal)}</div></div>
+  </div>
+  <table><thead><tr><th>Date</th><th>Description</th><th>Reference</th><th>Type</th><th style="text-align:right;">Amount</th></tr></thead><tbody>${rows}</tbody></table>
+  <div class="footer">
+    <strong>Reconciled by:</strong> ${reconBy||'—'} &nbsp;&nbsp;
+    <strong>Date completed:</strong> ${completedAt} &nbsp;&nbsp;
+    <strong>Generated:</strong> ${new Date().toLocaleString()}
+  </div></body></html>`);
+  win.document.close();
+}
+
+// ═══════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════
 loadDashboard();
 </script>
 </body>
 </html>
+
