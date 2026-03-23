@@ -169,6 +169,14 @@
 
   /* ── MAIN ── */
   .main { flex: 1; padding: 32px 40px; overflow-y: auto; }
+  /* Hide companies sidebar when other modules are active */
+  .sidebar-hidden { display: none !important; }
+  /* When sidebar hidden, panels take full width */
+  .sidebar-hidden ~ .main { padding-left: 40px; }
+  /* Tax layout */
+  .tax-layout { display:flex; gap:0; min-height:calc(100vh - 240px); }
+  /* Ownership and Financials panels also use full width */
+  #view-ownership, #view-financials, #view-tax { width: 100%; }
   .page-header {
     display: flex; align-items: flex-start; justify-content: space-between;
     margin-bottom: 28px; padding-bottom: 20px;
@@ -445,7 +453,6 @@
   .coa-group-header { padding: 8px 16px; background: var(--navy); color: var(--gold-light); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 
   /* ── TAX MODULE ── */
-  .tax-layout { display:flex; gap:0; min-height:calc(100vh - 180px); }
   .tax-sidebar { width:230px; flex-shrink:0; background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:8px 0; box-shadow:var(--shadow-sm); height:fit-content; position:sticky; top:80px; }
   .tax-sidebar-section { font-size:10px; font-weight:600; letter-spacing:0.10em; text-transform:uppercase; color:var(--text-light); padding:14px 16px 6px; }
   .tax-sidebar-btn { display:flex; align-items:center; gap:9px; padding:9px 16px; font-size:13px; color:var(--text-mid); cursor:pointer; border:none; background:none; width:100%; text-align:left; font-family:'DM Sans',sans-serif; border-left:3px solid transparent; transition:all 0.15s; }
@@ -546,7 +553,7 @@
 <div class="app-layout">
 
   <!-- SIDEBAR -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="companiesSidebar">
     <button class="sidebar-btn active" id="sidebarDashBtn" onclick="showDashboard()">
       <span>⊞</span> Dashboard
     </button>
@@ -2827,6 +2834,12 @@ function renderSidebar(companies) {
 // ═══════════════════════════════════════════════════
 //  VIEW CONTROL
 // ═══════════════════════════════════════════════════
+// ── SIDEBAR VISIBILITY ──
+function setSidebarVisible(visible) {
+  const sidebar = document.getElementById('companiesSidebar');
+  if (sidebar) sidebar.classList.toggle('sidebar-hidden', !visible);
+}
+
 function showDashboard() {
   currentCompanyId = null;
   ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub'].forEach(id => document.getElementById(id)?.classList.remove('active'));
@@ -2836,6 +2849,8 @@ function showDashboard() {
   document.getElementById('nav-companies')?.classList.add('active');
   document.getElementById('nav-ownership')?.classList.remove('active');
   document.getElementById('nav-financials')?.classList.remove('active');
+  document.getElementById('nav-tax')?.classList.remove('active');
+  setSidebarVisible(true);
   loadDashboard();
 }
 
@@ -2843,6 +2858,7 @@ function showDetail() {
   ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub'].forEach(id => document.getElementById(id)?.classList.remove('active'));
   document.getElementById('view-company-detail').classList.add('active');
   document.getElementById('sidebarDashBtn').classList.remove('active');
+  setSidebarVisible(true);
   // Reset to first tab
   document.querySelectorAll('.inner-tab').forEach((t,i) => t.classList.toggle('active', i===0));
   document.getElementById('tab-company-info').classList.add('active');
@@ -3238,9 +3254,11 @@ function buildOfficerCard(data) {
 function switchModule(module) {
   document.querySelectorAll('.topbar-nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('nav-' + module)?.classList.add('active');
-  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub'].forEach(id => {
+  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub','view-tax'].forEach(id => {
     document.getElementById(id)?.classList.remove('active');
   });
+  // Sidebar only visible for Companies module
+  setSidebarVisible(module === 'companies');
   if (module === 'companies') {
     showDashboard();
   } else if (module === 'ownership') {
@@ -3249,6 +3267,9 @@ function switchModule(module) {
   } else if (module === 'financials') {
     document.getElementById('view-financials').classList.add('active');
     loadFinancialsModule();
+  } else if (module === 'tax') {
+    document.getElementById('view-tax').classList.add('active');
+    loadTaxModule();
   }
 }
 
@@ -7804,22 +7825,6 @@ function renderTaxDocsList() {
       <button onclick="taxDocsList.splice(${i},1);renderTaxDocsList();" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:18px;line-height:1;">×</button>
     </div>`).join('');
 }
-
-// ── UPDATE switchModule ──
-const _origSwitchModule = switchModule;
-switchModule = function(module) {
-  if (module === 'tax') {
-    document.querySelectorAll('.topbar-nav-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('nav-tax')?.classList.add('active');
-    ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub','view-tax'].forEach(id => document.getElementById(id)?.classList.remove('active'));
-    document.getElementById('view-tax').classList.add('active');
-    loadTaxModule();
-  } else {
-    _origSwitchModule(module);
-    document.getElementById('view-tax')?.classList.remove('active');
-    document.getElementById('nav-tax')?.classList.remove('active');
-  }
-};
 
 // ── INIT
 loadDashboard();
