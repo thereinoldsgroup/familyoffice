@@ -10824,9 +10824,10 @@ async function loadAuditTrail() {
   c.innerHTML=`<table class="acct-table"><thead><tr><th>When</th><th>Action</th><th>Table</th><th>Details</th><th>Reason</th></tr></thead><tbody>`+
     logs.map(l=>{
       const actionColor={ insert:'status-active', update:'status-posted', delete:'status-void' };
+      const aCls = actionColor[l.action] || '';
       let details='';
       try { const nv=l.new_values?JSON.parse(l.new_values):null; if(nv) details=Object.entries(nv).slice(0,3).map(([k,v])=>`${k}: ${v}`).join(', '); } catch(e){}
-      return `<tr><td style="font-size:12px;">${new Date(l.changed_at).toLocaleString()}</td><td><span class="status-pill ${actionColor[l.action]||''}">${l.action}</span></td><td style="font-size:12px;font-family:monospace;">${l.table_name}</td><td style="font-size:11px;color:var(--text-mid);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${details||'—'}</td><td style="font-size:12px;color:var(--text-light);">${l.reason_code||'—'}</td></tr>`;
+      return `<tr><td style="font-size:12px;">${new Date(l.changed_at).toLocaleString()}</td><td><span class="status-pill ${aCls}">${l.action}</span></td><td style="font-size:12px;font-family:monospace;">${l.table_name}</td><td style="font-size:11px;color:var(--text-mid);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${details||'—'}</td><td style="font-size:12px;color:var(--text-light);">${l.reason_code||'—'}</td></tr>`;
     }).join('')+'</tbody></table>';
 }
 
