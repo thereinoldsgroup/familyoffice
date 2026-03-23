@@ -452,7 +452,64 @@
   .report-run-btn:hover { background: var(--navy-mid); }
   .coa-group-header { padding: 8px 16px; background: var(--navy); color: var(--gold-light); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 
-  /* ── TAX MODULE ── */
+  /* ── PROJECT MANAGEMENT ── */
+  .pm-layout { display:flex; gap:0; min-height:calc(100vh - 240px); }
+  .pm-sidebar { width:220px; flex-shrink:0; background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:8px 0; box-shadow:var(--shadow-sm); height:fit-content; position:sticky; top:80px; overflow:hidden; }
+  .pm-sidebar-section { font-size:10px; font-weight:600; letter-spacing:0.10em; text-transform:uppercase; color:var(--text-light); padding:14px 16px 6px; }
+  .pm-sidebar-btn { display:flex; align-items:center; gap:9px; padding:9px 16px; font-size:13px; color:var(--text-mid); cursor:pointer; border:none; background:none; width:100%; text-align:left; font-family:'DM Sans',sans-serif; border-left:3px solid transparent; transition:all 0.15s; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pm-sidebar-btn:hover { background:var(--gold-pale); color:var(--navy); }
+  .pm-sidebar-btn.active { color:var(--navy); font-weight:500; background:var(--gold-pale); border-left-color:var(--gold); }
+  .pm-content { flex:1; padding-left:28px; min-width:0; }
+  .pm-panel { display:none; }
+  .pm-panel.active { display:block; }
+
+  /* Project color strip */
+  .project-color-strip { width:4px; border-radius:2px; flex-shrink:0; }
+
+  /* Kanban */
+  .kanban-board { display:flex; gap:14px; overflow-x:auto; padding-bottom:12px; min-height:400px; }
+  .kanban-col { min-width:230px; max-width:230px; background:var(--section-bg); border-radius:var(--radius-lg); padding:12px; display:flex; flex-direction:column; gap:10px; border:1px solid var(--border-light); }
+  .kanban-col-header { font-size:11px; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; color:var(--text-mid); display:flex; justify-content:space-between; align-items:center; padding-bottom:8px; border-bottom:1px solid var(--border-light); }
+  .kanban-card { background:var(--white); border-radius:var(--radius); padding:10px 12px; box-shadow:var(--shadow-sm); cursor:pointer; border:1px solid var(--border-light); transition:box-shadow 0.15s; }
+  .kanban-card:hover { box-shadow:var(--shadow-md); border-color:var(--gold); }
+  .kanban-card-title { font-size:13px; font-weight:500; color:var(--navy); margin-bottom:4px; }
+  .kanban-card-meta { font-size:11px; color:var(--text-light); display:flex; justify-content:space-between; align-items:center; margin-top:6px; }
+  .kanban-card-priority { font-size:10px; padding:2px 6px; border-radius:3px; font-weight:500; }
+  .priority-critical { background:rgba(192,57,43,0.15); color:#922b21; }
+  .priority-high { background:rgba(230,126,34,0.15); color:#a04000; }
+  .priority-medium { background:rgba(52,152,219,0.15); color:#1a6fa8; }
+  .priority-low { background:rgba(39,174,96,0.12); color:#1e8449; }
+  .priority-pill { display:inline-block; }
+
+  /* Gantt */
+  .gantt-container { overflow-x:auto; border:1px solid var(--border-light); border-radius:var(--radius-lg); background:var(--white); }
+  .gantt-header { display:flex; background:var(--navy); color:var(--gold-light); font-size:11px; font-weight:600; letter-spacing:0.06em; }
+  .gantt-task-col { width:220px; flex-shrink:0; padding:10px 14px; border-right:1px solid rgba(255,255,255,0.1); }
+  .gantt-timeline { flex:1; display:flex; }
+  .gantt-month { flex:1; min-width:80px; padding:10px 8px; text-align:center; border-right:1px solid rgba(255,255,255,0.08); }
+  .gantt-row { display:flex; border-bottom:1px solid var(--border-light); min-height:38px; align-items:center; }
+  .gantt-row:hover { background:var(--gold-pale); }
+  .gantt-task-label { width:220px; flex-shrink:0; padding:8px 14px; font-size:12.5px; border-right:1px solid var(--border-light); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .gantt-bar-area { flex:1; position:relative; min-width:480px; }
+  .gantt-bar { position:absolute; height:18px; border-radius:3px; top:50%; transform:translateY(-50%); opacity:0.85; }
+  .gantt-today-line { position:absolute; top:0; bottom:0; width:2px; background:var(--gold); opacity:0.7; z-index:2; }
+
+  /* Progress ring */
+  .progress-ring { transform:rotate(-90deg); }
+  .progress-ring-bg { fill:none; stroke:var(--border-light); stroke-width:3; }
+  .progress-ring-fill { fill:none; stroke:var(--gold); stroke-width:3; stroke-linecap:round; transition:stroke-dashoffset 0.5s; }
+
+  /* Time entry */
+  .time-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr 1fr 80px 80px auto; gap:8px; align-items:center; }
+  .time-grid-header { font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-light); padding:8px 0 6px; border-bottom:1px solid var(--border-light); }
+
+  /* WBS */
+  .wbs-row { display:grid; grid-template-columns:28px 1fr 90px 90px 80px 100px 80px 40px; gap:0; border-bottom:1px solid var(--border-light); align-items:center; min-height:36px; }
+  .wbs-row:hover { background:var(--gold-pale); }
+  .wbs-indent-1 { padding-left:8px; }
+  .wbs-indent-2 { padding-left:24px; }
+  .wbs-indent-3 { padding-left:40px; }
+  .wbs-cell { padding:6px 10px; font-size:12.5px; }
   .tax-sidebar { width:230px; flex-shrink:0; background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:8px 0; box-shadow:var(--shadow-sm); height:fit-content; position:sticky; top:80px; }
   .tax-sidebar-section { font-size:10px; font-weight:600; letter-spacing:0.10em; text-transform:uppercase; color:var(--text-light); padding:14px 16px 6px; }
   .tax-sidebar-btn { display:flex; align-items:center; gap:9px; padding:9px 16px; font-size:13px; color:var(--text-mid); cursor:pointer; border:none; background:none; width:100%; text-align:left; font-family:'DM Sans',sans-serif; border-left:3px solid transparent; transition:all 0.15s; }
@@ -545,6 +602,7 @@
     <button class="topbar-nav-btn" id="nav-ownership" onclick="switchModule('ownership')">Ownership</button>
     <button class="topbar-nav-btn" id="nav-financials" onclick="switchModule('financials')">Financials</button>
     <button class="topbar-nav-btn" id="nav-tax" onclick="switchModule('tax')">Tax</button>
+    <button class="topbar-nav-btn" id="nav-projects" onclick="switchModule('projects')">Projects</button>
     <button class="topbar-nav-btn" onclick="comingSoon()">Documents</button>
     <button class="topbar-nav-btn" onclick="comingSoon()">Reports</button>
   </nav>
@@ -1304,6 +1362,107 @@
         </div><!-- /tax-content -->
       </div><!-- /tax-layout -->
     </div><!-- /view-tax -->
+
+    <!-- ═══════════════════════════════════════════
+         PROJECT MANAGEMENT — BATCH 1
+    ═══════════════════════════════════════════ -->
+    <div id="view-projects" class="panel">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Project Management</div>
+          <div class="page-subtitle">Projects · Tasks · Time · Gantt · Kanban</div>
+        </div>
+        <div class="page-actions">
+          <select id="pm-entity-select" class="field-select" style="height:34px;width:220px;" onchange="onPMEntityChange()">
+            <option value="">— All companies —</option>
+          </select>
+          <button class="btn-save" onclick="openProjectModal()">+ New Project</button>
+        </div>
+      </div>
+
+      <div class="pm-layout">
+        <!-- PM Sidebar: project list -->
+        <div class="pm-sidebar">
+          <div class="pm-sidebar-section">Views</div>
+          <button class="pm-sidebar-btn active" id="pm-nav-dashboard" onclick="showPMPanel('dashboard')"><span>📊</span> Dashboard</button>
+          <button class="pm-sidebar-btn" id="pm-nav-kanban"    onclick="showPMPanel('kanban')">   <span>🗂️</span> Kanban Board</button>
+          <button class="pm-sidebar-btn" id="pm-nav-gantt"     onclick="showPMPanel('gantt')">    <span>📅</span> Gantt Chart</button>
+          <button class="pm-sidebar-btn" id="pm-nav-wbs"       onclick="showPMPanel('wbs')">      <span>🌲</span> Work Breakdown</button>
+          <button class="pm-sidebar-btn" id="pm-nav-time"      onclick="showPMPanel('time')">     <span>⏱️</span> Time Entries</button>
+          <div class="pm-sidebar-section">Projects</div>
+          <div id="pm-project-list" style="padding-bottom:8px;">
+            <div style="padding:8px 16px;font-size:12px;color:var(--text-light);">No projects yet</div>
+          </div>
+        </div>
+
+        <!-- PM Content -->
+        <div class="pm-content">
+
+          <!-- DASHBOARD -->
+          <div id="pm-panel-dashboard" class="pm-panel active">
+            <div id="pm-dashboard-body">
+              <div class="empty-state"><div class="empty-state-title">Select a company to view projects</div></div>
+            </div>
+          </div>
+
+          <!-- KANBAN -->
+          <div id="pm-panel-kanban" class="pm-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Kanban Board</div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <select id="kanban-project-filter" class="field-select" style="height:32px;width:200px;" onchange="loadKanban()">
+                  <option value="">All projects</option>
+                </select>
+                <button class="btn-save" onclick="openTaskModal()">+ Add Task</button>
+              </div>
+            </div>
+            <div id="pm-kanban-body"><div class="empty-state"><div class="empty-state-title">No tasks yet</div></div></div>
+          </div>
+
+          <!-- GANTT -->
+          <div id="pm-panel-gantt" class="pm-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Gantt Chart</div>
+              <select id="gantt-project-filter" class="field-select" style="height:32px;width:200px;" onchange="loadGantt()">
+                <option value="">All projects</option>
+              </select>
+            </div>
+            <div id="pm-gantt-body"><div class="empty-state"><div class="empty-state-title">No projects to display</div></div></div>
+          </div>
+
+          <!-- WBS -->
+          <div id="pm-panel-wbs" class="pm-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Work Breakdown Structure</div>
+              <div style="display:flex;gap:8px;">
+                <select id="wbs-project-filter" class="field-select" style="height:32px;width:200px;" onchange="loadWBS()">
+                  <option value="">Select project…</option>
+                </select>
+                <button class="btn-save" onclick="openTaskModal()">+ Add Task</button>
+              </div>
+            </div>
+            <div id="pm-wbs-body"><div class="empty-state"><div class="empty-state-title">Select a project to view its WBS</div></div></div>
+          </div>
+
+          <!-- TIME ENTRIES -->
+          <div id="pm-panel-time" class="pm-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Time Entries</div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <select id="time-project-filter" class="field-select" style="height:32px;width:180px;" onchange="loadTimeEntries()">
+                  <option value="">All projects</option>
+                </select>
+                <input type="date" id="time-from" class="field-input" style="height:32px;width:130px;" onchange="loadTimeEntries()">
+                <input type="date" id="time-to"   class="field-input" style="height:32px;width:130px;" onchange="loadTimeEntries()">
+                <button class="btn-save" onclick="openTimeEntryModal()">+ Log Time</button>
+              </div>
+            </div>
+            <div id="pm-time-body"><div class="empty-state"><div class="empty-state-title">No time entries yet</div></div></div>
+          </div>
+
+        </div><!-- /pm-content -->
+      </div><!-- /pm-layout -->
+    </div><!-- /view-projects -->
 
     <!-- ACCOUNT MODAL -->
     <div class="modal-overlay" id="accountModal">
@@ -2673,6 +2832,146 @@
   </div>
 </div>
 
+<!-- PROJECT MODAL -->
+<div class="modal-overlay" id="projectModal">
+  <div class="modal" style="max-width:680px;">
+    <div class="modal-header">
+      <span class="modal-title" id="projectModalTitle">New Project</span>
+      <button class="modal-close" onclick="closeModal('projectModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group"><label class="field-label required">Project Name</label><input type="text" class="field-input" id="proj-name" placeholder="Project name"></div>
+        <div class="field-group"><label class="field-label">Project Number</label><input type="text" class="field-input" id="proj-number" placeholder="PRJ-001"></div>
+        <div class="field-group"><label class="field-label required">Company</label>
+          <select class="field-select" id="proj-company"></select></div>
+        <div class="field-group"><label class="field-label">Client</label>
+          <select class="field-select" id="proj-client"><option value="">— No client —</option></select></div>
+        <div class="field-group"><label class="field-label required">Project Type</label>
+          <select class="field-select" id="proj-type">
+            <option value="fixed_price">Fixed Price</option>
+            <option value="time_and_materials">Time &amp; Materials</option>
+            <option value="retainer">Retainer</option>
+            <option value="milestone">Milestone-Based</option>
+          </select></div>
+        <div class="field-group"><label class="field-label">Status</label>
+          <select class="field-select" id="proj-status">
+            <option value="active">Active</option>
+            <option value="on_hold">On Hold</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select></div>
+        <div class="field-group"><label class="field-label">Start Date</label><input type="date" class="field-input" id="proj-start"></div>
+        <div class="field-group"><label class="field-label">End Date</label><input type="date" class="field-input" id="proj-end"></div>
+        <div class="field-group"><label class="field-label">Contract Value ($)</label><input type="text" class="field-input" id="proj-value" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Estimated Hours</label><input type="text" class="field-input" id="proj-hours" placeholder="0" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Project Manager</label>
+          <select class="field-select" id="proj-manager"><option value="">— Assign PM —</option></select></div>
+        <div class="field-group"><label class="field-label">Color</label>
+          <input type="color" class="field-input" id="proj-color" value="#b8965a" style="height:36px;padding:2px 4px;cursor:pointer;"></div>
+        <div class="field-group col-span-2"><label class="field-label">Description</label>
+          <textarea class="field-input" id="proj-desc" rows="3" placeholder="Project description, scope, objectives…" style="resize:vertical;"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('projectModal')">Cancel</button>
+      <button class="btn-save" onclick="saveProject()">Save Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- TASK MODAL -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal" style="max-width:620px;">
+    <div class="modal-header">
+      <span class="modal-title" id="taskModalTitle">New Task</span>
+      <button class="modal-close" onclick="closeModal('taskModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label required">Task Name</label><input type="text" class="field-input" id="task-name" placeholder="Task name"></div>
+        <div class="field-group"><label class="field-label required">Project</label>
+          <select class="field-select" id="task-project" onchange="loadPhasesForTask()"></select></div>
+        <div class="field-group"><label class="field-label">Phase</label>
+          <select class="field-select" id="task-phase"><option value="">— No phase —</option></select></div>
+        <div class="field-group"><label class="field-label">Assigned To</label>
+          <select class="field-select" id="task-assignee"><option value="">— Unassigned —</option></select></div>
+        <div class="field-group"><label class="field-label">Priority</label>
+          <select class="field-select" id="task-priority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select></div>
+        <div class="field-group"><label class="field-label">Status</label>
+          <select class="field-select" id="task-status">
+            <option value="not_started">Not Started</option>
+            <option value="in_progress">In Progress</option>
+            <option value="review">In Review</option>
+            <option value="completed">Completed</option>
+            <option value="blocked">Blocked</option>
+          </select></div>
+        <div class="field-group"><label class="field-label">WBS Code</label><input type="text" class="field-input" id="task-wbs" placeholder="e.g. 1.2.3"></div>
+        <div class="field-group"><label class="field-label">Start Date</label><input type="date" class="field-input" id="task-start"></div>
+        <div class="field-group"><label class="field-label">Due Date</label><input type="date" class="field-input" id="task-due"></div>
+        <div class="field-group"><label class="field-label">Estimated Hours</label><input type="text" class="field-input" id="task-est-hrs" placeholder="0" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Progress %</label><input type="range" id="task-progress" min="0" max="100" value="0" style="width:100%;margin-top:10px;" oninput="document.getElementById('task-progress-val').textContent=this.value+'%'">
+          <div style="font-size:12px;color:var(--text-mid);text-align:right;" id="task-progress-val">0%</div></div>
+        <div class="field-group col-span-2"><label class="field-label">Description</label>
+          <textarea class="field-input" id="task-desc" rows="2" placeholder="Task description, acceptance criteria…" style="resize:vertical;"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('taskModal')">Cancel</button>
+      <button class="btn-save" onclick="saveTask()">Save Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- TIME ENTRY MODAL -->
+<div class="modal-overlay" id="timeEntryModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <span class="modal-title" id="timeModalTitle">Log Time</span>
+      <button class="modal-close" onclick="closeModal('timeEntryModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group"><label class="field-label required">Date</label><input type="date" class="field-input" id="te-date"></div>
+        <div class="field-group"><label class="field-label required">Hours</label><input type="text" class="field-input" id="te-hours" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcBillable()"></div>
+        <div class="field-group"><label class="field-label required">Employee</label>
+          <select class="field-select" id="te-employee"></select></div>
+        <div class="field-group"><label class="field-label required">Project</label>
+          <select class="field-select" id="te-project" onchange="loadTasksForTE()"></select></div>
+        <div class="field-group"><label class="field-label">Task</label>
+          <select class="field-select" id="te-task"><option value="">— No specific task —</option></select></div>
+        <div class="field-group"><label class="field-label">Hour Type</label>
+          <select class="field-select" id="te-type">
+            <option value="regular">Regular</option>
+            <option value="overtime">Overtime</option>
+            <option value="pto">PTO</option>
+            <option value="holiday">Holiday</option>
+            <option value="travel">Travel</option>
+          </select></div>
+        <div class="field-group">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-mid);cursor:pointer;margin-top:22px;">
+            <input type="checkbox" id="te-billable" checked style="accent-color:var(--gold);" onchange="calcBillable()"> Billable
+          </label></div>
+        <div class="field-group"><label class="field-label">Billing Rate ($/hr)</label>
+          <input type="text" class="field-input" id="te-rate" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcBillable()"></div>
+        <div class="field-group"><label class="field-label">Billable Amount</label>
+          <input type="text" class="field-input" id="te-amount" placeholder="0.00" readonly style="background:var(--section-bg);"></div>
+        <div class="field-group col-span-2"><label class="field-label">Description / Notes</label>
+          <input type="text" class="field-input" id="te-desc" placeholder="What did you work on?"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('timeEntryModal')">Cancel</button>
+      <button class="btn-save" onclick="saveTimeEntry()">Save Entry</button>
+    </div>
+  </div>
+</div>
+
 <div class="save-toast" id="saveToast"></div>
 
 <script>
@@ -3254,10 +3553,9 @@ function buildOfficerCard(data) {
 function switchModule(module) {
   document.querySelectorAll('.topbar-nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('nav-' + module)?.classList.add('active');
-  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub','view-tax'].forEach(id => {
+  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub','view-tax','view-projects'].forEach(id => {
     document.getElementById(id)?.classList.remove('active');
   });
-  // Sidebar only visible for Companies module
   setSidebarVisible(module === 'companies');
   if (module === 'companies') {
     showDashboard();
@@ -3270,6 +3568,9 @@ function switchModule(module) {
   } else if (module === 'tax') {
     document.getElementById('view-tax').classList.add('active');
     loadTaxModule();
+  } else if (module === 'projects') {
+    document.getElementById('view-projects').classList.add('active');
+    loadPMModule();
   }
 }
 
@@ -7824,6 +8125,709 @@ function renderTaxDocsList() {
       </div>
       <button onclick="taxDocsList.splice(${i},1);renderTaxDocsList();" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:18px;line-height:1;">×</button>
     </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════
+//  BATCH 1 — PROJECT MANAGEMENT MODULE
+// ═══════════════════════════════════════════════════
+
+let pmCompanyId = null;
+let pmProjects  = [];
+let pmEmployees = [];
+let pmTasks     = [];
+let editingProjectId = null;
+let editingTaskId    = null;
+let editingTimeId    = null;
+
+// ── STATUS / PRIORITY HELPERS ──
+const TASK_STATUS_LABELS = { not_started:'Not Started', in_progress:'In Progress', review:'In Review', completed:'Completed', blocked:'Blocked' };
+const TASK_STATUS_COLS   = ['not_started','in_progress','review','completed','blocked'];
+const PRIORITY_CLASS     = { critical:'priority-critical', high:'priority-high', medium:'priority-medium', low:'priority-low' };
+const STATUS_COLORS      = { active:'#27ae60', on_hold:'#e67e22', completed:'#2980b9', cancelled:'#95a5a6' };
+
+function pmStatusPill(s) {
+  const colors = { active:'status-active', on_hold:'status-void', completed:'status-posted', cancelled:'', not_started:'', in_progress:'status-partial', review:'status-posted', blocked:'status-void' };
+  return `<span class="status-pill ${colors[s]||''}">${TASK_STATUS_LABELS[s]||s}</span>`;
+}
+
+// ── LOAD PM MODULE ──
+async function loadPMModule() {
+  showLoading('Loading projects…');
+  const { data: companies } = await sb.from('companies').select('id,legal_name').order('legal_name');
+  const sel = document.getElementById('pm-entity-select');
+  sel.innerHTML = '<option value="">— All companies —</option>' +
+    (companies||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
+  if (companies?.length && !pmCompanyId) {
+    pmCompanyId = companies[0].id;
+    sel.value = pmCompanyId;
+  } else if (pmCompanyId) {
+    sel.value = pmCompanyId;
+  }
+  await loadPMData();
+  hideLoading();
+}
+
+async function onPMEntityChange() {
+  pmCompanyId = document.getElementById('pm-entity-select').value || null;
+  await loadPMData();
+}
+
+async function loadPMData() {
+  // Load projects for company
+  let q = sb.from('projects').select('*').order('created_at',{ascending:false});
+  if (pmCompanyId) q = q.eq('company_id', pmCompanyId);
+  const { data: projects } = await q;
+  pmProjects = projects || [];
+
+  // Load employees
+  let eq = sb.from('employees').select('id,first_name,last_name,job_title').eq('status','active').order('last_name');
+  if (pmCompanyId) eq = eq.eq('company_id', pmCompanyId);
+  const { data: emps } = await eq;
+  pmEmployees = emps || [];
+
+  renderPMProjectSidebar();
+  populateProjectDropdowns();
+  showPMPanel('dashboard');
+  loadPMDashboard();
+}
+
+function renderPMProjectSidebar() {
+  const list = document.getElementById('pm-project-list');
+  if (!pmProjects.length) {
+    list.innerHTML = `<div style="padding:8px 16px;font-size:12px;color:var(--text-light);">No projects yet</div>`;
+    return;
+  }
+  list.innerHTML = pmProjects.map(p => `
+    <button class="pm-sidebar-btn" onclick="focusProject('${p.id}')" style="gap:8px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:${p.color||'#b8965a'};flex-shrink:0;"></span>
+      <span style="overflow:hidden;text-overflow:ellipsis;">${p.project_name}</span>
+    </button>`).join('');
+}
+
+function populateProjectDropdowns() {
+  const opts = '<option value="">— Select project —</option>' +
+    pmProjects.map(p=>`<option value="${p.id}">${p.project_name}</option>`).join('');
+  const allOpts = '<option value="">All projects</option>' +
+    pmProjects.map(p=>`<option value="${p.id}">${p.project_name}</option>`).join('');
+  ['kanban-project-filter','time-project-filter'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.innerHTML = allOpts;
+  });
+  ['gantt-project-filter','wbs-project-filter','task-project','te-project'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.innerHTML = opts;
+  });
+  const empOpts = '<option value="">— Unassigned —</option>' +
+    pmEmployees.map(e=>`<option value="${e.id}">${e.last_name}, ${e.first_name}</option>`).join('');
+  ['task-assignee','te-employee'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.innerHTML = empOpts;
+  });
+}
+
+// ── PM PANEL NAVIGATION ──
+function showPMPanel(panelId) {
+  document.querySelectorAll('.pm-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.pm-sidebar-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('pm-panel-' + panelId)?.classList.add('active');
+  document.getElementById('pm-nav-'   + panelId)?.classList.add('active');
+  if (panelId === 'kanban')    loadKanban();
+  if (panelId === 'gantt')     loadGantt();
+  if (panelId === 'wbs')       loadWBS();
+  if (panelId === 'time')      loadTimeEntries();
+}
+
+function focusProject(projectId) {
+  document.getElementById('kanban-project-filter').value = projectId;
+  document.getElementById('gantt-project-filter').value  = projectId;
+  document.getElementById('wbs-project-filter').value    = projectId;
+  document.getElementById('time-project-filter').value   = projectId;
+  showPMPanel('kanban');
+}
+
+// ── DASHBOARD ──
+async function loadPMDashboard() {
+  const c = document.getElementById('pm-dashboard-body');
+  if (!pmProjects.length) {
+    c.innerHTML = `<div style="text-align:center;padding:60px 0;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--navy);margin-bottom:12px;">Welcome to Project Management</div>
+      <div style="font-size:14px;color:var(--text-mid);margin-bottom:24px;">Create your first project to get started.</div>
+      <button class="btn-save" onclick="openProjectModal()">+ Create First Project</button>
+    </div>`;
+    return;
+  }
+  // Load task counts per project
+  const projectIds = pmProjects.map(p=>p.id);
+  const { data: tasks } = await sb.from('project_tasks').select('project_id,status,actual_hours,estimated_hours').in('project_id', projectIds);
+  const { data: timeData } = await sb.from('time_entries').select('project_id,hours,billable_amount').in('project_id', projectIds);
+  const taskMap = {}, timeMap = {};
+  (tasks||[]).forEach(t => {
+    if (!taskMap[t.project_id]) taskMap[t.project_id] = { total:0, done:0, hrs_est:0, hrs_act:0 };
+    taskMap[t.project_id].total++;
+    if (t.status === 'completed') taskMap[t.project_id].done++;
+    taskMap[t.project_id].hrs_est += parseFloat(t.estimated_hours||0);
+    taskMap[t.project_id].hrs_act += parseFloat(t.actual_hours||0);
+  });
+  (timeData||[]).forEach(t => {
+    if (!timeMap[t.project_id]) timeMap[t.project_id] = { hours:0, billable:0 };
+    timeMap[t.project_id].hours    += parseFloat(t.hours||0);
+    timeMap[t.project_id].billable += parseFloat(t.billable_amount||0);
+  });
+
+  const totalActive = pmProjects.filter(p=>p.status==='active').length;
+  const totalTasks  = Object.values(taskMap).reduce((s,t)=>s+t.total,0);
+  const totalHours  = Object.values(timeMap).reduce((s,t)=>s+t.hours,0);
+  const totalBillable = Object.values(timeMap).reduce((s,t)=>s+t.billable,0);
+
+  c.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;">
+      ${[
+        ['Active Projects', totalActive, 'of '+pmProjects.length+' total'],
+        ['Open Tasks', totalTasks, 'across all projects'],
+        ['Hours Logged', totalHours.toFixed(1)+'h', 'this period'],
+        ['Billable Revenue', '$'+totalBillable.toLocaleString('en-US',{minimumFractionDigits:2}), 'uninvoiced'],
+      ].map(([label,val,sub])=>`
+        <div class="dash-card"><div class="dash-card-label">${label}</div>
+        <div class="dash-card-value">${val}</div>
+        <div class="dash-card-sub">${sub}</div></div>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      ${pmProjects.map(p => {
+        const tm = taskMap[p.id]||{total:0,done:0,hrs_est:0,hrs_act:0};
+        const te = timeMap[p.id]||{hours:0,billable:0};
+        const pct = tm.total ? Math.round((tm.done/tm.total)*100) : 0;
+        const circumference = 2 * Math.PI * 18;
+        const dashOffset = circumference * (1 - pct/100);
+        return `<div class="return-card">
+          <div class="return-card-header">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:10px;height:10px;border-radius:50%;background:${p.color||'#b8965a'};flex-shrink:0;"></div>
+              <div>
+                <div class="return-card-title">${p.project_name}</div>
+                <div class="return-card-meta">${p.project_number||''} · ${p.project_type?.replace(/_/g,' ')||''} · Due ${p.end_date||'TBD'}</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <svg width="44" height="44"><circle class="progress-ring-bg" cx="22" cy="22" r="18"/><circle class="progress-ring-fill progress-ring" cx="22" cy="22" r="18" stroke-dasharray="${circumference}" stroke-dashoffset="${dashOffset}"/><text x="22" y="27" text-anchor="middle" style="font-size:11px;fill:var(--navy);font-weight:500;">${pct}%</text></svg>
+              ${statusPill(p.status)}
+            </div>
+          </div>
+          <div class="return-card-body">
+            <div style="display:flex;gap:20px;font-size:13px;flex-wrap:wrap;">
+              <span style="color:var(--text-mid);">Tasks: <strong>${tm.done}/${tm.total}</strong></span>
+              <span style="color:var(--text-mid);">Est: <strong>${tm.hrs_est.toFixed(1)}h</strong></span>
+              <span style="color:var(--text-mid);">Actual: <strong>${te.hours.toFixed(1)}h</strong></span>
+              <span style="color:var(--text-mid);">Contract: <strong>$${parseFloat(p.contract_value||0).toLocaleString()}</strong></span>
+            </div>
+            <div style="margin-top:10px;display:flex;gap:8px;">
+              <button onclick="editProject('${p.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;padding:0;">✏ Edit</button>
+              <button onclick="focusProject('${p.id}')" style="background:none;border:none;color:var(--navy);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;padding:0;">🗂 Kanban</button>
+              <button onclick="document.getElementById('gantt-project-filter').value='${p.id}';showPMPanel('gantt')" style="background:none;border:none;color:var(--navy);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;padding:0;">📅 Gantt</button>
+              <button onclick="openTimeEntryModal('${p.id}')" style="background:none;border:none;color:var(--navy);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;padding:0;">⏱ Log Time</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+// ── KANBAN ──
+async function loadKanban() {
+  const projFilter = document.getElementById('kanban-project-filter')?.value || '';
+  let q = sb.from('project_tasks').select('*, employees(first_name,last_name)').order('sort_order');
+  if (projFilter) q = q.eq('project_id', projFilter);
+  else if (pmProjects.length) q = q.in('project_id', pmProjects.map(p=>p.id));
+  const { data: tasks } = await q;
+  pmTasks = tasks || [];
+
+  const c = document.getElementById('pm-kanban-body');
+  if (!pmTasks.length) {
+    c.innerHTML = `<div class="empty-state"><div class="empty-state-title">No tasks yet</div><div>Create your first task with the + Add Task button.</div></div>`;
+    return;
+  }
+
+  const cols = {
+    not_started: { label:'Not Started', tasks:[] },
+    in_progress:  { label:'In Progress',  tasks:[] },
+    review:       { label:'In Review',     tasks:[] },
+    completed:    { label:'Completed',     tasks:[] },
+    blocked:      { label:'Blocked',       tasks:[] },
+  };
+  pmTasks.forEach(t => { if (cols[t.status]) cols[t.status].tasks.push(t); });
+
+  c.innerHTML = `<div class="kanban-board">` +
+    Object.entries(cols).map(([status,col]) => `
+      <div class="kanban-col">
+        <div class="kanban-col-header">
+          <span>${col.label}</span>
+          <span style="background:var(--border-light);border-radius:10px;padding:2px 7px;font-size:10px;">${col.tasks.length}</span>
+        </div>
+        ${col.tasks.map(t => {
+          const proj = pmProjects.find(p=>p.id===t.project_id);
+          return `<div class="kanban-card" onclick="editTask('${t.id}')">
+            <div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:4px;">
+              <div class="project-color-strip" style="background:${proj?.color||'#b8965a'};height:14px;margin-top:2px;"></div>
+              <div class="kanban-card-title">${t.task_name}</div>
+            </div>
+            ${t.wbs_code?`<div style="font-size:10px;color:var(--text-light);margin-bottom:4px;">WBS: ${t.wbs_code}</div>`:''}
+            <div class="kanban-card-meta">
+              <span class="kanban-card-priority ${PRIORITY_CLASS[t.priority]||''}">${t.priority||'medium'}</span>
+              <span>${t.due_date?'Due '+fmtDate(t.due_date):''}</span>
+            </div>
+            ${t.employees?`<div style="font-size:11px;color:var(--text-light);margin-top:5px;">👤 ${t.employees.last_name}, ${t.employees.first_name}</div>`:''}
+            ${t.progress_pct>0?`<div style="height:3px;background:var(--border-light);border-radius:2px;margin-top:6px;"><div style="height:3px;background:var(--gold);border-radius:2px;width:${t.progress_pct}%;"></div></div>`:''}
+          </div>`;
+        }).join('')}
+        <button onclick="openTaskModalForStatus('${status}')" style="background:none;border:2px dashed var(--border);border-radius:var(--radius);padding:8px;width:100%;cursor:pointer;font-size:12px;color:var(--text-light);font-family:'DM Sans',sans-serif;">+ Add task</button>
+      </div>`).join('') + `</div>`;
+}
+
+// ── GANTT ──
+async function loadGantt() {
+  const projFilter = document.getElementById('gantt-project-filter')?.value || '';
+  let projects = pmProjects;
+  if (projFilter) projects = pmProjects.filter(p=>p.id===projFilter);
+
+  if (!projects.length) {
+    document.getElementById('pm-gantt-body').innerHTML = `<div class="empty-state"><div class="empty-state-title">No projects to display</div></div>`;
+    return;
+  }
+
+  const projectIds = projects.map(p=>p.id);
+  let q = sb.from('project_tasks').select('*').in('project_id', projectIds).order('sort_order');
+  const { data: tasks } = await q;
+  const allItems = tasks||[];
+
+  // Determine date range
+  const allDates = [...projects.map(p=>p.start_date), ...projects.map(p=>p.end_date), ...allItems.map(t=>t.start_date), ...allItems.map(t=>t.due_date)].filter(Boolean);
+  const minDate = allDates.length ? new Date(allDates.reduce((a,b)=>a<b?a:b)) : new Date();
+  const maxDate = allDates.length ? new Date(allDates.reduce((a,b)=>a>b?a:b)) : new Date(minDate.getTime()+90*86400000);
+  minDate.setDate(1);
+  maxDate.setDate(28);
+
+  // Build month columns
+  const months = [];
+  let cur = new Date(minDate);
+  while (cur <= maxDate) {
+    months.push(new Date(cur));
+    cur.setMonth(cur.getMonth()+1);
+  }
+  if (months.length < 3) { months.push(new Date(maxDate)); months.push(new Date(maxDate)); }
+  const totalDays = (maxDate - minDate) / 86400000 || 1;
+
+  const pctFromDate = d => {
+    if (!d) return null;
+    return Math.max(0, Math.min(100, ((new Date(d) - minDate) / 86400000) / totalDays * 100));
+  };
+  const widthFromDates = (s,e) => {
+    if (!s||!e) return 5;
+    return Math.max(1, ((new Date(e)-new Date(s))/86400000/totalDays*100));
+  };
+
+  const today = new Date();
+  const todayPct = pctFromDate(today.toISOString().slice(0,10));
+
+  let html = `<div class="gantt-container">
+    <div class="gantt-header">
+      <div class="gantt-task-col">Task / Project</div>
+      <div class="gantt-timeline" style="position:relative;">
+        ${months.map(m=>`<div class="gantt-month">${m.toLocaleString('default',{month:'short',year:'2-digit'})}</div>`).join('')}
+      </div>
+    </div>`;
+
+  // Project rows + task rows
+  for (const proj of projects) {
+    const projStart = pctFromDate(proj.start_date);
+    const projWidth = widthFromDates(proj.start_date, proj.end_date);
+    html += `
+      <div class="gantt-row" style="background:var(--section-bg);">
+        <div class="gantt-task-label" style="font-weight:600;font-size:13px;">
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${proj.color||'#b8965a'};margin-right:6px;"></span>
+          ${proj.project_name}
+        </div>
+        <div class="gantt-bar-area">
+          ${todayPct!==null?`<div class="gantt-today-line" style="left:${todayPct}%;"></div>`:''}
+          ${projStart!==null?`<div class="gantt-bar" style="left:${projStart}%;width:${projWidth}%;background:${proj.color||'#b8965a'};opacity:0.25;min-width:4px;"></div>`:''}
+        </div>
+      </div>`;
+
+    const projTasks = allItems.filter(t=>t.project_id===proj.id);
+    for (const t of projTasks) {
+      const taskStart = pctFromDate(t.start_date||t.due_date);
+      const taskWidth = widthFromDates(t.start_date, t.due_date) || 2;
+      const statusColor = {not_started:'#95a5a6',in_progress:'#3498db',review:'#9b59b6',completed:'#27ae60',blocked:'#e74c3c'}[t.status]||'#95a5a6';
+      html += `
+        <div class="gantt-row" onclick="editTask('${t.id}')" style="cursor:pointer;">
+          <div class="gantt-task-label" style="padding-left:28px;color:var(--text-mid);">
+            ${t.wbs_code?`<span style="font-size:10px;color:var(--text-light);margin-right:6px;">${t.wbs_code}</span>`:''}
+            ${t.task_name}
+          </div>
+          <div class="gantt-bar-area">
+            ${todayPct!==null?`<div class="gantt-today-line" style="left:${todayPct}%;"></div>`:''}
+            ${taskStart!==null?`<div class="gantt-bar" style="left:${taskStart}%;width:${taskWidth}%;background:${statusColor};min-width:6px;" title="${t.task_name}"></div>`:''}
+          </div>
+        </div>`;
+    }
+  }
+
+  html += `</div>
+    <div style="display:flex;align-items:center;gap:16px;padding:10px 14px;font-size:11px;color:var(--text-light);border-top:1px solid var(--border-light);flex-wrap:wrap;">
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:14px;height:3px;background:var(--gold);display:inline-block;opacity:0.7;"></span> Today</span>
+      ${Object.entries({not_started:'#95a5a6',in_progress:'#3498db',review:'#9b59b6',completed:'#27ae60',blocked:'#e74c3c'}).map(([k,v])=>
+        `<span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:${v};display:inline-block;"></span> ${TASK_STATUS_LABELS[k]||k}</span>`
+      ).join('')}
+    </div>`;
+
+  document.getElementById('pm-gantt-body').innerHTML = html;
+}
+
+// ── WBS ──
+async function loadWBS() {
+  const projId = document.getElementById('wbs-project-filter')?.value;
+  if (!projId) {
+    document.getElementById('pm-wbs-body').innerHTML = `<div class="empty-state"><div class="empty-state-title">Select a project</div></div>`;
+    return;
+  }
+  const { data: phases } = await sb.from('project_phases').select('*').eq('project_id',projId).order('sort_order');
+  const { data: tasks }  = await sb.from('project_tasks').select('*, employees(first_name,last_name)').eq('project_id',projId).order('wbs_code').order('sort_order');
+
+  let html = `<div style="border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+    <div class="wbs-row" style="background:var(--navy);color:var(--gold-light);">
+      <div class="wbs-cell" style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;">WBS</div>
+      <div class="wbs-cell" style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;">Task Name</div>
+      <div class="wbs-cell" style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;">Assigned</div>
+      <div class="wbs-cell" style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;">Status</div>
+      <div class="wbs-cell" style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;">Priority</div>
+      <div class="wbs-cell" style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;">Due Date</div>
+      <div class="wbs-cell" style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;">Est Hrs</div>
+      <div class="wbs-cell"></div>
+    </div>`;
+
+  // Group tasks by phase, then no-phase
+  const phasedTasks = {};
+  const noPhaseTasks = [];
+  (tasks||[]).forEach(t => {
+    if (t.phase_id) { if(!phasedTasks[t.phase_id]) phasedTasks[t.phase_id]=[]; phasedTasks[t.phase_id].push(t); }
+    else noPhaseTasks.push(t);
+  });
+
+  const renderTask = (t, indent='wbs-indent-2') => `
+    <div class="wbs-row" onclick="editTask('${t.id}')" style="cursor:pointer;">
+      <div class="wbs-cell ${indent}" style="color:var(--text-light);font-size:11px;">${t.wbs_code||'—'}</div>
+      <div class="wbs-cell ${indent}">${t.task_name}</div>
+      <div class="wbs-cell" style="font-size:12px;color:var(--text-mid);">${t.employees?t.employees.last_name+', '+t.employees.first_name[0]+'.':'—'}</div>
+      <div class="wbs-cell">${pmStatusPill(t.status)}</div>
+      <div class="wbs-cell"><span class="kanban-card-priority ${PRIORITY_CLASS[t.priority]||''}">${t.priority||'—'}</span></div>
+      <div class="wbs-cell" style="font-size:12px;color:var(--text-mid);">${t.due_date?fmtDate(t.due_date):'—'}</div>
+      <div class="wbs-cell" style="font-family:monospace;font-size:12px;text-align:right;">${parseFloat(t.estimated_hours||0).toFixed(1)}</div>
+      <div class="wbs-cell" style="text-align:center;">
+        <button onclick="event.stopPropagation();editTask('${t.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;">✏</button>
+      </div>
+    </div>`;
+
+  (phases||[]).forEach(ph => {
+    const phTasks = phasedTasks[ph.id]||[];
+    const totalHrs = phTasks.reduce((s,t)=>s+parseFloat(t.estimated_hours||0),0);
+    html += `<div class="wbs-row wbs-indent-1" style="background:var(--section-bg);font-weight:500;">
+      <div class="wbs-cell wbs-indent-1" style="color:var(--text-light);font-size:11px;">${ph.phase_number||''}</div>
+      <div class="wbs-cell wbs-indent-1" style="font-weight:600;color:var(--navy);">📁 ${ph.phase_name}</div>
+      <div class="wbs-cell"></div>
+      <div class="wbs-cell">${pmStatusPill(ph.status)}</div>
+      <div class="wbs-cell"></div>
+      <div class="wbs-cell" style="font-size:12px;color:var(--text-mid);">${ph.end_date?fmtDate(ph.end_date):'—'}</div>
+      <div class="wbs-cell" style="font-family:monospace;font-size:12px;text-align:right;">${totalHrs.toFixed(1)}</div>
+      <div class="wbs-cell"></div>
+    </div>`;
+    phTasks.forEach(t => { html += renderTask(t,'wbs-indent-2'); });
+  });
+
+  noPhaseTasks.forEach(t => { html += renderTask(t,'wbs-indent-1'); });
+
+  // Totals
+  const grandTotal = (tasks||[]).reduce((s,t)=>s+parseFloat(t.estimated_hours||0),0);
+  html += `<div class="wbs-row" style="background:var(--gold-pale);font-weight:600;">
+    <div class="wbs-cell" colspan="6"></div>
+    <div class="wbs-cell" style="color:var(--text-light);font-size:11px;"></div>
+    <div class="wbs-cell" style="font-weight:600;color:var(--navy);">Total Estimated</div>
+    <div class="wbs-cell"></div><div class="wbs-cell"></div><div class="wbs-cell"></div><div class="wbs-cell"></div>
+    <div class="wbs-cell" style="font-family:monospace;font-weight:700;text-align:right;">${grandTotal.toFixed(1)}h</div>
+    <div class="wbs-cell"></div>
+  </div>`;
+  html += `</div>`;
+  document.getElementById('pm-wbs-body').innerHTML = html;
+}
+
+// ── TIME ENTRIES ──
+async function loadTimeEntries() {
+  const projFilter = document.getElementById('time-project-filter')?.value || '';
+  const fromDate   = document.getElementById('time-from')?.value || '';
+  const toDate     = document.getElementById('time-to')?.value   || '';
+
+  let q = sb.from('time_entries').select('*, project:projects(project_name,color), task:project_tasks(task_name), employee:employees(first_name,last_name)').order('entry_date',{ascending:false});
+  if (projFilter) q = q.eq('project_id', projFilter);
+  else if (pmProjects.length) q = q.in('project_id', pmProjects.map(p=>p.id));
+  if (fromDate) q = q.gte('entry_date', fromDate);
+  if (toDate)   q = q.lte('entry_date', toDate);
+  const { data: entries } = await q;
+
+  const c = document.getElementById('pm-time-body');
+  if (!entries?.length) {
+    c.innerHTML = `<div class="empty-state"><div class="empty-state-title">No time entries yet</div><div>Log your first entry with the + Log Time button.</div></div>`;
+    return;
+  }
+
+  const totalHrs = entries.reduce((s,e)=>s+parseFloat(e.hours||0),0);
+  const totalBillable = entries.reduce((s,e)=>s+parseFloat(e.billable_amount||0),0);
+
+  c.innerHTML = `
+    <div style="display:flex;gap:16px;margin-bottom:16px;">
+      <div class="dash-card" style="flex:1;padding:12px 16px;">
+        <div class="dash-card-label">Total Hours</div>
+        <div class="dash-card-value">${totalHrs.toFixed(1)}h</div>
+      </div>
+      <div class="dash-card" style="flex:1;padding:12px 16px;">
+        <div class="dash-card-label">Billable Hours</div>
+        <div class="dash-card-value">${entries.filter(e=>e.is_billable).reduce((s,e)=>s+parseFloat(e.hours||0),0).toFixed(1)}h</div>
+      </div>
+      <div class="dash-card" style="flex:1;padding:12px 16px;">
+        <div class="dash-card-label">Billable Amount</div>
+        <div class="dash-card-value">$${totalBillable.toLocaleString('en-US',{minimumFractionDigits:2})}</div>
+      </div>
+    </div>
+    <table class="acct-table"><thead><tr>
+      <th>Date</th><th>Employee</th><th>Project</th><th>Task</th><th>Type</th>
+      <th style="text-align:right;">Hours</th><th style="text-align:right;">Rate</th>
+      <th style="text-align:right;">Billable</th><th>Status</th><th></th>
+    </tr></thead><tbody>` +
+    entries.map(e => `<tr>
+      <td>${fmtDate(e.entry_date)}</td>
+      <td>${e.employee?e.employee.last_name+', '+e.employee.first_name:'—'}</td>
+      <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${e.project?.color||'#b8965a'};margin-right:5px;"></span>${e.project?.project_name||'—'}</td>
+      <td style="color:var(--text-mid);font-size:12px;">${e.task?.task_name||'—'}</td>
+      <td style="text-transform:capitalize;font-size:12px;">${e.hour_type||'regular'}</td>
+      <td class="number">${parseFloat(e.hours||0).toFixed(2)}</td>
+      <td class="number">${e.billing_rate?'$'+parseFloat(e.billing_rate).toFixed(2):'—'}</td>
+      <td class="amount">${e.is_billable?'$'+parseFloat(e.billable_amount||0).toFixed(2):'—'}</td>
+      <td>${pmStatusPill(e.status)}</td>
+      <td>
+        <button onclick="editTimeEntry('${e.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button>
+      </td>
+    </tr>`).join('') + `</tbody></table>`;
+}
+
+// ── PROJECT MODAL ──
+async function openProjectModal(id=null) {
+  editingProjectId = id;
+  document.getElementById('projectModalTitle').textContent = id ? 'Edit Project' : 'New Project';
+
+  // Populate company dropdown
+  const { data: companies } = await sb.from('companies').select('id,legal_name').order('legal_name');
+  document.getElementById('proj-company').innerHTML = companies.map(c=>`<option value="${c.id}" ${c.id===pmCompanyId?'selected':''}>${c.legal_name}</option>`).join('');
+
+  // Populate client dropdown
+  const { data: customers } = await sb.from('customers').select('id,name').order('name');
+  document.getElementById('proj-client').innerHTML = '<option value="">— No client —</option>' +
+    (customers||[]).map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+
+  // Populate PM dropdown
+  document.getElementById('proj-manager').innerHTML = '<option value="">— Assign PM —</option>' +
+    pmEmployees.map(e=>`<option value="${e.id}">${e.last_name}, ${e.first_name}</option>`).join('');
+
+  // Clear fields
+  if (!id) {
+    ['proj-name','proj-number','proj-desc','proj-start','proj-end','proj-value','proj-hours'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+    document.getElementById('proj-type').value='fixed_price';
+    document.getElementById('proj-status').value='active';
+    document.getElementById('proj-color').value='#b8965a';
+  } else {
+    const proj = pmProjects.find(p=>p.id===id);
+    if (proj) {
+      const s = (fid,v) => { const el=document.getElementById(fid); if(el) el.value=v||''; };
+      s('proj-name',proj.project_name); s('proj-number',proj.project_number);
+      s('proj-company',proj.company_id); s('proj-client',proj.client_id);
+      s('proj-type',proj.project_type); s('proj-status',proj.status);
+      s('proj-start',proj.start_date); s('proj-end',proj.end_date);
+      s('proj-value',proj.contract_value); s('proj-hours',proj.estimated_hours);
+      s('proj-manager',proj.project_manager_id); s('proj-desc',proj.description);
+      s('proj-color',proj.color||'#b8965a');
+    }
+  }
+  document.getElementById('projectModal').classList.add('show');
+}
+
+async function editProject(id) { await openProjectModal(id); }
+
+async function saveProject() {
+  const name = document.getElementById('proj-name').value.trim();
+  if (!name) { showToast('⚠ Project name required',true); return; }
+  showLoading('Saving project…');
+  const g = id => document.getElementById(id)?.value || '';
+  const pid = editingProjectId || ('proj-'+Date.now());
+  const { error } = await sb.from('projects').upsert({
+    id:pid, company_id:g('proj-company')||pmCompanyId,
+    project_name:name, project_number:g('proj-number'),
+    project_type:g('proj-type'), status:g('proj-status'),
+    client_id:g('proj-client')||null, project_manager_id:g('proj-manager')||null,
+    start_date:g('proj-start')||null, end_date:g('proj-end')||null,
+    contract_value:parseFloat(g('proj-value'))||0,
+    estimated_hours:parseFloat(g('proj-hours'))||0,
+    description:g('proj-desc'), color:g('proj-color')||'#b8965a',
+    updated_at:new Date().toISOString(),
+  });
+  hideLoading();
+  if (error) { showToast('Error: '+error.message,true); return; }
+  closeModal('projectModal');
+  showToast('✓ Project saved');
+  await loadPMData();
+}
+
+// ── TASK MODAL ──
+async function openTaskModal(id=null, defaultStatus=null) {
+  editingTaskId = id;
+  document.getElementById('taskModalTitle').textContent = id ? 'Edit Task' : 'New Task';
+  document.getElementById('task-project').innerHTML = pmProjects.map(p=>`<option value="${p.id}">${p.project_name}</option>`).join('');
+  document.getElementById('task-assignee').innerHTML = '<option value="">— Unassigned —</option>' +
+    pmEmployees.map(e=>`<option value="${e.id}">${e.last_name}, ${e.first_name}</option>`).join('');
+
+  if (!id) {
+    ['task-name','task-wbs','task-start','task-due','task-est-hrs','task-desc'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+    document.getElementById('task-priority').value='medium';
+    document.getElementById('task-status').value=defaultStatus||'not_started';
+    document.getElementById('task-progress').value=0;
+    document.getElementById('task-progress-val').textContent='0%';
+    if (pmProjects.length) {
+      document.getElementById('task-project').value = pmProjects[0].id;
+      await loadPhasesForTask();
+    }
+  } else {
+    showLoading('Loading task…');
+    const { data:t } = await sb.from('project_tasks').select('*').eq('id',id).single();
+    hideLoading();
+    if (t) {
+      const s = (fid,v) => { const el=document.getElementById(fid); if(el) el.value=v||''; };
+      s('task-name',t.task_name); s('task-project',t.project_id);
+      s('task-priority',t.priority); s('task-status',t.status);
+      s('task-wbs',t.wbs_code); s('task-start',t.start_date); s('task-due',t.due_date);
+      s('task-est-hrs',t.estimated_hours); s('task-desc',t.description);
+      s('task-assignee',t.assigned_to_id);
+      document.getElementById('task-progress').value = t.progress_pct||0;
+      document.getElementById('task-progress-val').textContent = (t.progress_pct||0)+'%';
+      await loadPhasesForTask();
+      document.getElementById('task-phase').value = t.phase_id||'';
+    }
+  }
+  document.getElementById('taskModal').classList.add('show');
+}
+
+function openTaskModalForStatus(status) { openTaskModal(null, status); }
+
+async function editTask(id) { await openTaskModal(id); }
+
+async function loadPhasesForTask() {
+  const projId = document.getElementById('task-project')?.value;
+  const sel = document.getElementById('task-phase');
+  if (!projId) { sel.innerHTML='<option value="">— No phase —</option>'; return; }
+  const { data:phases } = await sb.from('project_phases').select('id,phase_name').eq('project_id',projId).order('sort_order');
+  sel.innerHTML = '<option value="">— No phase —</option>' + (phases||[]).map(p=>`<option value="${p.id}">${p.phase_name}</option>`).join('');
+}
+
+async function saveTask() {
+  const name = document.getElementById('task-name').value.trim();
+  const projId = document.getElementById('task-project').value;
+  if (!name||!projId) { showToast('⚠ Task name and project required',true); return; }
+  showLoading('Saving task…');
+  const g = id => document.getElementById(id)?.value||'';
+  const tid = editingTaskId||('task-'+Date.now());
+  const pct = parseInt(document.getElementById('task-progress').value)||0;
+  const { error } = await sb.from('project_tasks').upsert({
+    id:tid, project_id:projId, phase_id:g('task-phase')||null,
+    task_name:name, description:g('task-desc'),
+    priority:g('task-priority'), status:g('task-status'),
+    assigned_to_id:g('task-assignee')||null,
+    wbs_code:g('task-wbs'), start_date:g('task-start')||null,
+    due_date:g('task-due')||null,
+    estimated_hours:parseFloat(g('task-est-hrs'))||0,
+    progress_pct:pct,
+    completed_date:pct===100?new Date().toISOString().slice(0,10):null,
+    updated_at:new Date().toISOString(),
+  });
+  hideLoading();
+  if (error) { showToast('Error: '+error.message,true); return; }
+  closeModal('taskModal');
+  showToast('✓ Task saved');
+  loadKanban();
+}
+
+// ── TIME ENTRY MODAL ──
+async function openTimeEntryModal(projectId=null) {
+  editingTimeId = null;
+  document.getElementById('timeModalTitle').textContent = 'Log Time';
+  document.getElementById('te-project').innerHTML = pmProjects.map(p=>`<option value="${p.id}" ${p.id===projectId?'selected':''}>${p.project_name}</option>`).join('');
+  document.getElementById('te-employee').innerHTML = '<option value="">— Select employee —</option>' +
+    pmEmployees.map(e=>`<option value="${e.id}">${e.last_name}, ${e.first_name}</option>`).join('');
+  document.getElementById('te-date').value = new Date().toISOString().slice(0,10);
+  ['te-hours','te-rate','te-desc'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+  document.getElementById('te-amount').value='0.00';
+  document.getElementById('te-type').value='regular';
+  document.getElementById('te-billable').checked=true;
+  await loadTasksForTE();
+  document.getElementById('timeEntryModal').classList.add('show');
+}
+
+async function editTimeEntry(id) {
+  showLoading('Loading entry…');
+  const { data:e } = await sb.from('time_entries').select('*').eq('id',id).single();
+  hideLoading();
+  editingTimeId = id;
+  document.getElementById('timeModalTitle').textContent='Edit Time Entry';
+  document.getElementById('te-project').innerHTML = pmProjects.map(p=>`<option value="${p.id}" ${p.id===e.project_id?'selected':''}>${p.project_name}</option>`).join('');
+  document.getElementById('te-employee').innerHTML = '<option value="">— Select —</option>'+pmEmployees.map(emp=>`<option value="${emp.id}" ${emp.id===e.employee_id?'selected':''}>${emp.last_name}, ${emp.first_name}</option>`).join('');
+  const s = (fid,v) => { const el=document.getElementById(fid); if(el) el.value=v||''; };
+  s('te-date',e.entry_date); s('te-hours',e.hours); s('te-rate',e.billing_rate);
+  s('te-amount',e.billable_amount); s('te-desc',e.description); s('te-type',e.hour_type);
+  document.getElementById('te-billable').checked=!!e.is_billable;
+  await loadTasksForTE();
+  document.getElementById('te-task').value=e.task_id||'';
+  document.getElementById('timeEntryModal').classList.add('show');
+}
+
+async function loadTasksForTE() {
+  const projId = document.getElementById('te-project')?.value;
+  const sel = document.getElementById('te-task');
+  if (!projId) { sel.innerHTML='<option value="">— No specific task —</option>'; return; }
+  const { data:tasks } = await sb.from('project_tasks').select('id,task_name,wbs_code').eq('project_id',projId).neq('status','completed').order('wbs_code');
+  sel.innerHTML = '<option value="">— No specific task —</option>' + (tasks||[]).map(t=>`<option value="${t.id}">${t.wbs_code?t.wbs_code+' — ':''}${t.task_name}</option>`).join('');
+}
+
+function calcBillable() {
+  const hrs    = parseFloat(document.getElementById('te-hours')?.value||0)||0;
+  const rate   = parseFloat(document.getElementById('te-rate')?.value||0)||0;
+  const billable = document.getElementById('te-billable')?.checked;
+  const amt = billable ? (hrs * rate) : 0;
+  const el = document.getElementById('te-amount');
+  if (el) el.value = amt.toFixed(2);
+}
+
+async function saveTimeEntry() {
+  const hrs = parseFloat(document.getElementById('te-hours').value||0);
+  const projId = document.getElementById('te-project').value;
+  const empId  = document.getElementById('te-employee').value;
+  const date   = document.getElementById('te-date').value;
+  if (!hrs||!projId||!empId||!date) { showToast('⚠ Date, hours, employee and project required',true); return; }
+  showLoading('Saving time entry…');
+  const g = id => document.getElementById(id)?.value||'';
+  const isBillable = document.getElementById('te-billable').checked;
+  const rate = parseFloat(g('te-rate'))||0;
+  const tid = editingTimeId||('te-'+Date.now());
+  const { error } = await sb.from('time_entries').upsert({
+    id:tid, project_id:projId, employee_id:empId, entry_date:date,
+    task_id:g('te-task')||null, hours:hrs, hour_type:g('te-type'),
+    description:g('te-desc'), is_billable:isBillable,
+    billing_rate:rate, billable_amount:isBillable?(hrs*rate):0,
+    status:'draft',
+  });
+  hideLoading();
+  if (error) { showToast('Error: '+error.message,true); return; }
+  closeModal('timeEntryModal');
+  showToast('✓ Time entry saved');
+  loadTimeEntries();
 }
 
 // ── INIT
