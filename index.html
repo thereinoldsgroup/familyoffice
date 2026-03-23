@@ -731,6 +731,7 @@
           <button class="acct-sidebar-btn"         id="acct-nav-reconcile"  onclick="showAcctView('reconcile')">  <span class="acct-icon">✅</span> Reconciliation</button>
           <button class="acct-sidebar-btn"         id="acct-nav-ic"         onclick="showAcctView('ic')">         <span class="acct-icon">🔄</span> Intercompany</button>
           <button class="acct-sidebar-btn"         id="acct-nav-payroll"    onclick="showAcctView('payroll')">    <span class="acct-icon">💼</span> Payroll</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-employees"  onclick="showAcctView('employees')">  <span class="acct-icon">👥</span> Employees</button>
           <button class="acct-sidebar-btn"         id="acct-nav-draws"      onclick="showAcctView('draws')">      <span class="acct-icon">👤</span> Owner Draws</button>
           <button class="acct-sidebar-btn"         id="acct-nav-assets"     onclick="showAcctView('assets')">     <span class="acct-icon">🏗️</span> Fixed Assets</button>
           <button class="acct-sidebar-btn"         id="acct-nav-sales-tax"  onclick="showAcctView('sales-tax')">  <span class="acct-icon">🧮</span> Sales Tax</button>
@@ -917,6 +918,15 @@
               <button class="btn-save" onclick="openPayrollModal()">+ New Payroll Run</button>
             </div>
             <div id="payrollContent"><div class="empty-state"><div class="empty-state-title">No payroll records yet</div></div></div>
+          </div>
+
+          <!-- EMPLOYEES -->
+          <div id="acct-view-employees" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Employee Database</div>
+              <button class="btn-save" onclick="openEmployeeModal()">+ Add Employee</button>
+            </div>
+            <div id="employeesContent"><div class="empty-state"><div class="empty-state-title">No employees yet</div></div></div>
           </div>
 
           <!-- OWNER DRAWS -->
@@ -1401,7 +1411,40 @@
           </div>
         </div>
 
-        <!-- Business Contact -->
+        <!-- Payroll Tax Rates -->
+        <div class="form-section">
+          <div class="form-section-header" onclick="toggleSection(this)">
+            <span class="section-icon">🧾</span>
+            <span class="form-section-title">Payroll Tax Rates</span>
+            <span class="form-section-toggle">▾</span>
+          </div>
+          <div class="form-section-body">
+            <div class="form-grid">
+              <div class="field-group">
+                <label class="field-label">State Reemployment (SUTA) Rate</label>
+                <input type="text" class="field-input" id="f-sutaRate" placeholder="e.g. 2.7" oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+                <span class="field-hint">Enter as a percentage (e.g. 2.7 for 2.7%). Update whenever the state revises your rate.</span>
+              </div>
+              <div class="field-group">
+                <label class="field-label">SUTA Wage Base ($)</label>
+                <input type="text" class="field-input" id="f-sutaWageBase" placeholder="7000" oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+                <span class="field-hint">Annual per-employee wage base for your state.</span>
+              </div>
+              <div class="field-group">
+                <label class="field-label">SUTA State</label>
+                <select class="field-select" id="f-sutaState">
+                  <option value="">— State —</option>
+                  <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">FUTA Rate (%)</label>
+                <input type="text" class="field-input" id="f-futaRate" placeholder="0.6" oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+                <span class="field-hint">Standard net FUTA rate is 0.6% after state credit. First $7,000 per employee.</span>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="form-section">
           <div class="form-section-header" onclick="toggleSection(this)">
             <span class="section-icon">👤</span>
@@ -2080,6 +2123,219 @@
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal('taxRateModal')">Cancel</button>
       <button class="btn-save" onclick="saveTaxRate()">Save Rate</button>
+    </div>
+  </div>
+</div>
+
+<!-- EMPLOYEE MODAL -->
+<div class="modal-overlay" id="employeeModal">
+  <div class="modal" style="max-width:820px;">
+    <div class="modal-header">
+      <span class="modal-title" id="employeeModalTitle">Add Employee</span>
+      <button class="modal-close" onclick="closeModal('employeeModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <!-- Inner tabs -->
+      <div class="inner-tabs" style="margin-bottom:20px;">
+        <button class="inner-tab active" onclick="switchEmpTab(this,'emp-tab-personal')">Personal Info</button>
+        <button class="inner-tab" onclick="switchEmpTab(this,'emp-tab-employment')">Employment</button>
+        <button class="inner-tab" onclick="switchEmpTab(this,'emp-tab-w4')">W-4 / Withholding</button>
+        <button class="inner-tab" onclick="switchEmpTab(this,'emp-tab-deductions')">Deductions</button>
+        <button class="inner-tab" onclick="switchEmpTab(this,'emp-tab-paycalc')">Pay Calculator</button>
+      </div>
+
+      <!-- PERSONAL INFO -->
+      <div id="emp-tab-personal">
+        <div class="form-grid">
+          <div class="field-group"><label class="field-label required">First Name</label><input type="text" class="field-input" id="emp-first" placeholder="First name"></div>
+          <div class="field-group"><label class="field-label required">Last Name</label><input type="text" class="field-input" id="emp-last" placeholder="Last name"></div>
+          <div class="field-group"><label class="field-label">Middle Name</label><input type="text" class="field-input" id="emp-middle" placeholder="Middle name"></div>
+          <div class="field-group"><label class="field-label">Preferred Name</label><input type="text" class="field-input" id="emp-preferred" placeholder="Goes by..."></div>
+          <div class="field-group">
+            <label class="field-label">SSN</label>
+            <div class="input-eye-wrap">
+              <input type="password" class="field-input" id="emp-ssn" placeholder="•••-••-••••" maxlength="11" oninput="formatSSN(this)">
+              <button class="eye-btn" onclick="toggleVisibility('emp-ssn',this)" type="button">👁</button>
+            </div>
+          </div>
+          <div class="field-group"><label class="field-label">Date of Birth</label><input type="date" class="field-input" id="emp-dob"></div>
+          <div class="field-group"><label class="field-label">Email</label><input type="email" class="field-input" id="emp-email" placeholder="employee@email.com"></div>
+          <div class="field-group"><label class="field-label">Phone</label><input type="tel" class="field-input" id="emp-phone" placeholder="(000) 000-0000" oninput="formatPhone(this)"></div>
+          <div class="field-group col-span-2"><label class="field-label">Address</label><input type="text" class="field-input" id="emp-addr1" placeholder="Street address"></div>
+          <div class="field-group"><label class="field-label">City</label><input type="text" class="field-input" id="emp-city" placeholder="City"></div>
+          <div class="field-group"><label class="field-label">State</label>
+            <select class="field-select" id="emp-state"><option value="">— State —</option>
+              <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
+            </select></div>
+          <div class="field-group"><label class="field-label">ZIP</label><input type="text" class="field-input" id="emp-zip" placeholder="00000"></div>
+        </div>
+      </div>
+
+      <!-- EMPLOYMENT -->
+      <div id="emp-tab-employment" style="display:none;">
+        <div class="form-grid">
+          <div class="field-group"><label class="field-label required">Hire Date</label><input type="date" class="field-input" id="emp-hire-date"></div>
+          <div class="field-group"><label class="field-label">Termination Date</label><input type="date" class="field-input" id="emp-term-date"></div>
+          <div class="field-group"><label class="field-label required">Status</label>
+            <select class="field-select" id="emp-status">
+              <option value="active">Active</option><option value="inactive">Inactive</option><option value="terminated">Terminated</option>
+            </select></div>
+          <div class="field-group"><label class="field-label required">Employee Type</label>
+            <select class="field-select" id="emp-type" onchange="toggleEmpTypeFields()">
+              <option value="w2">W-2 Employee</option>
+              <option value="contractor_1099">1099 Contractor</option>
+              <option value="owner_officer">Owner / Officer</option>
+              <option value="tipped">Tipped Employee</option>
+            </select></div>
+          <div class="field-group"><label class="field-label required">Pay Type</label>
+            <select class="field-select" id="emp-pay-type" onchange="togglePayTypeFields()">
+              <option value="hourly">Hourly</option><option value="salary">Salary</option>
+            </select></div>
+          <div class="field-group"><label class="field-label required">Pay Rate</label>
+            <input type="text" class="field-input" id="emp-pay-rate" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcPayPreview()">
+            <span class="field-hint" id="emp-pay-rate-hint">Hourly rate</span></div>
+          <div class="field-group"><label class="field-label required">Pay Frequency</label>
+            <select class="field-select" id="emp-pay-freq" onchange="calcPayPreview()">
+              <option value="weekly">Weekly (52/yr)</option>
+              <option value="biweekly" selected>Bi-Weekly (26/yr)</option>
+              <option value="semimonthly">Semi-Monthly (24/yr)</option>
+              <option value="monthly">Monthly (12/yr)</option>
+            </select></div>
+          <div class="field-group"><label class="field-label">Regular Hours/Week</label>
+            <input type="text" class="field-input" id="emp-reg-hours" placeholder="40" value="40" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcPayPreview()"></div>
+          <div class="field-group"><label class="field-label">Job Title</label><input type="text" class="field-input" id="emp-title" placeholder="Job title"></div>
+          <div class="field-group"><label class="field-label">Department</label><input type="text" class="field-input" id="emp-dept" placeholder="Department"></div>
+          <!-- Overtime -->
+          <div class="field-group col-span-2" style="background:var(--gold-pale);padding:14px;border-radius:var(--radius);border:1px solid var(--border);">
+            <p style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--navy);margin-bottom:12px;">Overtime Settings (OBBBA Compliant)</p>
+            <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr;">
+              <div class="field-group">
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-mid);cursor:pointer;">
+                  <input type="checkbox" id="emp-ot-eligible" checked style="accent-color:var(--gold);" onchange="toggleOTFields()"> Overtime Eligible
+                </label>
+              </div>
+              <div class="field-group" id="emp-ot-threshold-group">
+                <label class="field-label">OT Threshold (hrs/week)</label>
+                <input type="text" class="field-input" id="emp-ot-threshold" value="40" oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+              </div>
+              <div class="field-group" id="emp-ot-rate-group">
+                <label class="field-label">OT Rate Multiplier</label>
+                <select class="field-select" id="emp-ot-multiplier">
+                  <option value="1.5">1.5× (Time and a Half)</option>
+                  <option value="1.0">1.0× (Straight Time — OBBBA)</option>
+                  <option value="2.0">2.0× (Double Time)</option>
+                </select>
+                <span class="field-hint">OBBBA allows straight-time for OT in qualifying states</span>
+              </div>
+            </div>
+          </div>
+          <!-- Tipped -->
+          <div class="field-group col-span-2" id="emp-tipped-group" style="display:none;">
+            <label class="field-label">Tip Credit Rate ($/hr)</label>
+            <input type="text" class="field-input" id="emp-tip-credit" placeholder="2.13" oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+            <span class="field-hint">Federal tip credit minimum is $2.13/hr. Tips must bring total to at least federal minimum wage.</span>
+          </div>
+          <!-- GL Accounts -->
+          <div class="field-group"><label class="field-label">Wage Expense Account</label><select class="field-select" id="emp-wage-acct"></select></div>
+          <div class="field-group"><label class="field-label">Payroll Liability Account</label><select class="field-select" id="emp-liab-acct"></select></div>
+        </div>
+      </div>
+
+      <!-- W-4 / WITHHOLDING -->
+      <div id="emp-tab-w4" style="display:none;">
+        <div style="background:var(--gold-pale);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:20px;font-size:13px;color:var(--text-mid);">
+          Based on IRS Publication 15-T (Circular E) — 2025 Percentage Method Tables for Automated Payroll Systems
+        </div>
+        <div class="form-grid">
+          <div class="field-group"><label class="field-label required">Federal Filing Status (W-4)</label>
+            <select class="field-select" id="emp-w4-status" onchange="calcPayPreview()">
+              <option value="single">Single / MFS</option>
+              <option value="married_jointly">Married Filing Jointly</option>
+              <option value="head_of_household">Head of Household</option>
+              <option value="exempt">Exempt from Federal Withholding</option>
+            </select></div>
+          <div class="field-group">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-mid);cursor:pointer;margin-top:22px;">
+              <input type="checkbox" id="emp-w4-multiple-jobs" style="accent-color:var(--gold);" onchange="calcPayPreview()"> Step 2: Multiple Jobs / Spouse Works
+            </label>
+          </div>
+          <div class="field-group"><label class="field-label">Step 3: Dependents Amount ($)</label>
+            <input type="text" class="field-input" id="emp-w4-dependents" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcPayPreview()">
+            <span class="field-hint">Total from W-4 Step 3 (e.g. $2,000 per qualifying child)</span></div>
+          <div class="field-group"><label class="field-label">Step 4a: Other Income ($)</label>
+            <input type="text" class="field-input" id="emp-w4-other-income" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcPayPreview()">
+            <span class="field-hint">Non-wage income not subject to withholding</span></div>
+          <div class="field-group"><label class="field-label">Step 4b: Deductions ($)</label>
+            <input type="text" class="field-input" id="emp-w4-deductions" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcPayPreview()">
+            <span class="field-hint">Estimated itemized deductions exceeding standard deduction</span></div>
+          <div class="field-group"><label class="field-label">Step 4c: Extra Withholding ($/period)</label>
+            <input type="text" class="field-input" id="emp-w4-extra" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcPayPreview()"></div>
+          <hr style="border:none;border-top:1px solid var(--border-light);grid-column:span 2;margin:4px 0;">
+          <div class="field-group"><label class="field-label">State Withholding State</label>
+            <select class="field-select" id="emp-state-tax-state" onchange="calcPayPreview()">
+              <option value="">— No State Tax —</option>
+              <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
+            </select></div>
+          <div class="field-group"><label class="field-label">State Filing Status</label>
+            <select class="field-select" id="emp-state-status" onchange="calcPayPreview()">
+              <option value="single">Single</option><option value="married">Married</option>
+              <option value="head_of_household">Head of Household</option>
+            </select></div>
+          <div class="field-group"><label class="field-label">State Allowances</label>
+            <input type="text" class="field-input" id="emp-state-allowances" placeholder="0" value="0" oninput="this.value=this.value.replace(/[^0-9]/g,'');calcPayPreview()"></div>
+          <div class="field-group"><label class="field-label">State Extra Withholding ($/period)</label>
+            <input type="text" class="field-input" id="emp-state-extra" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcPayPreview()"></div>
+          <div class="field-group">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-mid);cursor:pointer;margin-top:22px;">
+              <input type="checkbox" id="emp-state-exempt" style="accent-color:var(--gold);" onchange="calcPayPreview()"> Exempt from State Tax
+            </label>
+          </div>
+          <div class="field-group">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-mid);cursor:pointer;margin-top:22px;">
+              <input type="checkbox" id="emp-fica-exempt" style="accent-color:var(--gold);" onchange="calcPayPreview()"> Exempt from FICA (SS/Medicare)
+            </label>
+          </div>
+          <div class="field-group"><label class="field-label">Local Tax Name</label><input type="text" class="field-input" id="emp-local-tax-name" placeholder="e.g. NYC City Tax"></div>
+          <div class="field-group"><label class="field-label">Local Tax Rate (%)</label>
+            <input type="text" class="field-input" id="emp-local-tax-rate" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcPayPreview()"></div>
+        </div>
+      </div>
+
+      <!-- DEDUCTIONS -->
+      <div id="emp-tab-deductions" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div style="font-size:13px;color:var(--text-mid);">Configure recurring deductions for this employee. Pre-tax deductions reduce federal taxable wages before withholding is calculated.</div>
+          <button class="btn-save" onclick="addEmpDeductionRow()" style="white-space:nowrap;">+ Add Deduction</button>
+        </div>
+        <div id="empDeductionsList" style="display:flex;flex-direction:column;gap:10px;"></div>
+      </div>
+
+      <!-- PAY CALCULATOR PREVIEW -->
+      <div id="emp-tab-paycalc" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div style="font-size:13px;color:var(--text-mid);">Preview estimated paycheck based on current withholding settings.</div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <label style="font-size:12px;color:var(--text-mid);">Regular Hrs:</label>
+            <input type="text" id="calc-reg-hrs" style="width:60px;height:32px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:13px;" value="40" oninput="calcPayPreview()">
+            <label style="font-size:12px;color:var(--text-mid);">OT Hrs:</label>
+            <input type="text" id="calc-ot-hrs" style="width:60px;height:32px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:13px;" value="0" oninput="calcPayPreview()">
+          </div>
+        </div>
+        <div id="payCalcResult" style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+          <div style="background:var(--navy);padding:14px 20px;">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--gold-light);">Estimated Paycheck Breakdown</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">Based on IRS Circular E (Publication 15-T) 2025 Percentage Method</div>
+          </div>
+          <div id="payCalcBody" style="padding:20px;">
+            <div style="text-align:center;color:var(--text-light);padding:20px;">Fill in Employment and W-4 tabs to see calculation.</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /modal-body -->
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('employeeModal')">Cancel</button>
+      <button class="btn-save" onclick="saveEmployee()">Save Employee</button>
     </div>
   </div>
 </div>
@@ -5130,11 +5386,706 @@ async function runSalesTaxLiability() {
     </div>`;
 }
 
+// ═══════════════════════════════════════════════════
+//  EMPLOYEE MODULE
+// ═══════════════════════════════════════════════════
+
+// Hook into showAcctView
+const _origShowAcctView3 = showAcctView;
+showAcctView = function(view) {
+  _origShowAcctView3(view);
+  if (view === 'employees') loadEmployees();
+};
+
+let editingEmployeeId = null;
+let empDeductionRows  = [];
+
+// ── IRS CIRCULAR E 2025 PERCENTAGE METHOD TABLES (Pub 15-T) ──
+// Adjusted Annual Wage Brackets and Tentative Withholding Amounts
+// Source: IRS Publication 15-T, Table for Percentage Method (2025)
+const FEDERAL_TAX_TABLES_2025 = {
+  single: [
+    { min:0,       max:6000,    base:0,      rate:0.10 },
+    { min:6000,    max:17600,   base:600,    rate:0.12 },
+    { min:17600,   max:40525,   base:1992,   rate:0.22 },
+    { min:40525,   max:86375,   base:7034.5, rate:0.24 },
+    { min:86375,   max:161050,  base:18034.5,rate:0.32 },
+    { min:161050,  max:200300,  base:41954.5,rate:0.35 },
+    { min:200300,  max:Infinity,base:55769,  rate:0.37 },
+  ],
+  married_jointly: [
+    { min:0,       max:13200,   base:0,       rate:0.10 },
+    { min:13200,   max:36500,   base:1320,    rate:0.12 },
+    { min:36500,   max:82350,   base:4116,    rate:0.22 },
+    { min:82350,   max:174050,  base:14205,   rate:0.24 },
+    { min:174050,  max:259500,  base:36201,   rate:0.32 },
+    { min:259500,  max:338100,  base:63533,   rate:0.35 },
+    { min:338100,  max:Infinity,base:591080,  rate:0.37 },
+  ],
+  head_of_household: [
+    { min:0,       max:10200,   base:0,       rate:0.10 },
+    { min:10200,   max:24500,   base:1020,    rate:0.12 },
+    { min:24500,   max:65150,   base:2736,    rate:0.22 },
+    { min:65150,   max:96550,   base:11679,   rate:0.24 },
+    { min:96550,   max:171050,  base:19215,   rate:0.32 },
+    { min:171050,  max:210800,  base:43031,   rate:0.35 },
+    { min:210800,  max:Infinity,base:56895,   rate:0.37 },
+  ],
+};
+
+// Pay periods per year
+const PAY_PERIODS = { weekly:52, biweekly:26, semimonthly:24, monthly:12 };
+
+// Standard deduction amounts for 2025 W-4 (Pub 15-T Table 1)
+const STD_DEDUCTION_2025 = {
+  single: 15000, married_jointly: 30000, head_of_household: 22500
+};
+
+// Tentative withholding allowance per period (Pub 15-T Table 2)
+function getAllowanceValue(freq) {
+  const annual = 4300; // 2025 allowance value
+  return annual / (PAY_PERIODS[freq] || 26);
+}
+
+// ── FEDERAL INCOME TAX CALCULATOR (IRS Pub 15-T Percentage Method) ──
+function calcFederalIncomeTax(grossPay, employee, periodFreq) {
+  if (employee.federal_exempt || employee.w4_filing_status === 'exempt') return 0;
+  const periods = PAY_PERIODS[periodFreq] || 26;
+  const filingStatus = employee.w4_filing_status || 'single';
+
+  // Step 1: Annualize gross pay
+  let annualWage = grossPay * periods;
+
+  // Step 2: Add other income (W-4 4a)
+  annualWage += parseFloat(employee.w4_other_income || 0);
+
+  // Step 3: Subtract deductions (W-4 4b) — only if entered, otherwise use standard
+  const w4Deductions = parseFloat(employee.w4_deductions_amount || 0);
+  const stdDeduction = STD_DEDUCTION_2025[filingStatus] || 15000;
+  annualWage -= (w4Deductions || stdDeduction);
+
+  // Step 4: Subtract dependents credit (W-4 Step 3) — done after tax calc
+  const dependentsCredit = parseFloat(employee.w4_dependents_amount || 0);
+
+  // Multiple jobs checkbox — halve the standard deduction
+  if (employee.w4_multiple_jobs) annualWage += (STD_DEDUCTION_2025[filingStatus] || 15000) / 2;
+
+  annualWage = Math.max(0, annualWage);
+
+  // Apply percentage method table
+  const table = FEDERAL_TAX_TABLES_2025[filingStatus] || FEDERAL_TAX_TABLES_2025.single;
+  let annualTax = 0;
+  for (const bracket of table) {
+    if (annualWage > bracket.min) {
+      const taxableInBracket = Math.min(annualWage, bracket.max) - bracket.min;
+      annualTax = bracket.base + taxableInBracket * bracket.rate;
+      if (annualWage <= bracket.max) break;
+    }
+  }
+
+  // Subtract dependents credit
+  annualTax = Math.max(0, annualTax - dependentsCredit);
+
+  // De-annualize
+  let periodTax = annualTax / periods;
+
+  // Add extra withholding (W-4 4c)
+  periodTax += parseFloat(employee.w4_extra_withholding || 0);
+
+  return Math.max(0, Math.round(periodTax * 100) / 100);
+}
+
+// ── STATE INCOME TAX (flat-rate approximation for major states) ──
+// Full state-by-state tables would require a large lookup. Using flat/simplified rates.
+const STATE_TAX_RATES = {
+  // No income tax states
+  'Alaska':0, 'Florida':0, 'Nevada':0, 'New Hampshire':0,
+  'South Dakota':0, 'Tennessee':0, 'Texas':0, 'Washington':0, 'Wyoming':0,
+  // Flat rate states (2025)
+  'Arizona':0.025, 'Colorado':0.044, 'Georgia':0.055, 'Illinois':0.0495,
+  'Indiana':0.0305, 'Kentucky':0.04, 'Massachusetts':0.05, 'Michigan':0.0425,
+  'Mississippi':0.047, 'North Carolina':0.045, 'Pennsylvania':0.0307,
+  'Utah':0.0465,
+  // Progressive states — simplified average effective rates by income level
+  'Alabama':0.05, 'Arkansas':0.049, 'California':0.093, 'Connecticut':0.065,
+  'Delaware':0.066, 'Hawaii':0.082, 'Idaho':0.058, 'Iowa':0.06, 'Kansas':0.057,
+  'Louisiana':0.042, 'Maine':0.075, 'Maryland':0.0575, 'Minnesota':0.0985,
+  'Missouri':0.049, 'Montana':0.069, 'Nebraska':0.0664, 'New Jersey':0.0637,
+  'New Mexico':0.059, 'New York':0.0685, 'North Dakota':0.025, 'Ohio':0.035,
+  'Oklahoma':0.0475, 'Oregon':0.099, 'Rhode Island':0.0599, 'South Carolina':0.064,
+  'Vermont':0.066, 'Virginia':0.0575, 'West Virginia':0.065, 'Wisconsin':0.0765,
+  'New Hampshire':0, 'Alaska':0,
+};
+
+function calcStateIncomeTax(taxableWage, employee) {
+  if (employee.state_exempt) return 0;
+  const stateName = employee.state_tax_state || employee.state || '';
+  if (!stateName) return 0;
+  const rate = STATE_TAX_RATES[stateName] || 0;
+  const allowanceDeduction = (parseInt(employee.state_allowances || 0)) * getAllowanceValue(employee.pay_frequency) * (STATE_TAX_RATES[stateName] || 0) * 10;
+  let tax = Math.max(0, taxableWage * rate);
+  tax = Math.max(0, tax - allowanceDeduction);
+  tax += parseFloat(employee.state_extra_withholding || 0);
+  return Math.round(tax * 100) / 100;
+}
+
+// ── FICA ──
+const SS_RATE     = 0.062;  // 6.2% employee
+const MEDICARE_RATE = 0.0145; // 1.45% employee
+const SS_WAGE_BASE_2025 = 176100; // 2025 SS wage base
+
+function calcFICA(grossPay, ytdWages, exempt) {
+  if (exempt) return { ss: 0, medicare: 0, ssEmployer: 0, medicareEmployer: 0 };
+  const ssWages = Math.max(0, Math.min(grossPay, SS_WAGE_BASE_2025 - (ytdWages || 0)));
+  const ss        = Math.round(ssWages * SS_RATE * 100) / 100;
+  const medicare  = Math.round(grossPay * MEDICARE_RATE * 100) / 100;
+  // Additional Medicare 0.9% on wages over $200k single / $250k joint — simplified
+  return { ss, medicare, ssEmployer: ss, medicareEmployer: medicare };
+}
+
+// ── FULL PAYCHECK CALCULATION ENGINE ──
+function calculatePaycheck(employee, deductions, regHours, otHours, tips, ytdWages) {
+  const freq      = employee.pay_frequency || 'biweekly';
+  const payType   = employee.pay_type || 'hourly';
+  const payRate   = parseFloat(employee.pay_rate || 0);
+  const otMult    = parseFloat(employee.overtime_rate_multiplier || 1.5);
+
+  // 1. Gross Pay
+  let regularPay = 0, overtimePay = 0;
+  if (payType === 'hourly') {
+    regularPay  = (parseFloat(regHours) || 0) * payRate;
+    overtimePay = (parseFloat(otHours)  || 0) * payRate * otMult;
+  } else {
+    // Salary — divide annual by pay periods
+    const periods = PAY_PERIODS[freq] || 26;
+    regularPay  = payRate / periods;
+    // Salary OT: if additional OT hours, add half-time premium for FLSA
+    overtimePay = (parseFloat(otHours) || 0) * (payRate / periods / (parseFloat(employee.regular_hours_per_week || 40))) * (otMult - 1);
+  }
+  const tipsAmount = parseFloat(tips) || 0;
+  const grossPay   = regularPay + overtimePay + tipsAmount;
+
+  // 2. Pre-tax deductions (reduce federal taxable wages)
+  let preTaxTotal = 0;
+  const dedLines = [];
+  for (const d of (deductions || [])) {
+    if (!d.is_active) continue;
+    const amt = d.calculation_method === 'percentage_of_gross'
+      ? grossPay * parseFloat(d.amount || 0)
+      : parseFloat(d.amount || 0);
+    const empMatch = d.employer_match_pct
+      ? Math.min(grossPay * parseFloat(d.employer_match_pct), parseFloat(d.employer_match_cap || 999999))
+      : 0;
+    dedLines.push({ ...d, calculatedAmt: amt, empMatch });
+    if (d.pre_tax) preTaxTotal += amt;
+  }
+
+  // 3. Federal taxable wage = gross - pre-tax deductions
+  const federalTaxableWage = Math.max(0, grossPay - preTaxTotal);
+
+  // 4. Withholding calculations
+  const fedTax      = calcFederalIncomeTax(federalTaxableWage, employee, freq);
+  const fica        = calcFICA(grossPay, ytdWages || 0, employee.fica_exempt);
+  const stateTax    = calcStateIncomeTax(federalTaxableWage, employee);
+  const localTaxAmt = Math.round(federalTaxableWage * parseFloat(employee.local_tax_rate || 0) / 100 * 100) / 100;
+
+  // 5. Post-tax deductions
+  let postTaxTotal = 0;
+  for (const d of dedLines) {
+    if (!d.pre_tax) postTaxTotal += d.calculatedAmt;
+  }
+
+  // 6. FUTA / SUTA (employer only — not deducted from employee check)
+  // These come from company-level rates, passed in or loaded separately
+
+  // 7. Net pay
+  const totalTaxes    = fedTax + fica.ss + fica.medicare + stateTax + localTaxAmt;
+  const totalDeductions = preTaxTotal + postTaxTotal;
+  const netPay        = Math.max(0, grossPay - totalTaxes - postTaxTotal);
+
+  return {
+    regularPay, overtimePay, tipsAmount, grossPay,
+    preTaxDeductions: preTaxTotal,
+    federalTaxableWage,
+    fedTax, ss: fica.ss, medicare: fica.medicare,
+    ssEmployer: fica.ssEmployer, medicareEmployer: fica.medicareEmployer,
+    stateTax, localTaxAmt,
+    totalTaxes,
+    postTaxDeductions: postTaxTotal,
+    totalDeductions,
+    netPay,
+    dedLines,
+  };
+}
+
+// ── LOAD EMPLOYEES ──
+async function loadEmployees() {
+  if (!acctCompanyId) return;
+  const { data } = await sb.from('employees').select('*').eq('company_id', acctCompanyId).order('last_name');
+  const c = document.getElementById('employeesContent');
+  if (!c) return;
+  if (!data || !data.length) {
+    c.innerHTML = `<div class="empty-state"><div class="empty-state-title">No employees yet</div><div>Add your first employee above.</div></div>`;
+    return;
+  }
+  c.innerHTML = `<table class="acct-table"><thead><tr>
+    <th>Name</th><th>Type</th><th>Title</th><th>Pay</th><th>Freq.</th>
+    <th>W-4 Status</th><th>State Tax</th><th>Status</th><th></th>
+  </tr></thead><tbody>` +
+    data.map(e => `<tr>
+      <td><strong>${e.last_name}, ${e.first_name}</strong>${e.preferred_name?`<div style="font-size:11px;color:var(--text-light);">Goes by: ${e.preferred_name}</div>`:''}</td>
+      <td style="font-size:12px;">${{w2:'W-2',contractor_1099:'1099',owner_officer:'Owner/Officer',tipped:'Tipped'}[e.employee_type]||e.employee_type}</td>
+      <td style="color:var(--text-mid);font-size:12.5px;">${e.job_title||'—'}</td>
+      <td class="amount">${e.pay_type==='salary'?fmtMoney(e.pay_rate)+'/yr':fmtMoney(e.pay_rate)+'/hr'}</td>
+      <td style="text-transform:capitalize;font-size:12px;">${e.pay_frequency||'—'}</td>
+      <td style="font-size:12px;text-transform:capitalize;">${(e.w4_filing_status||'').replace('_',' ')}</td>
+      <td style="font-size:12px;">${e.state_tax_state||'None'}</td>
+      <td>${statusPill(e.status||'active')}</td>
+      <td>
+        <button onclick="editEmployee('${e.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button>
+        <button onclick="viewPayStub('${e.id}')" style="background:none;border:none;color:var(--text-mid);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Pay Stub</button>
+      </td>
+    </tr>`).join('') + '</tbody></table>';
+}
+
+// ── OPEN / EDIT EMPLOYEE MODAL ──
+function openEmployeeModal(id = null) {
+  if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
+  editingEmployeeId = id;
+  empDeductionRows  = [];
+  document.getElementById('employeeModalTitle').textContent = id ? 'Edit Employee' : 'Add Employee';
+  // Clear all fields
+  document.querySelectorAll('#employeeModal input:not([type=checkbox]):not([type=radio]), #employeeModal select').forEach(el => { el.value = el.tagName === 'SELECT' ? el.options[0]?.value || '' : ''; });
+  document.querySelectorAll('#employeeModal input[type=checkbox]').forEach(el => el.checked = false);
+  document.getElementById('emp-ot-eligible').checked = true;
+  document.getElementById('emp-pay-type').value = 'hourly';
+  document.getElementById('emp-pay-freq').value = 'biweekly';
+  document.getElementById('emp-reg-hours').value = '40';
+  document.getElementById('emp-ot-threshold').value = '40';
+  document.getElementById('emp-ot-multiplier').value = '1.5';
+  document.getElementById('emp-w4-status').value = 'single';
+  document.getElementById('emp-status').value = 'active';
+  document.getElementById('emp-type').value = 'w2';
+  document.getElementById('empDeductionsList').innerHTML = '';
+  document.getElementById('emp-wage-acct').innerHTML = acctOptsHTML('Expense');
+  document.getElementById('emp-liab-acct').innerHTML = acctOptsHTML('Liability');
+  // Reset to first tab
+  switchEmpTab(document.querySelector('#employeeModal .inner-tab'), 'emp-tab-personal');
+  if (!id) { document.getElementById('employeeModal').classList.add('show'); return; }
+  editEmployee(id);
+}
+
+async function editEmployee(id) {
+  showLoading('Loading employee…');
+  const { data: emp }  = await sb.from('employees').select('*').eq('id', id).single();
+  const { data: deds } = await sb.from('employee_deductions').select('*').eq('employee_id', id).order('sort_order');
+  hideLoading();
+  editingEmployeeId = id;
+  document.getElementById('employeeModalTitle').textContent = 'Edit Employee';
+  const s = (fid, val) => { const el = document.getElementById(fid); if (el) el.value = val || ''; };
+  const c = (fid, val) => { const el = document.getElementById(fid); if (el) el.checked = !!val; };
+  s('emp-first', emp.first_name); s('emp-last', emp.last_name); s('emp-middle', emp.middle_name);
+  s('emp-preferred', emp.preferred_name); s('emp-ssn', emp.ssn); s('emp-dob', emp.date_of_birth);
+  s('emp-email', emp.email); s('emp-phone', emp.phone); s('emp-addr1', emp.address_line1);
+  s('emp-city', emp.city); s('emp-state', emp.state); s('emp-zip', emp.zip);
+  s('emp-hire-date', emp.hire_date); s('emp-term-date', emp.termination_date);
+  s('emp-status', emp.status); s('emp-type', emp.employee_type);
+  s('emp-pay-type', emp.pay_type); s('emp-pay-rate', emp.pay_rate);
+  s('emp-pay-freq', emp.pay_frequency); s('emp-reg-hours', emp.regular_hours_per_week);
+  s('emp-title', emp.job_title); s('emp-dept', emp.department);
+  c('emp-ot-eligible', emp.overtime_eligible);
+  s('emp-ot-threshold', emp.overtime_threshold_hours); s('emp-ot-multiplier', emp.overtime_rate_multiplier);
+  c('emp-tipped-group-show', emp.is_tipped); s('emp-tip-credit', emp.tip_credit_rate);
+  s('emp-w4-status', emp.w4_filing_status); c('emp-w4-multiple-jobs', emp.w4_multiple_jobs);
+  s('emp-w4-dependents', emp.w4_dependents_amount); s('emp-w4-other-income', emp.w4_other_income);
+  s('emp-w4-deductions', emp.w4_deductions_amount); s('emp-w4-extra', emp.w4_extra_withholding);
+  c('emp-fica-exempt', emp.fica_exempt);
+  s('emp-state-tax-state', emp.state_tax_state); s('emp-state-status', emp.state_filing_status);
+  s('emp-state-allowances', emp.state_allowances); s('emp-state-extra', emp.state_extra_withholding);
+  c('emp-state-exempt', emp.state_exempt);
+  s('emp-local-tax-name', emp.local_tax_name); s('emp-local-tax-rate', emp.local_tax_rate ? (emp.local_tax_rate * 100).toFixed(4) : '');
+  document.getElementById('emp-wage-acct').innerHTML = acctOptsHTML('Expense', emp.wage_account_id);
+  document.getElementById('emp-liab-acct').innerHTML = acctOptsHTML('Liability', emp.liability_account_id);
+  // Load deductions
+  empDeductionRows = [];
+  document.getElementById('empDeductionsList').innerHTML = '';
+  (deds || []).forEach(d => addEmpDeductionRow(d));
+  toggleOTFields(); toggleEmpTypeFields(); togglePayTypeFields();
+  calcPayPreview();
+  document.getElementById('employeeModal').classList.add('show');
+}
+
+function switchEmpTab(btn, tabId) {
+  document.querySelectorAll('#employeeModal .inner-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  ['emp-tab-personal','emp-tab-employment','emp-tab-w4','emp-tab-deductions','emp-tab-paycalc'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.style.display = 'none';
+  });
+  const el = document.getElementById(tabId); if (el) el.style.display = '';
+  if (tabId === 'emp-tab-paycalc') calcPayPreview();
+}
+
+function toggleOTFields() {
+  const eligible = document.getElementById('emp-ot-eligible')?.checked;
+  ['emp-ot-threshold-group','emp-ot-rate-group'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.style.display = eligible ? '' : 'none';
+  });
+}
+function toggleEmpTypeFields() {
+  const type = document.getElementById('emp-type')?.value;
+  const tippedGroup = document.getElementById('emp-tipped-group');
+  if (tippedGroup) tippedGroup.style.display = type === 'tipped' ? '' : 'none';
+}
+function togglePayTypeFields() {
+  const pt = document.getElementById('emp-pay-type')?.value;
+  const hint = document.getElementById('emp-pay-rate-hint');
+  if (hint) hint.textContent = pt === 'salary' ? 'Annual salary' : 'Hourly rate';
+}
+
+// ── DEDUCTION ROWS ──
+const DEDUCTION_TYPES = [
+  { value:'health_insurance',   label:'Health Insurance',          pre:true  },
+  { value:'dental_vision',      label:'Dental / Vision',           pre:true  },
+  { value:'traditional_401k',   label:'401(k) / Traditional IRA',  pre:true  },
+  { value:'roth_401k',          label:'Roth 401(k)',               pre:false },
+  { value:'hsa_fsa',            label:'HSA / FSA',                 pre:true  },
+  { value:'life_insurance',     label:'Life Insurance',            pre:null  },
+  { value:'child_support',      label:'Child Support Garnishment', pre:false },
+  { value:'garnishment',        label:'Wage Garnishment',          pre:false },
+  { value:'charitable',         label:'Charitable Contribution',   pre:false },
+  { value:'other',              label:'Other',                     pre:null  },
+];
+
+function addEmpDeductionRow(data = null) {
+  const rowId = 'ded-' + Date.now() + '-' + Math.random().toString(36).slice(2,5);
+  const typeOpts = DEDUCTION_TYPES.map(t =>
+    `<option value="${t.value}" ${data?.deduction_type===t.value?'selected':''}>${t.label}</option>`).join('');
+  const div = document.createElement('div');
+  div.id = rowId;
+  div.style.cssText = 'border:1px solid var(--border-light);border-radius:var(--radius);padding:14px 16px;background:var(--section-bg);';
+  div.innerHTML = `
+    <div class="form-grid" style="grid-template-columns:2fr 1.5fr 1fr 1fr 1fr 1fr auto;gap:10px;align-items:end;">
+      <div class="field-group">
+        <label class="field-label required">Deduction Name</label>
+        <input type="text" class="field-input ded-name" value="${data?.deduction_name||''}" placeholder="e.g. Blue Cross Health">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Type</label>
+        <select class="field-select ded-type" onchange="autoSetPreTax(this)">${typeOpts}</select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Pre-Tax?</label>
+        <select class="field-select ded-pretax">
+          <option value="1" ${(!data||data.pre_tax)?'selected':''}>Pre-Tax</option>
+          <option value="0" ${data&&!data.pre_tax?'selected':''}>Post-Tax</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Method</label>
+        <select class="field-select ded-method">
+          <option value="fixed" ${(!data||data.calculation_method==='fixed')?'selected':''}>Fixed $</option>
+          <option value="percentage_of_gross" ${data?.calculation_method==='percentage_of_gross'?'selected':''}>% of Gross</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Amount</label>
+        <input type="text" class="field-input ded-amount" value="${data?.amount?parseFloat(data.amount):''}" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcPayPreview()">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Active?</label>
+        <select class="field-select ded-active">
+          <option value="1" ${(!data||data.is_active)?'selected':''}>Active</option>
+          <option value="0" ${data&&!data.is_active?'selected':''}>Inactive</option>
+        </select>
+      </div>
+      <button onclick="document.getElementById('${rowId}').remove();calcPayPreview();"
+        style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:22px;line-height:1;padding:0;margin-top:18px;">×</button>
+    </div>
+    <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px;">
+      <div class="field-group">
+        <label class="field-label">Employer Match %</label>
+        <input type="text" class="field-input ded-match-pct" value="${data?.employer_match_pct?parseFloat(data.employer_match_pct):''}" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+        <span class="field-hint">e.g. 0.03 for 3% match</span>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Match Cap ($)</label>
+        <input type="text" class="field-input ded-match-cap" value="${data?.employer_match_cap?parseFloat(data.employer_match_cap):''}" placeholder="Annual cap">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Notes</label>
+        <input type="text" class="field-input ded-notes" value="${data?.notes||''}" placeholder="Optional notes">
+      </div>
+    </div>`;
+  document.getElementById('empDeductionsList').appendChild(div);
+}
+
+function autoSetPreTax(select) {
+  const type = DEDUCTION_TYPES.find(t => t.value === select.value);
+  const preEl = select.closest('div.form-grid')?.querySelector('.ded-pretax');
+  if (type && type.pre !== null && preEl) preEl.value = type.pre ? '1' : '0';
+  calcPayPreview();
+}
+
+// ── PAY CALCULATOR PREVIEW ──
+function calcPayPreview() {
+  const regHrs = parseFloat(document.getElementById('calc-reg-hrs')?.value || 40) || 40;
+  const otHrs  = parseFloat(document.getElementById('calc-ot-hrs')?.value  || 0)  || 0;
+
+  // Build a temporary employee object from current form values
+  const g = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+  const cb = id => { const el = document.getElementById(id); return el ? el.checked : false; };
+  const emp = {
+    pay_type:                g('emp-pay-type') || 'hourly',
+    pay_rate:                parseFloat(g('emp-pay-rate')) || 0,
+    pay_frequency:           g('emp-pay-freq') || 'biweekly',
+    regular_hours_per_week:  parseFloat(g('emp-reg-hours')) || 40,
+    overtime_rate_multiplier:parseFloat(g('emp-ot-multiplier')) || 1.5,
+    overtime_eligible:       cb('emp-ot-eligible'),
+    w4_filing_status:        g('emp-w4-status') || 'single',
+    w4_multiple_jobs:        cb('emp-w4-multiple-jobs'),
+    w4_dependents_amount:    parseFloat(g('emp-w4-dependents')) || 0,
+    w4_other_income:         parseFloat(g('emp-w4-other-income')) || 0,
+    w4_deductions_amount:    parseFloat(g('emp-w4-deductions')) || 0,
+    w4_extra_withholding:    parseFloat(g('emp-w4-extra')) || 0,
+    federal_exempt:          g('emp-w4-status') === 'exempt',
+    fica_exempt:             cb('emp-fica-exempt'),
+    state_tax_state:         g('emp-state-tax-state'),
+    state_filing_status:     g('emp-state-status'),
+    state_allowances:        parseInt(g('emp-state-allowances')) || 0,
+    state_extra_withholding: parseFloat(g('emp-state-extra')) || 0,
+    state_exempt:            cb('emp-state-exempt'),
+    local_tax_rate:          parseFloat(g('emp-local-tax-rate')) || 0,
+  };
+
+  if (!emp.pay_rate) {
+    document.getElementById('payCalcBody').innerHTML = `<div style="text-align:center;color:var(--text-light);padding:20px;">Enter a pay rate on the Employment tab to see calculation.</div>`;
+    return;
+  }
+
+  // Build deductions from rows
+  const deds = [];
+  document.querySelectorAll('#empDeductionsList > div').forEach(row => {
+    deds.push({
+      deduction_name: row.querySelector('.ded-name')?.value || '',
+      deduction_type: row.querySelector('.ded-type')?.value || 'other',
+      pre_tax: row.querySelector('.ded-pretax')?.value === '1',
+      calculation_method: row.querySelector('.ded-method')?.value || 'fixed',
+      amount: parseFloat(row.querySelector('.ded-amount')?.value || 0) || 0,
+      employer_match_pct: parseFloat(row.querySelector('.ded-match-pct')?.value || 0) || 0,
+      employer_match_cap: parseFloat(row.querySelector('.ded-match-cap')?.value || 999999) || 999999,
+      is_active: row.querySelector('.ded-active')?.value === '1',
+    });
+  });
+
+  const pc = calculatePaycheck(emp, deds, regHrs, otHrs, 0, 0);
+  const fmt2 = v => `$${parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2})}`;
+  const row = (label, val, indent=false, neg=false, bold=false) =>
+    `<div style="display:flex;justify-content:space-between;padding:${indent?'6px 24px':'8px 0'};${bold?'font-weight:600;border-top:2px solid var(--border);margin-top:4px;':''}border-bottom:1px solid var(--border-light);">
+      <span style="font-size:${bold?'13.5':'13'}px;color:${indent?'var(--text-mid)':'var(--navy)'};">${label}</span>
+      <span style="font-family:monospace;font-size:${bold?'14':'13'}px;color:${neg?'var(--error)':'var(--navy)'};">${neg?'-':''}${fmt2(val)}</span>
+    </div>`;
+
+  let html = '';
+  html += row('Regular Pay', pc.regularPay);
+  if (pc.overtimePay) html += row(`Overtime Pay (${otHrs} hrs × ${emp.overtime_rate_multiplier}×)`, pc.overtimePay, true);
+  if (pc.tipsAmount)  html += row('Tips Reported', pc.tipsAmount, true);
+  html += row('Gross Pay', pc.grossPay, false, false, true);
+
+  if (pc.preTaxDeductions > 0) {
+    html += `<div style="padding:6px 0 2px;font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-light);margin-top:8px;">Pre-Tax Deductions</div>`;
+    pc.dedLines.filter(d=>d.pre_tax&&d.calculatedAmt).forEach(d => html += row(d.deduction_name, d.calculatedAmt, true, true));
+    html += row('Federal Taxable Wage', pc.federalTaxableWage, false, false, false);
+  }
+
+  html += `<div style="padding:6px 0 2px;font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-light);margin-top:8px;">Tax Withholdings</div>`;
+  html += row('Federal Income Tax', pc.fedTax, true, true);
+  html += row('Social Security (6.2%)', pc.ss, true, true);
+  html += row('Medicare (1.45%)', pc.medicare, true, true);
+  if (pc.stateTax)    html += row(`State Income Tax (${emp.state_tax_state})`, pc.stateTax, true, true);
+  if (pc.localTaxAmt) html += row(`Local Tax (${emp.local_tax_name||'Local'})`, pc.localTaxAmt, true, true);
+
+  if (pc.postTaxDeductions > 0) {
+    html += `<div style="padding:6px 0 2px;font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-light);margin-top:8px;">Post-Tax Deductions</div>`;
+    pc.dedLines.filter(d=>!d.pre_tax&&d.calculatedAmt).forEach(d => html += row(d.deduction_name, d.calculatedAmt, true, true));
+  }
+
+  const empMatchTotal = pc.dedLines.reduce((s,d)=>s+(d.empMatch||0), 0);
+  if (empMatchTotal > 0) {
+    html += `<div style="padding:6px 0 2px;font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-light);margin-top:8px;">Employer Contributions</div>`;
+    pc.dedLines.filter(d=>d.empMatch).forEach(d => html += row(`Employer Match — ${d.deduction_name}`, d.empMatch, true, false));
+  }
+
+  html += row('Net Pay', pc.netPay, false, false, true);
+
+  html += `<div style="margin-top:14px;padding:12px 16px;background:var(--section-bg);border-radius:var(--radius);font-size:11px;color:var(--text-light);">
+    <strong style="color:var(--navy);">Employer Taxes (not deducted from employee):</strong>
+    SS Employer: ${fmt2(pc.ssEmployer)} &nbsp;|&nbsp; Medicare Employer: ${fmt2(pc.medicareEmployer)}
+    &nbsp;|&nbsp; FUTA/SUTA: calculated at payroll run based on company rates
+  </div>`;
+
+  document.getElementById('payCalcBody').innerHTML = html;
+}
+
+// ── SAVE EMPLOYEE ──
+async function saveEmployee() {
+  const first = document.getElementById('emp-first').value.trim();
+  const last  = document.getElementById('emp-last').value.trim();
+  if (!first || !last) { showToast('⚠ First and last name required', true); return; }
+  showLoading('Saving employee…');
+  const g = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+  const cb = id => { const el = document.getElementById(id); return el ? el.checked : false; };
+  const empId = editingEmployeeId || ('emp-' + Date.now());
+  const { error } = await sb.from('employees').upsert({
+    id: empId, company_id: acctCompanyId,
+    first_name: first, last_name: last,
+    middle_name: g('emp-middle'), preferred_name: g('emp-preferred'),
+    ssn: g('emp-ssn'), date_of_birth: g('emp-dob') || null,
+    email: g('emp-email'), phone: g('emp-phone'),
+    address_line1: g('emp-addr1'), city: g('emp-city'),
+    state: g('emp-state'), zip: g('emp-zip'),
+    hire_date: g('emp-hire-date') || null,
+    termination_date: g('emp-term-date') || null,
+    status: g('emp-status'),
+    employee_type: g('emp-type'),
+    pay_type: g('emp-pay-type'),
+    pay_rate: parseFloat(g('emp-pay-rate')) || 0,
+    pay_frequency: g('emp-pay-freq'),
+    regular_hours_per_week: parseFloat(g('emp-reg-hours')) || 40,
+    job_title: g('emp-title'), department: g('emp-dept'),
+    overtime_eligible: cb('emp-ot-eligible'),
+    overtime_rate_multiplier: parseFloat(g('emp-ot-multiplier')) || 1.5,
+    overtime_threshold_hours: parseFloat(g('emp-ot-threshold')) || 40,
+    is_tipped: g('emp-type') === 'tipped',
+    tip_credit_rate: parseFloat(g('emp-tip-credit')) || 0,
+    w4_filing_status: g('emp-w4-status'),
+    w4_multiple_jobs: cb('emp-w4-multiple-jobs'),
+    w4_dependents_amount:  parseFloat(g('emp-w4-dependents'))   || 0,
+    w4_other_income:       parseFloat(g('emp-w4-other-income'))  || 0,
+    w4_deductions_amount:  parseFloat(g('emp-w4-deductions'))    || 0,
+    w4_extra_withholding:  parseFloat(g('emp-w4-extra'))         || 0,
+    federal_exempt: g('emp-w4-status') === 'exempt',
+    fica_exempt: cb('emp-fica-exempt'),
+    state_tax_state: g('emp-state-tax-state'),
+    state_filing_status: g('emp-state-status'),
+    state_allowances: parseInt(g('emp-state-allowances')) || 0,
+    state_extra_withholding: parseFloat(g('emp-state-extra')) || 0,
+    state_exempt: cb('emp-state-exempt'),
+    local_tax_name: g('emp-local-tax-name'),
+    local_tax_rate: parseFloat(g('emp-local-tax-rate')) / 100 || 0,
+    wage_account_id:    g('emp-wage-acct')    || null,
+    liability_account_id: g('emp-liab-acct') || null,
+    updated_at: new Date().toISOString(),
+  });
+  if (error) { hideLoading(); showToast('Error: ' + error.message, true); return; }
+
+  // Save deductions
+  await sb.from('employee_deductions').delete().eq('employee_id', empId);
+  const dedRows = [];
+  document.querySelectorAll('#empDeductionsList > div').forEach((row, i) => {
+    const name = row.querySelector('.ded-name')?.value || '';
+    const amt  = parseFloat(row.querySelector('.ded-amount')?.value || 0) || 0;
+    if (!name) return;
+    dedRows.push({
+      id: 'ded-' + empId + '-' + i,
+      employee_id: empId,
+      deduction_name: name,
+      deduction_type: row.querySelector('.ded-type')?.value || 'other',
+      pre_tax: row.querySelector('.ded-pretax')?.value === '1',
+      calculation_method: row.querySelector('.ded-method')?.value || 'fixed',
+      amount: amt,
+      employer_match_pct: parseFloat(row.querySelector('.ded-match-pct')?.value || 0) || 0,
+      employer_match_cap: parseFloat(row.querySelector('.ded-match-cap')?.value || 0) || 0,
+      notes: row.querySelector('.ded-notes')?.value || '',
+      is_active: row.querySelector('.ded-active')?.value === '1',
+      sort_order: i,
+    });
+  });
+  if (dedRows.length) await sb.from('employee_deductions').insert(dedRows);
+
+  hideLoading();
+  closeModal('employeeModal');
+  showToast(`✓ ${first} ${last} saved`);
+  loadEmployees();
+}
+
+// ── PAY STUB PREVIEW ──
+async function viewPayStub(empId) {
+  showLoading('Generating pay stub…');
+  const { data: emp }  = await sb.from('employees').select('*').eq('id', empId).single();
+  const { data: deds } = await sb.from('employee_deductions').select('*').eq('employee_id', empId).eq('is_active', true);
+  hideLoading();
+  const regHrs = parseFloat(emp.regular_hours_per_week) || 40;
+  const pc = calculatePaycheck(emp, deds || [], regHrs, 0, 0, 0);
+  const fmt2 = v => `$${parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2})}`;
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>Pay Stub</title>
+  <style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;font-size:13px;color:#1a1a2e;}
+  h1{font-size:22px;}.header{display:flex;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #b8965a;}
+  table{width:100%;border-collapse:collapse;margin-bottom:16px;}
+  th{background:#0f1f38;color:#d4b07a;padding:7px 12px;text-align:left;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;}
+  td{padding:7px 12px;border-bottom:1px solid #ede8df;}.right{text-align:right;font-family:monospace;}
+  .total-row td{font-weight:700;background:#f7f4ef;font-size:14px;}.neg{color:#c0392b;}
+  @media print{button{display:none;}}</style></head><body>
+  <button onclick="window.print()" style="padding:8px 20px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:20px;">🖨 Print</button>
+  <div class="header">
+    <div><strong style="font-size:16px;">${emp.first_name} ${emp.last_name}</strong><br>
+    ${emp.job_title||''}<br>${emp.pay_type==='salary'?'Salary':'Hourly'} · ${emp.pay_frequency}</div>
+    <div style="text-align:right;"><strong>Pay Period Estimate</strong><br>
+    Based on ${regHrs} regular hours<br>
+    Pay Date: ${new Date().toLocaleDateString()}</div>
+  </div>
+  <table><thead><tr><th>Earnings</th><th class="right">Hours</th><th class="right">Rate</th><th class="right">Amount</th></tr></thead><tbody>
+    <tr><td>Regular Pay</td><td class="right">${regHrs}</td><td class="right">${fmt2(emp.pay_rate)}</td><td class="right">${fmt2(pc.regularPay)}</td></tr>
+    <tr class="total-row"><td colspan="3">Gross Pay</td><td class="right">${fmt2(pc.grossPay)}</td></tr>
+  </tbody></table>
+  <table><thead><tr><th>Deductions &amp; Taxes</th><th class="right">Type</th><th class="right">Amount</th></tr></thead><tbody>
+    ${pc.fedTax?`<tr><td>Federal Income Tax</td><td class="right">Post-Tax</td><td class="right neg">-${fmt2(pc.fedTax)}</td></tr>`:''}
+    ${pc.ss?`<tr><td>Social Security (6.2%)</td><td class="right">Post-Tax</td><td class="right neg">-${fmt2(pc.ss)}</td></tr>`:''}
+    ${pc.medicare?`<tr><td>Medicare (1.45%)</td><td class="right">Post-Tax</td><td class="right neg">-${fmt2(pc.medicare)}</td></tr>`:''}
+    ${pc.stateTax?`<tr><td>State Income Tax (${emp.state_tax_state})</td><td class="right">Post-Tax</td><td class="right neg">-${fmt2(pc.stateTax)}</td></tr>`:''}
+    ${pc.dedLines.map(d=>`<tr><td>${d.deduction_name}</td><td class="right">${d.pre_tax?'Pre-Tax':'Post-Tax'}</td><td class="right neg">-${fmt2(d.calculatedAmt)}</td></tr>`).join('')}
+    <tr class="total-row"><td colspan="2">Net Pay</td><td class="right">${fmt2(pc.netPay)}</td></tr>
+  </tbody></table>
+  <div style="font-size:11px;color:#8a8aaa;margin-top:12px;">Employer taxes (not deducted): SS ${fmt2(pc.ssEmployer)} · Medicare ${fmt2(pc.medicareEmployer)}</div>
+  </body></html>`);
+  win.document.close();
+}
+
+// ── WIRE SUTA/FUTA INTO COMPANY FORM ──
+// Patch populateForm to include SUTA fields
+const _origPopulateForm = populateForm;
+populateForm = function(c, officers) {
+  _origPopulateForm(c, officers);
+  const s = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+  s('f-sutaRate',     c.suta_rate     ? (parseFloat(c.suta_rate)*100).toFixed(4)     : '');
+  s('f-sutaWageBase', c.suta_wage_base || '7000');
+  s('f-sutaState',    c.suta_state    || '');
+  s('f-futaRate',     c.futa_rate     ? (parseFloat(c.futa_rate)*100).toFixed(4)     : '0.6');
+};
+
+// Patch saveRecord to include SUTA fields
+const _origSaveRecord = saveRecord;
+saveRecord = async function() {
+  // Inject SUTA values into the upsert by temporarily updating the record after save
+  await _origSaveRecord();
+  if (!currentCompanyId) return;
+  const g = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+  const sutaRate = parseFloat(g('f-sutaRate')) || 0;
+  const futaRate = parseFloat(g('f-futaRate')) || 0.6;
+  await sb.from('companies').update({
+    suta_rate:      sutaRate / 100,
+    suta_wage_base: parseFloat(g('f-sutaWageBase')) || 7000,
+    suta_state:     g('f-sutaState'),
+    futa_rate:      futaRate / 100,
+  }).eq('id', currentCompanyId);
+};
+
 // ── INIT
 loadDashboard();
 </script>
 </body>
 </html>
+
 
 
 
