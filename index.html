@@ -3540,12 +3540,28 @@ function openBillModal() {
 function addBillLine(data=null) {
   const acctOpts=acctAccounts.filter(a=>a.account_type==='Expense'||a.account_type==='Asset').map(a=>`<option value="${a.id}" ${a.id===data?.account_id?'selected':''}>${a.account_number} — ${a.account_name}</option>`).join('');
   const tr=document.createElement('tr');
-  tr.innerHTML=`<td><input type="text" placeholder="Description" value="${data?.description||''}"></td><td><input type="text" value="${data?.quantity||1}" style="text-align:right;" oninput="updateBillTotals()"></td><td><input type="text" placeholder="0.00" value="${data?.unit_price?parseFloat(data.unit_price).toFixed(2):''}" style="text-align:right;" oninput="updateBillTotals()"></td><td><select style="height:32px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;width:100%;"><option value="">—</option>${acctOpts}</select></td><td><input type="text" placeholder="0%" value="${data?.tax_rate||''}" style="text-align:right;" oninput="updateBillTotals()"></td><td><input type="text" value="${data?.amount?parseFloat(data.amount).toFixed(2):''}" style="text-align:right;background:var(--section-bg);" readonly></td><td><button onclick="this.closest('tr').remove();updateBillTotals();" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:18px;line-height:1;padding:0;">×</button></td>`;
+  tr.innerHTML=`
+    <td><input type="text" class="bl-desc" placeholder="Description" value="${data?.description||''}"></td>
+    <td><input type="text" class="bl-qty" value="${data?.quantity||1}" style="text-align:right;" oninput="updateBillTotals()"></td>
+    <td><input type="text" class="bl-price" placeholder="0.00" value="${data?.unit_price?parseFloat(data.unit_price).toFixed(2):''}" style="text-align:right;" oninput="updateBillTotals()"></td>
+    <td><select class="bl-acct" style="height:32px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;width:100%;"><option value="">—</option>${acctOpts}</select></td>
+    <td><input type="text" class="bl-tax" placeholder="0%" value="${data?.tax_rate||''}" style="text-align:right;" oninput="updateBillTotals()"></td>
+    <td><input type="text" class="bl-amt" value="${data?.amount?parseFloat(data.amount).toFixed(2):''}" style="text-align:right;background:var(--section-bg);" readonly></td>
+    <td><button onclick="this.closest('tr').remove();updateBillTotals();" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:18px;line-height:1;padding:0;">×</button></td>`;
   document.getElementById('billLinesTbody').appendChild(tr);
 }
 function updateBillTotals() {
   let sub=0,tax=0;
-  document.querySelectorAll('#billLinesTbody tr').forEach(tr=>{const i=tr.querySelectorAll('input');const qty=parseFloat(i[1]?.value||1)||1;const price=parseFloat(i[2]?.value||0)||0;const taxR=parseFloat(i[4]?.value||0)||0;const amt=qty*price;sub+=amt;tax+=amt*(taxR/100);if(i[5])i[5].value=amt.toFixed(2);});
+  document.querySelectorAll('#billLinesTbody tr').forEach(tr=>{
+    const qty   = parseFloat(tr.querySelector('.bl-qty')?.value||1)||1;
+    const price = parseFloat(tr.querySelector('.bl-price')?.value||0)||0;
+    const taxR  = parseFloat(tr.querySelector('.bl-tax')?.value||0)||0;
+    const amt   = qty*price;
+    const lineTax = amt*(taxR/100);
+    sub+=amt; tax+=lineTax;
+    const amtEl = tr.querySelector('.bl-amt');
+    if(amtEl) amtEl.value=amt.toFixed(2);
+  });
   document.getElementById('billSubtotal').textContent=sub.toLocaleString('en-US',{minimumFractionDigits:2});
   document.getElementById('billTax').textContent=tax.toLocaleString('en-US',{minimumFractionDigits:2});
   document.getElementById('billTotal').textContent=(sub+tax).toLocaleString('en-US',{minimumFractionDigits:2});
@@ -3554,7 +3570,15 @@ async function saveBill(status) {
   const vendId=document.getElementById('bill-vendor').value,date=document.getElementById('bill-date').value;
   if(!vendId||!date){showToast('⚠ Vendor and date required',true);return;}
   const lines=[];
-  document.querySelectorAll('#billLinesTbody tr').forEach((tr,i)=>{const inp=tr.querySelectorAll('input');const sel=tr.querySelector('select');const desc=inp[0]?.value||'';const qty=parseFloat(inp[1]?.value||1)||1;const price=parseFloat(inp[2]?.value||0)||0;const taxR=parseFloat(inp[4]?.value||0)||0;const amt=qty*price;const aId=sel?.value||null;if(desc||amt)lines.push({description:desc,quantity:qty,unit_price:price,account_id:aId,tax_rate:taxR,amount:amt,sort_order:i});});
+  document.querySelectorAll('#billLinesTbody tr').forEach((tr,i)=>{
+    const desc  = tr.querySelector('.bl-desc')?.value||'';
+    const qty   = parseFloat(tr.querySelector('.bl-qty')?.value||1)||1;
+    const price = parseFloat(tr.querySelector('.bl-price')?.value||0)||0;
+    const aId   = tr.querySelector('.bl-acct')?.value||null;
+    const taxR  = parseFloat(tr.querySelector('.bl-tax')?.value||0)||0;
+    const amt   = qty*price;
+    if(desc||amt)lines.push({description:desc,quantity:qty,unit_price:price,account_id:aId,tax_rate:taxR,amount:amt,sort_order:i});
+  });
   const sub=lines.reduce((s,l)=>s+l.amount,0),tax=lines.reduce((s,l)=>s+(l.amount*(l.tax_rate/100)),0),total=sub+tax;
   showLoading('Saving bill…');
   const billId=editingBillId||('bill-'+Date.now());
@@ -3926,4 +3950,5 @@ loadDashboard();
 </script>
 </body>
 </html>
+
 
