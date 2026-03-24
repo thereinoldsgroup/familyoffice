@@ -454,7 +454,45 @@
   .report-run-btn:hover { background: var(--navy-mid); }
   .coa-group-header { padding: 8px 16px; background: var(--navy); color: var(--gold-light); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 
-  /* ── BATCH 8: SHARED MODULE LAYOUT ── */
+  /* ── BATCH 9: AUTH ── */
+  #login-screen {
+    position:fixed; inset:0; background:var(--navy); z-index:10000;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .login-card {
+    background:var(--white); border-radius:var(--radius-lg);
+    padding:48px 44px; width:100%; max-width:420px;
+    box-shadow:0 24px 64px rgba(0,0,0,0.4);
+  }
+  .login-logo { width:52px; height:52px; background:var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:600; color:var(--navy); margin:0 auto 20px; }
+  .login-title { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:600; color:var(--navy); text-align:center; margin-bottom:4px; }
+  .login-subtitle { font-size:13px; color:var(--text-light); text-align:center; margin-bottom:28px; }
+  .login-field { margin-bottom:16px; }
+  .login-field label { display:block; font-size:12px; font-weight:500; color:var(--text-mid); margin-bottom:6px; letter-spacing:0.04em; text-transform:uppercase; }
+  .login-field input { width:100%; height:42px; padding:0 14px; border:1.5px solid var(--border); border-radius:var(--radius); font-family:'DM Sans',sans-serif; font-size:14px; color:var(--navy); background:var(--cream); transition:border-color 0.2s; box-sizing:border-box; }
+  .login-field input:focus { outline:none; border-color:var(--gold); background:var(--white); }
+  .login-btn { width:100%; height:44px; background:var(--navy); color:var(--gold-light); border:none; border-radius:var(--radius); font-family:'DM Sans',sans-serif; font-size:15px; font-weight:500; cursor:pointer; transition:background 0.2s; margin-top:8px; }
+  .login-btn:hover { background:#1a3356; }
+  .login-error { background:rgba(231,76,60,0.1); border:1px solid rgba(231,76,60,0.3); color:#922b21; font-size:13px; padding:10px 14px; border-radius:var(--radius); margin-bottom:14px; display:none; }
+  .login-footer { text-align:center; margin-top:20px; font-size:12px; color:var(--text-light); }
+  /* User badge in topbar */
+  .topbar-user-badge { display:flex; align-items:center; gap:8px; cursor:pointer; padding:4px 8px; border-radius:var(--radius); transition:background 0.15s; position:relative; }
+  .topbar-user-badge:hover { background:rgba(255,255,255,0.1); }
+  .topbar-user-avatar { width:30px; height:30px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:var(--navy); flex-shrink:0; }
+  .topbar-user-name { font-size:12px; color:rgba(255,255,255,0.8); max-width:100px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .topbar-user-role { font-size:10px; color:rgba(255,255,255,0.45); }
+  /* Session dropdown */
+  .user-dropdown { position:absolute; top:calc(100% + 8px); right:0; width:200px; background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); box-shadow:0 8px 24px rgba(0,0,0,0.15); z-index:9000; display:none; }
+  .user-dropdown.open { display:block; }
+  .user-dropdown-item { padding:10px 16px; font-size:13px; color:var(--text-mid); cursor:pointer; transition:background 0.15s; }
+  .user-dropdown-item:hover { background:var(--gold-pale); color:var(--navy); }
+  .user-dropdown-item.danger { color:var(--error); }
+  .user-dropdown-divider { height:1px; background:var(--border-light); margin:4px 0; }
+  /* Automation prompts */
+  .auto-prompt { background:var(--gold-pale); border:1.5px solid var(--gold); border-radius:var(--radius-lg); padding:16px 20px; margin-bottom:16px; }
+  .auto-prompt-title { font-size:14px; font-weight:600; color:var(--navy); margin-bottom:4px; }
+  .auto-prompt-desc { font-size:13px; color:var(--text-mid); margin-bottom:12px; }
+  .auto-prompt-actions { display:flex; gap:8px; }
   .b8-layout { display:flex; gap:0; }
   .b8-sidebar { width:210px; flex-shrink:0; background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:8px 0; box-shadow:var(--shadow-sm); height:fit-content; position:sticky; top:80px; }
   .b8-sidebar-section { font-size:10px; font-weight:600; letter-spacing:0.10em; text-transform:uppercase; color:var(--text-light); padding:14px 16px 6px; }
@@ -761,6 +799,30 @@
 </head>
 <body>
 
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">FO</div>
+    <div class="login-title">Family Office</div>
+    <div class="login-subtitle">Enterprise Management System</div>
+    <div class="login-error" id="login-error"></div>
+    <div id="login-form-area">
+      <div class="login-field"><label>Email Address</label><input type="email" id="login-email" placeholder="you@company.com" autocomplete="email" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="login-field"><label>Password</label><input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="login-btn" onclick="doLogin()" id="login-btn">Sign In</button>
+    </div>
+    <div id="reset-form-area" style="display:none;">
+      <div style="font-size:13px;color:var(--text-mid);margin-bottom:14px;">Enter your email to receive a password reset link.</div>
+      <div class="login-field"><label>Email Address</label><input type="email" id="reset-email" placeholder="you@company.com"></div>
+      <button class="login-btn" onclick="doPasswordReset()">Send Reset Email</button>
+      <div style="text-align:center;margin-top:12px;"><button onclick="toggleResetForm(false)" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;">← Back to sign in</button></div>
+    </div>
+    <div class="login-footer">
+      <button onclick="toggleResetForm(true)" id="forgot-link" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Forgot password?</button>
+    </div>
+  </div>
+</div>
+
 <!-- LOADING OVERLAY -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-spinner">
@@ -798,6 +860,19 @@
   <div style="position:relative;margin-left:8px;">
     <button id="alert-bell-btn" onclick="toggleAlertDrawer()" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.7);font-size:20px;padding:4px 8px;border-radius:6px;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'" title="Alerts">🔔</button>
     <span id="alert-badge" class="alert-badge" style="display:none;">0</span>
+  </div>
+  <div class="topbar-user-badge" id="topbar-user-badge" onclick="toggleUserDropdown()" style="display:none;margin-left:8px;">
+    <div class="topbar-user-avatar" id="user-avatar-initials">?</div>
+    <div>
+      <div class="topbar-user-name" id="user-display-name">Loading…</div>
+      <div class="topbar-user-role" id="user-display-role">—</div>
+    </div>
+    <div class="user-dropdown" id="user-dropdown">
+      <div class="user-dropdown-item" onclick="openMyProfile()">My Profile</div>
+      <div class="user-dropdown-item" onclick="openChangePassword()">Change Password</div>
+      <div class="user-dropdown-divider"></div>
+      <div class="user-dropdown-item danger" onclick="doLogout()">Sign Out</div>
+    </div>
   </div>
 </header>
 
@@ -3961,6 +4036,7 @@
           <input type="text" id="pr-add-ot-hrs" style="width:70px;height:36px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:13px;" placeholder="OT hrs" value="0">
         </div>
         <button class="btn-primary" onclick="addEmployeeToPayroll()" style="white-space:nowrap;">+ Add to Run</button>
+        <button class="btn-secondary" onclick="openTimeToPayrollModal()" style="white-space:nowrap;">⏱ Import Hours</button>
         <span style="font-size:11px;color:var(--text-light);">Taxes auto-calculate from employee W-4 settings</span>
       </div>
 
@@ -4486,9 +4562,24 @@
         <div class="field-group"><label class="field-label required">Hours</label><input type="text" class="field-input" id="te-hours" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcBillable()"></div>
         <div class="field-group"><label class="field-label required">Employee</label>
           <select class="field-select" id="te-employee"></select></div>
-        <div class="field-group"><label class="field-label required">Project</label>
+        <div class="field-group"><label class="field-label">Assignment Type</label>
+          <select class="field-select" id="te-assign-type" onchange="toggleTEAssignment()">
+            <option value="project">Project</option>
+            <option value="overhead">Overhead / Admin</option>
+          </select></div>
+        <div class="field-group" id="te-project-group"><label class="field-label required">Project</label>
           <select class="field-select" id="te-project" onchange="loadTasksForTE()"></select></div>
-        <div class="field-group"><label class="field-label">Task</label>
+        <div class="field-group" id="te-category-group" style="display:none;"><label class="field-label required">Category</label>
+          <select class="field-select" id="te-category">
+            <option value="hcat-office">Office / General</option>
+            <option value="hcat-admin">Administrative</option>
+            <option value="hcat-bd">Business Dev</option>
+            <option value="hcat-training">Training</option>
+            <option value="hcat-pto">PTO / Vacation</option>
+            <option value="hcat-sick">Sick Leave</option>
+            <option value="hcat-holiday">Holiday</option>
+          </select></div>
+        <div class="field-group" id="te-task-group"><label class="field-label">Task</label>
           <select class="field-select" id="te-task"><option value="">— No specific task —</option></select></div>
         <div class="field-group"><label class="field-label">Hour Type</label>
           <select class="field-select" id="te-type">
@@ -5506,6 +5597,87 @@
       </div>
     </div>
     <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('electionModal')">Cancel</button><button class="btn-save" onclick="saveElection()">Save Enrollment</button></div>
+  </div>
+</div>
+
+<!-- BILL INVENTORY AUTOMATION MODAL -->
+<div class="modal-overlay" id="billInventoryModal">
+  <div class="modal" style="max-width:680px;">
+    <div class="modal-header">
+      <span class="modal-title">Update Inventory from Bill</span>
+      <button class="modal-close" onclick="closeModal('billInventoryModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="auto-prompt" style="margin-bottom:0;">
+        <div class="auto-prompt-title">📦 Bill contains purchasable items — update inventory?</div>
+        <div class="auto-prompt-desc">The bill you just saved may contain inventory items. Review each line below and link to an inventory item to automatically post a receipt transaction. Skip lines that are services or non-inventory expenses.</div>
+      </div>
+      <div id="bill-inv-lines" style="margin-top:16px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('billInventoryModal')">Skip — No Inventory Items</button>
+      <button class="btn-save" onclick="postBillInventoryReceipts()">Post Inventory Receipts</button>
+    </div>
+  </div>
+</div>
+
+<!-- BILL PO MATCH MODAL -->
+<div class="modal-overlay" id="billPOMatchModal">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-header">
+      <span class="modal-title">Match Bill to Purchase Order</span>
+      <button class="modal-close" onclick="closeModal('billPOMatchModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="auto-prompt" style="margin-bottom:16px;">
+        <div class="auto-prompt-title">🔗 Open POs found for this vendor — match to a PO?</div>
+        <div class="auto-prompt-desc">Matching a bill to a PO closes the purchase order and links the transactions for audit trail purposes.</div>
+      </div>
+      <div id="bill-po-match-list"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('billPOMatchModal')">Skip — No PO Match</button>
+    </div>
+  </div>
+</div>
+
+<!-- TIME TO PAYROLL MODAL -->
+<div class="modal-overlay" id="timeToPayrollModal">
+  <div class="modal" style="max-width:720px;">
+    <div class="modal-header">
+      <span class="modal-title">Import Hours into Payroll Run</span>
+      <button class="modal-close" onclick="closeModal('timeToPayrollModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="auto-prompt" style="margin-bottom:16px;">
+        <div class="auto-prompt-title">⏱ Import approved time entries for this pay period?</div>
+        <div class="auto-prompt-desc">Hours logged in the Projects module for this pay period will be pulled in automatically. Each employee's hours are summed and pre-filled below.</div>
+      </div>
+      <div style="display:flex;gap:12px;margin-bottom:16px;align-items:flex-end;">
+        <div class="field-group" style="margin:0;"><label class="field-label">Period Start</label><input type="date" class="field-input" id="ttp-start" style="height:32px;"></div>
+        <div class="field-group" style="margin:0;"><label class="field-label">Period End</label><input type="date" class="field-input" id="ttp-end" style="height:32px;"></div>
+        <button class="btn-primary" style="height:32px;" onclick="loadTimeForPayroll()">Load Hours</button>
+      </div>
+      <div id="ttp-results"><div class="empty-state"><div class="empty-state-title">Set a period and click Load Hours</div></div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('timeToPayrollModal')">Cancel</button>
+      <button class="btn-save" onclick="applyTimeToPayroll()">Apply Hours to Payroll</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div class="modal-overlay" id="changePasswordModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header"><span class="modal-title">Change Password</span><button class="modal-close" onclick="closeModal('changePasswordModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label required">New Password</label><input type="password" class="field-input" id="cp-new" placeholder="Minimum 8 characters"></div>
+        <div class="field-group col-span-2"><label class="field-label required">Confirm Password</label><input type="password" class="field-input" id="cp-confirm" placeholder="Repeat new password"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('changePasswordModal')">Cancel</button><button class="btn-save" onclick="doChangePassword()">Update Password</button></div>
   </div>
 </div>
 
@@ -7472,6 +7644,10 @@ async function saveBill(status) {
     await sb.from('journal_entry_lines').insert(jls);
   }
   hideLoading();closeModal('billModal');showToast('✓ Bill saved');loadBills();
+  // ── BATCH 9 AUTOMATION: Trigger PO match + inventory prompts ──
+  if (status === 'received') {
+    setTimeout(() => triggerBillAutomation(billId, vendId, lines), 400);
+  }
 }
 async function voidBill(id){if(!confirm('Void this bill?'))return;await sb.from('bills').update({status:'void'}).eq('id',id);showToast('Bill voided');loadBills();}
 
@@ -18121,8 +18297,895 @@ function range(start, end, county) {
   return result;
 }
 
+// ═══════════════════════════════════════════════════
+//  BATCH 9 — AUTHENTICATION, AUTOMATION, TIME→PAYROLL
+// ═══════════════════════════════════════════════════
+
+// ── AUTH STATE ──
+let currentUser = null;       // Supabase auth user
+let currentAppUser = null;    // app_users record
+let currentUserRoles = [];    // role names
+let currentPermissions = [];  // permission keys
+
+// ════════════════════════════════
+//  AUTHENTICATION
+// ════════════════════════════════
+
+async function initAuth() {
+  // Check for existing session
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) {
+    await onAuthSuccess(session.user);
+  } else {
+    showLoginScreen();
+  }
+
+  // Listen for auth changes (sign in / sign out)
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session?.user) {
+      await onAuthSuccess(session.user);
+    } else if (event === 'SIGNED_OUT') {
+      showLoginScreen();
+    } else if (event === 'PASSWORD_RECOVERY') {
+      showToast('Check your email for a password reset link');
+    }
+  });
+}
+
+async function onAuthSuccess(user) {
+  currentUser = user;
+  // Load app_user record linked to this auth user
+  const { data: appUser } = await sb.from('app_users')
+    .select('*, user_roles(role_id, roles(role_name, permissions:role_permissions(permissions(permission_key))))')
+    .eq('email', user.email)
+    .maybeSingle();
+
+  if (appUser) {
+    currentAppUser = appUser;
+    // Flatten roles and permissions
+    const roles = appUser.user_roles || [];
+    currentUserRoles = roles.map(r => r.roles?.role_name).filter(Boolean);
+    currentPermissions = [];
+    roles.forEach(r => {
+      (r.roles?.permissions || []).forEach(p => {
+        if (p.permissions?.permission_key) currentPermissions.push(p.permissions.permission_key);
+      });
+    });
+    // Update last login
+    await sb.from('app_users').update({ last_login_at: new Date().toISOString() }).eq('id', appUser.id);
+  } else {
+    // Auto-create app_user on first login
+    const newId = 'usr-' + Date.now();
+    const { data: created } = await sb.from('app_users').insert({
+      id: newId, email: user.email,
+      full_name: user.user_metadata?.full_name || user.email.split('@')[0],
+      auth_user_id: user.id, is_active: true,
+      last_login_at: new Date().toISOString(),
+    }).select().single();
+    currentAppUser = created;
+    currentUserRoles = ['Viewer'];
+  }
+
+  hideLoginScreen();
+  updateTopbarUser();
+  // Log activity
+  logActivity('login', `User signed in: ${user.email}`);
+  // Refresh alert badge
+  setTimeout(() => refreshAlertBadge(), 1000);
+}
+
+function showLoginScreen() {
+  const screen = document.getElementById('login-screen');
+  if (screen) screen.style.display = 'flex';
+  document.getElementById('topbar-user-badge').style.display = 'none';
+}
+
+function hideLoginScreen() {
+  const screen = document.getElementById('login-screen');
+  if (screen) screen.style.display = 'none';
+  document.getElementById('topbar-user-badge').style.display = 'flex';
+}
+
+function updateTopbarUser() {
+  if (!currentAppUser) return;
+  const name = currentAppUser.full_name || currentAppUser.email || '?';
+  const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const roleStr = currentUserRoles.join(', ') || 'User';
+  document.getElementById('user-avatar-initials').textContent = initials;
+  document.getElementById('user-display-name').textContent = name.length > 16 ? name.slice(0,14)+'…' : name;
+  document.getElementById('user-display-role').textContent = roleStr;
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+  errEl.style.display = 'none';
+  if (!email || !password) { showLoginError('Please enter your email and password.'); return; }
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  btn.disabled = false; btn.textContent = 'Sign In';
+  if (error) {
+    showLoginError(error.message === 'Invalid login credentials'
+      ? 'Incorrect email or password. Please try again.'
+      : error.message);
+    return;
+  }
+  // onAuthStateChange handles the rest
+}
+
+async function doLogout() {
+  logActivity('logout', `User signed out: ${currentUser?.email}`);
+  await sb.auth.signOut();
+  currentUser = null; currentAppUser = null;
+  currentUserRoles = []; currentPermissions = [];
+  document.getElementById('user-dropdown').classList.remove('open');
+}
+
+async function doPasswordReset() {
+  const email = document.getElementById('reset-email').value.trim();
+  if (!email) { showLoginError('Please enter your email address.'); return; }
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.href,
+  });
+  if (error) { showLoginError(error.message); return; }
+  showLoginError(''); // clear
+  document.getElementById('login-error').style.display = 'block';
+  document.getElementById('login-error').style.background = 'rgba(15,110,86,0.1)';
+  document.getElementById('login-error').style.borderColor = 'rgba(15,110,86,0.3)';
+  document.getElementById('login-error').style.color = '#085041';
+  document.getElementById('login-error').textContent = '✓ Reset email sent — check your inbox.';
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  if (!msg) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.style.background = 'rgba(231,76,60,0.1)';
+  el.style.borderColor = 'rgba(231,76,60,0.3)';
+  el.style.color = '#922b21';
+  el.textContent = msg;
+}
+
+function toggleResetForm(show) {
+  document.getElementById('login-form-area').style.display = show ? 'none' : 'block';
+  document.getElementById('reset-form-area').style.display = show ? 'block' : 'none';
+  document.getElementById('forgot-link').style.display = show ? 'none' : 'inline';
+  document.getElementById('login-error').style.display = 'none';
+}
+
+function toggleUserDropdown() {
+  document.getElementById('user-dropdown').classList.toggle('open');
+}
+
+// Close dropdown on outside click
+document.addEventListener('click', e => {
+  const badge = document.getElementById('topbar-user-badge');
+  const dropdown = document.getElementById('user-dropdown');
+  if (badge && dropdown && !badge.contains(e.target)) dropdown.classList.remove('open');
+});
+
+function openMyProfile() {
+  document.getElementById('user-dropdown').classList.remove('open');
+  switchModule('settings');
+  showSetPanel('users');
+  showToast('Find your account in the Users panel to edit your profile');
+}
+
+function openChangePassword() {
+  document.getElementById('user-dropdown').classList.remove('open');
+  document.getElementById('cp-new').value = '';
+  document.getElementById('cp-confirm').value = '';
+  document.getElementById('changePasswordModal').classList.add('show');
+}
+
+async function doChangePassword() {
+  const newPass = document.getElementById('cp-new').value;
+  const confirm = document.getElementById('cp-confirm').value;
+  if (!newPass || newPass.length < 8) { showToast('⚠ Password must be at least 8 characters', true); return; }
+  if (newPass !== confirm) { showToast('⚠ Passwords do not match', true); return; }
+  showLoading('Updating password…');
+  const { error } = await sb.auth.updateUser({ password: newPass });
+  hideLoading();
+  if (error) { showToast('Error: ' + error.message, true); return; }
+  closeModal('changePasswordModal');
+  showToast('✓ Password updated successfully');
+  logActivity('password_change', 'User changed their password');
+}
+
+// Permission helper — check if current user has a permission
+function hasPermission(key) {
+  if (!currentAppUser) return false;
+  if (currentUserRoles.includes('Administrator') || currentUserRoles.includes('Owner')) return true;
+  return currentPermissions.includes(key);
+}
+
+// ════════════════════════════════
+//  AUTOMATION — BILL → INVENTORY + PO MATCH
+// ════════════════════════════════
+
+let _billAutoId = null;
+let _billAutoLines = [];
+let _billAutoVendorId = null;
+let _billAutoItems = [];
+let _billAutoPOs = [];
+
+async function triggerBillAutomation(billId, vendorId, lines) {
+  _billAutoId = billId;
+  _billAutoLines = lines;
+  _billAutoVendorId = vendorId;
+
+  // Load items for matching
+  const { data: items } = await sb.from('items')
+    .select('id,item_name,sku,item_type')
+    .eq('company_id', acctCompanyId)
+    .eq('is_active', true)
+    .order('item_name');
+  _billAutoItems = items || [];
+
+  // Check for open POs from this vendor
+  const { data: openPOs } = await sb.from('purchase_orders')
+    .select('id,po_number,total,order_date,status')
+    .eq('company_id', acctCompanyId)
+    .eq('vendor_id', vendorId)
+    .in('status', ['draft','sent','partial']);
+  _billAutoPOs = openPOs || [];
+
+  // Show PO match first if POs exist
+  if (_billAutoPOs.length > 0) {
+    showBillPOMatchModal();
+  } else {
+    // Skip straight to inventory
+    showBillInventoryModal();
+  }
+}
+
+function showBillPOMatchModal() {
+  const c = document.getElementById('bill-po-match-list');
+  const fmt2 = v => '$' + parseFloat(v||0).toLocaleString('en-US', {minimumFractionDigits:2});
+  c.innerHTML = _billAutoPOs.map(po => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius);margin-bottom:8px;">
+      <div style="flex:1;">
+        <div style="font-weight:600;font-size:14px;">PO ${po.po_number}</div>
+        <div style="font-size:12px;color:var(--text-light);">Ordered ${fmtDate(po.order_date)} · ${po.status} · ${fmt2(po.total)}</div>
+      </div>
+      <button onclick="matchBillToPO('${po.id}')" class="btn-save" style="height:32px;">Match &amp; Close PO</button>
+    </div>
+  `).join('');
+  document.getElementById('billPOMatchModal').classList.add('show');
+}
+
+async function matchBillToPO(poId) {
+  showLoading('Matching bill to PO…');
+  await sb.from('purchase_orders').update({
+    status: 'closed',
+    bill_id: _billAutoId,
+    updated_at: new Date().toISOString()
+  }).eq('id', poId);
+  // Copy PO lines to bill lines for item linkage
+  const { data: poLines } = await sb.from('purchase_order_lines').select('*').eq('po_id', poId);
+  if (poLines?.length) {
+    // Update bill_lines with po/item refs where descriptions match
+    const { data: billLines } = await sb.from('bill_lines').select('id,description').eq('bill_id', _billAutoId);
+    for (const bl of (billLines||[])) {
+      const match = poLines.find(pl => pl.description?.toLowerCase() === bl.description?.toLowerCase());
+      if (match) {
+        await sb.from('bill_lines').update({
+          po_id: poId,
+          po_line_id: match.id,
+          item_id: match.item_id || null
+        }).eq('id', bl.id);
+      }
+    }
+  }
+  hideLoading();
+  closeModal('billPOMatchModal');
+  showToast('✓ Bill matched to PO ' + _billAutoPOs.find(p=>p.id===poId)?.po_number);
+  showBillInventoryModal();
+}
+
+function showBillInventoryModal() {
+  const c = document.getElementById('bill-inv-lines');
+  const itemOpts = '<option value="">— Not an inventory item —</option>' +
+    _billAutoItems.filter(i => i.item_type === 'inventory' || i.item_type === 'material' || !i.item_type)
+      .map(i => `<option value="${i.id}">${i.sku ? i.sku+' — ' : ''}${i.item_name}</option>`).join('');
+
+  c.innerHTML = `
+    <table class="acct-table">
+      <thead><tr><th>Bill Line Description</th><th style="text-align:right;">Qty</th><th style="text-align:right;">Unit Cost</th><th>Link to Inventory Item</th></tr></thead>
+      <tbody>
+        ${_billAutoLines.map((line, i) => `
+          <tr>
+            <td style="font-size:13px;">${line.description || '—'}</td>
+            <td style="text-align:right;font-family:monospace;">${parseFloat(line.quantity||1).toFixed(2)}</td>
+            <td style="text-align:right;font-family:monospace;">$${parseFloat(line.unit_price||0).toFixed(2)}</td>
+            <td>
+              <select class="field-select inv-item-sel" data-idx="${i}" style="height:28px;font-size:12px;width:100%;">
+                ${itemOpts}
+              </select>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>`;
+  document.getElementById('billInventoryModal').classList.add('show');
+}
+
+async function postBillInventoryReceipts() {
+  showLoading('Posting inventory receipts…');
+  const sels = document.querySelectorAll('.inv-item-sel');
+  let posted = 0;
+  const today = new Date().toISOString().slice(0,10);
+
+  for (const sel of sels) {
+    const itemId = sel.value;
+    if (!itemId) continue;
+    const idx = parseInt(sel.dataset.idx);
+    const line = _billAutoLines[idx];
+    const qty = parseFloat(line.quantity||1)||1;
+    const cost = parseFloat(line.unit_price||0)||0;
+    const txnId = 'txn-bill-' + Date.now() + '-' + idx;
+
+    // Post inventory receive transaction
+    await sb.from('inventory_transactions').insert({
+      id: txnId,
+      company_id: acctCompanyId,
+      item_id: itemId,
+      transaction_type: 'receive',
+      transaction_date: today,
+      quantity: qty,
+      unit_cost: cost,
+      total_cost: Math.round(qty * cost * 100) / 100,
+      reference_type: 'bill',
+      reference_id: _billAutoId,
+      notes: 'Auto-posted from Bill'
+    });
+
+    // Create FIFO lot
+    await sb.from('inventory_lots').insert({
+      id: 'lot-' + txnId,
+      item_id: itemId,
+      receive_transaction_id: txnId,
+      received_date: today,
+      quantity_received: qty,
+      quantity_remaining: qty,
+      unit_cost: cost,
+      is_depleted: false
+    });
+
+    // Update item's bill_line item_id
+    const { data: bLines } = await sb.from('bill_lines').select('id').eq('bill_id', _billAutoId).order('sort_order');
+    if (bLines?.[idx]) {
+      await sb.from('bill_lines').update({ item_id: itemId }).eq('id', bLines[idx].id);
+    }
+    posted++;
+  }
+
+  hideLoading();
+  closeModal('billInventoryModal');
+  if (posted > 0) {
+    showToast(`✓ ${posted} inventory receipt${posted!==1?'s':''} posted`);
+    // Trigger automation rule check for low stock
+    if (rptCompanyId || acctCompanyId) {
+      const cid = rptCompanyId || acctCompanyId;
+      const { data: rules } = await sb.from('automation_rules')
+        .select('*').eq('company_id', cid)
+        .eq('trigger_type', 'inventory_low').eq('is_active', true);
+      for (const rule of (rules||[])) await executeRule(rule);
+    }
+  } else {
+    showToast('No inventory items selected — skipped');
+  }
+}
+
+// ════════════════════════════════
+//  TIME ENTRY — OVERHEAD TOGGLE
+// ════════════════════════════════
+
+function toggleTEAssignment() {
+  const type = document.getElementById('te-assign-type').value;
+  const isOverhead = type === 'overhead';
+  document.getElementById('te-project-group').style.display = isOverhead ? 'none' : '';
+  document.getElementById('te-category-group').style.display = isOverhead ? '' : 'none';
+  document.getElementById('te-task-group').style.display = isOverhead ? 'none' : '';
+  // Overhead hours are never billable
+  if (isOverhead) {
+    document.getElementById('te-billable').checked = false;
+    document.getElementById('te-rate').value = '';
+    document.getElementById('te-amount').value = '0.00';
+  }
+}
+
+// Patch saveTimeEntry to handle overhead category
+const _origSaveTimeEntry = saveTimeEntry;
+saveTimeEntry = async function() {
+  const assignType = document.getElementById('te-assign-type').value;
+  if (assignType === 'overhead') {
+    // Overhead path — no project required
+    const hrs = parseFloat(document.getElementById('te-hours').value||0);
+    const empId = document.getElementById('te-employee').value;
+    const date = document.getElementById('te-date').value;
+    const catId = document.getElementById('te-category').value;
+    if (!hrs || !empId || !date) { showToast('⚠ Date, hours and employee required', true); return; }
+    showLoading('Saving time entry…');
+    const tid = editingTimeId || ('te-' + Date.now());
+    const g = id => document.getElementById(id)?.value || '';
+    await sb.from('time_entries').upsert({
+      id: tid, project_id: null, employee_id: empId, entry_date: date,
+      task_id: null, hours: hrs, hour_type: g('te-type'),
+      description: g('te-desc'), is_billable: false,
+      billing_rate: 0, billable_amount: 0,
+      hour_category_id: catId || null, status: 'draft',
+    });
+    hideLoading();
+    closeModal('timeEntryModal');
+    showToast('✓ Overhead hours saved');
+    loadTimeEntries();
+  } else {
+    await _origSaveTimeEntry();
+  }
+};
+
+// ════════════════════════════════
+//  TIME → PAYROLL AUTOMATION
+// ════════════════════════════════
+
+function openTimeToPayrollModal() {
+  const start = document.getElementById('pr-start').value;
+  const end = document.getElementById('pr-end').value;
+  document.getElementById('ttp-start').value = start || '';
+  document.getElementById('ttp-end').value = end || '';
+  document.getElementById('ttp-results').innerHTML = `<div class="empty-state"><div class="empty-state-title">Set a period and click Load Hours</div></div>`;
+  document.getElementById('timeToPayrollModal').classList.add('show');
+}
+
+async function loadTimeForPayroll() {
+  const start = document.getElementById('ttp-start').value;
+  const end = document.getElementById('ttp-end').value;
+  if (!start || !end) { showToast('⚠ Select a period', true); return; }
+  const c = document.getElementById('ttp-results');
+  c.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text-light);">Loading…</div>`;
+
+  // Pull all time entries in period with employee info
+  const { data: entries } = await sb.from('time_entries')
+    .select('*, employees(id,first_name,last_name,pay_rate,pay_type), projects(project_name), hour_categories(category_name)')
+    .eq('status', 'draft')
+    .gte('entry_date', start)
+    .lte('entry_date', end)
+    .eq('employees.company_id', acctCompanyId);
+
+  if (!entries?.length) {
+    c.innerHTML = `<div class="empty-state"><div class="empty-state-title">No time entries found for this period</div><div>Entries must have status "draft" to be imported.</div></div>`;
+    return;
+  }
+
+  // Aggregate by employee
+  const byEmp = {};
+  entries.forEach(e => {
+    const empId = e.employee_id;
+    if (!empId) return;
+    if (!byEmp[empId]) byEmp[empId] = {
+      emp: e.employees, totalHours: 0, regularHours: 0, otHours: 0,
+      projectBreakdown: {}, overheadHours: 0, entryIds: []
+    };
+    const hrs = parseFloat(e.hours || 0);
+    byEmp[empId].totalHours += hrs;
+    if (e.hour_type === 'overtime') byEmp[empId].otHours += hrs;
+    else byEmp[empId].regularHours += hrs;
+    if (e.project_id) {
+      const pname = e.projects?.project_name || e.project_id;
+      byEmp[empId].projectBreakdown[pname] = (byEmp[empId].projectBreakdown[pname] || 0) + hrs;
+    } else {
+      byEmp[empId].overheadHours += hrs;
+    }
+    byEmp[empId].entryIds.push(e.id);
+  });
+
+  const rows = Object.values(byEmp);
+  if (!rows.length) {
+    c.innerHTML = `<div class="empty-state"><div class="empty-state-title">No entries matched current company employees</div></div>`;
+    return;
+  }
+
+  c.innerHTML = `
+    <table class="acct-table">
+      <thead><tr>
+        <th><input type="checkbox" id="ttp-select-all" checked onchange="document.querySelectorAll('.ttp-check').forEach(cb=>cb.checked=this.checked)" style="accent-color:var(--gold);"></th>
+        <th>Employee</th><th style="text-align:right;">Reg Hrs</th><th style="text-align:right;">OT Hrs</th><th style="text-align:right;">Total Hrs</th><th>Project Breakdown</th>
+      </tr></thead>
+      <tbody>
+        ${rows.map(row => {
+          const emp = row.emp;
+          if (!emp) return '';
+          const name = `${emp.last_name}, ${emp.first_name}`;
+          const breakdown = Object.entries(row.projectBreakdown)
+            .map(([proj, hrs]) => `<span style="font-size:11px;background:var(--gold-pale);padding:1px 6px;border-radius:10px;margin-right:2px;">${proj}: ${hrs.toFixed(1)}h</span>`)
+            .join('') + (row.overheadHours > 0 ? `<span style="font-size:11px;background:var(--section-bg);padding:1px 6px;border-radius:10px;">Overhead: ${row.overheadHours.toFixed(1)}h</span>` : '');
+          return `<tr>
+            <td><input type="checkbox" class="ttp-check" data-emp-id="${emp.id}" data-reg="${row.regularHours}" data-ot="${row.otHours}" data-ids="${row.entryIds.join(',')}" checked style="accent-color:var(--gold);"></td>
+            <td><strong>${name}</strong><div style="font-size:11px;color:var(--text-light);">${emp.pay_type||'salary'} · $${parseFloat(emp.pay_rate||0).toLocaleString()}</div></td>
+            <td style="text-align:right;font-family:monospace;">${row.regularHours.toFixed(2)}</td>
+            <td style="text-align:right;font-family:monospace;">${row.otHours.toFixed(2)}</td>
+            <td style="text-align:right;font-family:monospace;font-weight:600;">${row.totalHours.toFixed(2)}</td>
+            <td>${breakdown || '<span style="color:var(--text-light);font-size:12px;">No project assigned</span>'}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    <div style="margin-top:10px;font-size:12px;color:var(--text-light);">
+      ${rows.reduce((s,r)=>s+r.entryIds.length,0)} time entries · ${rows.length} employee${rows.length!==1?'s':''}. Selected employees will be added to the payroll run with their hours pre-filled.
+    </div>`;
+}
+
+async function applyTimeToPayroll() {
+  const checks = [...document.querySelectorAll('.ttp-check:checked')];
+  if (!checks.length) { showToast('⚠ No employees selected', true); return; }
+  closeModal('timeToPayrollModal');
+
+  for (const cb of checks) {
+    const empId = cb.dataset.empId;
+    const regHrs = parseFloat(cb.dataset.reg) || 0;
+    const otHrs = parseFloat(cb.dataset.ot) || 0;
+    // Load employee to get pay info
+    const { data: emp } = await sb.from('employees').select('*').eq('id', empId).single();
+    if (!emp) continue;
+    // Set the employee picker and call addEmployeeToPayroll
+    const picker = document.getElementById('pr-emp-picker');
+    if (picker) {
+      // Find option for this employee
+      const opt = [...picker.options].find(o => o.value === empId);
+      if (opt) {
+        picker.value = empId;
+        document.getElementById('pr-add-reg-hrs').value = regHrs.toFixed(2);
+        document.getElementById('pr-add-ot-hrs').value = otHrs.toFixed(2);
+        await addEmployeeToPayroll();
+      }
+    }
+    // Mark time entries as linked (after payroll is saved we'll link them)
+    const entryIds = (cb.dataset.ids || '').split(',').filter(Boolean);
+    if (entryIds.length) {
+      // Store for post-save linking
+      window._pendingTimeEntryIds = [...(window._pendingTimeEntryIds || []), ...entryIds];
+    }
+  }
+  showToast(`✓ ${checks.length} employee${checks.length!==1?'s':''} imported from time entries`);
+}
+
+// Patch savePayroll to link time entries after save
+const _origSavePayroll = savePayroll;
+savePayroll = async function(status) {
+  await _origSavePayroll(status);
+  // After payroll saved, link pending time entries
+  if (window._pendingTimeEntryIds?.length) {
+    // Get last inserted payroll record
+    const { data: lastPR } = await sb.from('payroll_records')
+      .select('id').eq('company_id', acctCompanyId)
+      .order('created_at', {ascending:false}).limit(1).single();
+    if (lastPR) {
+      for (const tid of window._pendingTimeEntryIds) {
+        await sb.from('time_entries').update({
+          payroll_run_id: lastPR.id,
+          status: 'approved',
+          approved_at: new Date().toISOString()
+        }).eq('id', tid);
+      }
+      showToast(`✓ ${window._pendingTimeEntryIds.length} time entries linked to payroll`);
+    }
+    window._pendingTimeEntryIds = [];
+  }
+};
+
+// ════════════════════════════════
+//  INCIDENT RESPONSE PLAN
+// ════════════════════════════════
+
+function openIncidentResponsePlan() {
+  const today = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+  const companyName = currentAppUser?.email?.split('@')[1]?.split('.')[0] || 'The Reinolds Group';
+  const win = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<title>Incident Response Plan — Family Office EMS</title>
+<style>
+  @page { margin: 1.2in 1in; }
+  * { box-sizing: border-box; }
+  body { font-family: Georgia, serif; font-size: 12pt; color: #1a1a2e; line-height: 1.7; max-width: 800px; margin: 0 auto; padding: 20px; }
+  h1 { font-size: 22pt; color: #0f1f38; border-bottom: 3px solid #b8965a; padding-bottom: 10px; margin-bottom: 6px; }
+  h2 { font-size: 15pt; color: #0f1f38; border-left: 4px solid #b8965a; padding-left: 12px; margin-top: 32px; page-break-after: avoid; }
+  h3 { font-size: 12pt; color: #1a3356; margin-top: 16px; font-weight: bold; }
+  .meta { font-size: 10pt; color: #666; margin-bottom: 32px; }
+  .meta table { border-collapse: collapse; }
+  .meta td { padding: 3px 16px 3px 0; }
+  .meta td:first-child { font-weight: bold; color: #0f1f38; }
+  table.control { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 11pt; }
+  table.control th { background: #0f1f38; color: #d4b07a; padding: 7px 12px; text-align: left; font-size: 10pt; }
+  table.control td { padding: 7px 12px; border-bottom: 1px solid #e0ddd5; vertical-align: top; }
+  table.control tr:nth-child(even) td { background: #faf8f4; }
+  .severity { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10pt; font-weight: bold; }
+  .sev-p1 { background: #922b21; color: white; }
+  .sev-p2 { background: #e67e22; color: white; }
+  .sev-p3 { background: #2980b9; color: white; }
+  .sev-p4 { background: #27ae60; color: white; }
+  .callout { border: 1px solid #b8965a; background: #fdf9f0; padding: 12px 16px; border-radius: 6px; margin: 12px 0; }
+  .callout strong { color: #0f1f38; }
+  ol, ul { padding-left: 20px; }
+  li { margin-bottom: 4px; }
+  .toc a { color: #0f1f38; text-decoration: none; }
+  .toc li { margin-bottom: 2px; }
+  footer { margin-top: 48px; border-top: 1px solid #ddd; padding-top: 12px; font-size: 9pt; color: #999; display: flex; justify-content: space-between; }
+  @media print { button { display: none; } }
+</style>
+</head>
+<body>
+
+<button onclick="window.print()" style="margin-bottom:20px;padding:8px 20px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;font-size:12pt;">🖨 Print / Save as PDF</button>
+
+<h1>Information Security Incident Response Plan</h1>
+<div class="meta">
+  <table>
+    <tr><td>Organization:</td><td>Family Office Enterprise Management System</td></tr>
+    <tr><td>Document Version:</td><td>1.0</td></tr>
+    <tr><td>Effective Date:</td><td>${today}</td></tr>
+    <tr><td>Review Cycle:</td><td>Annual (or after any significant incident)</td></tr>
+    <tr><td>Document Owner:</td><td>Chief Financial Officer / IT Administrator</td></tr>
+    <tr><td>Classification:</td><td>Confidential — Internal Use Only</td></tr>
+  </table>
+</div>
+
+<div class="callout">
+  <strong>Purpose:</strong> This Incident Response Plan (IRP) establishes procedures for detecting, containing, eradicating, and recovering from information security incidents affecting the Family Office EMS. It is designed to satisfy SOX Section 404 IT control requirements and SOC 2 Type II incident management criteria.
+</div>
+
+<h2>1. Scope and Applicability</h2>
+<p>This plan applies to all systems, personnel, and third-party service providers that access, process, store, or transmit financial data managed through the Family Office EMS, including:</p>
+<ul>
+  <li>The Family Office EMS application (hosted on Netlify)</li>
+  <li>The Supabase PostgreSQL database (hosted on AWS)</li>
+  <li>All administrative user accounts and API keys</li>
+  <li>Integrated third-party services (GitHub, Netlify, Supabase)</li>
+  <li>Any device used to access the system</li>
+</ul>
+
+<h2>2. Incident Classification</h2>
+<table class="control">
+  <thead><tr><th>Severity</th><th>Description</th><th>Examples</th><th>Response SLA</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="severity sev-p1">P1 Critical</span></td>
+      <td>Immediate threat to financial data integrity, active breach, ransomware, or complete system unavailability</td>
+      <td>Unauthorized access to financial records; data exfiltration; database compromise; ransomware</td>
+      <td>Respond within <strong>1 hour</strong>; notify within <strong>24 hours</strong></td>
+    </tr>
+    <tr>
+      <td><span class="severity sev-p2">P2 High</span></td>
+      <td>Significant risk of unauthorized access or data loss; partial system compromise</td>
+      <td>Compromised admin credentials; unauthorized data modification; failed MFA bypass attempts; suspicious login patterns</td>
+      <td>Respond within <strong>4 hours</strong>; notify within <strong>48 hours</strong></td>
+    </tr>
+    <tr>
+      <td><span class="severity sev-p3">P3 Medium</span></td>
+      <td>Potential vulnerability or policy violation without confirmed exploitation</td>
+      <td>Unpatched dependency with known CVE; policy violation; failed penetration test finding; misconfigured RLS policy</td>
+      <td>Respond within <strong>24 hours</strong>; remediate within <strong>30 days</strong></td>
+    </tr>
+    <tr>
+      <td><span class="severity sev-p4">P4 Low</span></td>
+      <td>Minor security issue with negligible risk; informational finding</td>
+      <td>Weak password (no breach); expired SSL certificate warning; inactive user account not deprovisioned</td>
+      <td>Log and remediate within <strong>90 days</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>3. Incident Response Team</h2>
+<table class="control">
+  <thead><tr><th>Role</th><th>Responsibilities</th><th>Contact</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Incident Commander (IC)</strong><br><em>CFO or designated IT Administrator</em></td>
+      <td>Overall incident coordination; escalation decisions; external communications; regulatory notifications</td>
+      <td>[Insert Name &amp; Contact]</td>
+    </tr>
+    <tr>
+      <td><strong>Technical Lead</strong><br><em>IT Administrator / Developer</em></td>
+      <td>Technical investigation; containment actions; evidence preservation; system recovery</td>
+      <td>[Insert Name &amp; Contact]</td>
+    </tr>
+    <tr>
+      <td><strong>Finance Lead</strong><br><em>Controller or Senior Accountant</em></td>
+      <td>Assess impact on financial records; validate data integrity post-incident; notify auditors</td>
+      <td>[Insert Name &amp; Contact]</td>
+    </tr>
+    <tr>
+      <td><strong>Legal / Compliance</strong><br><em>General Counsel or outside counsel</em></td>
+      <td>Regulatory notification requirements; legal holds; client notification obligations</td>
+      <td>[Insert Name &amp; Contact]</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>4. Incident Response Phases</h2>
+
+<h3>Phase 1 — Preparation</h3>
+<ul>
+  <li>Maintain current user access list in Settings → Users; review quarterly</li>
+  <li>Enforce MFA for all users with access to financial data</li>
+  <li>Keep Supabase API keys rotated at least annually; store in a password manager</li>
+  <li>Maintain GitHub repository with branch protection; no direct pushes to main</li>
+  <li>Run annual penetration test against the application</li>
+  <li>Conduct tabletop incident response exercise annually</li>
+  <li>Maintain off-site backup verification logs (Supabase PITR enabled)</li>
+</ul>
+
+<h3>Phase 2 — Detection &amp; Identification</h3>
+<p>Incidents may be detected through:</p>
+<ul>
+  <li><strong>Activity Log</strong> (Settings → Activity Log) — review daily for anomalies</li>
+  <li><strong>Alert Center</strong> (Reports → Alert Center) — automated rules trigger on abnormal patterns</li>
+  <li><strong>Supabase Dashboard</strong> — monitor auth logs and API usage</li>
+  <li><strong>Netlify Logs</strong> — monitor deploy logs and function errors</li>
+  <li><strong>User reports</strong> — any user may report a suspected incident</li>
+</ul>
+<p>Upon detection, document: date/time of discovery, who discovered it, description of anomaly, systems affected, and initial severity classification.</p>
+
+<h3>Phase 3 — Containment</h3>
+<p><strong>Immediate containment (P1/P2):</strong></p>
+<ol>
+  <li>Revoke compromised user accounts immediately via Settings → Users → Deactivate</li>
+  <li>Rotate Supabase API key in Supabase Dashboard → Settings → API</li>
+  <li>If database compromise suspected: contact Supabase support to suspend project</li>
+  <li>If Netlify compromise suspected: roll back to last known-good deploy</li>
+  <li>Preserve all logs before any remediation — export Supabase auth logs and activity log</li>
+  <li>Do not delete or modify any logs (legal hold)</li>
+</ol>
+<p><strong>Short-term containment (P3/P4):</strong></p>
+<ul>
+  <li>Document finding in incident log</li>
+  <li>Apply RLS policy fix or access control correction</li>
+  <li>Monitor for recurrence for 30 days</li>
+</ul>
+
+<h3>Phase 4 — Eradication</h3>
+<ul>
+  <li>Remove unauthorized access (revoke tokens, reset passwords, deactivate accounts)</li>
+  <li>Patch identified vulnerabilities in application code</li>
+  <li>Audit all user permissions and remove excess access (principle of least privilege)</li>
+  <li>Review all API keys and rotate any that may be compromised</li>
+  <li>Scan codebase for hardcoded credentials or secrets</li>
+  <li>Update npm/pip dependencies with known CVEs</li>
+</ul>
+
+<h3>Phase 5 — Recovery</h3>
+<ul>
+  <li>Restore from Supabase Point-in-Time Recovery (PITR) if data integrity is in question</li>
+  <li>Verify data integrity: run Trial Balance and compare to last known-good period</li>
+  <li>Re-enable affected user accounts only after credential rotation and MFA re-enrollment</li>
+  <li>Monitor system closely for 72 hours post-recovery</li>
+  <li>Validate all financial controls are functioning before resuming normal operations</li>
+</ul>
+
+<h3>Phase 6 — Post-Incident Review</h3>
+<p>Within 5 business days of incident closure, conduct a Post-Incident Review (PIR) and document:</p>
+<ul>
+  <li>Incident timeline (detection → containment → recovery)</li>
+  <li>Root cause analysis</li>
+  <li>What controls worked; what failed</li>
+  <li>Changes to controls, procedures, or training implemented as a result</li>
+  <li>Total impact: systems affected, data at risk, downtime, financial impact</li>
+  <li>File PIR in Documents module under category "Legal / Compliance"</li>
+</ul>
+
+<h2>5. Regulatory Notification Requirements</h2>
+<table class="control">
+  <thead><tr><th>Regulation</th><th>Trigger</th><th>Notification Requirement</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>SOX Section 409</strong></td>
+      <td>Any incident with material financial impact on reported results</td>
+      <td>Timely disclosure to board and auditors; document in annual SEC filing if public</td>
+    </tr>
+    <tr>
+      <td><strong>State Data Breach Laws (FL, GA)</strong></td>
+      <td>Breach of personal information of Florida or Georgia residents</td>
+      <td>Florida: notify within 30 days to affected individuals; report to AG if 500+ affected. Georgia: notify without unreasonable delay.</td>
+    </tr>
+    <tr>
+      <td><strong>IRS / Financial Data</strong></td>
+      <td>Unauthorized access to tax identification numbers, SSNs, payroll data</td>
+      <td>Report to IRS at 1-800-908-4490; notify affected employees; file IRS Form 14039</td>
+    </tr>
+    <tr>
+      <td><strong>External Auditor</strong></td>
+      <td>Any P1 or P2 incident affecting financial records</td>
+      <td>Notify engagement partner within 48 hours; preserve all evidence for audit</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>6. Data Retention &amp; Evidence Preservation</h2>
+<ul>
+  <li>All financial records: retain minimum <strong>7 years</strong> (SOX Section 802)</li>
+  <li>Activity logs: retain minimum <strong>7 years</strong></li>
+  <li>Incident records and PIRs: retain minimum <strong>7 years</strong></li>
+  <li>Backup verification logs: retain <strong>3 years</strong></li>
+  <li>Penetration test reports: retain <strong>3 years</strong></li>
+  <li>Do not destroy records once a legal hold is in place</li>
+</ul>
+
+<h2>7. Third-Party Service Provider Contacts</h2>
+<table class="control">
+  <thead><tr><th>Provider</th><th>Service</th><th>Security Contact</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Supabase</strong></td><td>Database, Authentication, Storage</td><td>security@supabase.io | support.supabase.com</td></tr>
+    <tr><td><strong>Netlify</strong></td><td>Application Hosting, CDN</td><td>security@netlify.com | netlify.com/support</td></tr>
+    <tr><td><strong>GitHub</strong></td><td>Source Code Repository</td><td>security@github.com | support.github.com</td></tr>
+    <tr><td><strong>AWS</strong></td><td>Underlying Cloud Infrastructure (via Supabase)</td><td>aws.amazon.com/security (via Supabase)</td></tr>
+  </tbody>
+</table>
+
+<h2>8. Plan Maintenance</h2>
+<ul>
+  <li>This plan must be reviewed and updated <strong>annually</strong>, or within 30 days of any significant incident</li>
+  <li>All revisions must be version-controlled with date and owner</li>
+  <li>Distribute updated plan to all members of the Incident Response Team</li>
+  <li>File current version in Documents module under category "Legal / Compliance"</li>
+  <li>Next scheduled review: <strong>${new Date(Date.now() + 365*24*60*60*1000).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</strong></li>
+</ul>
+
+<h2>9. Incident Log Template</h2>
+<table class="control">
+  <thead><tr><th>Field</th><th>Entry</th></tr></thead>
+  <tbody>
+    <tr><td>Incident ID</td><td>INC-[YYYY-MM-DD-###]</td></tr>
+    <tr><td>Date/Time Discovered</td><td></td></tr>
+    <tr><td>Discovered By</td><td></td></tr>
+    <tr><td>Severity</td><td>P1 / P2 / P3 / P4</td></tr>
+    <tr><td>Systems Affected</td><td></td></tr>
+    <tr><td>Description</td><td></td></tr>
+    <tr><td>Containment Actions Taken</td><td></td></tr>
+    <tr><td>Eradication Actions Taken</td><td></td></tr>
+    <tr><td>Recovery Actions Taken</td><td></td></tr>
+    <tr><td>Root Cause</td><td></td></tr>
+    <tr><td>Data Impacted</td><td>Yes / No — describe</td></tr>
+    <tr><td>Notification Required</td><td>Yes / No — who notified, when</td></tr>
+    <tr><td>Incident Commander</td><td></td></tr>
+    <tr><td>Date Closed</td><td></td></tr>
+    <tr><td>PIR Completed</td><td>Yes / No — date</td></tr>
+  </tbody>
+</table>
+
+<footer>
+  <span>Family Office EMS — Incident Response Plan v1.0</span>
+  <span>Confidential — Internal Use Only — ${today}</span>
+</footer>
+</body>
+</html>`);
+  win.document.close();
+}
+
+// ── Expose IRP via Reports module helper button ──
+// Add IRP link to settings module and reports module after load
+function addIRPLinks() {
+  // Add to Settings sidebar if not already there
+  const setContent = document.getElementById('set-content');
+  if (setContent && !document.getElementById('irp-btn-container')) {
+    const div = document.createElement('div');
+    div.id = 'irp-btn-container';
+    div.style.cssText = 'padding:16px;border-top:1px solid var(--border-light);margin-top:8px;';
+    div.innerHTML = `<button onclick="openIncidentResponsePlan()" style="background:var(--gold-pale);border:1px solid var(--gold);color:var(--navy);padding:8px 14px;border-radius:var(--radius);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;width:100%;text-align:left;">📋 Incident Response Plan</button>`;
+    setContent.appendChild(div);
+  }
+}
+
+async function initApp() {
+  await initAuth();
+  setTimeout(addIRPLinks, 2000);
+}
+
 // ── INIT
-loadDashboard();
+initApp();
 </script>
 </body>
 </html>
