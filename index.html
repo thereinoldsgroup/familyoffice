@@ -1027,6 +1027,22 @@
           <button class="acct-sidebar-btn"         id="acct-nav-draws"      onclick="showAcctView('draws')">      <span class="acct-icon">👤</span> Owner Draws</button>
           <button class="acct-sidebar-btn"         id="acct-nav-assets"     onclick="showAcctView('assets')">     <span class="acct-icon">🏗️</span> Fixed Assets</button>
           <button class="acct-sidebar-btn"         id="acct-nav-sales-tax"  onclick="showAcctView('sales-tax')">  <span class="acct-icon">🧮</span> Sales Tax</button>
+          <div class="acct-sidebar-section">Banking 2.0</div>
+          <button class="acct-sidebar-btn"         id="acct-nav-bank-accts"  onclick="showAcctView('bank-accts')"> <span class="acct-icon">🏛️</span> Bank Accounts</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-bank-rules"  onclick="showAcctView('bank-rules')"> <span class="acct-icon">⚙️</span> Bank Rules</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-recon2"      onclick="showAcctView('recon2')">     <span class="acct-icon">✅</span> Reconciliation 2.0</button>
+          <div class="acct-sidebar-section">Payroll 2.0</div>
+          <button class="acct-sidebar-btn"         id="acct-nav-form941"     onclick="showAcctView('form941')">    <span class="acct-icon">📋</span> Form 941</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-form940"     onclick="showAcctView('form940')">    <span class="acct-icon">📋</span> Form 940 (FUTA)</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-w2s"         onclick="showAcctView('w2s')">        <span class="acct-icon">📄</span> W-2 Generator</button>
+          <div class="acct-sidebar-section">Assets 2.0</div>
+          <button class="acct-sidebar-btn"         id="acct-nav-asset-sched" onclick="showAcctView('asset-sched')"><span class="acct-icon">📅</span> Depreciation Schedule</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-asset-disp"  onclick="showAcctView('asset-disp')"> <span class="acct-icon">🗑️</span> Disposals</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-asset-maint" onclick="showAcctView('asset-maint')"><span class="acct-icon">🔧</span> Maintenance Log</button>
+          <div class="acct-sidebar-section">Consolidation</div>
+          <button class="acct-sidebar-btn"         id="acct-nav-consol"      onclick="showAcctView('consol')">     <span class="acct-icon">🏢</span> Consolidation Groups</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-elim"        onclick="showAcctView('elim')">       <span class="acct-icon">⚖️</span> Eliminations</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-consol-fs"   onclick="showAcctView('consol-fs')">  <span class="acct-icon">📊</span> Consolidated FS</button>
           <div class="acct-sidebar-section">Reports</div>
           <button class="acct-sidebar-btn"         id="acct-nav-tb"        onclick="showAcctView('tb')">        <span class="acct-icon">⚖️</span> Trial Balance</button>
           <button class="acct-sidebar-btn"         id="acct-nav-pl"        onclick="showAcctView('pl')">        <span class="acct-icon">📈</span> Profit &amp; Loss</button>
@@ -1285,6 +1301,165 @@
             <div id="st-tab-paid" style="display:none;">
               <div id="taxPaidContent"><div class="empty-state"><div class="empty-state-title">No tax paid records</div></div></div>
             </div>
+          </div>
+
+          </div>
+
+          <!-- ═══ BANKING 2.0 ═══ -->
+
+          <!-- BANK ACCOUNTS -->
+          <div id="acct-view-bank-accts" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Bank Accounts</div>
+              <button class="btn-save" onclick="openBankAccountModal()">+ Add Account</button>
+            </div>
+            <div id="b7-bank-accts-body"><div class="empty-state"><div class="empty-state-title">No bank accounts configured</div></div></div>
+          </div>
+
+          <!-- BANK RULES -->
+          <div id="acct-view-bank-rules" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div>
+                <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Bank Rules</div>
+                <div style="font-size:12px;color:var(--text-light);">Auto-categorize transactions based on description, amount, or payee</div>
+              </div>
+              <button class="btn-save" onclick="openBankRuleModal()">+ Add Rule</button>
+            </div>
+            <div id="b7-bank-rules-body"><div class="empty-state"><div class="empty-state-title">No bank rules configured</div></div></div>
+          </div>
+
+          <!-- RECONCILIATION 2.0 -->
+          <div id="acct-view-recon2" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Reconciliation 2.0</div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <select id="recon2-account-sel" class="field-select" style="height:32px;width:220px;" onchange="loadRecon2Sessions()"><option value="">— Select bank account —</option></select>
+                <button class="btn-save" onclick="openRecon2Modal()">+ New Session</button>
+              </div>
+            </div>
+            <div id="b7-recon2-body"><div class="empty-state"><div class="empty-state-title">Select a bank account to view reconciliation sessions</div></div></div>
+          </div>
+
+          <!-- ═══ PAYROLL 2.0 ═══ -->
+
+          <!-- FORM 941 -->
+          <div id="acct-view-form941" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Form 941 — Employer's Quarterly Federal Tax Return</div>
+              <div style="font-size:12px;color:var(--text-light);">Generates from posted payroll records</div></div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <select id="f941-quarter-sel" class="field-select" style="height:32px;width:170px;">
+                  <option value="Q1">Q1 (Jan–Mar)</option><option value="Q2">Q2 (Apr–Jun)</option>
+                  <option value="Q3">Q3 (Jul–Sep)</option><option value="Q4" selected>Q4 (Oct–Dec)</option>
+                </select>
+                <select id="f941-year-sel" class="field-select" style="height:32px;width:90px;"><option value="2025" selected>2025</option><option value="2024">2024</option></select>
+                <button class="btn-primary" onclick="generate941()">Generate</button>
+                <button class="btn-secondary" onclick="print941()">🖨 Print</button>
+              </div>
+            </div>
+            <div id="b7-941-body"><div class="empty-state"><div class="empty-state-title">Select quarter and click Generate</div></div></div>
+          </div>
+
+          <!-- FORM 940 -->
+          <div id="acct-view-form940" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Form 940 — Annual FUTA Tax Return</div>
+              <div style="font-size:12px;color:var(--text-light);">Annual FUTA calculation from payroll records</div></div>
+              <div style="display:flex;gap:8px;">
+                <select id="f940-year-sel" class="field-select" style="height:32px;width:90px;"><option value="2025" selected>2025</option><option value="2024">2024</option></select>
+                <button class="btn-primary" onclick="generate940()">Generate</button>
+                <button class="btn-secondary" onclick="print940()">🖨 Print</button>
+              </div>
+            </div>
+            <div id="b7-940-body"><div class="empty-state"><div class="empty-state-title">Select year and click Generate</div></div></div>
+          </div>
+
+          <!-- W-2 GENERATOR -->
+          <div id="acct-view-w2s" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">W-2 Generator</div>
+              <div style="font-size:12px;color:var(--text-light);">Generate W-2s for all employees from posted payroll</div></div>
+              <div style="display:flex;gap:8px;">
+                <select id="w2-year-sel" class="field-select" style="height:32px;width:90px;"><option value="2025" selected>2025</option><option value="2024">2024</option></select>
+                <button class="btn-primary" onclick="generateW2s()">Generate All W-2s</button>
+                <button class="btn-secondary" onclick="printAllW2s()">🖨 Print All</button>
+              </div>
+            </div>
+            <div id="b7-w2-body"><div class="empty-state"><div class="empty-state-title">Select year and click Generate All W-2s</div></div></div>
+          </div>
+
+          <!-- ═══ ASSETS 2.0 ═══ -->
+
+          <!-- DEPRECIATION SCHEDULE -->
+          <div id="acct-view-asset-sched" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Depreciation Schedule</div>
+              <div style="display:flex;gap:8px;">
+                <select id="depr-year-sel" class="field-select" style="height:32px;width:90px;"><option value="2025" selected>2025</option><option value="2024">2024</option><option value="2026">2026</option></select>
+                <button class="btn-primary" onclick="loadDepreciationSchedule()">Generate</button>
+                <button class="btn-secondary" onclick="postDepreciationJEs()">Post JEs</button>
+                <button class="btn-secondary" onclick="printDeprSchedule()">🖨 Print</button>
+              </div>
+            </div>
+            <div id="b7-depr-body"><div class="empty-state"><div class="empty-state-title">Select year and click Generate</div></div></div>
+          </div>
+
+          <!-- ASSET DISPOSALS -->
+          <div id="acct-view-asset-disp" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Asset Disposals</div>
+              <button class="btn-save" onclick="openDisposalModal()">+ Dispose Asset</button>
+            </div>
+            <div id="b7-disposal-body"><div class="empty-state"><div class="empty-state-title">No disposed assets</div></div></div>
+          </div>
+
+          <!-- MAINTENANCE LOG -->
+          <div id="acct-view-asset-maint" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Asset Maintenance Log</div>
+              <button class="btn-save" onclick="openMaintenanceModal()">+ Log Maintenance</button>
+            </div>
+            <div id="b7-maint-body"><div class="empty-state"><div class="empty-state-title">No maintenance records</div></div></div>
+          </div>
+
+          <!-- ═══ CONSOLIDATION ═══ -->
+
+          <!-- CONSOLIDATION GROUPS -->
+          <div id="acct-view-consol" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Consolidation Groups</div>
+              <button class="btn-save" onclick="openConsolGroupModal()">+ New Group</button>
+            </div>
+            <div id="b7-consol-body"><div class="empty-state"><div class="empty-state-title">No consolidation groups</div></div></div>
+          </div>
+
+          <!-- ELIMINATIONS -->
+          <div id="acct-view-elim" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div>
+                <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Intercompany Eliminations</div>
+                <div style="font-size:12px;color:var(--text-light);">Eliminate intercompany revenue, expenses, loans, and investments</div>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <select id="elim-group-sel" class="field-select" style="height:32px;width:200px;" onchange="loadEliminations()"><option value="">— Select group —</option></select>
+                <button class="btn-save" onclick="openEliminationModal()">+ Add Elimination</button>
+              </div>
+            </div>
+            <div id="b7-elim-body"><div class="empty-state"><div class="empty-state-title">Select a consolidation group</div></div></div>
+          </div>
+
+          <!-- CONSOLIDATED FINANCIAL STATEMENTS -->
+          <div id="acct-view-consol-fs" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Consolidated Financial Statements</div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <select id="consol-fs-group-sel" class="field-select" style="height:32px;width:200px;" onchange="loadConsolFS()"><option value="">— Select group —</option></select>
+                <select id="consol-fs-year-sel" class="field-select" style="height:32px;width:90px;"><option value="2025" selected>2025</option><option value="2024">2024</option></select>
+                <button class="btn-primary" onclick="runConsolFS()">Generate</button>
+                <button class="btn-secondary" onclick="printConsolFS()">🖨 Print</button>
+              </div>
+            </div>
+            <div id="b7-consol-fs-body"><div class="empty-state"><div class="empty-state-title">Select a group and click Generate</div></div></div>
           </div>
 
         </div><!-- /acct-content -->
@@ -4632,6 +4807,144 @@
       </div>
     </div>
     <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('ruleModal')">Cancel</button><button class="btn-save" onclick="saveRule()">Save Rule</button></div>
+  </div>
+</div>
+
+<!-- BANK ACCOUNT MODAL -->
+<div class="modal-overlay" id="bankAccountModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header"><span class="modal-title" id="bankAccountModalTitle">Add Bank Account</span><button class="modal-close" onclick="closeModal('bankAccountModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label required">Account Name</label><input type="text" class="field-input" id="ba-name" placeholder="e.g. Chase Business Checking"></div>
+        <div class="field-group"><label class="field-label">Bank Name</label><input type="text" class="field-input" id="ba-bank" placeholder="Chase Bank"></div>
+        <div class="field-group"><label class="field-label">Account Type</label>
+          <select class="field-select" id="ba-type"><option value="checking">Checking</option><option value="savings">Savings</option><option value="money_market">Money Market</option><option value="credit_line">Credit Line</option></select></div>
+        <div class="field-group"><label class="field-label">Last 4 Digits</label><input type="text" class="field-input" id="ba-last4" placeholder="1234" maxlength="4" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Routing Number</label><input type="text" class="field-input" id="ba-routing" placeholder="Optional"></div>
+        <div class="field-group col-span-2"><label class="field-label">GL Account</label><select class="field-select" id="ba-gl-account"><option value="">— None —</option></select></div>
+        <div class="field-group"><label class="field-label">Current Balance ($)</label><input type="text" class="field-input" id="ba-balance" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Notes</label><input type="text" class="field-input" id="ba-notes" placeholder="Optional"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('bankAccountModal')">Cancel</button><button class="btn-save" onclick="saveBankAccount()">Save Account</button></div>
+  </div>
+</div>
+
+<!-- BANK RULE MODAL -->
+<div class="modal-overlay" id="bankRuleModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header"><span class="modal-title" id="bankRuleModalTitle">Add Bank Rule</span><button class="modal-close" onclick="closeModal('bankRuleModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label required">Rule Name</label><input type="text" class="field-input" id="br-name" placeholder="e.g. Amazon = Office Supplies"></div>
+        <div class="field-group"><label class="field-label">Match Field</label>
+          <select class="field-select" id="br-match-field"><option value="description">Description</option><option value="payee">Payee</option><option value="amount">Amount Range</option></select></div>
+        <div class="field-group"><label class="field-label">Match Type</label>
+          <select class="field-select" id="br-match-type"><option value="contains">Contains</option><option value="starts_with">Starts With</option><option value="equals">Equals</option></select></div>
+        <div class="field-group col-span-2"><label class="field-label">Match Value</label><input type="text" class="field-input" id="br-match-val" placeholder="e.g. AMAZON, PAYROLL, etc."></div>
+        <div class="field-group col-span-2"><label class="field-label">Assign to GL Account</label><select class="field-select" id="br-gl-account"><option value="">— None —</option></select></div>
+        <div class="field-group"><label class="field-label">Transaction Type</label>
+          <select class="field-select" id="br-txn-type"><option value="">— Keep as is —</option><option value="deposit">Deposit</option><option value="withdrawal">Withdrawal</option><option value="transfer">Transfer</option></select></div>
+        <div class="field-group"><label class="field-label">Priority</label><input type="text" class="field-input" id="br-priority" value="0" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
+        <div class="field-group"><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-top:22px;"><input type="checkbox" id="br-active" checked style="accent-color:var(--gold);"> Active</label></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('bankRuleModal')">Cancel</button><button class="btn-save" onclick="saveBankRule()">Save Rule</button></div>
+  </div>
+</div>
+
+<!-- RECON2 MODAL -->
+<div class="modal-overlay" id="recon2Modal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header"><span class="modal-title">New Reconciliation Session</span><button class="modal-close" onclick="closeModal('recon2Modal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label required">Bank Account</label><select class="field-select" id="r2-bank-account"><option value="">— Select —</option></select></div>
+        <div class="field-group"><label class="field-label required">Statement Start Date</label><input type="date" class="field-input" id="r2-start"></div>
+        <div class="field-group"><label class="field-label required">Statement End Date</label><input type="date" class="field-input" id="r2-end"></div>
+        <div class="field-group"><label class="field-label required">Statement Ending Balance ($)</label><input type="text" class="field-input" id="r2-stmt-balance" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.-]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Notes</label><input type="text" class="field-input" id="r2-notes" placeholder="Optional"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('recon2Modal')">Cancel</button><button class="btn-save" onclick="startRecon2Session()">Start Session</button></div>
+  </div>
+</div>
+
+<!-- DISPOSAL MODAL -->
+<div class="modal-overlay" id="disposalModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header"><span class="modal-title">Dispose Asset</span><button class="modal-close" onclick="closeModal('disposalModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label required">Asset</label><select class="field-select" id="disp-asset" onchange="loadDisposalAssetInfo()"><option value="">— Select asset —</option></select></div>
+        <div class="field-group"><label class="field-label required">Disposal Date</label><input type="date" class="field-input" id="disp-date"></div>
+        <div class="field-group"><label class="field-label">Disposal Proceeds ($)</label><input type="text" class="field-input" id="disp-proceeds" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcDisposalGainLoss()"></div>
+        <div class="field-group"><label class="field-label">Net Book Value (auto)</label><input type="text" class="field-input" id="disp-nbv" readonly style="background:var(--section-bg);"></div>
+        <div class="field-group"><label class="field-label">Gain / (Loss)</label><input type="text" class="field-input" id="disp-gainloss" readonly style="background:var(--section-bg);"></div>
+        <div class="field-group col-span-2"><label class="field-label">Reason</label><input type="text" class="field-input" id="disp-reason" placeholder="Sold, scrapped, stolen, traded in…"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('disposalModal')">Cancel</button><button class="btn-save" onclick="postDisposal()">Post Disposal</button></div>
+  </div>
+</div>
+
+<!-- MAINTENANCE MODAL -->
+<div class="modal-overlay" id="maintenanceModal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header"><span class="modal-title">Log Maintenance</span><button class="modal-close" onclick="closeModal('maintenanceModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label required">Asset</label><select class="field-select" id="maint-asset"><option value="">— Select asset —</option></select></div>
+        <div class="field-group"><label class="field-label required">Date</label><input type="date" class="field-input" id="maint-date"></div>
+        <div class="field-group"><label class="field-label">Type</label>
+          <select class="field-select" id="maint-type"><option value="repair">Repair</option><option value="inspection">Inspection</option><option value="upgrade">Upgrade</option><option value="replacement">Replacement</option></select></div>
+        <div class="field-group col-span-2"><label class="field-label required">Description</label><input type="text" class="field-input" id="maint-desc" placeholder="Describe the work performed"></div>
+        <div class="field-group"><label class="field-label">Cost ($)</label><input type="text" class="field-input" id="maint-cost" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Vendor / Contractor</label><input type="text" class="field-input" id="maint-vendor" placeholder="Company name"></div>
+        <div class="field-group"><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-top:22px;"><input type="checkbox" id="maint-capitalize" style="accent-color:var(--gold);"> Capitalize (add to asset cost)</label></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('maintenanceModal')">Cancel</button><button class="btn-save" onclick="saveMaintenance()">Save Record</button></div>
+  </div>
+</div>
+
+<!-- CONSOLIDATION GROUP MODAL -->
+<div class="modal-overlay" id="consolGroupModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header"><span class="modal-title" id="consolGroupModalTitle">New Consolidation Group</span><button class="modal-close" onclick="closeModal('consolGroupModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label required">Group Name</label><input type="text" class="field-input" id="cg-name" placeholder="e.g. The Reinolds Group Consolidated"></div>
+        <div class="field-group"><label class="field-label">Base Currency</label><select class="field-select" id="cg-currency"><option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option></select></div>
+        <div class="field-group"><label class="field-label">Fiscal Year End</label><input type="text" class="field-input" id="cg-fye" value="12-31" placeholder="MM-DD"></div>
+        <div class="field-group col-span-2"><label class="field-label">Description</label><input type="text" class="field-input" id="cg-desc" placeholder="Optional description"></div>
+      </div>
+      <hr style="border:none;border-top:1px solid var(--border-light);margin:16px 0;">
+      <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:10px;">Member Companies</div>
+      <div id="cg-members-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('consolGroupModal')">Cancel</button><button class="btn-save" onclick="saveConsolGroup()">Save Group</button></div>
+  </div>
+</div>
+
+<!-- ELIMINATION MODAL -->
+<div class="modal-overlay" id="eliminationModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header"><span class="modal-title">Add Elimination Entry</span><button class="modal-close" onclick="closeModal('eliminationModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group"><label class="field-label required">Period Start</label><input type="date" class="field-input" id="elim-start"></div>
+        <div class="field-group"><label class="field-label required">Period End</label><input type="date" class="field-input" id="elim-end"></div>
+        <div class="field-group col-span-2"><label class="field-label required">Description</label><input type="text" class="field-input" id="elim-desc" placeholder="e.g. Eliminate intercompany management fee"></div>
+        <div class="field-group"><label class="field-label">Elimination Type</label>
+          <select class="field-select" id="elim-type"><option value="intercompany_revenue">Intercompany Revenue</option><option value="intercompany_expense">Intercompany Expense</option><option value="investment">Investment in Subsidiary</option><option value="loan">Intercompany Loan</option><option value="dividend">Dividend</option></select></div>
+        <div class="field-group"><label class="field-label required">Amount ($)</label><input type="text" class="field-input" id="elim-amount" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group col-span-2"><label class="field-label">Debit Company</label><select class="field-select" id="elim-debit-co"><option value="">— Select —</option></select></div>
+        <div class="field-group col-span-2"><label class="field-label">Credit Company</label><select class="field-select" id="elim-credit-co"><option value="">— Select —</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('eliminationModal')">Cancel</button><button class="btn-save" onclick="saveElimination()">Save Elimination</button></div>
   </div>
 </div>
 
@@ -14351,6 +14664,951 @@ document.addEventListener('click', e=>{
     drawer.style.display='none';
   }
 });
+
+// ═══════════════════════════════════════════════════
+//  BATCH 7 — BANKING 2.0, PAYROLL 2.0, ASSETS 2.0, CONSOLIDATION
+// ═══════════════════════════════════════════════════
+
+let b7BankAccounts=[], b7BankRules=[], b7ConsolGroups=[], b7Assets=[];
+let editingBAId=null, editingBRId=null, editingCGId=null;
+
+// ── HELPER: get current acct entity ──
+function getAcctCompanyId() { return document.getElementById('entitySelect')?.value || null; }
+
+// ── EXTEND showAcctView for Batch 7 panels ──
+const _b7ShowAcctView = showAcctView;
+showAcctView = function(view) {
+  const b7Views = ['bank-accts','bank-rules','recon2','form941','form940','w2s','asset-sched','asset-disp','asset-maint','consol','elim','consol-fs'];
+  if (b7Views.includes(view)) {
+    // Hide all panels
+    document.querySelectorAll('.acct-panel').forEach(p=>{ p.style.display='none'; p.classList.remove('active'); });
+    document.querySelectorAll('.acct-sidebar-btn').forEach(b=>b.classList.remove('active'));
+    const panel = document.getElementById('acct-view-'+view);
+    if (panel) { panel.style.display='block'; panel.classList.add('active'); }
+    const btn = document.getElementById('acct-nav-'+view);
+    if (btn) btn.classList.add('active');
+    // Load data
+    const companyId = getAcctCompanyId();
+    if (view==='bank-accts')   loadBankAccounts(companyId);
+    if (view==='bank-rules')   loadBankRules(companyId);
+    if (view==='recon2')       loadRecon2AccountList(companyId);
+    if (view==='form941')      {} // load on button click
+    if (view==='form940')      {} // load on button click
+    if (view==='w2s')          {} // load on button click
+    if (view==='asset-sched')  {} // load on button click
+    if (view==='asset-disp')   loadDisposedAssets(companyId);
+    if (view==='asset-maint')  loadMaintenanceLog(companyId);
+    if (view==='consol')       loadConsolGroups();
+    if (view==='elim')         loadConsolGroupSelects();
+    if (view==='consol-fs')    loadConsolGroupSelects2();
+  } else {
+    _b7ShowAcctView(view);
+  }
+};
+
+// ════════════════════════════════
+//  BANKING 2.0
+// ════════════════════════════════
+
+async function loadBankAccounts(companyId) {
+  const c = document.getElementById('b7-bank-accts-body'); if (!c) return;
+  if (!companyId) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">Select a company</div></div>`; return; }
+  const { data:accounts } = await sb.from('bank_accounts').select('*, accounts(account_name,account_number)').eq('company_id',companyId).order('account_name');
+  b7BankAccounts = accounts||[];
+
+  // Populate recon2 selector
+  const rSel = document.getElementById('recon2-account-sel');
+  const r2Sel = document.getElementById('r2-bank-account');
+  const baOpts = '<option value="">— Select bank account —</option>'+b7BankAccounts.map(a=>`<option value="${a.id}">${a.account_name}</option>`).join('');
+  if (rSel) rSel.innerHTML = baOpts;
+  if (r2Sel) r2Sel.innerHTML = baOpts;
+
+  if (!b7BankAccounts.length) {
+    c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No bank accounts</div><div>Add your bank and credit accounts to enable enhanced reconciliation.</div></div>`; return;
+  }
+  const typeColors = { checking:'status-active', savings:'status-posted', money_market:'status-partial', credit_line:'status-void' };
+  c.innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">` +
+    b7BankAccounts.map(a=>`
+      <div class="return-card">
+        <div class="return-card-header">
+          <div>
+            <div class="return-card-title">${a.account_name}</div>
+            <div class="return-card-meta">${a.bank_name||'—'} · ****${a.account_number_masked||'????'}</div>
+          </div>
+          <span class="status-pill ${typeColors[a.account_type]||''}">${a.account_type?.replace(/_/g,' ')||'—'}</span>
+        </div>
+        <div class="return-card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+            <div><div style="font-size:11px;color:var(--text-light);">Current Balance</div><div style="font-size:18px;font-weight:600;font-family:'Cormorant Garamond',serif;">${'$'+parseFloat(a.current_balance||0).toLocaleString('en-US',{minimumFractionDigits:2})}</div></div>
+            <div><div style="font-size:11px;color:var(--text-light);">Last Reconciled</div><div style="font-size:13px;font-weight:500;">${a.last_reconciled_date?fmtDate(a.last_reconciled_date):'Never'}</div></div>
+          </div>
+          <div style="font-size:12px;color:var(--text-mid);margin-bottom:8px;">GL: ${a.accounts?.account_number||''} ${a.accounts?.account_name||'Not linked'}</div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="editBankAccount('${a.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button>
+            <button onclick="document.getElementById('recon2-account-sel').value='${a.id}';showAcctView('recon2');loadRecon2Sessions();" style="background:none;border:none;color:var(--navy);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Reconcile</button>
+          </div>
+        </div>
+      </div>`).join('') + `</div>`;
+}
+
+async function openBankAccountModal(id=null) {
+  editingBAId=id;
+  document.getElementById('bankAccountModalTitle').textContent=id?'Edit Bank Account':'Add Bank Account';
+  ['ba-name','ba-bank','ba-last4','ba-routing','ba-balance','ba-notes'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+  document.getElementById('ba-type').value='checking';
+  const companyId=getAcctCompanyId();
+  if (companyId) {
+    const { data:accts } = await sb.from('accounts').select('id,account_number,account_name').eq('company_id',companyId).eq('account_type','Asset').order('account_number');
+    document.getElementById('ba-gl-account').innerHTML='<option value="">— None —</option>'+(accts||[]).map(a=>`<option value="${a.id}">${a.account_number} — ${a.account_name}</option>`).join('');
+  }
+  if (id) {
+    const acct=b7BankAccounts.find(a=>a.id===id);
+    if (acct) {
+      const s=(fid,v)=>{ const el=document.getElementById(fid); if(el) el.value=v||''; };
+      s('ba-name',acct.account_name); s('ba-bank',acct.bank_name); s('ba-type',acct.account_type);
+      s('ba-last4',acct.account_number_masked); s('ba-routing',acct.routing_number);
+      s('ba-balance',acct.current_balance); s('ba-gl-account',acct.gl_account_id); s('ba-notes',acct.notes);
+    }
+  }
+  document.getElementById('bankAccountModal').classList.add('show');
+}
+function editBankAccount(id) { openBankAccountModal(id); }
+async function saveBankAccount() {
+  const name=document.getElementById('ba-name').value.trim();
+  if (!name) { showToast('⚠ Account name required',true); return; }
+  const companyId=getAcctCompanyId();
+  if (!companyId) { showToast('⚠ Select a company first',true); return; }
+  const g=id=>document.getElementById(id)?.value||'';
+  const bid=editingBAId||('ba-'+Date.now());
+  await sb.from('bank_accounts').upsert({
+    id:bid, company_id:companyId, account_name:name, bank_name:g('ba-bank'),
+    account_type:g('ba-type'), account_number_masked:g('ba-last4'),
+    routing_number:g('ba-routing'), gl_account_id:g('ba-gl-account')||null,
+    current_balance:parseFloat(g('ba-balance'))||0, notes:g('ba-notes'), is_active:true,
+  });
+  closeModal('bankAccountModal'); showToast('✓ Bank account saved'); loadBankAccounts(companyId);
+}
+
+async function loadBankRules(companyId) {
+  const c=document.getElementById('b7-bank-rules-body'); if (!c) return;
+  if (!companyId) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">Select a company</div></div>`; return; }
+  const { data:rules } = await sb.from('bank_rules').select('*, accounts(account_name,account_number)').eq('company_id',companyId).order('priority').order('created_at');
+  b7BankRules=rules||[];
+  if (!b7BankRules.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No bank rules yet</div><div>Rules auto-categorize imported transactions.</div></div>`; return; }
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Rule Name</th><th>Match</th><th>Assign GL Account</th><th>Priority</th><th>Status</th><th></th></tr></thead><tbody>`+
+    b7BankRules.map(r=>`<tr>
+      <td><strong>${r.rule_name}</strong></td>
+      <td style="font-size:12px;"><span style="color:var(--text-light);">${r.match_field}</span> <em>${r.match_type}</em> <strong>"${r.match_value||''}"</strong></td>
+      <td style="font-size:12px;">${r.accounts?r.accounts.account_number+' — '+r.accounts.account_name:'—'}</td>
+      <td style="text-align:right;font-family:monospace;">${r.priority||0}</td>
+      <td>${r.is_active?'<span class="status-pill status-active">Active</span>':'<span class="status-pill">Inactive</span>'}</td>
+      <td>
+        <button onclick="editBankRule('${r.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button>
+        <button onclick="deleteBankRule('${r.id}')" style="background:none;border:none;color:var(--error);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Delete</button>
+        <button onclick="applyBankRule('${r.id}')" style="background:none;border:none;color:var(--navy);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">▶ Apply</button>
+      </td>
+    </tr>`).join('')+`</tbody></table>`;
+}
+
+async function openBankRuleModal(id=null) {
+  editingBRId=id;
+  document.getElementById('bankRuleModalTitle').textContent=id?'Edit Bank Rule':'Add Bank Rule';
+  ['br-name','br-match-val','br-priority'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=f==='br-priority'?'0':''; });
+  document.getElementById('br-active').checked=true;
+  const companyId=getAcctCompanyId();
+  if (companyId) {
+    const { data:accts } = await sb.from('accounts').select('id,account_number,account_name').eq('company_id',companyId).eq('is_active',true).order('account_number');
+    document.getElementById('br-gl-account').innerHTML='<option value="">— None —</option>'+(accts||[]).map(a=>`<option value="${a.id}">${a.account_number} — ${a.account_name}</option>`).join('');
+  }
+  if (id) {
+    const r=b7BankRules.find(x=>x.id===id);
+    if (r) {
+      const s=(fid,v)=>{ const el=document.getElementById(fid); if(el) el.value=v||''; };
+      s('br-name',r.rule_name); s('br-match-field',r.match_field); s('br-match-type',r.match_type);
+      s('br-match-val',r.match_value); s('br-gl-account',r.assign_account_id); s('br-priority',r.priority);
+      document.getElementById('br-active').checked=!!r.is_active;
+    }
+  }
+  document.getElementById('bankRuleModal').classList.add('show');
+}
+function editBankRule(id) { openBankRuleModal(id); }
+async function saveBankRule() {
+  const name=document.getElementById('br-name').value.trim();
+  if (!name) { showToast('⚠ Rule name required',true); return; }
+  const companyId=getAcctCompanyId(); if (!companyId) { showToast('⚠ Select a company',true); return; }
+  const g=id=>document.getElementById(id)?.value||'';
+  const rid=editingBRId||('br-'+Date.now());
+  await sb.from('bank_rules').upsert({
+    id:rid, company_id:companyId, rule_name:name, match_field:g('br-match-field'),
+    match_type:g('br-match-type'), match_value:g('br-match-val'),
+    assign_account_id:g('br-gl-account')||null, assign_transaction_type:g('br-txn-type')||null,
+    priority:parseInt(g('br-priority'))||0, is_active:document.getElementById('br-active').checked,
+  });
+  closeModal('bankRuleModal'); showToast('✓ Bank rule saved'); loadBankRules(companyId);
+}
+async function deleteBankRule(id) {
+  if (!confirm('Delete this rule?')) return;
+  await sb.from('bank_rules').delete().eq('id',id);
+  showToast('Rule deleted'); loadBankRules(getAcctCompanyId());
+}
+async function applyBankRule(ruleId) {
+  showLoading('Applying rule to transactions…');
+  const rule=b7BankRules.find(r=>r.id===ruleId);
+  if (!rule) { hideLoading(); return; }
+  const companyId=getAcctCompanyId();
+  const { data:txns } = await sb.from('bank_transactions').select('id,description,transaction_type').eq('company_id',companyId).is('gl_account_id',null);
+  let matched=0;
+  for (const txn of (txns||[])) {
+    const field=(txn.description||'').toLowerCase();
+    const val=(rule.match_value||'').toLowerCase();
+    let matches=false;
+    if (rule.match_type==='contains')    matches=field.includes(val);
+    if (rule.match_type==='starts_with') matches=field.startsWith(val);
+    if (rule.match_type==='equals')      matches=field===val;
+    if (matches) {
+      await sb.from('bank_transactions').update({ gl_account_id:rule.assign_account_id||null, transaction_type:rule.assign_transaction_type||txn.transaction_type }).eq('id',txn.id);
+      matched++;
+    }
+  }
+  hideLoading(); showToast(`✓ Rule applied — ${matched} transaction${matched!==1?'s':''} categorized`);
+}
+
+// ── RECONCILIATION 2.0 ──
+async function loadRecon2AccountList(companyId) {
+  if (!companyId) return;
+  await loadBankAccounts(companyId);
+}
+async function loadRecon2Sessions() {
+  const c=document.getElementById('b7-recon2-body'); if (!c) return;
+  const bankAcctId=document.getElementById('recon2-account-sel')?.value;
+  if (!bankAcctId) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">Select a bank account</div></div>`; return; }
+  const { data:sessions } = await sb.from('reconciliation_sessions').select('*').eq('bank_account_id',bankAcctId).order('period_end',{ascending:false});
+  const ba=b7BankAccounts.find(a=>a.id===bankAcctId);
+  const fmt2=v=>'$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+  c.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;">
+      <div class="kpi-card"><div class="kpi-label">Current Balance</div><div class="kpi-value" style="font-size:20px;">${fmt2(ba?.current_balance||0)}</div><div class="kpi-sub">${ba?.bank_name||''} ****${ba?.account_number_masked||''}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Last Reconciled</div><div class="kpi-value" style="font-size:20px;">${ba?.last_reconciled_date?fmtDate(ba.last_reconciled_date):'Never'}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Sessions</div><div class="kpi-value" style="font-size:20px;">${(sessions||[]).length}</div></div>
+    </div>
+    ${(sessions||[]).length?`<table class="acct-table"><thead><tr><th>Period</th><th style="text-align:right;">Statement Balance</th><th style="text-align:right;">GL Balance</th><th style="text-align:right;">Difference</th><th>Status</th><th></th></tr></thead><tbody>`+
+    (sessions||[]).map(s=>`<tr>
+      <td>${fmtDate(s.period_start)} — ${fmtDate(s.period_end)}</td>
+      <td class="amount">${fmt2(s.statement_balance)}</td>
+      <td class="amount">${fmt2(s.gl_balance)}</td>
+      <td class="amount" style="color:${Math.abs(parseFloat(s.difference||0))<0.01?'var(--success)':'var(--error)'};">${fmt2(s.difference)}</td>
+      <td><span class="status-pill ${s.status==='balanced'||s.status==='posted'?'status-active':s.status==='in_progress'?'status-partial':''}">${s.status?.replace(/_/g,' ')||'—'}</span></td>
+      <td><button onclick="openRecon2Session('${s.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Open</button></td>
+    </tr>`).join('')+`</tbody></table>`:
+    `<div class="empty-state"><div class="empty-state-title">No reconciliation sessions yet</div><div>Click "+ New Session" to start your first reconciliation.</div></div>`}`;
+}
+
+function openRecon2Modal() {
+  const bankAcctId=document.getElementById('recon2-account-sel')?.value;
+  ['r2-start','r2-end','r2-stmt-balance','r2-notes'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+  if (bankAcctId) document.getElementById('r2-bank-account').value=bankAcctId;
+  document.getElementById('recon2Modal').classList.add('show');
+}
+async function startRecon2Session() {
+  const bankAcctId=document.getElementById('r2-bank-account').value;
+  const start=document.getElementById('r2-start').value;
+  const end=document.getElementById('r2-end').value;
+  const stmtBal=parseFloat(document.getElementById('r2-stmt-balance').value||0)||0;
+  if (!bankAcctId||!start||!end) { showToast('⚠ Bank account and dates required',true); return; }
+  const companyId=getAcctCompanyId();
+  showLoading('Starting reconciliation session…');
+  // Compute GL balance from transactions
+  const ba=b7BankAccounts.find(a=>a.id===bankAcctId);
+  const glAcctId=ba?.gl_account_id;
+  let glBalance=0;
+  if (glAcctId) {
+    const { data:lines } = await sb.from('journal_entry_lines').select('debit,credit,journal_entries(entry_date,status)').eq('account_id',glAcctId).eq('journal_entries.status','posted').lte('journal_entries.entry_date',end);
+    (lines||[]).forEach(l=>{ glBalance+=parseFloat(l.debit||0)-parseFloat(l.credit||0); });
+  }
+  const diff=Math.round((stmtBal-glBalance)*100)/100;
+  const sid='recon2-'+Date.now();
+  await sb.from('reconciliation_sessions').insert({
+    id:sid, company_id:companyId, bank_account_id:bankAcctId, gl_account_id:glAcctId||null,
+    period_start:start, period_end:end, statement_balance:stmtBal,
+    gl_balance:Math.round(glBalance*100)/100, difference:diff,
+    status:Math.abs(diff)<0.01?'balanced':'in_progress',
+    notes:document.getElementById('r2-notes').value,
+  });
+  if (Math.abs(diff)<0.01) await sb.from('bank_accounts').update({ last_reconciled_date:end, last_reconciled_balance:stmtBal }).eq('id',bankAcctId);
+  hideLoading(); closeModal('recon2Modal');
+  showToast(Math.abs(diff)<0.01?'✓ Balanced! Session posted.':'Session started — difference: $'+Math.abs(diff).toFixed(2));
+  loadRecon2Sessions();
+}
+async function openRecon2Session(sessionId) {
+  const { data:s } = await sb.from('reconciliation_sessions').select('*').eq('id',sessionId).single();
+  if (!s) return;
+  const fmt2=v=>'$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+  const diff=parseFloat(s.difference||0);
+  showToast(`Session: ${fmtDate(s.period_start)} – ${fmtDate(s.period_end)} · Statement: ${fmt2(s.statement_balance)} · GL: ${fmt2(s.gl_balance)} · Diff: ${fmt2(diff)} · Status: ${s.status}`);
+}
+
+// ════════════════════════════════
+//  PAYROLL 2.0
+// ════════════════════════════════
+
+async function generate941() {
+  const companyId=getAcctCompanyId(); if(!companyId){ showToast('⚠ Select a company',true); return; }
+  const quarter=document.getElementById('f941-quarter-sel').value;
+  const year=parseInt(document.getElementById('f941-year-sel').value)||2025;
+  const qMonths={ Q1:[1,2,3], Q2:[4,5,6], Q3:[7,8,9], Q4:[10,11,12] };
+  const months=qMonths[quarter];
+  const startDate=`${year}-${String(months[0]).padStart(2,'0')}-01`;
+  const endDate=`${year}-${String(months[2]).padStart(2,'0')}-${months[2]===2?28:months[2]===12||months[2]===7||months[2]===8||months[2]===10?31:30}`;
+  showLoading('Generating Form 941…');
+  const { data:payrolls } = await sb.from('payroll_records').select('*').eq('company_id',companyId).eq('status','posted').gte('pay_date',startDate).lte('pay_date',endDate);
+  const { data:company } = await sb.from('companies').select('legal_name,fein').eq('id',companyId).single();
+  hideLoading();
+  const p=payrolls||[];
+  const totalWages=p.reduce((s,r)=>s+parseFloat(r.total_gross||0),0);
+  const totalFedTax=p.reduce((s,r)=>s+parseFloat(r.total_federal_tax||0),0);
+  const totalSS_EE=p.reduce((s,r)=>s+parseFloat(r.total_ss_employee||0),0);
+  const totalSS_ER=p.reduce((s,r)=>s+parseFloat(r.total_ss_employer||0),0);
+  const totalMed_EE=p.reduce((s,r)=>s+parseFloat(r.total_medicare_employee||0),0);
+  const totalMed_ER=p.reduce((s,r)=>s+parseFloat(r.total_medicare_employer||0),0);
+  const totalSSMed=totalSS_EE+totalSS_ER+totalMed_EE+totalMed_ER;
+  const totalTaxDue=totalFedTax+totalSSMed;
+  const fmt2=v=>'$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+  const c=document.getElementById('b7-941-body');
+  c.innerHTML=`
+    <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+      <div style="background:var(--navy);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--gold-light);">Form 941 — Employer's Quarterly Federal Tax Return</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);">${quarter} ${year}</div>
+      </div>
+      <div style="padding:20px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;font-size:13px;">
+          <div><strong>Employer:</strong> ${company?.legal_name||'—'}</div>
+          <div><strong>EIN:</strong> ${company?.fein||'—'}</div>
+          <div><strong>Quarter:</strong> ${quarter} ${year}</div>
+          <div><strong>Period:</strong> ${startDate} — ${endDate}</div>
+        </div>
+        <div style="border-top:2px solid var(--gold);padding-top:16px;">
+          ${[
+            ['1','Number of employees who received wages',new Set(p.map(r=>r.employee_ids||'')).size||p.length,''],
+            ['2','Wages, tips, and other compensation',fmt2(totalWages),'taxable wages box 2'],
+            ['3','Federal income tax withheld',fmt2(totalFedTax),''],
+            ['5a','Taxable Social Security wages',fmt2(totalWages),'× 0.124 ='],
+            ['5a-tax','Social Security tax (EE + ER)',fmt2(totalSS_EE+totalSS_ER),''],
+            ['5c','Taxable Medicare wages',fmt2(totalWages),'× 0.029 ='],
+            ['5c-tax','Medicare tax (EE + ER)',fmt2(totalMed_EE+totalMed_ER),''],
+            ['5d','Total social security and Medicare taxes',fmt2(totalSSMed),''],
+            ['6','Total taxes before adjustments',fmt2(totalTaxDue),'Lines 3 + 5d'],
+            ['10','Total taxes after adjustments',fmt2(totalTaxDue),''],
+            ['11d','Total deposits',fmt2(totalTaxDue),'Assume fully deposited'],
+            ['14','Balance due',fmt2(0),''],
+          ].map(([line,desc,val,note])=>`
+            <div style="display:grid;grid-template-columns:40px 1fr 140px 120px;gap:8px;padding:8px 0;border-bottom:1px solid var(--border-light);align-items:center;">
+              <div style="font-size:11px;font-weight:600;color:var(--text-light);">Ln ${line}</div>
+              <div style="font-size:13px;">${desc}</div>
+              <div style="font-family:monospace;font-size:13px;font-weight:600;text-align:right;">${val}</div>
+              <div style="font-size:11px;color:var(--text-light);">${note}</div>
+            </div>`).join('')}
+        </div>
+        <div style="margin-top:16px;padding:12px 16px;background:var(--gold-pale);border-radius:var(--radius);border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:14px;font-weight:600;color:var(--navy);">Total Tax Deposits Required</div>
+          <div style="font-size:24px;font-weight:700;font-family:'Cormorant Garamond',serif;color:var(--navy);">${fmt2(totalTaxDue)}</div>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:var(--text-light);">Based on ${p.length} posted payroll run${p.length!==1?'s':''} for ${quarter} ${year}. Review before filing with the IRS.</div>
+      </div>
+    </div>`;
+
+  // Save to db
+  await sb.from('payroll_tax_filings').upsert({
+    id:`f941-${companyId}-${quarter}-${year}`, company_id:companyId, filing_type:'form_941',
+    period_start:startDate, period_end:endDate, status:'draft',
+    total_wages:totalWages, total_federal_tax:totalFedTax,
+    total_ss_tax:totalSS_EE+totalSS_ER, total_medicare_tax:totalMed_EE+totalMed_ER,
+  });
+}
+
+function print941() {
+  const content=document.getElementById('b7-941-body')?.innerHTML||'';
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>Form 941</title>
+  <style>body{font-family:Arial,sans-serif;font-size:12px;max-width:800px;margin:20px auto;}
+  @media print{button{display:none;}}</style></head>
+  <body><button onclick="window.print()" style="padding:7px 16px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:16px;">🖨 Print</button>
+  ${content}</body></html>`);
+  win.document.close();
+}
+
+async function generate940() {
+  const companyId=getAcctCompanyId(); if(!companyId){ showToast('⚠ Select a company',true); return; }
+  const year=parseInt(document.getElementById('f940-year-sel').value)||2025;
+  showLoading('Generating Form 940…');
+  const { data:payrolls } = await sb.from('payroll_records').select('*').eq('company_id',companyId).eq('status','posted').gte('pay_date',`${year}-01-01`).lte('pay_date',`${year}-12-31`);
+  const { data:company } = await sb.from('companies').select('legal_name,fein,futa_rate').eq('id',companyId).single();
+  hideLoading();
+  const p=payrolls||[];
+  const totalWages=p.reduce((s,r)=>s+parseFloat(r.total_gross||0),0);
+  // FUTA: 6% on first $7,000 per employee, net rate typically 0.6% after SUTA credit
+  const futaWageBase=7000;
+  const futaGrossRate=0.06;
+  const sutaCreditRate=0.054;
+  const futaNetRate=parseFloat(company?.futa_rate||0.006)||0.006;
+  const futaableWages=Math.min(totalWages, futaWageBase*(p.length||1));
+  const futaTax=Math.round(futaableWages*futaNetRate*100)/100;
+  const fmt2=v=>'$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+  const c=document.getElementById('b7-940-body');
+  c.innerHTML=`
+    <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+      <div style="background:var(--navy);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--gold-light);">Form 940 — Employer's Annual Federal Unemployment (FUTA) Tax Return</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);">${year}</div>
+      </div>
+      <div style="padding:20px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;font-size:13px;">
+          <div><strong>Employer:</strong> ${company?.legal_name||'—'}</div>
+          <div><strong>EIN:</strong> ${company?.fein||'—'}</div>
+        </div>
+        <div style="border-top:2px solid var(--gold);padding-top:16px;">
+          ${[
+            ['3','Total payments to all employees',fmt2(totalWages),''],
+            ['4','Payments exempt from FUTA',fmt2(0),'Benefits, dependent care, etc.'],
+            ['5','Total of payments over $7,000',fmt2(Math.max(0,totalWages-futaableWages)),''],
+            ['7','Total taxable FUTA wages',fmt2(futaableWages),'Line 3 − 4 − 5'],
+            ['8','FUTA tax before adjustments',fmt2(futaableWages*futaGrossRate),'× 6.0%'],
+            ['10','FUTA tax after adjustments',fmt2(futaTax),'After SUTA credit'],
+            ['12','Total FUTA tax deposited',fmt2(futaTax),''],
+            ['14','Balance due',fmt2(0),''],
+          ].map(([line,desc,val,note])=>`
+            <div style="display:grid;grid-template-columns:40px 1fr 140px 180px;gap:8px;padding:8px 0;border-bottom:1px solid var(--border-light);">
+              <div style="font-size:11px;font-weight:600;color:var(--text-light);">Ln ${line}</div>
+              <div style="font-size:13px;">${desc}</div>
+              <div style="font-family:monospace;font-size:13px;font-weight:600;text-align:right;">${val}</div>
+              <div style="font-size:11px;color:var(--text-light);">${note}</div>
+            </div>`).join('')}
+        </div>
+        <div style="margin-top:16px;padding:12px 16px;background:var(--gold-pale);border-radius:var(--radius);border:1px solid var(--border);display:flex;justify-content:space-between;">
+          <div style="font-size:14px;font-weight:600;color:var(--navy);">Annual FUTA Tax</div>
+          <div style="font-size:24px;font-weight:700;font-family:'Cormorant Garamond',serif;">${fmt2(futaTax)}</div>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:var(--text-light);">Net FUTA rate: ${(futaNetRate*100).toFixed(1)}% after SUTA credit. Based on ${p.length} payroll run${p.length!==1?'s':''}.</div>
+      </div>
+    </div>`;
+  await sb.from('payroll_tax_filings').upsert({ id:`f940-${companyId}-${year}`, company_id:companyId, filing_type:'form_940', period_start:`${year}-01-01`, period_end:`${year}-12-31`, status:'draft', total_wages:totalWages, total_futa_tax:futaTax });
+}
+
+function print940() { const content=document.getElementById('b7-940-body')?.innerHTML||''; const win=window.open('','_blank'); win.document.write(`<!DOCTYPE html><html><head><title>Form 940</title><style>body{font-family:Arial,sans-serif;font-size:12px;max-width:800px;margin:20px auto;}@media print{button{display:none;}}</style></head><body><button onclick="window.print()" style="padding:7px 16px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:16px;">🖨 Print</button>${content}</body></html>`); win.document.close(); }
+
+async function generateW2s() {
+  const companyId=getAcctCompanyId(); if(!companyId){ showToast('⚠ Select a company',true); return; }
+  const year=parseInt(document.getElementById('w2-year-sel').value)||2025;
+  showLoading('Generating W-2s…');
+  const { data:employees } = await sb.from('employees').select('*').eq('company_id',companyId).eq('status','active');
+  const { data:company } = await sb.from('companies').select('legal_name,fein,address_line1,city,state,zip').eq('id',companyId).single();
+  const { data:payrolls } = await sb.from('payroll_records').select('*').eq('company_id',companyId).eq('status','posted').gte('pay_date',`${year}-01-01`).lte('pay_date',`${year}-12-31`);
+  const { data:payrollLines } = await sb.from('payroll_lines').select('*').in('payroll_id',(payrolls||[]).map(p=>p.id));
+  hideLoading();
+
+  // Aggregate by employee
+  const byEmployee={};
+  (payrollLines||[]).forEach(l=>{
+    if (!byEmployee[l.employee_id]) byEmployee[l.employee_id]={ wages:0,fedTax:0,ssTax:0,medTax:0,stateTax:0,preTax:0 };
+    byEmployee[l.employee_id].wages    += parseFloat(l.gross_pay||0);
+    byEmployee[l.employee_id].fedTax   += parseFloat(l.federal_tax||0);
+    byEmployee[l.employee_id].ssTax    += parseFloat(l.ss_employee||0);
+    byEmployee[l.employee_id].medTax   += parseFloat(l.medicare_employee||0);
+    byEmployee[l.employee_id].stateTax += parseFloat(l.state_tax||0);
+    byEmployee[l.employee_id].preTax   += parseFloat(l.pretax_deductions||0);
+  });
+
+  const fmt2=v=>'$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+  const c=document.getElementById('b7-w2-body');
+  if (!(employees||[]).length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No active employees</div></div>`; return; }
+
+  // Upsert W-2 records and render
+  const w2HTML=[];
+  for (const emp of (employees||[])) {
+    const d=byEmployee[emp.id]||{};
+    const box1=Math.round(((d.wages||0)-(d.preTax||0))*100)/100;
+    await sb.from('w2_records').upsert({
+      id:`w2-${emp.id}-${year}`, company_id:companyId, employee_id:emp.id, tax_year:year,
+      box1_wages:box1, box2_federal_withheld:d.fedTax||0,
+      box3_ss_wages:d.wages||0, box4_ss_withheld:d.ssTax||0,
+      box5_medicare_wages:d.wages||0, box6_medicare_withheld:d.medTax||0,
+      box15_state:emp.state_tax_state||company?.state||'',
+      box16_state_wages:box1, box17_state_tax:d.stateTax||0,
+    });
+    w2HTML.push(`
+      <div style="background:var(--white);border:2px solid var(--navy);border-radius:var(--radius-lg);padding:16px 20px;page-break-inside:avoid;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+          <div style="font-size:14px;font-weight:700;color:var(--navy);">W-2 Wage and Tax Statement ${year}</div>
+          <div style="font-size:12px;color:var(--text-light);">OMB No. 1545-0008</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;margin-bottom:10px;">
+          <div style="background:var(--section-bg);padding:8px;border-radius:4px;"><div style="font-size:10px;color:var(--text-light);">a Employer EIN</div><strong>${company?.fein||'—'}</strong></div>
+          <div style="background:var(--section-bg);padding:8px;border-radius:4px;"><div style="font-size:10px;color:var(--text-light);">b Employer</div><strong>${company?.legal_name||'—'}</strong></div>
+        </div>
+        <div style="background:var(--gold-pale);padding:8px 10px;border-radius:4px;margin-bottom:10px;font-size:12px;">
+          <div style="font-size:10px;color:var(--text-light);">c Employee</div>
+          <strong>${emp.first_name} ${emp.last_name}</strong> · SSN: ***-**-${(emp.ssn||'0000').slice(-4)}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:11px;">
+          ${[
+            ['1','Wages, tips',fmt2(box1)],
+            ['2','Fed income tax',fmt2(d.fedTax||0)],
+            ['3','SS wages',fmt2(d.wages||0)],
+            ['4','SS tax withheld',fmt2(d.ssTax||0)],
+            ['5','Medicare wages',fmt2(d.wages||0)],
+            ['6','Medicare tax',fmt2(d.medTax||0)],
+            ['15','State',emp.state_tax_state||company?.state||'—'],
+            ['17','State income tax',fmt2(d.stateTax||0)],
+          ].map(([box,label,val])=>`<div style="background:var(--section-bg);padding:6px 8px;border-radius:3px;"><div style="color:var(--text-light);font-size:9px;">Box ${box}: ${label}</div><strong>${val}</strong></div>`).join('')}
+        </div>
+      </div>`);
+  }
+
+  c.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-size:13px;color:var(--text-mid);">${(employees||[]).length} W-2${(employees||[]).length!==1?'s':''} generated for ${year}</div>
+      <button onclick="printAllW2s()" class="btn-secondary">🖨 Print All W-2s</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      ${w2HTML.join('')}
+    </div>`;
+}
+
+function printAllW2s() {
+  const content=document.getElementById('b7-w2-body')?.innerHTML||'';
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>W-2 Forms</title><style>body{font-family:Arial,sans-serif;font-size:12px;max-width:900px;margin:20px auto;}@page{margin:15mm;}@media print{button{display:none;}}</style></head><body><button onclick="window.print()" style="padding:7px 16px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:16px;">🖨 Print</button>${content}</body></html>`);
+  win.document.close();
+}
+
+// ════════════════════════════════
+//  FIXED ASSETS 2.0
+// ════════════════════════════════
+
+async function loadB7Assets(companyId) {
+  if (!companyId) return [];
+  const { data } = await sb.from('fixed_assets').select('*').eq('company_id',companyId).is('disposal_date',null).order('asset_name');
+  b7Assets=data||[]; return b7Assets;
+}
+
+async function loadDepreciationSchedule() {
+  const companyId=getAcctCompanyId(); if(!companyId){ showToast('⚠ Select a company',true); return; }
+  const year=parseInt(document.getElementById('depr-year-sel').value)||2025;
+  showLoading('Generating depreciation schedule…');
+  const assets=await loadB7Assets(companyId);
+  hideLoading();
+  if (!assets.length) { document.getElementById('b7-depr-body').innerHTML=`<div class="empty-state"><div class="empty-state-title">No active fixed assets</div></div>`; return; }
+  const fmt2=v=>'$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+  let totalAnnualDepr=0;
+  const rows=assets.map(a=>{
+    const cost=parseFloat(a.acquisition_cost||a.purchase_price||0);
+    const salvage=parseFloat(a.salvage_value||0);
+    const life=parseInt(a.useful_life_years||a.useful_life||5)||5;
+    const placed=a.placed_in_service_date||a.placed_in_service;
+    const placedYear=placed?new Date(placed).getFullYear():year;
+    const yearsUsed=year-placedYear;
+    let annualDepr=0, accDepr=0, nbv=cost;
+    if (a.depreciation_method==='straight_line'||!a.depreciation_method||a.depreciation_method==='SL') {
+      annualDepr=life>0?(cost-salvage)/life:0;
+      accDepr=Math.min(cost-salvage, annualDepr*yearsUsed);
+      nbv=cost-accDepr;
+    } else if (a.depreciation_method==='double_declining'||a.depreciation_method==='DDB') {
+      const rate=2/life;
+      let val=cost;
+      for(let y=0;y<yearsUsed;y++) { val=val*(1-rate); }
+      nbv=Math.max(salvage,Math.round(val*100)/100);
+      accDepr=cost-nbv;
+      annualDepr=nbv*(2/life);
+    } else if (a.depreciation_method==='MACRS'||a.depreciation_method==='macrs') {
+      annualDepr=life>0?(cost-salvage)/life:0;
+      accDepr=Math.min(cost-salvage, annualDepr*yearsUsed);
+      nbv=cost-accDepr;
+    }
+    annualDepr=Math.max(0,Math.round(annualDepr*100)/100);
+    accDepr=Math.max(0,Math.round(accDepr*100)/100);
+    nbv=Math.max(0,Math.round(nbv*100)/100);
+    if (nbv<=salvage) annualDepr=0; // fully depreciated
+    totalAnnualDepr+=annualDepr;
+    return { a, cost, salvage, life, annualDepr, accDepr, nbv, placedYear };
+  });
+
+  document.getElementById('b7-depr-body').innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;">
+      <div class="kpi-card"><div class="kpi-label">Active Assets</div><div class="kpi-value" style="font-size:20px;">${assets.length}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Annual Depreciation (${year})</div><div class="kpi-value" style="font-size:20px;">${fmt2(totalAnnualDepr)}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Total Cost Basis</div><div class="kpi-value" style="font-size:20px;">${fmt2(rows.reduce((s,r)=>s+r.cost,0))}</div></div>
+    </div>
+    <div id="depr-schedule-content">
+    <table class="acct-table"><thead><tr>
+      <th>Asset Name</th><th>Category</th><th>Method</th><th>Placed in Service</th><th>Useful Life</th>
+      <th style="text-align:right;">Cost</th><th style="text-align:right;">Acc. Depr.</th>
+      <th style="text-align:right;">Net Book Value</th><th style="text-align:right;">${year} Depr.</th>
+    </tr></thead><tbody>`+
+    rows.map(({a,cost,salvage,life,annualDepr,accDepr,nbv,placedYear})=>`<tr>
+      <td><strong>${a.asset_name}</strong>${a.tag_number?`<div style="font-size:10px;color:var(--text-light);">Tag: ${a.tag_number}</div>`:''}</td>
+      <td style="font-size:12px;color:var(--text-mid);">${a.asset_category||'—'}</td>
+      <td style="font-size:12px;">${a.depreciation_method||'SL'}</td>
+      <td style="font-size:12px;">${fmtDate(a.placed_in_service_date||a.placed_in_service)}</td>
+      <td style="text-align:center;font-family:monospace;">${life}y</td>
+      <td class="amount">${fmt2(cost)}</td>
+      <td class="amount" style="color:var(--error);">${fmt2(accDepr)}</td>
+      <td class="amount" style="font-weight:600;">${fmt2(nbv)}</td>
+      <td class="amount" style="color:${annualDepr>0?'var(--error)':'var(--text-light)'};">${annualDepr>0?fmt2(annualDepr):'Fully dep.'}</td>
+    </tr>`).join('')+
+    `</tbody><tfoot><tr style="background:var(--gold-pale);font-weight:700;">
+      <td colspan="5" style="padding:10px 16px;">Total</td>
+      <td class="amount" style="font-weight:700;">${fmt2(rows.reduce((s,r)=>s+r.cost,0))}</td>
+      <td class="amount" style="font-weight:700;">${fmt2(rows.reduce((s,r)=>s+r.accDepr,0))}</td>
+      <td class="amount" style="font-weight:700;">${fmt2(rows.reduce((s,r)=>s+r.nbv,0))}</td>
+      <td class="amount" style="font-weight:700;">${fmt2(totalAnnualDepr)}</td>
+    </tr></tfoot></table></div>`;
+
+  // Store rows for JE posting
+  window._deprRows=rows; window._deprYear=year; window._deprCompanyId=companyId;
+}
+
+async function postDepreciationJEs() {
+  const rows=window._deprRows; const year=window._deprYear; const companyId=window._deprCompanyId;
+  if (!rows?.length) { showToast('⚠ Generate schedule first',true); return; }
+  showLoading('Posting depreciation journal entries…');
+  let posted=0;
+  for (const {a,annualDepr} of rows) {
+    if (annualDepr<=0) continue;
+    const deprAcctId=a.accumulated_depreciation_account_id;
+    const expAcctId=a.depreciation_expense_account_id;
+    if (!deprAcctId||!expAcctId) continue;
+    const jeId=`je-depr-${a.id}-${year}`;
+    const { error } = await sb.from('journal_entries').upsert({ id:jeId, company_id:companyId, entry_date:`${year}-12-31`, description:`Depreciation — ${a.asset_name} ${year}`, status:'posted', entry_type:'manual', updated_at:new Date().toISOString() });
+    if (!error) {
+      await sb.from('journal_entry_lines').upsert([
+        { id:jeId+'-1', journal_entry_id:jeId, account_id:expAcctId, description:`Depreciation Expense — ${a.asset_name}`, debit:annualDepr, credit:0, sort_order:0 },
+        { id:jeId+'-2', journal_entry_id:jeId, account_id:deprAcctId, description:`Accumulated Depreciation — ${a.asset_name}`, debit:0, credit:annualDepr, sort_order:1 },
+      ]);
+      posted++;
+    }
+  }
+  hideLoading(); showToast(`✓ ${posted} depreciation JE${posted!==1?'s':''} posted for ${year}`);
+}
+
+function printDeprSchedule() {
+  const content=document.getElementById('depr-schedule-content')?.innerHTML||document.getElementById('b7-depr-body')?.innerHTML||'';
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>Depreciation Schedule</title><style>body{font-family:Arial,sans-serif;font-size:12px;max-width:1100px;margin:20px auto;}table{width:100%;border-collapse:collapse;}th{background:#0f1f38;color:#d4b07a;padding:7px 10px;font-size:11px;text-align:left;}td{padding:7px 10px;border-bottom:1px solid #eee;}tfoot tr{background:#f5edd9;font-weight:700;}@media print{button{display:none;}}</style></head><body><button onclick="window.print()" style="padding:7px 16px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:16px;">🖨 Print</button><h2>Depreciation Schedule</h2>${content}</body></html>`);
+  win.document.close();
+}
+
+async function loadDisposedAssets(companyId) {
+  const c=document.getElementById('b7-disposal-body'); if(!c) return;
+  if (!companyId) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">Select a company</div></div>`; return; }
+  const { data:assets } = await sb.from('fixed_assets').select('*').eq('company_id',companyId).not('disposal_date','is',null).order('disposal_date',{ascending:false});
+  if (!assets?.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No disposed assets</div><div><button class="btn-save" onclick="openDisposalModal()" style="margin-top:12px;">+ Dispose Asset</button></div></div>`; return; }
+  const fmt2=v=>'$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Asset</th><th>Disposal Date</th><th style="text-align:right;">Original Cost</th><th style="text-align:right;">Net Book Value</th><th style="text-align:right;">Proceeds</th><th style="text-align:right;">Gain/(Loss)</th><th>GL Posted</th></tr></thead><tbody>`+
+    assets.map(a=>`<tr>
+      <td><strong>${a.asset_name}</strong></td>
+      <td>${fmtDate(a.disposal_date)}</td>
+      <td class="amount">${fmt2(a.acquisition_cost||a.purchase_price||0)}</td>
+      <td class="amount">${fmt2(a.net_book_value||0)}</td>
+      <td class="amount">${fmt2(a.disposal_proceeds||0)}</td>
+      <td class="amount" style="color:${parseFloat(a.disposal_gain_loss||0)>=0?'var(--success)':'var(--error)'};">${fmt2(a.disposal_gain_loss||0)}</td>
+      <td>${a.disposal_journal_entry_id?'<span class="status-pill status-active">Posted</span>':'<span class="status-pill">Pending</span>'}</td>
+    </tr>`).join('')+`</tbody></table>`;
+}
+
+async function openDisposalModal() {
+  const companyId=getAcctCompanyId();
+  const assets=await loadB7Assets(companyId);
+  document.getElementById('disp-asset').innerHTML='<option value="">— Select asset —</option>'+assets.map(a=>`<option value="${a.id}" data-cost="${a.acquisition_cost||a.purchase_price||0}" data-nbv="${a.net_book_value||0}">${a.asset_name}</option>`).join('');
+  document.getElementById('disp-date').value=new Date().toISOString().slice(0,10);
+  ['disp-proceeds','disp-nbv','disp-gainloss','disp-reason'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+  document.getElementById('disposalModal').classList.add('show');
+}
+function loadDisposalAssetInfo() {
+  const sel=document.getElementById('disp-asset');
+  const opt=sel.options[sel.selectedIndex];
+  const nbv=parseFloat(opt?.dataset?.nbv||0)||0;
+  document.getElementById('disp-nbv').value=nbv.toFixed(2);
+  calcDisposalGainLoss();
+}
+function calcDisposalGainLoss() {
+  const proceeds=parseFloat(document.getElementById('disp-proceeds')?.value||0)||0;
+  const nbv=parseFloat(document.getElementById('disp-nbv')?.value||0)||0;
+  const gl=Math.round((proceeds-nbv)*100)/100;
+  const el=document.getElementById('disp-gainloss'); if(el){ el.value=gl.toFixed(2); el.style.color=gl>=0?'var(--success)':'var(--error)'; }
+}
+async function postDisposal() {
+  const assetId=document.getElementById('disp-asset').value;
+  const date=document.getElementById('disp-date').value;
+  const proceeds=parseFloat(document.getElementById('disp-proceeds').value||0)||0;
+  const reason=document.getElementById('disp-reason').value;
+  if (!assetId||!date) { showToast('⚠ Asset and date required',true); return; }
+  showLoading('Posting disposal…');
+  const { data:asset } = await sb.from('fixed_assets').select('*').eq('id',assetId).single();
+  const nbv=parseFloat(asset?.net_book_value||0)||0;
+  const gainLoss=Math.round((proceeds-nbv)*100)/100;
+  await sb.from('fixed_assets').update({ disposal_date:date, disposal_proceeds:proceeds, disposal_gain_loss:gainLoss, net_book_value:0 }).eq('id',assetId);
+  hideLoading(); closeModal('disposalModal'); showToast(`✓ Asset disposed. ${gainLoss>=0?'Gain':'Loss'}: $${Math.abs(gainLoss).toFixed(2)}`);
+  loadDisposedAssets(getAcctCompanyId());
+}
+
+async function loadMaintenanceLog(companyId) {
+  const c=document.getElementById('b7-maint-body'); if(!c) return;
+  if (!companyId) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">Select a company</div></div>`; return; }
+  const { data:records } = await sb.from('asset_maintenance').select('*, fixed_assets(asset_name)').eq('company_id',companyId).order('maintenance_date',{ascending:false}).limit(50);
+  if (!records?.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No maintenance records</div></div>`; return; }
+  const fmt2=v=>'$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Date</th><th>Asset</th><th>Type</th><th>Description</th><th>Vendor</th><th style="text-align:right;">Cost</th><th>Capitalize</th><th>GL</th></tr></thead><tbody>`+
+    records.map(r=>`<tr>
+      <td>${fmtDate(r.maintenance_date)}</td>
+      <td style="font-size:12px;">${r.fixed_assets?.asset_name||'—'}</td>
+      <td style="font-size:12px;text-transform:capitalize;">${r.maintenance_type||'—'}</td>
+      <td style="font-size:12px;color:var(--text-mid);">${r.description||'—'}</td>
+      <td style="font-size:12px;color:var(--text-light);">${r.vendor||'—'}</td>
+      <td class="amount">${fmt2(r.cost)}</td>
+      <td>${r.capitalize?'<span class="status-pill status-active">Capitalized</span>':'<span class="status-pill">Expensed</span>'}</td>
+      <td>${r.journal_entry_id?'<span class="status-pill status-active">Posted</span>':'—'}</td>
+    </tr>`).join('')+`</tbody></table>`;
+}
+
+async function openMaintenanceModal() {
+  const companyId=getAcctCompanyId();
+  const assets=await loadB7Assets(companyId);
+  document.getElementById('maint-asset').innerHTML='<option value="">— Select asset —</option>'+assets.map(a=>`<option value="${a.id}">${a.asset_name}</option>`).join('');
+  document.getElementById('maint-date').value=new Date().toISOString().slice(0,10);
+  ['maint-desc','maint-cost','maint-vendor'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+  document.getElementById('maint-capitalize').checked=false;
+  document.getElementById('maintenanceModal').classList.add('show');
+}
+async function saveMaintenance() {
+  const assetId=document.getElementById('maint-asset').value;
+  const desc=document.getElementById('maint-desc').value.trim();
+  const date=document.getElementById('maint-date').value;
+  if (!assetId||!desc||!date) { showToast('⚠ Asset, date and description required',true); return; }
+  const companyId=getAcctCompanyId();
+  const cost=parseFloat(document.getElementById('maint-cost').value||0)||0;
+  const capitalize=document.getElementById('maint-capitalize').checked;
+  const mid='maint-'+Date.now();
+  await sb.from('asset_maintenance').insert({ id:mid, asset_id:assetId, company_id:companyId, maintenance_date:date, maintenance_type:document.getElementById('maint-type').value, description:desc, cost, vendor:document.getElementById('maint-vendor').value, capitalize });
+  if (capitalize && cost>0) await sb.from('fixed_assets').rpc ? null : await sb.from('fixed_assets').select('acquisition_cost').eq('id',assetId).single().then(async({data})=>{ if(data) await sb.from('fixed_assets').update({ acquisition_cost:parseFloat(data.acquisition_cost||0)+cost }).eq('id',assetId); });
+  closeModal('maintenanceModal'); showToast(`✓ Maintenance logged${capitalize?' and capitalized':''}`); loadMaintenanceLog(companyId);
+}
+
+// ════════════════════════════════
+//  CONSOLIDATION
+// ════════════════════════════════
+
+async function loadConsolGroups() {
+  const c=document.getElementById('b7-consol-body'); if(!c) return;
+  const { data:groups } = await sb.from('consolidation_groups').select('*').order('group_name');
+  b7ConsolGroups=groups||[];
+  // Sync selects
+  const grpOpts='<option value="">— Select group —</option>'+b7ConsolGroups.map(g=>`<option value="${g.id}">${g.group_name}</option>`).join('');
+  ['elim-group-sel','consol-fs-group-sel'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=grpOpts; });
+  if (!b7ConsolGroups.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No consolidation groups</div><div>Create a group to consolidate multiple entities.</div></div>`; return; }
+  const { data:members } = await sb.from('consolidation_members').select('*, companies(legal_name)').in('group_id',b7ConsolGroups.map(g=>g.id));
+  const membersByGroup={};
+  (members||[]).forEach(m=>{ if(!membersByGroup[m.group_id]) membersByGroup[m.group_id]=[]; membersByGroup[m.group_id].push(m); });
+  c.innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">`+
+    b7ConsolGroups.map(g=>{
+      const mems=membersByGroup[g.id]||[];
+      const parent=mems.find(m=>m.is_parent);
+      return `<div class="return-card">
+        <div class="return-card-header">
+          <div class="return-card-title">${g.group_name}</div>
+          <span class="status-pill ${g.is_active?'status-active':''}">Active</span>
+        </div>
+        <div class="return-card-body">
+          <div style="font-size:12px;color:var(--text-mid);margin-bottom:8px;">${g.description||''}</div>
+          <div style="font-size:12px;margin-bottom:8px;">
+            <strong>Currency:</strong> ${g.base_currency||'USD'} · <strong>FYE:</strong> ${g.fiscal_year_end||'12-31'}
+          </div>
+          <div style="font-size:12px;color:var(--text-mid);margin-bottom:8px;">
+            <strong>${mems.length}</strong> entities${parent?` · Parent: ${parent.companies?.legal_name}`:''}
+          </div>
+          <div style="font-size:11px;color:var(--text-light);">
+            ${mems.map(m=>`${m.is_parent?'👑 ':''}${m.companies?.legal_name||'?'} (${parseFloat(m.ownership_pct||0).toFixed(1)}%)`).join(' · ')}
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px;">
+            <button onclick="editConsolGroup('${g.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button>
+            <button onclick="document.getElementById('consol-fs-group-sel').value='${g.id}';showAcctView('consol-fs');runConsolFS();" style="background:none;border:none;color:var(--navy);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">📊 View FS</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('')+`</div>`;
+}
+
+async function loadConsolGroupSelects() { await loadConsolGroups(); }
+async function loadConsolGroupSelects2() { await loadConsolGroups(); }
+
+async function openConsolGroupModal(id=null) {
+  editingCGId=id;
+  document.getElementById('consolGroupModalTitle').textContent=id?'Edit Consolidation Group':'New Consolidation Group';
+  ['cg-name','cg-desc'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+  document.getElementById('cg-currency').value='USD';
+  document.getElementById('cg-fye').value='12-31';
+  const { data:companies } = await sb.from('companies').select('id,legal_name').order('legal_name');
+  let currentMembers=[];
+  if (id) {
+    const { data:mems } = await sb.from('consolidation_members').select('*').eq('group_id',id);
+    currentMembers=mems||[];
+    const g=b7ConsolGroups.find(x=>x.id===id);
+    if (g) {
+      const s=(fid,v)=>{ const el=document.getElementById(fid); if(el) el.value=v||''; };
+      s('cg-name',g.group_name); s('cg-desc',g.description); s('cg-currency',g.base_currency); s('cg-fye',g.fiscal_year_end);
+    }
+  }
+  const memberSet=new Set(currentMembers.map(m=>m.company_id));
+  document.getElementById('cg-members-list').innerHTML=(companies||[]).map(co=>`
+    <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--section-bg);border-radius:var(--radius);cursor:pointer;font-size:13px;">
+      <input type="checkbox" data-co-id="${co.id}" ${memberSet.has(co.id)?'checked':''} style="accent-color:var(--gold);">
+      <span style="flex:1;">${co.legal_name}</span>
+      <label style="font-size:11px;color:var(--text-light);">Own%</label>
+      <input type="text" placeholder="100" value="${currentMembers.find(m=>m.company_id===co.id)?.ownership_pct||100}" style="width:50px;height:24px;padding:0 4px;border:1px solid var(--border);border-radius:3px;font-size:11px;font-family:monospace;" data-co-pct="${co.id}">
+      <label style="font-size:11px;color:var(--text-light);"><input type="checkbox" data-co-parent="${co.id}" ${currentMembers.find(m=>m.company_id===co.id)?.is_parent?'checked':''} style="accent-color:var(--gold);"> Parent</label>
+    </label>`).join('');
+  document.getElementById('consolGroupModal').classList.add('show');
+}
+function editConsolGroup(id) { openConsolGroupModal(id); }
+async function saveConsolGroup() {
+  const name=document.getElementById('cg-name').value.trim();
+  if (!name) { showToast('⚠ Group name required',true); return; }
+  showLoading('Saving consolidation group…');
+  const gid=editingCGId||('cg-'+Date.now());
+  await sb.from('consolidation_groups').upsert({ id:gid, group_name:name, description:document.getElementById('cg-desc').value, base_currency:document.getElementById('cg-currency').value, fiscal_year_end:document.getElementById('cg-fye').value, is_active:true });
+  // Update members
+  await sb.from('consolidation_members').delete().eq('group_id',gid);
+  const checks=[...document.querySelectorAll('#cg-members-list input[type=checkbox][data-co-id]:checked')];
+  for (const cb of checks) {
+    const coId=cb.dataset.coId;
+    const pct=parseFloat(document.querySelector(`[data-co-pct="${coId}"]`)?.value||100)||100;
+    const isParent=!!document.querySelector(`[data-co-parent="${coId}"]`)?.checked;
+    await sb.from('consolidation_members').insert({ id:`cm-${gid}-${coId}`, group_id:gid, company_id:coId, ownership_pct:pct, is_parent:isParent, elimination_method:'full' });
+  }
+  hideLoading(); closeModal('consolGroupModal'); showToast('✓ Consolidation group saved'); loadConsolGroups();
+}
+
+async function loadEliminations() {
+  const groupId=document.getElementById('elim-group-sel')?.value;
+  const c=document.getElementById('b7-elim-body'); if(!c) return;
+  if (!groupId) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">Select a consolidation group</div></div>`; return; }
+  const { data:entries } = await sb.from('elimination_entries').select('*, debit_co:companies!debit_company_id(legal_name), credit_co:companies!credit_company_id(legal_name)').eq('group_id',groupId).order('period_start',{ascending:false});
+  const fmt2=v=>'$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+  if (!entries?.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No eliminations yet</div><div>Add entries to eliminate intercompany transactions.</div></div>`; return; }
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Period</th><th>Type</th><th>Description</th><th>Debit Entity</th><th>Credit Entity</th><th style="text-align:right;">Amount</th><th>Status</th></tr></thead><tbody>`+
+    entries.map(e=>`<tr>
+      <td style="font-size:12px;">${fmtDate(e.period_start)} — ${fmtDate(e.period_end)}</td>
+      <td style="font-size:12px;text-transform:capitalize;">${(e.elimination_type||'').replace(/_/g,' ')}</td>
+      <td>${e.description||'—'}</td>
+      <td style="font-size:12px;color:var(--text-mid);">${e.debit_co?.legal_name||'—'}</td>
+      <td style="font-size:12px;color:var(--text-mid);">${e.credit_co?.legal_name||'—'}</td>
+      <td class="amount">${fmt2(e.amount)}</td>
+      <td>${e.is_posted?'<span class="status-pill status-active">Posted</span>':'<span class="status-pill">Draft</span>'}</td>
+    </tr>`).join('')+`</tbody></table>`;
+}
+
+async function openEliminationModal() {
+  const groupId=document.getElementById('elim-group-sel')?.value;
+  if (!groupId) { showToast('⚠ Select a group first',true); return; }
+  ['elim-start','elim-end','elim-desc','elim-amount'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+  document.getElementById('elim-type').value='intercompany_revenue';
+  // Populate company selects from group members
+  const { data:mems } = await sb.from('consolidation_members').select('*, companies(id,legal_name)').eq('group_id',groupId);
+  const coOpts='<option value="">— Select —</option>'+(mems||[]).map(m=>`<option value="${m.company_id}">${m.companies?.legal_name||'?'}</option>`).join('');
+  ['elim-debit-co','elim-credit-co'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=coOpts; });
+  // Set default period
+  const now=new Date();
+  document.getElementById('elim-start').value=`${now.getFullYear()}-01-01`;
+  document.getElementById('elim-end').value=`${now.getFullYear()}-12-31`;
+  document.getElementById('eliminationModal').classList.add('show');
+}
+async function saveElimination() {
+  const groupId=document.getElementById('elim-group-sel')?.value;
+  const desc=document.getElementById('elim-desc').value.trim();
+  const amount=parseFloat(document.getElementById('elim-amount').value||0)||0;
+  if (!groupId||!desc||!amount) { showToast('⚠ Description and amount required',true); return; }
+  const g=id=>document.getElementById(id)?.value||'';
+  await sb.from('elimination_entries').insert({
+    id:'elim-'+Date.now(), group_id:groupId,
+    period_start:g('elim-start'), period_end:g('elim-end'),
+    description:desc, elimination_type:g('elim-type'), amount,
+    debit_company_id:g('elim-debit-co')||null, credit_company_id:g('elim-credit-co')||null,
+    is_posted:false,
+  });
+  closeModal('eliminationModal'); showToast('✓ Elimination entry saved'); loadEliminations();
+}
+
+async function runConsolFS() {
+  const groupId=document.getElementById('consol-fs-group-sel')?.value;
+  const year=parseInt(document.getElementById('consol-fs-year-sel')?.value)||2025;
+  const c=document.getElementById('b7-consol-fs-body'); if(!c) return;
+  if (!groupId) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">Select a consolidation group</div></div>`; return; }
+  showLoading('Building consolidated financials…');
+  const { data:members } = await sb.from('consolidation_members').select('*, companies(id,legal_name)').eq('group_id',groupId);
+  const group=b7ConsolGroups.find(g=>g.id===groupId);
+  // Aggregate financials across all member companies
+  let totalRevenue=0,totalCOGS=0,totalOpex=0,totalAssets=0,totalLiabilities=0,totalEquity=0;
+  const entityRows=[];
+  for (const m of (members||[])) {
+    const fd=await getFinancialData(m.company_id, year);
+    const pct=parseFloat(m.ownership_pct||100)/100;
+    const adj={ revenue:fd.revenue*pct, cogs:fd.cogs*pct, opex:fd.opex*pct, assets:fd.assets*pct, liabilities:fd.liabilities*pct, equity:fd.equity*pct };
+    totalRevenue+=adj.revenue; totalCOGS+=adj.cogs; totalOpex+=adj.opex;
+    totalAssets+=adj.assets; totalLiabilities+=adj.liabilities; totalEquity+=adj.equity;
+    entityRows.push({ name:m.companies?.legal_name||'?', pct:m.ownership_pct, ...adj, isParent:m.is_parent });
+  }
+  // Load eliminations
+  const { data:elims } = await sb.from('elimination_entries').select('*').eq('group_id',groupId).gte('period_start',`${year}-01-01`).lte('period_end',`${year}-12-31`);
+  const totalElim=(elims||[]).reduce((s,e)=>s+parseFloat(e.amount||0),0);
+  totalRevenue-=totalElim;
+  const grossProfit=totalRevenue-totalCOGS;
+  const netIncome=grossProfit-totalOpex;
+  hideLoading();
+  const fmt2=v=>'$'+Math.round(parseFloat(v||0)).toLocaleString('en-US',{minimumFractionDigits:0});
+  c.innerHTML=`
+    <div style="background:var(--navy);padding:16px 20px;border-radius:var(--radius-lg) var(--radius-lg) 0 0;margin-bottom:0;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--gold-light);">${group?.group_name||'Consolidated'}</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.5);">Consolidated Financial Statements · Fiscal Year ${year}</div>
+    </div>
+    <div style="background:var(--white);border:1px solid var(--border-light);border-radius:0 0 var(--radius-lg) var(--radius-lg);padding:20px;margin-bottom:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <!-- Income Statement -->
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:14px;border-bottom:2px solid var(--gold);padding-bottom:8px;">Consolidated Income Statement</div>
+          ${[['Revenue',totalRevenue,false],['Cost of Goods Sold',totalCOGS,false],['Gross Profit',grossProfit,true],['Operating Expenses',totalOpex,false],['Net Income',netIncome,true]].map(([l,v,bold])=>`
+            <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border-light);${bold?'font-weight:700;':''};${l==='Net Income'?'border-top:2px solid var(--gold);':''}">
+              <span style="font-size:13px;">${l}</span><span style="font-family:monospace;font-size:13px;color:${l==='Net Income'?netIncome>=0?'var(--success)':'var(--error)':'inherit'};">${fmt2(v)}</span>
+            </div>`).join('')}
+          ${totalElim>0?`<div style="margin-top:10px;padding:8px 12px;background:rgba(231,76,60,0.08);border-radius:var(--radius);font-size:12px;color:var(--error);">Intercompany eliminations: (${fmt2(totalElim)})</div>`:''}
+        </div>
+        <!-- Balance Sheet -->
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:14px;border-bottom:2px solid var(--gold);padding-bottom:8px;">Consolidated Balance Sheet</div>
+          ${[['Total Assets',totalAssets,false],['Total Liabilities',totalLiabilities,false],['Total Equity',totalEquity,true]].map(([l,v,bold])=>`
+            <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border-light);${bold?'font-weight:700;border-top:2px solid var(--gold);':''}">
+              <span style="font-size:13px;">${l}</span><span style="font-family:monospace;font-size:13px;">${fmt2(v)}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;">
+      <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:12px;">Entity Contribution Summary</div>
+      <table class="acct-table"><thead><tr><th>Entity</th><th>Ownership %</th><th style="text-align:right;">Revenue</th><th style="text-align:right;">Net Income</th><th style="text-align:right;">Assets</th></tr></thead><tbody>`+
+    entityRows.map(r=>`<tr>
+      <td>${r.isParent?'👑 ':''}<strong>${r.name}</strong></td>
+      <td style="text-align:center;font-family:monospace;">${parseFloat(r.pct||100).toFixed(1)}%</td>
+      <td class="amount">${fmt2(r.revenue)}</td>
+      <td class="amount" style="color:${r.revenue-r.cogs-r.opex>=0?'var(--success)':'var(--error)'};">${fmt2(r.revenue-r.cogs-r.opex)}</td>
+      <td class="amount">${fmt2(r.assets)}</td>
+    </tr>`).join('')+
+    `</tbody></table></div>`;
+}
+
+function printConsolFS() {
+  const content=document.getElementById('b7-consol-fs-body')?.innerHTML||'';
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>Consolidated Financial Statements</title><style>body{font-family:Georgia,serif;font-size:12px;max-width:900px;margin:20px auto;}table{width:100%;border-collapse:collapse;}th{background:#0f1f38;color:#d4b07a;padding:7px 12px;}td{padding:7px 12px;border-bottom:1px solid #eee;}@media print{button{display:none;}}</style></head><body><button onclick="window.print()" style="padding:7px 16px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:16px;">🖨 Print / Save as PDF</button>${content}</body></html>`);
+  win.document.close();
+}
 
 // ── INIT
 loadDashboard();
