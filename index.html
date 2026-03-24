@@ -94,7 +94,7 @@
   .topbar-nav-btn.active { background: var(--gold); color: var(--navy); font-weight: 500; }
 
   /* ── LAYOUT ── */
-  .app-layout { display: flex; flex: 1; min-height: 0; }
+  .app-layout { display: flex; flex: 1; min-height: 0; align-items: flex-start; }
 
   /* ── SIDEBAR ── */
   .sidebar {
@@ -103,7 +103,7 @@
     display: flex;
     flex-direction: column;
     padding: 24px 0;
-    min-height: calc(100vh - 64px);
+    min-height: 100vh;
     position: sticky;
     top: 64px;
     height: calc(100vh - 64px);
@@ -168,7 +168,7 @@
   .add-company-btn:hover { box-shadow: 0 4px 16px rgba(184,150,90,0.45); transform: translateY(-1px); }
 
   /* ── MAIN ── */
-  .main { flex: 1; padding: 32px 40px; overflow-y: auto; }
+  .main { flex: 1; padding: 32px 40px; overflow-y: visible; }
   /* Hide companies sidebar when other modules are active */
   .sidebar-hidden { display: none !important; }
   /* When sidebar hidden, panels take full width */
@@ -6092,6 +6092,8 @@ function switchModule(module) {
     document.getElementById(id)?.classList.remove('active');
   });
   setSidebarVisible(module === 'companies');
+  // Always scroll to top when switching modules
+  window.scrollTo({ top: 0, behavior: 'auto' });
   if (module === 'companies') {
     showDashboard();
   } else if (module === 'ownership') {
@@ -10789,6 +10791,7 @@ function populateProjectDropdowns() {
 
 // ── PM PANEL NAVIGATION ──
 function showPMPanel(panelId) {
+  window.scrollTo({ top: 0, behavior: 'auto' });
   document.querySelectorAll('.pm-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.pm-sidebar-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('pm-panel-' + panelId)?.classList.add('active');
@@ -12050,6 +12053,7 @@ function populateInvDropdowns() {
 
 // ── PANEL NAVIGATION ──
 function showInvPanel(panelId) {
+  window.scrollTo({ top: 0, behavior: 'auto' });
   document.querySelectorAll('.inv-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.inv-sidebar-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('inv-panel-'+panelId)?.classList.add('active');
@@ -12848,6 +12852,7 @@ async function loadBudgetingData() {
 
 // ── PANEL NAV ──
 function showBudPanel(panelId) {
+  window.scrollTo({ top: 0, behavior: 'auto' });
   document.querySelectorAll('.bud-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.bud-sidebar-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('bud-panel-'+panelId)?.classList.add('active');
@@ -13831,6 +13836,7 @@ async function loadSettingsModule() {
 
 // ── PANEL NAVIGATION ──
 function showSetPanel(panelId) {
+  window.scrollTo({ top: 0, behavior: 'auto' });
   document.querySelectorAll('.set-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.set-sidebar-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('set-panel-'+panelId)?.classList.add('active');
@@ -14742,6 +14748,7 @@ async function loadReportsModule() {
 }
 async function onRptEntityChange() { rptCompanyId=document.getElementById('rpt-entity-select').value||null; }
 function showRptPanel(panelId) {
+  window.scrollTo({ top: 0, behavior: 'auto' });
   document.querySelectorAll('.rpt-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.rpt-sidebar-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('rpt-panel-'+panelId)?.classList.add('active');
@@ -16210,6 +16217,7 @@ function showB8Panel(prefix, panelId) {
 }
 // Helpers per module
 function showPOPanel(p) {
+  window.scrollTo({ top: 0, behavior: 'auto' });
   document.querySelectorAll('#view-purchasing .b8-panel').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('#view-purchasing .b8-sidebar-btn').forEach(x=>x.classList.remove('active'));
   document.getElementById('po-panel-'+p)?.classList.add('active');
@@ -16221,6 +16229,7 @@ function showPOPanel(p) {
   if (p==='dashboard')loadPODashboard();
 }
 function showEQPanel(p) {
+  window.scrollTo({ top: 0, behavior: 'auto' });
   document.querySelectorAll('#view-equity .b8-panel').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('#view-equity .b8-sidebar-btn').forEach(x=>x.classList.remove('active'));
   document.getElementById('eq-panel-'+p)?.classList.add('active');
@@ -16232,6 +16241,7 @@ function showEQPanel(p) {
   if (p==='vesting')   loadVestingSchedule();
 }
 function showDebtPanel(p) {
+  window.scrollTo({ top: 0, behavior: 'auto' });
   document.querySelectorAll('#view-debt .b8-panel').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('#view-debt .b8-sidebar-btn').forEach(x=>x.classList.remove('active'));
   document.getElementById('debt-panel-'+p)?.classList.add('active');
@@ -16242,6 +16252,7 @@ function showDebtPanel(p) {
   if (p==='covenant')  loadDebtSummary();
 }
 function showHRPanel(p) {
+  window.scrollTo({ top: 0, behavior: 'auto' });
   document.querySelectorAll('#view-hr .b8-panel').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('#view-hr .b8-sidebar-btn').forEach(x=>x.classList.remove('active'));
   document.getElementById('hr-panel-'+p)?.classList.add('active');
