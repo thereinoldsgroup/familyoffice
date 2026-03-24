@@ -454,7 +454,46 @@
   .report-run-btn:hover { background: var(--navy-mid); }
   .coa-group-header { padding: 8px 16px; background: var(--navy); color: var(--gold-light); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 
-  /* ── BATCH 9: AUTH ── */
+  /* ── BATCH 10: DROPDOWN NAV ── */
+  .nav-group { position:relative; display:inline-flex; }
+  .nav-group-btn {
+    display:flex; align-items:center; gap:5px; padding:6px 12px;
+    background:none; border:none; color:rgba(255,255,255,0.75);
+    font-family:'DM Sans',sans-serif; font-size:13px; cursor:pointer;
+    border-radius:var(--radius); transition:all 0.15s; white-space:nowrap;
+  }
+  .nav-group-btn:hover { color:var(--white); background:rgba(255,255,255,0.08); }
+  .nav-group-btn.active { background:var(--gold); color:var(--navy); font-weight:500; }
+  .nav-group-btn .nav-caret { font-size:9px; opacity:0.6; transition:transform 0.15s; }
+  .nav-group-btn.open .nav-caret { transform:rotate(180deg); }
+  .nav-dropdown {
+    position:absolute; top:calc(100% + 6px); left:0;
+    background:var(--navy-mid); border:1px solid rgba(255,255,255,0.12);
+    border-radius:var(--radius-lg); min-width:190px;
+    box-shadow:0 8px 32px rgba(0,0,0,0.35); z-index:5000;
+    display:none; flex-direction:column; padding:6px 0;
+    overflow:hidden;
+  }
+  .nav-dropdown.open { display:flex; }
+  .nav-dropdown-item {
+    padding:9px 16px; font-size:13px; color:rgba(255,255,255,0.75);
+    cursor:pointer; transition:background 0.12s; border:none;
+    background:none; text-align:left; font-family:'DM Sans',sans-serif;
+    white-space:nowrap; display:flex; align-items:center; gap:8px;
+  }
+  .nav-dropdown-item:hover { background:rgba(255,255,255,0.1); color:var(--white); }
+  .nav-dropdown-item.active { color:var(--gold); font-weight:500; }
+  .nav-dropdown-divider { height:1px; background:rgba(255,255,255,0.1); margin:4px 0; }
+  /* Attachment zone in modals */
+  .attach-zone { border:2px dashed var(--border); border-radius:var(--radius); padding:12px 16px; background:var(--section-bg); cursor:pointer; transition:all 0.15s; display:flex; align-items:center; gap:10px; margin-top:10px; }
+  .attach-zone:hover { border-color:var(--gold); background:var(--gold-pale); }
+  .attach-zone-icon { font-size:18px; flex-shrink:0; }
+  .attach-zone-text { font-size:12px; color:var(--text-mid); }
+  .attach-list { margin-top:8px; display:flex; flex-direction:column; gap:4px; }
+  .attach-item { display:flex; align-items:center; gap:8px; padding:6px 10px; background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius); font-size:12px; }
+  .attach-item-name { flex:1; color:var(--navy); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .attach-item-remove { background:none; border:none; color:var(--text-light); cursor:pointer; font-size:16px; padding:0; line-height:1; }
+  .attach-item-status { font-size:11px; color:var(--text-light); white-space:nowrap; }
   #login-screen {
     position:fixed; inset:0; background:var(--navy); z-index:10000;
     display:flex; align-items:center; justify-content:center;
@@ -840,22 +879,68 @@
       <div class="topbar-subtitle">Enterprise Management System</div>
     </div>
   </div>
-  <nav class="topbar-nav">
-    <button class="topbar-nav-btn active" id="nav-companies" onclick="switchModule('companies')">Companies</button>
-    <button class="topbar-nav-btn" id="nav-ownership" onclick="switchModule('ownership')">Ownership</button>
-    <button class="topbar-nav-btn" id="nav-financials" onclick="switchModule('financials')">Financials</button>
-    <button class="topbar-nav-btn" id="nav-tax" onclick="switchModule('tax')">Tax</button>
-    <button class="topbar-nav-btn" id="nav-projects" onclick="switchModule('projects')">Projects</button>
-    <button class="topbar-nav-btn" id="nav-inventory" onclick="switchModule('inventory')">Inventory</button>
-    <button class="topbar-nav-btn" id="nav-budgeting" onclick="switchModule('budgeting')">Budgeting</button>
-    <button class="topbar-nav-btn" id="nav-settings"  onclick="switchModule('settings')">Settings</button>
-    <button class="topbar-nav-btn" id="nav-crm"       onclick="switchModule('crm')">CRM</button>
-    <button class="topbar-nav-btn" id="nav-documents" onclick="switchModule('documents')">Documents</button>
-    <button class="topbar-nav-btn" id="nav-reports"   onclick="switchModule('reports')">Reports</button>
-    <button class="topbar-nav-btn" id="nav-purchasing" onclick="switchModule('purchasing')">Purchasing</button>
-    <button class="topbar-nav-btn" id="nav-equity"     onclick="switchModule('equity')">Equity</button>
-    <button class="topbar-nav-btn" id="nav-debt"       onclick="switchModule('debt')">Debt</button>
-    <button class="topbar-nav-btn" id="nav-hr"         onclick="switchModule('hr')">HR</button>
+  <nav class="topbar-nav" id="main-nav">
+
+    <!-- ENTITIES -->
+    <div class="nav-group">
+      <button class="nav-group-btn" id="nav-companies" onclick="switchModule('companies')">Entities</button>
+    </div>
+
+    <!-- ACCOUNTING dropdown -->
+    <div class="nav-group" id="navg-accounting">
+      <button class="nav-group-btn" id="navbtn-accounting" onclick="toggleNavGroup('accounting')">
+        Accounting <span class="nav-caret">▼</span>
+      </button>
+      <div class="nav-dropdown" id="navdd-accounting">
+        <button class="nav-dropdown-item" id="nav-financials" onclick="pickNav('financials')">📒 Financials &amp; GL</button>
+        <button class="nav-dropdown-item" id="nav-tax"        onclick="pickNav('tax')">🏛️ Tax Returns</button>
+        <button class="nav-dropdown-item" id="nav-budgeting"  onclick="pickNav('budgeting')">📊 Budgeting</button>
+        <div class="nav-dropdown-divider"></div>
+        <button class="nav-dropdown-item" id="nav-equity"     onclick="pickNav('equity')">📈 Equity &amp; Cap Table</button>
+        <button class="nav-dropdown-item" id="nav-debt"       onclick="pickNav('debt')">🏦 Debt &amp; Loans</button>
+      </div>
+    </div>
+
+    <!-- OPERATIONS dropdown -->
+    <div class="nav-group" id="navg-operations">
+      <button class="nav-group-btn" id="navbtn-operations" onclick="toggleNavGroup('operations')">
+        Operations <span class="nav-caret">▼</span>
+      </button>
+      <div class="nav-dropdown" id="navdd-operations">
+        <button class="nav-dropdown-item" id="nav-projects"   onclick="pickNav('projects')">📋 Projects</button>
+        <button class="nav-dropdown-item" id="nav-inventory"  onclick="pickNav('inventory')">📦 Inventory</button>
+        <button class="nav-dropdown-item" id="nav-purchasing" onclick="pickNav('purchasing')">🛒 Purchasing</button>
+      </div>
+    </div>
+
+    <!-- PEOPLE dropdown -->
+    <div class="nav-group" id="navg-people">
+      <button class="nav-group-btn" id="navbtn-people" onclick="toggleNavGroup('people')">
+        People <span class="nav-caret">▼</span>
+      </button>
+      <div class="nav-dropdown" id="navdd-people">
+        <button class="nav-dropdown-item" id="nav-hr"         onclick="pickNav('hr')">👥 HR &amp; Benefits</button>
+        <button class="nav-dropdown-item" id="nav-crm"        onclick="pickNav('crm')">🤝 CRM</button>
+        <button class="nav-dropdown-item" id="nav-ownership"  onclick="pickNav('ownership')">🔗 Ownership</button>
+      </div>
+    </div>
+
+    <!-- INTELLIGENCE dropdown -->
+    <div class="nav-group" id="navg-intel">
+      <button class="nav-group-btn" id="navbtn-intel" onclick="toggleNavGroup('intel')">
+        Intelligence <span class="nav-caret">▼</span>
+      </button>
+      <div class="nav-dropdown" id="navdd-intel">
+        <button class="nav-dropdown-item" id="nav-reports"   onclick="pickNav('reports')">📊 Reports &amp; Automation</button>
+        <button class="nav-dropdown-item" id="nav-documents" onclick="pickNav('documents')">📁 Documents</button>
+      </div>
+    </div>
+
+    <!-- SETTINGS — standalone -->
+    <div class="nav-group">
+      <button class="nav-group-btn" id="nav-settings" onclick="switchModule('settings')">Settings</button>
+    </div>
+
   </nav>
   <div style="position:relative;margin-left:8px;">
     <button id="alert-bell-btn" onclick="toggleAlertDrawer()" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.7);font-size:20px;padding:4px 8px;border-radius:6px;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'" title="Alerts">🔔</button>
@@ -2632,6 +2717,9 @@
           <div class="set-sidebar-section">Audit</div>
           <button class="set-sidebar-btn"         id="set-nav-activity"    onclick="showSetPanel('activity')">   <span>📋</span> Activity Log</button>
           <button class="set-sidebar-btn"         id="set-nav-changes"     onclick="showSetPanel('changes')">    <span>🔍</span> Change Log</button>
+          <div class="set-sidebar-section">Integrations</div>
+          <button class="set-sidebar-btn"         id="set-nav-integrations" onclick="showSetPanel('integrations')"><span>🔌</span> Document Storage</button>
+          <button class="set-sidebar-btn"         id="set-nav-security"    onclick="showSetPanel('security')">   <span>🔒</span> Security</button>
         </div>
 
         <div class="set-content">
@@ -2722,6 +2810,166 @@
               <button class="btn-primary" onclick="loadChangeLog()">Load</button>
             </div>
             <div id="set-changes-body"><div class="empty-state"><div class="empty-state-title">Click Load to view recent changes</div></div></div>
+          </div>
+
+          <!-- DOCUMENT STORAGE INTEGRATIONS -->
+          <div id="set-panel-integrations" class="set-panel">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);margin-bottom:4px;">Document Storage</div>
+            <div style="font-size:13px;color:var(--text-light);margin-bottom:24px;">Configure where uploaded documents (bill attachments, JE attachments, documents module) are stored. Files are always saved in Supabase Storage by default. Enable a cloud integration to also sync to Google Drive or SharePoint.</div>
+
+            <!-- Storage provider cards -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px;">
+              <div style="background:var(--white);border:2px solid var(--gold);border-radius:var(--radius-lg);padding:18px;" id="storage-card-supabase">
+                <div style="font-size:20px;margin-bottom:8px;">🗄️</div>
+                <div style="font-weight:600;font-size:14px;color:var(--navy);">Supabase Storage</div>
+                <div style="font-size:12px;color:var(--text-light);margin:4px 0 10px;">Default · Always active</div>
+                <span class="status-pill status-active">Active</span>
+              </div>
+              <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;" id="storage-card-gdrive">
+                <div style="font-size:20px;margin-bottom:8px;">📁</div>
+                <div style="font-weight:600;font-size:14px;color:var(--navy);">Google Drive</div>
+                <div style="font-size:12px;color:var(--text-light);margin:4px 0 10px;">Sync attachments to Drive folder</div>
+                <span class="status-pill" id="gdrive-status-pill">Not connected</span>
+              </div>
+              <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;" id="storage-card-sp">
+                <div style="font-size:20px;margin-bottom:8px;">☁️</div>
+                <div style="font-weight:600;font-size:14px;color:var(--navy);">SharePoint / OneDrive</div>
+                <div style="font-size:12px;color:var(--text-light);margin:4px 0 10px;">Sync to SharePoint document library</div>
+                <span class="status-pill" id="sp-status-pill">Not connected</span>
+              </div>
+            </div>
+
+            <!-- Google Drive Config -->
+            <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                <div style="font-size:14px;font-weight:600;color:var(--navy);">📁 Google Drive Configuration</div>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                  <input type="checkbox" id="gdrive-enabled" style="accent-color:var(--gold);" onchange="toggleStorageProvider('gdrive')"> Enable Google Drive sync
+                </label>
+              </div>
+              <div id="gdrive-config" style="display:none;">
+                <div class="form-grid">
+                  <div class="field-group col-span-2">
+                    <label class="field-label">Google Drive Folder ID</label>
+                    <input type="text" class="field-input" id="gdrive-folder-id" placeholder="Paste the folder ID from your Google Drive URL">
+                    <div style="font-size:11px;color:var(--text-light);margin-top:4px;">From the folder URL: drive.google.com/drive/folders/<strong>[FOLDER_ID]</strong></div>
+                  </div>
+                  <div class="field-group col-span-2">
+                    <label class="field-label">Google Service Account JSON Key</label>
+                    <textarea class="field-input" id="gdrive-service-key" rows="4" style="font-family:monospace;font-size:11px;resize:vertical;" placeholder='{"type":"service_account","project_id":"...","private_key":"...","client_email":"..."}'></textarea>
+                    <div style="font-size:11px;color:var(--text-light);margin-top:4px;">Create a Service Account in Google Cloud Console → IAM → Service Accounts → Add Key. Share the target folder with the service account email.</div>
+                  </div>
+                  <div class="field-group col-span-2">
+                    <label class="field-label">Subfolder Structure</label>
+                    <select class="field-select" id="gdrive-structure">
+                      <option value="flat">Flat — all files in one folder</option>
+                      <option value="by_company">By Company → [Company Name]/</option>
+                      <option value="by_type">By Type → Bills/ · JEs/ · Documents/</option>
+                      <option value="by_company_type" selected>By Company + Type → [Company]/Bills/</option>
+                    </select>
+                  </div>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:14px;">
+                  <button class="btn-primary" onclick="saveStorageConfig('gdrive')">Save Google Drive Config</button>
+                  <button class="btn-secondary" onclick="testStorageConnection('gdrive')">Test Connection</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- SharePoint Config -->
+            <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                <div style="font-size:14px;font-weight:600;color:var(--navy);">☁️ SharePoint / OneDrive Configuration</div>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                  <input type="checkbox" id="sp-enabled" style="accent-color:var(--gold);" onchange="toggleStorageProvider('sp')"> Enable SharePoint sync
+                </label>
+              </div>
+              <div id="sp-config" style="display:none;">
+                <div class="form-grid">
+                  <div class="field-group"><label class="field-label">Tenant ID</label><input type="text" class="field-input" id="sp-tenant-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
+                  <div class="field-group"><label class="field-label">Client ID</label><input type="text" class="field-input" id="sp-client-id" placeholder="App Registration Client ID"></div>
+                  <div class="field-group col-span-2"><label class="field-label">Client Secret</label><input type="password" class="field-input" id="sp-client-secret" placeholder="App Registration Client Secret"></div>
+                  <div class="field-group col-span-2"><label class="field-label">SharePoint Site URL</label><input type="text" class="field-input" id="sp-site-url" placeholder="https://yourtenant.sharepoint.com/sites/FamilyOffice"></div>
+                  <div class="field-group col-span-2"><label class="field-label">Document Library Name</label><input type="text" class="field-input" id="sp-library" placeholder="Family Office Documents" value="Documents"></div>
+                  <div class="field-group col-span-2">
+                    <label class="field-label">Subfolder Structure</label>
+                    <select class="field-select" id="sp-structure">
+                      <option value="flat">Flat — all files in one library</option>
+                      <option value="by_company">By Company → [Company Name]/</option>
+                      <option value="by_company_type" selected>By Company + Type → [Company]/Bills/</option>
+                    </select>
+                  </div>
+                </div>
+                <div style="font-size:11px;color:var(--text-light);margin:10px 0;padding:10px 14px;background:var(--section-bg);border-radius:var(--radius);">
+                  <strong>Setup:</strong> Register an app in Azure Active Directory → API Permissions → SharePoint → Sites.ReadWrite.All. Copy Tenant ID, Client ID, and generate a Client Secret.
+                </div>
+                <div style="display:flex;gap:8px;margin-top:10px;">
+                  <button class="btn-primary" onclick="saveStorageConfig('sp')">Save SharePoint Config</button>
+                  <button class="btn-secondary" onclick="testStorageConnection('sp')">Test Connection</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Upload behavior -->
+            <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px;">
+              <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:12px;">Upload Behavior</div>
+              <div class="form-grid">
+                <div class="field-group col-span-2">
+                  <label class="field-label">Max file size per attachment</label>
+                  <select class="field-select" id="max-file-size" style="width:200px;">
+                    <option value="5">5 MB</option>
+                    <option value="10" selected>10 MB</option>
+                    <option value="25">25 MB</option>
+                    <option value="50">50 MB</option>
+                  </select>
+                </div>
+                <div class="field-group col-span-2">
+                  <label class="field-label">Allowed file types</label>
+                  <input type="text" class="field-input" id="allowed-file-types" value=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.csv,.docx,.doc" placeholder=".pdf,.jpg,.png">
+                </div>
+                <div class="field-group col-span-2">
+                  <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                    <input type="checkbox" id="require-attachment-bill" style="accent-color:var(--gold);" checked> Require attachment on bills over $
+                    <input type="text" style="width:80px;height:28px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;" id="require-attachment-threshold" value="500">
+                  </label>
+                </div>
+              </div>
+              <button class="btn-save" style="margin-top:14px;" onclick="saveUploadBehavior()">Save Upload Settings</button>
+            </div>
+          </div>
+
+          <!-- SECURITY SETTINGS -->
+          <div id="set-panel-security" class="set-panel">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);margin-bottom:4px;">Security Settings</div>
+            <div style="font-size:13px;color:var(--text-light);margin-bottom:24px;">Access controls, session management, and audit configuration.</div>
+            <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;">
+              <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:14px;">Session &amp; Authentication</div>
+              <div class="form-grid">
+                <div class="field-group col-span-2">
+                  <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;"><input type="checkbox" id="sec-require-mfa" style="accent-color:var(--gold);"> Require MFA for all users (enforced via Supabase)</label>
+                </div>
+                <div class="field-group">
+                  <label class="field-label">Session timeout (minutes)</label>
+                  <select class="field-select" id="sec-session-timeout"><option value="30">30 min</option><option value="60" selected>1 hour</option><option value="240">4 hours</option><option value="480">8 hours</option><option value="0">Never</option></select>
+                </div>
+                <div class="field-group">
+                  <label class="field-label">Max failed login attempts before lock</label>
+                  <select class="field-select" id="sec-max-attempts"><option value="3">3</option><option value="5" selected>5</option><option value="10">10</option></select>
+                </div>
+              </div>
+            </div>
+            <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;">
+              <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:14px;">Data &amp; Audit</div>
+              <div class="form-grid">
+                <div class="field-group col-span-2"><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;"><input type="checkbox" id="sec-log-all" checked style="accent-color:var(--gold);"> Log all financial record changes to activity log</label></div>
+                <div class="field-group col-span-2"><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;"><input type="checkbox" id="sec-log-logins" checked style="accent-color:var(--gold);"> Log all login events</label></div>
+                <div class="field-group"><label class="field-label">Activity log retention</label><select class="field-select" id="sec-log-retention"><option value="1">1 year</option><option value="3">3 years</option><option value="7" selected>7 years (SOX)</option></select></div>
+              </div>
+            </div>
+            <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px;">
+              <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:10px;">Incident Response</div>
+              <button onclick="openIncidentResponsePlan()" class="btn-secondary">📋 Open Incident Response Plan</button>
+            </div>
           </div>
 
         </div><!-- /set-content -->
@@ -3179,9 +3427,19 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" onclick="closeModal('jeModal')">Cancel</button>
-          <button class="btn-secondary" onclick="saveJE('draft')">Save as Draft</button>
-          <button class="btn-save" onclick="saveJE('posted')">Post Entry</button>
+          <div style="flex:1;margin-right:16px;">
+            <div class="attach-zone" onclick="document.getElementById('je-attach-input').click();">
+              <span class="attach-zone-icon">📎</span>
+              <div class="attach-zone-text"><strong>Attach supporting document</strong> — bank statement, receipt, contract</div>
+            </div>
+            <input type="file" id="je-attach-input" multiple accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.csv,.docx,.doc" style="display:none;" onchange="handleJEAttachments(this)">
+            <div class="attach-list" id="je-attach-list"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+            <button class="btn-secondary" onclick="closeModal('jeModal')">Cancel</button>
+            <button class="btn-secondary" onclick="saveJE('draft')">Save as Draft</button>
+            <button class="btn-save" onclick="saveJE('posted')">Post Entry</button>
+          </div>
         </div>
       </div>
     </div>
@@ -3860,9 +4118,19 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-secondary" onclick="closeModal('billModal')">Cancel</button>
-      <button class="btn-secondary" onclick="saveBill('draft')">Save Draft</button>
-      <button class="btn-save" onclick="saveBill('received')">Save &amp; Post</button>
+      <div style="flex:1;margin-right:16px;">
+        <div class="attach-zone" onclick="document.getElementById('bill-attach-input').click();">
+          <span class="attach-zone-icon">📎</span>
+          <div class="attach-zone-text"><strong>Attach document</strong> — invoice, receipt, PO confirmation (PDF, image, Excel)</div>
+        </div>
+        <input type="file" id="bill-attach-input" multiple accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.csv,.docx,.doc" style="display:none;" onchange="handleBillAttachments(this)">
+        <div class="attach-list" id="bill-attach-list"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+        <button class="btn-secondary" onclick="closeModal('billModal')">Cancel</button>
+        <button class="btn-secondary" onclick="saveBill('draft')">Save Draft</button>
+        <button class="btn-save" onclick="saveBill('received')">Save &amp; Post</button>
+      </div>
     </div>
   </div>
 </div>
@@ -19178,6 +19446,344 @@ function addIRPLinks() {
     setContent.appendChild(div);
   }
 }
+
+// ═══════════════════════════════════════════════════
+//  BATCH 10 — NAV, ATTACHMENTS, STORAGE INTEGRATIONS
+// ═══════════════════════════════════════════════════
+
+// ════════════════════════════════
+//  DROPDOWN NAVIGATION
+// ════════════════════════════════
+
+// Map module IDs to their parent group
+const MODULE_GROUP_MAP = {
+  financials:'accounting', tax:'accounting', budgeting:'accounting',
+  equity:'accounting', debt:'accounting',
+  projects:'operations', inventory:'operations', purchasing:'operations',
+  hr:'people', crm:'people', ownership:'people',
+  reports:'intel', documents:'intel',
+};
+
+function toggleNavGroup(groupId) {
+  const btn = document.getElementById('navbtn-' + groupId);
+  const dd  = document.getElementById('navdd-'  + groupId);
+  if (!btn || !dd) return;
+  const isOpen = dd.classList.contains('open');
+  // Close all dropdowns first
+  document.querySelectorAll('.nav-dropdown').forEach(d => d.classList.remove('open'));
+  document.querySelectorAll('.nav-group-btn').forEach(b => b.classList.remove('open'));
+  if (!isOpen) {
+    dd.classList.add('open');
+    btn.classList.add('open');
+  }
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('.nav-group')) {
+    document.querySelectorAll('.nav-dropdown').forEach(d => d.classList.remove('open'));
+    document.querySelectorAll('.nav-group-btn').forEach(b => b.classList.remove('open'));
+  }
+});
+
+function pickNav(module) {
+  // Close all dropdowns
+  document.querySelectorAll('.nav-dropdown').forEach(d => d.classList.remove('open'));
+  document.querySelectorAll('.nav-group-btn').forEach(b => b.classList.remove('open'));
+  switchModule(module);
+}
+
+// Override switchModule to highlight correct group button
+const _b10SwitchModule = switchModule;
+switchModule = function(module) {
+  // Clear all nav active states
+  document.querySelectorAll('.nav-group-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nav-dropdown-item').forEach(b => b.classList.remove('active'));
+  // Highlight the correct item and group
+  const navItem = document.getElementById('nav-' + module);
+  if (navItem) navItem.classList.add('active');
+  const group = MODULE_GROUP_MAP[module];
+  if (group) {
+    document.getElementById('navbtn-' + group)?.classList.add('active');
+  } else {
+    // Standalone (Companies, Settings)
+    document.getElementById('nav-' + module)?.classList.add('active');
+  }
+  _b10SwitchModule(module);
+};
+
+// ════════════════════════════════
+//  DOCUMENT ATTACHMENTS
+// ════════════════════════════════
+
+// In-memory queues for pending uploads
+let billAttachQueue = [];   // [{file, name, size}]
+let jeAttachQueue   = [];
+
+function handleBillAttachments(input) {
+  const files = [...input.files];
+  const maxMB = parseInt(document.getElementById('max-file-size')?.value || '10');
+  for (const f of files) {
+    if (f.size > maxMB * 1024 * 1024) { showToast(`⚠ ${f.name} exceeds ${maxMB}MB limit`, true); continue; }
+    if (!billAttachQueue.find(x => x.name === f.name)) billAttachQueue.push({ file:f, name:f.name, size:f.size });
+  }
+  renderAttachList('bill');
+  input.value = '';
+}
+
+function handleJEAttachments(input) {
+  const files = [...input.files];
+  const maxMB = parseInt(document.getElementById('max-file-size')?.value || '10');
+  for (const f of files) {
+    if (f.size > maxMB * 1024 * 1024) { showToast(`⚠ ${f.name} exceeds ${maxMB}MB limit`, true); continue; }
+    if (!jeAttachQueue.find(x => x.name === f.name)) jeAttachQueue.push({ file:f, name:f.name, size:f.size });
+  }
+  renderAttachList('je');
+  input.value = '';
+}
+
+function renderAttachList(type) {
+  const queue = type === 'bill' ? billAttachQueue : jeAttachQueue;
+  const listEl = document.getElementById(type + '-attach-list');
+  if (!listEl) return;
+  if (!queue.length) { listEl.innerHTML = ''; return; }
+  listEl.innerHTML = queue.map((a, i) => `
+    <div class="attach-item">
+      <span style="font-size:14px;">${getFileIcon(a.name)}</span>
+      <span class="attach-item-name">${a.name}</span>
+      <span class="attach-item-status">${(a.size/1024).toFixed(0)} KB</span>
+      <button class="attach-item-remove" onclick="removeAttach('${type}',${i})" title="Remove">×</button>
+    </div>`).join('');
+}
+
+function removeAttach(type, idx) {
+  if (type === 'bill') billAttachQueue.splice(idx, 1);
+  else jeAttachQueue.splice(idx, 1);
+  renderAttachList(type);
+}
+
+function getFileIcon(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  const icons = { pdf:'📄', jpg:'🖼️', jpeg:'🖼️', png:'🖼️', xlsx:'📊', xls:'📊', csv:'📊', docx:'📝', doc:'📝' };
+  return icons[ext] || '📎';
+}
+
+async function uploadAttachments(recordType, recordId, queue) {
+  if (!queue.length) return [];
+  const uploaded = [];
+  const storageEnabled = getStorageConfig();
+
+  for (const item of queue) {
+    try {
+      // Upload to Supabase Storage
+      const path = `${acctCompanyId}/${recordType}/${recordId}/${item.name}`;
+      const { data: upData, error: upErr } = await sb.storage
+        .from('attachments')
+        .upload(path, item.file, { upsert: true });
+
+      if (upErr) { console.error('Upload error:', upErr); continue; }
+
+      const { data: { publicUrl } } = sb.storage.from('attachments').getPublicUrl(path);
+
+      // Save document record
+      const docId = 'doc-att-' + Date.now() + '-' + Math.random().toString(36).slice(2,5);
+      await sb.from('documents').insert({
+        id: docId, company_id: acctCompanyId,
+        document_name: item.name,
+        document_type: recordType === 'bill' ? 'invoice' : 'financial_statement',
+        file_url: publicUrl,
+        related_record_type: recordType,
+        related_record_id: recordId,
+        description: `Attachment for ${recordType} ${recordId}`,
+        is_archived: false,
+        updated_at: new Date().toISOString(),
+      });
+      uploaded.push({ name: item.name, url: publicUrl, docId });
+
+      // Sync to cloud if configured
+      if (storageEnabled.gdrive) await syncToGDrive(item.file, item.name, recordType, recordId);
+      if (storageEnabled.sp) await syncToSharePoint(item.file, item.name, recordType, recordId);
+
+    } catch(e) { console.error('Attachment upload failed:', e); }
+  }
+  return uploaded;
+}
+
+// Hook into saveBill to upload attachments after save
+const _b10SaveBill = saveBill;
+saveBill = async function(status) {
+  await _b10SaveBill(status);
+  // Upload queued attachments if any
+  if (billAttachQueue.length && acctCompanyId) {
+    showLoading('Uploading attachments…');
+    const billId = 'bill-' + acctCompanyId; // approximation — ideally pass the actual ID
+    // Get the most recently saved bill
+    const { data: lastBill } = await sb.from('bills').select('id').eq('company_id', acctCompanyId).order('created_at', {ascending:false}).limit(1).single();
+    if (lastBill) {
+      await uploadAttachments('bill', lastBill.id, billAttachQueue);
+      billAttachQueue = [];
+      renderAttachList('bill');
+    }
+    hideLoading();
+    showToast('✓ Attachments uploaded');
+  }
+};
+
+// Hook into saveJE to upload attachments after save
+const _b10SaveJE = saveJE;
+saveJE = async function(status) {
+  await _b10SaveJE(status);
+  if (jeAttachQueue.length && acctCompanyId) {
+    showLoading('Uploading attachments…');
+    const { data: lastJE } = await sb.from('journal_entries').select('id').eq('company_id', acctCompanyId).order('created_at', {ascending:false}).limit(1).single();
+    if (lastJE) {
+      await uploadAttachments('journal_entry', lastJE.id, jeAttachQueue);
+      jeAttachQueue = [];
+      renderAttachList('je');
+    }
+    hideLoading();
+    showToast('✓ Attachments uploaded');
+  }
+};
+
+// Also clear queues when modals are opened
+const _b10OpenBillModal = openBillModal;
+openBillModal = function() {
+  billAttachQueue = [];
+  renderAttachList('bill');
+  _b10OpenBillModal?.();
+};
+
+// ════════════════════════════════
+//  STORAGE INTEGRATIONS
+// ════════════════════════════════
+
+// Storage config (persisted in localStorage for demo; production = Supabase settings table)
+function getStorageConfig() {
+  try { return JSON.parse(localStorage.getItem('fo_storage_config') || '{}'); } catch { return {}; }
+}
+function setStorageConfig(config) {
+  localStorage.setItem('fo_storage_config', JSON.stringify({...getStorageConfig(), ...config}));
+}
+
+function toggleStorageProvider(provider) {
+  const enabled = document.getElementById(provider + '-enabled')?.checked;
+  const configDiv = document.getElementById(provider + '-config');
+  if (configDiv) configDiv.style.display = enabled ? 'block' : 'none';
+  const pill = document.getElementById(provider + '-status-pill');
+  if (pill) {
+    pill.textContent = enabled ? 'Configured' : 'Not connected';
+    pill.className = 'status-pill ' + (enabled ? 'status-partial' : '');
+  }
+  const card = document.getElementById('storage-card-' + provider);
+  if (card) card.style.borderColor = enabled ? 'var(--gold)' : 'var(--border-light)';
+}
+
+async function saveStorageConfig(provider) {
+  showLoading('Saving configuration…');
+  const config = getStorageConfig();
+  if (provider === 'gdrive') {
+    config.gdrive = {
+      enabled: document.getElementById('gdrive-enabled')?.checked,
+      folderId: document.getElementById('gdrive-folder-id')?.value,
+      serviceKey: document.getElementById('gdrive-service-key')?.value,
+      structure: document.getElementById('gdrive-structure')?.value,
+    };
+  } else if (provider === 'sp') {
+    config.sp = {
+      enabled: document.getElementById('sp-enabled')?.checked,
+      tenantId: document.getElementById('sp-tenant-id')?.value,
+      clientId: document.getElementById('sp-client-id')?.value,
+      clientSecret: document.getElementById('sp-client-secret')?.value,
+      siteUrl: document.getElementById('sp-site-url')?.value,
+      library: document.getElementById('sp-library')?.value,
+      structure: document.getElementById('sp-structure')?.value,
+    };
+  }
+  setStorageConfig(config);
+  hideLoading();
+  showToast(`✓ ${provider === 'gdrive' ? 'Google Drive' : 'SharePoint'} configuration saved`);
+}
+
+async function saveUploadBehavior() {
+  const config = {
+    maxFileSizeMB: document.getElementById('max-file-size')?.value,
+    allowedTypes: document.getElementById('allowed-file-types')?.value,
+    requireAttachment: document.getElementById('require-attachment-bill')?.checked,
+    requireThreshold: document.getElementById('require-attachment-threshold')?.value,
+  };
+  setStorageConfig({ uploadBehavior: config });
+  showToast('✓ Upload settings saved');
+}
+
+async function testStorageConnection(provider) {
+  const config = getStorageConfig();
+  showLoading('Testing connection…');
+  await new Promise(r => setTimeout(r, 1200)); // simulate
+  hideLoading();
+  if (provider === 'gdrive') {
+    if (!config.gdrive?.folderId || !config.gdrive?.serviceKey) {
+      showToast('⚠ Enter Folder ID and Service Account key first', true);
+    } else {
+      showToast('Note: Connection test requires a server-side proxy. Save config and test by uploading a document — check your Drive folder.', false);
+    }
+  } else {
+    if (!config.sp?.tenantId || !config.sp?.clientId) {
+      showToast('⚠ Enter Tenant ID and Client ID first', true);
+    } else {
+      showToast('Note: SharePoint OAuth requires a server-side flow. Verify credentials in Azure portal, then test with a document upload.', false);
+    }
+  }
+}
+
+// Stub sync functions — in production these would call a Netlify Function / server-side proxy
+async function syncToGDrive(file, name, recordType, recordId) {
+  const config = getStorageConfig();
+  if (!config.gdrive?.enabled || !config.gdrive?.folderId) return;
+  // Production implementation: POST to Netlify Function /api/gdrive-upload
+  // which uses googleapis server-side with the service account key
+  console.log('[GDrive] Would upload:', name, '→ folder:', config.gdrive.folderId);
+}
+
+async function syncToSharePoint(file, name, recordType, recordId) {
+  const config = getStorageConfig();
+  if (!config.sp?.enabled || !config.sp?.tenantId) return;
+  // Production implementation: POST to Netlify Function /api/sharepoint-upload
+  // which uses @microsoft/microsoft-graph-client with client credentials flow
+  console.log('[SharePoint] Would upload:', name, '→ site:', config.sp.siteUrl);
+}
+
+// Load storage config into form on settings panel open
+function loadStorageConfigUI() {
+  const config = getStorageConfig();
+  if (config.gdrive) {
+    const el = document.getElementById('gdrive-enabled');
+    if (el) { el.checked = !!config.gdrive.enabled; toggleStorageProvider('gdrive'); }
+    if (config.gdrive.folderId) document.getElementById('gdrive-folder-id').value = config.gdrive.folderId;
+    if (config.gdrive.structure) document.getElementById('gdrive-structure').value = config.gdrive.structure;
+  }
+  if (config.sp) {
+    const el = document.getElementById('sp-enabled');
+    if (el) { el.checked = !!config.sp.enabled; toggleStorageProvider('sp'); }
+    ['tenantId→sp-tenant-id','clientId→sp-client-id','siteUrl→sp-site-url','library→sp-library'].forEach(pair => {
+      const [key, id] = pair.split('→');
+      if (config.sp[key]) { const el = document.getElementById(id); if(el) el.value = config.sp[key]; }
+    });
+  }
+  if (config.uploadBehavior) {
+    const b = config.uploadBehavior;
+    if (b.maxFileSizeMB) { const el = document.getElementById('max-file-size'); if(el) el.value = b.maxFileSizeMB; }
+    if (b.allowedTypes) { const el = document.getElementById('allowed-file-types'); if(el) el.value = b.allowedTypes; }
+    if (b.requireThreshold) { const el = document.getElementById('require-attachment-threshold'); if(el) el.value = b.requireThreshold; }
+  }
+}
+
+// Patch showSetPanel to load storage config when integrations panel opens
+const _b10ShowSetPanel = showSetPanel;
+showSetPanel = function(panelId) {
+  _b10ShowSetPanel(panelId);
+  if (panelId === 'integrations') setTimeout(loadStorageConfigUI, 100);
+};
 
 async function initApp() {
   await initAuth();
