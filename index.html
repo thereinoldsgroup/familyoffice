@@ -452,7 +452,56 @@
   .report-run-btn:hover { background: var(--navy-mid); }
   .coa-group-header { padding: 8px 16px; background: var(--navy); color: var(--gold-light); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 
-  /* ── SETTINGS / RBAC MODULE ── */
+  /* ── BATCH 6: CRM ── */
+  .crm-pipeline { display:flex; gap:12px; overflow-x:auto; padding-bottom:12px; min-height:360px; }
+  .crm-stage-col { min-width:200px; max-width:200px; background:var(--section-bg); border-radius:var(--radius-lg); padding:10px; border:1px solid var(--border-light); display:flex; flex-direction:column; gap:8px; }
+  .crm-stage-header { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-light); padding-bottom:8px; border-bottom:1px solid var(--border-light); display:flex; justify-content:space-between; }
+  .crm-deal-card { background:var(--white); border-radius:var(--radius); padding:10px 12px; box-shadow:var(--shadow-sm); border:1px solid var(--border-light); cursor:pointer; transition:box-shadow 0.15s; }
+  .crm-deal-card:hover { box-shadow:var(--shadow-md); border-color:var(--gold); }
+  .crm-deal-name { font-size:13px; font-weight:500; color:var(--navy); margin-bottom:3px; }
+  .crm-deal-val  { font-size:12px; font-weight:600; color:var(--gold); }
+  .crm-deal-meta { font-size:11px; color:var(--text-light); margin-top:4px; }
+  /* Stage color strips */
+  .stage-prospect    { border-top:3px solid #95a5a6; }
+  .stage-qualified   { border-top:3px solid #3498db; }
+  .stage-proposal    { border-top:3px solid #9b59b6; }
+  .stage-negotiation { border-top:3px solid #f39c12; }
+  .stage-closed_won  { border-top:3px solid #27ae60; }
+  .stage-closed_lost { border-top:3px solid #e74c3c; }
+  /* Contact type badges */
+  .ctype-prospect { background:rgba(52,152,219,0.15); color:#1a6fa8; }
+  .ctype-customer { background:rgba(39,174,96,0.12);  color:#1e8449; }
+  .ctype-vendor   { background:rgba(230,126,34,0.12); color:#a04000; }
+  .ctype-investor { background:rgba(155,89,182,0.15); color:#6c3483; }
+  /* ── BATCH 6: DOCUMENTS ── */
+  .doc-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .doc-card { background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:16px; box-shadow:var(--shadow-sm); transition:all 0.2s; cursor:pointer; }
+  .doc-card:hover { box-shadow:var(--shadow-md); border-color:var(--gold); }
+  .doc-icon { font-size:28px; margin-bottom:8px; }
+  .doc-name { font-size:13px; font-weight:500; color:var(--navy); margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .doc-meta { font-size:11px; color:var(--text-light); }
+  /* ── BATCH 6: REPORTS ── */
+  .rpt-sidebar { width:220px; flex-shrink:0; background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:8px 0; box-shadow:var(--shadow-sm); height:fit-content; position:sticky; top:80px; }
+  .rpt-sidebar-section { font-size:10px; font-weight:600; letter-spacing:0.10em; text-transform:uppercase; color:var(--text-light); padding:14px 16px 6px; }
+  .rpt-sidebar-btn { display:flex; align-items:center; gap:9px; padding:9px 16px; font-size:13px; color:var(--text-mid); cursor:pointer; border:none; background:none; width:100%; text-align:left; font-family:'DM Sans',sans-serif; border-left:3px solid transparent; transition:all 0.15s; }
+  .rpt-sidebar-btn:hover { background:var(--gold-pale); color:var(--navy); }
+  .rpt-sidebar-btn.active { color:var(--navy); font-weight:500; background:var(--gold-pale); border-left-color:var(--gold); }
+  .rpt-content { flex:1; padding-left:28px; min-width:0; }
+  .rpt-panel { display:none; }
+  .rpt-panel.active { display:block; }
+  /* Report builder */
+  .rpt-config-row { display:grid; grid-template-columns:140px 1fr; gap:12px; align-items:center; margin-bottom:10px; font-size:13px; }
+  .rpt-config-label { font-weight:500; color:var(--text-mid); }
+  /* Alert bell badge */
+  .alert-badge { position:absolute; top:-4px; right:-4px; background:var(--error); color:white; border-radius:50%; width:16px; height:16px; font-size:9px; display:flex; align-items:center; justify-content:center; font-weight:700; }
+  .alert-item { display:flex; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border-light); align-items:flex-start; transition:background 0.15s; }
+  .alert-item:hover { background:var(--gold-pale); }
+  .alert-item.unread { background:rgba(184,150,90,0.06); border-left:3px solid var(--gold); }
+  .alert-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+  .alert-warning  { background:#f39c12; }
+  .alert-critical { background:var(--error); }
+  .alert-info     { background:#3498db; }
+  .alert-success  { background:var(--success); }
   .set-layout { display:flex; gap:0; min-height:calc(100vh - 240px); }
   .set-sidebar { width:210px; flex-shrink:0; background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:8px 0; box-shadow:var(--shadow-sm); height:fit-content; position:sticky; top:80px; }
   .set-sidebar-section { font-size:10px; font-weight:600; letter-spacing:0.10em; text-transform:uppercase; color:var(--text-light); padding:14px 16px 6px; }
@@ -704,11 +753,33 @@
     <button class="topbar-nav-btn" id="nav-projects" onclick="switchModule('projects')">Projects</button>
     <button class="topbar-nav-btn" id="nav-inventory" onclick="switchModule('inventory')">Inventory</button>
     <button class="topbar-nav-btn" id="nav-budgeting" onclick="switchModule('budgeting')">Budgeting</button>
-    <button class="topbar-nav-btn" id="nav-settings" onclick="switchModule('settings')">Settings</button>
-    <button class="topbar-nav-btn" onclick="comingSoon()">Documents</button>
-    <button class="topbar-nav-btn" onclick="comingSoon()">Reports</button>
+    <button class="topbar-nav-btn" id="nav-settings"  onclick="switchModule('settings')">Settings</button>
+    <button class="topbar-nav-btn" id="nav-crm"       onclick="switchModule('crm')">CRM</button>
+    <button class="topbar-nav-btn" id="nav-documents" onclick="switchModule('documents')">Documents</button>
+    <button class="topbar-nav-btn" id="nav-reports"   onclick="switchModule('reports')">Reports</button>
   </nav>
+  <div style="position:relative;margin-left:8px;">
+    <button id="alert-bell-btn" onclick="toggleAlertDrawer()" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.7);font-size:20px;padding:4px 8px;border-radius:6px;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'" title="Alerts">🔔</button>
+    <span id="alert-badge" class="alert-badge" style="display:none;">0</span>
+  </div>
 </header>
+
+<!-- ALERT DRAWER -->
+<div id="alert-drawer" style="display:none;position:fixed;top:56px;right:16px;width:360px;max-height:480px;background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);box-shadow:0 8px 32px rgba(0,0,0,0.18);z-index:9000;overflow:hidden;flex-direction:column;">
+  <div style="background:var(--navy);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-size:14px;font-weight:600;color:var(--gold-light);">Alerts</div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="markAllAlertsRead()" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;">Mark all read</button>
+      <button onclick="toggleAlertDrawer()" style="background:none;border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-size:18px;line-height:1;">×</button>
+    </div>
+  </div>
+  <div id="alert-drawer-body" style="overflow-y:auto;max-height:400px;">
+    <div style="padding:20px;text-align:center;color:var(--text-light);font-size:13px;">No alerts</div>
+  </div>
+  <div style="padding:10px 16px;border-top:1px solid var(--border-light);text-align:center;">
+    <button onclick="switchModule('reports');showRptPanel('alerts');toggleAlertDrawer();" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">View all alerts →</button>
+  </div>
+</div>
 
 <div class="app-layout">
 
@@ -2207,6 +2278,189 @@
         </div><!-- /set-content -->
       </div><!-- /set-layout -->
     </div><!-- /view-settings -->
+
+    <!-- ═══════════════════════════════════════════
+         BATCH 6 — CRM
+    ═══════════════════════════════════════════ -->
+    <div id="view-crm" class="panel">
+      <div class="page-header">
+        <div><div class="page-title">CRM</div><div class="page-subtitle">Contacts · Deals · Pipeline · Activities</div></div>
+        <div class="page-actions">
+          <select id="crm-entity-select" class="field-select" style="height:34px;width:220px;" onchange="onCRMEntityChange()"><option value="">— Select company —</option></select>
+          <button class="btn-primary" onclick="openContactModal()">+ Contact</button>
+          <button class="btn-save" onclick="openDealModal()">+ Deal</button>
+        </div>
+      </div>
+      <div class="inner-tabs" style="margin-bottom:20px;">
+        <button class="inner-tab active" id="crm-tab-pipeline"   onclick="switchCRMTab(this,'crm-panel-pipeline')">🎯 Pipeline</button>
+        <button class="inner-tab"         id="crm-tab-contacts"  onclick="switchCRMTab(this,'crm-panel-contacts')">👥 Contacts</button>
+        <button class="inner-tab"         id="crm-tab-activities" onclick="switchCRMTab(this,'crm-panel-activities')">📋 Activities</button>
+        <button class="inner-tab"         id="crm-tab-dashboard" onclick="switchCRMTab(this,'crm-panel-dashboard')">📊 Dashboard</button>
+      </div>
+      <div id="crm-panel-pipeline"  ><div id="crm-pipeline-body"><div class="empty-state"><div class="empty-state-title">Select a company</div></div></div></div>
+      <div id="crm-panel-contacts"   style="display:none;"><div id="crm-contacts-body"><div class="empty-state"><div class="empty-state-title">Select a company</div></div></div></div>
+      <div id="crm-panel-activities" style="display:none;"><div id="crm-activities-body"><div class="empty-state"><div class="empty-state-title">Select a company</div></div></div></div>
+      <div id="crm-panel-dashboard"  style="display:none;"><div id="crm-dashboard-body"><div class="empty-state"><div class="empty-state-title">Select a company</div></div></div></div>
+    </div><!-- /view-crm -->
+
+    <!-- ═══════════════════════════════════════════
+         BATCH 6 — DOCUMENTS
+    ═══════════════════════════════════════════ -->
+    <div id="view-documents" class="panel">
+      <div class="page-header">
+        <div><div class="page-title">Documents</div><div class="page-subtitle">Upload · Organize · Tag · Search</div></div>
+        <div class="page-actions">
+          <select id="doc-entity-select" class="field-select" style="height:34px;width:220px;" onchange="onDocEntityChange()"><option value="">— Select company —</option></select>
+          <input type="text" id="doc-search" class="field-input" style="height:34px;width:200px;" placeholder="Search documents…" oninput="filterDocuments()">
+          <select id="doc-type-filter" class="field-select" style="height:34px;width:150px;" onchange="filterDocuments()">
+            <option value="">All types</option>
+            <option value="contract">Contracts</option>
+            <option value="invoice">Invoices</option>
+            <option value="tax_return">Tax Returns</option>
+            <option value="financial_statement">Financial Statements</option>
+            <option value="legal">Legal</option>
+            <option value="hr">HR</option>
+            <option value="other">Other</option>
+          </select>
+          <button class="btn-save" onclick="openDocModal()">+ Upload Document</button>
+        </div>
+      </div>
+      <div id="doc-body"><div class="empty-state"><div class="empty-state-title">Select a company to view documents</div></div></div>
+    </div><!-- /view-documents -->
+
+    <!-- ═══════════════════════════════════════════
+         BATCH 6 — REPORTS & AUTOMATION
+    ═══════════════════════════════════════════ -->
+    <div id="view-reports" class="panel">
+      <div class="page-header">
+        <div><div class="page-title">Reports &amp; Automation</div><div class="page-subtitle">Custom Reports · Board Pack · Automation Rules · Alerts</div></div>
+        <div class="page-actions">
+          <select id="rpt-entity-select" class="field-select" style="height:34px;width:220px;" onchange="onRptEntityChange()"><option value="">— Select company —</option></select>
+        </div>
+      </div>
+      <div style="display:flex;gap:0;">
+        <div class="rpt-sidebar">
+          <div class="rpt-sidebar-section">Reports</div>
+          <button class="rpt-sidebar-btn active" id="rpt-nav-builder"   onclick="showRptPanel('builder')">  <span>🏗️</span> Report Builder</button>
+          <button class="rpt-sidebar-btn"         id="rpt-nav-saved"    onclick="showRptPanel('saved')">    <span>💾</span> Saved Reports</button>
+          <button class="rpt-sidebar-btn"         id="rpt-nav-board"    onclick="showRptPanel('board')">    <span>📋</span> Board Pack PDF</button>
+          <div class="rpt-sidebar-section">Automation</div>
+          <button class="rpt-sidebar-btn"         id="rpt-nav-rules"    onclick="showRptPanel('rules')">    <span>⚙️</span> Automation Rules</button>
+          <button class="rpt-sidebar-btn"         id="rpt-nav-alerts"   onclick="showRptPanel('alerts')">   <span>🔔</span> Alert Center</button>
+        </div>
+        <div class="rpt-content">
+          <!-- REPORT BUILDER -->
+          <div id="rpt-panel-builder" class="rpt-panel active">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Custom Report Builder</div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-primary" onclick="runCustomReport()">▶ Run Report</button>
+                <button class="btn-secondary" onclick="saveCustomReport()">💾 Save</button>
+                <button class="btn-secondary" onclick="printCustomReport()">🖨 Print / PDF</button>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:280px 1fr;gap:20px;">
+              <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;">
+                <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:14px;">Configuration</div>
+                <div class="rpt-config-row"><div class="rpt-config-label">Data Source</div>
+                  <select class="field-select" id="rpt-source" style="height:30px;" onchange="onRptSourceChange()">
+                    <option value="gl">General Ledger</option>
+                    <option value="invoices">Customer Invoices</option>
+                    <option value="bills">Vendor Bills</option>
+                    <option value="payroll">Payroll</option>
+                    <option value="inventory">Inventory</option>
+                    <option value="projects">Projects</option>
+                    <option value="crm">CRM Deals</option>
+                  </select></div>
+                <div class="rpt-config-row"><div class="rpt-config-label">Date From</div>
+                  <input type="date" class="field-input" id="rpt-date-from" style="height:30px;"></div>
+                <div class="rpt-config-row"><div class="rpt-config-label">Date To</div>
+                  <input type="date" class="field-input" id="rpt-date-to" style="height:30px;"></div>
+                <div class="rpt-config-row"><div class="rpt-config-label">Group By</div>
+                  <select class="field-select" id="rpt-groupby" style="height:30px;">
+                    <option value="">None</option>
+                    <option value="month">Month</option>
+                    <option value="quarter">Quarter</option>
+                    <option value="type">Type / Category</option>
+                  </select></div>
+                <div class="rpt-config-row"><div class="rpt-config-label">Sort By</div>
+                  <select class="field-select" id="rpt-sortby" style="height:30px;">
+                    <option value="date_desc">Date (newest first)</option>
+                    <option value="date_asc">Date (oldest first)</option>
+                    <option value="amount_desc">Amount (highest first)</option>
+                    <option value="amount_asc">Amount (lowest first)</option>
+                  </select></div>
+                <div class="rpt-config-row"><div class="rpt-config-label">Limit rows</div>
+                  <select class="field-select" id="rpt-limit" style="height:30px;">
+                    <option value="100">100</option>
+                    <option value="250">250</option>
+                    <option value="500">500</option>
+                    <option value="1000">1000</option>
+                  </select></div>
+                <hr style="border:none;border-top:1px solid var(--border-light);margin:14px 0;">
+                <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;">Report Name</div>
+                <input type="text" class="field-input" id="rpt-report-name" placeholder="My Custom Report" style="height:30px;width:100%;margin-bottom:10px;">
+              </div>
+              <div>
+                <div id="rpt-builder-result"><div class="empty-state"><div class="empty-state-title">Configure and click Run Report</div></div></div>
+              </div>
+            </div>
+          </div>
+          <!-- SAVED REPORTS -->
+          <div id="rpt-panel-saved" class="rpt-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Saved Reports</div>
+            </div>
+            <div id="rpt-saved-body"><div class="empty-state"><div class="empty-state-title">No saved reports yet</div></div></div>
+          </div>
+          <!-- BOARD PACK -->
+          <div id="rpt-panel-board" class="rpt-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div>
+                <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Board Pack Generator</div>
+                <div style="font-size:12px;color:var(--text-light);">Generates a print-ready executive summary PDF</div>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-primary" onclick="generateBoardPack()">▶ Generate Board Pack</button>
+                <button class="btn-secondary" onclick="printBoardPack()">🖨 Print / PDF</button>
+              </div>
+            </div>
+            <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;margin-bottom:16px;">
+              <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:14px;">Select Sections</div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+                ${['Executive Summary','Income Statement','Balance Sheet','Cash Flow','KPI Dashboard','Budget vs Actual','Project Status','Inventory Valuation','AR/AP Aging','CRM Pipeline'].map(s=>`
+                  <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:8px 12px;background:var(--section-bg);border-radius:var(--radius);">
+                    <input type="checkbox" class="board-section-check" data-section="${s}" checked style="accent-color:var(--gold);"> ${s}
+                  </label>`).join('')}
+              </div>
+            </div>
+            <div id="rpt-board-body"><div class="empty-state"><div class="empty-state-title">Click Generate Board Pack to preview</div></div></div>
+          </div>
+          <!-- AUTOMATION RULES -->
+          <div id="rpt-panel-rules" class="rpt-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div>
+                <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Automation Rules</div>
+                <div style="font-size:12px;color:var(--text-light);">Trigger alerts and actions based on conditions in your data</div>
+              </div>
+              <button class="btn-save" onclick="openRuleModal()">+ New Rule</button>
+            </div>
+            <div id="rpt-rules-body"><div class="empty-state"><div class="empty-state-title">No automation rules configured</div></div></div>
+          </div>
+          <!-- ALERT CENTER -->
+          <div id="rpt-panel-alerts" class="rpt-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Alert Center</div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-primary" onclick="runAllAutomations()">↻ Check All Rules</button>
+                <button class="btn-secondary" onclick="markAllAlertsRead()">✓ Mark All Read</button>
+              </div>
+            </div>
+            <div id="rpt-alerts-body"><div class="empty-state"><div class="empty-state-title">No alerts yet — run automations to check</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /view-reports -->
 
     <!-- ACCOUNT MODAL -->
     <div class="modal-overlay" id="accountModal">
@@ -4218,6 +4472,169 @@
   </div>
 </div>
 
+<!-- CONTACT MODAL -->
+<div class="modal-overlay" id="contactModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-header"><span class="modal-title" id="contactModalTitle">New Contact</span><button class="modal-close" onclick="closeModal('contactModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group"><label class="field-label required">First Name</label><input type="text" class="field-input" id="con-first" placeholder="Jane"></div>
+        <div class="field-group"><label class="field-label required">Last Name</label><input type="text" class="field-input" id="con-last" placeholder="Smith"></div>
+        <div class="field-group"><label class="field-label">Email</label><input type="email" class="field-input" id="con-email" placeholder="jane@company.com"></div>
+        <div class="field-group"><label class="field-label">Phone</label><input type="text" class="field-input" id="con-phone" placeholder="(555) 555-5555"></div>
+        <div class="field-group"><label class="field-label">Title</label><input type="text" class="field-input" id="con-title" placeholder="CFO"></div>
+        <div class="field-group"><label class="field-label">Organization</label><input type="text" class="field-input" id="con-org" placeholder="Acme Corp"></div>
+        <div class="field-group"><label class="field-label">Contact Type</label>
+          <select class="field-select" id="con-type">
+            <option value="prospect">Prospect</option><option value="customer">Customer</option>
+            <option value="vendor">Vendor</option><option value="partner">Partner</option>
+            <option value="investor">Investor</option><option value="advisor">Advisor</option>
+          </select></div>
+        <div class="field-group"><label class="field-label">Lead Status</label>
+          <select class="field-select" id="con-status">
+            <option value="new">New</option><option value="contacted">Contacted</option>
+            <option value="qualified">Qualified</option><option value="unqualified">Unqualified</option>
+            <option value="converted">Converted</option>
+          </select></div>
+        <div class="field-group"><label class="field-label">Lead Source</label>
+          <select class="field-select" id="con-source">
+            <option value="">— Unknown —</option><option value="referral">Referral</option>
+            <option value="website">Website</option><option value="cold_outreach">Cold Outreach</option>
+            <option value="event">Event</option><option value="inbound">Inbound</option>
+          </select></div>
+        <div class="field-group"><label class="field-label">LinkedIn URL</label><input type="text" class="field-input" id="con-linkedin" placeholder="https://linkedin.com/in/..."></div>
+        <div class="field-group col-span-2"><label class="field-label">Notes</label><textarea class="field-input" id="con-notes" rows="2" style="resize:vertical;"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('contactModal')">Cancel</button><button class="btn-save" onclick="saveContact()">Save Contact</button></div>
+  </div>
+</div>
+
+<!-- DEAL MODAL -->
+<div class="modal-overlay" id="dealModal">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header"><span class="modal-title" id="dealModalTitle">New Deal</span><button class="modal-close" onclick="closeModal('dealModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label required">Deal Name</label><input type="text" class="field-input" id="deal-name" placeholder="e.g. Acme Corp Software License"></div>
+        <div class="field-group"><label class="field-label">Contact</label><select class="field-select" id="deal-contact"><option value="">— None —</option></select></div>
+        <div class="field-group"><label class="field-label required">Stage</label>
+          <select class="field-select" id="deal-stage">
+            <option value="prospect">Prospect</option><option value="qualified">Qualified</option>
+            <option value="proposal">Proposal</option><option value="negotiation">Negotiation</option>
+            <option value="closed_won">Closed Won</option><option value="closed_lost">Closed Lost</option>
+          </select></div>
+        <div class="field-group"><label class="field-label">Deal Value ($)</label><input type="text" class="field-input" id="deal-value" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Win Probability (%)</label><input type="text" class="field-input" id="deal-prob" placeholder="50" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Expected Close</label><input type="date" class="field-input" id="deal-close"></div>
+        <div class="field-group"><label class="field-label">Next Action</label><input type="text" class="field-input" id="deal-next-action" placeholder="e.g. Send proposal"></div>
+        <div class="field-group"><label class="field-label">Next Action Date</label><input type="date" class="field-input" id="deal-next-date"></div>
+        <div class="field-group col-span-2"><label class="field-label">Description</label><textarea class="field-input" id="deal-desc" rows="2" style="resize:vertical;"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('dealModal')">Cancel</button><button class="btn-save" onclick="saveDeal()">Save Deal</button></div>
+  </div>
+</div>
+
+<!-- ACTIVITY MODAL -->
+<div class="modal-overlay" id="activityModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header"><span class="modal-title">Log Activity</span><button class="modal-close" onclick="closeModal('activityModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group"><label class="field-label required">Type</label>
+          <select class="field-select" id="act-type">
+            <option value="call">📞 Call</option><option value="email">📧 Email</option>
+            <option value="meeting">🤝 Meeting</option><option value="note">📝 Note</option>
+            <option value="task">✅ Task</option><option value="demo">🖥 Demo</option>
+          </select></div>
+        <div class="field-group"><label class="field-label required">Date</label><input type="date" class="field-input" id="act-date"></div>
+        <div class="field-group col-span-2"><label class="field-label required">Subject</label><input type="text" class="field-input" id="act-subject" placeholder="e.g. Discovery call with Jane"></div>
+        <div class="field-group"><label class="field-label">Contact</label><select class="field-select" id="act-contact"><option value="">— None —</option></select></div>
+        <div class="field-group"><label class="field-label">Deal</label><select class="field-select" id="act-deal"><option value="">— None —</option></select></div>
+        <div class="field-group"><label class="field-label">Duration (min)</label><input type="text" class="field-input" id="act-duration" placeholder="30" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Outcome</label>
+          <select class="field-select" id="act-outcome">
+            <option value="completed">Completed</option><option value="no_answer">No Answer</option>
+            <option value="left_voicemail">Left Voicemail</option><option value="rescheduled">Rescheduled</option>
+          </select></div>
+        <div class="field-group col-span-2"><label class="field-label">Notes</label><textarea class="field-input" id="act-notes" rows="2" style="resize:vertical;" placeholder="What was discussed, next steps…"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('activityModal')">Cancel</button><button class="btn-save" onclick="saveActivity()">Save Activity</button></div>
+  </div>
+</div>
+
+<!-- DOCUMENT MODAL -->
+<div class="modal-overlay" id="docModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header"><span class="modal-title" id="docModalTitle">Upload Document</span><button class="modal-close" onclick="closeModal('docModal')">×</button></div>
+    <div class="modal-body">
+      <div style="background:var(--gold-pale);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:16px;font-size:13px;color:var(--text-mid);">
+        Documents are tracked by name and metadata. For demo purposes, file content is stored as a reference URL.
+      </div>
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label required">Document Name</label><input type="text" class="field-input" id="doc-name" placeholder="e.g. 2024 Tax Return"></div>
+        <div class="field-group"><label class="field-label required">Document Type</label>
+          <select class="field-select" id="doc-type">
+            <option value="contract">Contract</option><option value="invoice">Invoice</option>
+            <option value="tax_return">Tax Return</option><option value="financial_statement">Financial Statement</option>
+            <option value="legal">Legal</option><option value="hr">HR</option><option value="other">Other</option>
+          </select></div>
+        <div class="field-group"><label class="field-label">Version</label><input type="text" class="field-input" id="doc-version" value="1" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
+        <div class="field-group"><label class="field-label">File URL / Path</label><input type="text" class="field-input" id="doc-url" placeholder="https://… or /files/…"></div>
+        <div class="field-group"><label class="field-label">Related Record Type</label>
+          <select class="field-select" id="doc-rel-type">
+            <option value="">— None —</option><option value="invoice">Invoice</option><option value="bill">Bill</option>
+            <option value="payroll">Payroll</option><option value="employee">Employee</option>
+            <option value="project">Project</option><option value="tax_return">Tax Return</option>
+          </select></div>
+        <div class="field-group"><label class="field-label">Related Record ID</label><input type="text" class="field-input" id="doc-rel-id" placeholder="Optional record ID"></div>
+        <div class="field-group col-span-2"><label class="field-label">Description</label><textarea class="field-input" id="doc-desc" rows="2" style="resize:vertical;"></textarea></div>
+        <div class="field-group col-span-2"><label class="field-label">Tags (comma-separated)</label><input type="text" class="field-input" id="doc-tags" placeholder="2024, annual, tax, important"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('docModal')">Cancel</button><button class="btn-save" onclick="saveDocument()">Save Document</button></div>
+  </div>
+</div>
+
+<!-- AUTOMATION RULE MODAL -->
+<div class="modal-overlay" id="ruleModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header"><span class="modal-title" id="ruleModalTitle">New Automation Rule</span><button class="modal-close" onclick="closeModal('ruleModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label required">Rule Name</label><input type="text" class="field-input" id="rule-name" placeholder="e.g. Alert when cash falls below $10,000"></div>
+        <div class="field-group"><label class="field-label required">Trigger</label>
+          <select class="field-select" id="rule-trigger" onchange="onRuleTriggerChange()">
+            <option value="balance_below">Cash Balance Below Threshold</option>
+            <option value="invoice_overdue">Invoice Overdue</option>
+            <option value="inventory_low">Inventory Below Reorder Point</option>
+            <option value="budget_exceeded">Budget Line Exceeded</option>
+            <option value="payroll_due">Payroll Due</option>
+            <option value="ap_due">AP Payment Due</option>
+            <option value="deal_stale">Deal Stale (no activity)</option>
+          </select></div>
+        <div class="field-group"><label class="field-label required">Action</label>
+          <select class="field-select" id="rule-action">
+            <option value="send_alert">Create Alert Notification</option>
+            <option value="flag_record">Flag Record for Review</option>
+          </select></div>
+        <div class="field-group col-span-2" id="rule-threshold-row"><label class="field-label">Threshold / Value</label><input type="text" class="field-input" id="rule-threshold" placeholder="e.g. 10000" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Alert Severity</label>
+          <select class="field-select" id="rule-severity">
+            <option value="warning">Warning</option><option value="critical">Critical</option><option value="info">Info</option>
+          </select></div>
+        <div class="field-group">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-top:22px;"><input type="checkbox" id="rule-active" checked style="accent-color:var(--gold);"> Active</label>
+        </div>
+        <div class="field-group col-span-2"><label class="field-label">Alert Message Template</label><textarea class="field-input" id="rule-message" rows="2" style="resize:vertical;" placeholder="e.g. Cash balance for {company} has fallen below ${threshold}. Current balance: ${value}"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('ruleModal')">Cancel</button><button class="btn-save" onclick="saveRule()">Save Rule</button></div>
+  </div>
+</div>
+
 <div class="save-toast" id="saveToast"></div>
 
 <script>
@@ -4799,7 +5216,7 @@ function buildOfficerCard(data) {
 function switchModule(module) {
   document.querySelectorAll('.topbar-nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('nav-' + module)?.classList.add('active');
-  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub','view-tax','view-projects','view-inventory','view-budgeting','view-settings'].forEach(id => {
+  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub','view-tax','view-projects','view-inventory','view-budgeting','view-settings','view-crm','view-documents','view-reports'].forEach(id => {
     document.getElementById(id)?.classList.remove('active');
   });
   setSidebarVisible(module === 'companies');
@@ -4826,6 +5243,15 @@ function switchModule(module) {
   } else if (module === 'settings') {
     document.getElementById('view-settings').classList.add('active');
     loadSettingsModule();
+  } else if (module === 'crm') {
+    document.getElementById('view-crm').classList.add('active');
+    loadCRMModule();
+  } else if (module === 'documents') {
+    document.getElementById('view-documents').classList.add('active');
+    loadDocumentsModule();
+  } else if (module === 'reports') {
+    document.getElementById('view-reports').classList.add('active');
+    loadReportsModule();
   }
 }
 
@@ -13035,6 +13461,896 @@ async function logActivity(action, module, recordType, recordId, description) {
     });
   } catch(e) { /* non-blocking */ }
 }
+
+// ═══════════════════════════════════════════════════
+//  BATCH 6 — CRM, DOCUMENTS, REPORTS, AUTOMATION
+// ═══════════════════════════════════════════════════
+
+// ── STATE ──
+let crmCompanyId=null, docCompanyId=null, rptCompanyId=null;
+let crmContacts=[], crmDeals=[], crmAllContacts=[];
+let docAllDocs=[], docFilteredDocs=[];
+let editingContactId=null, editingDealId=null, editingDocId=null, editingRuleId=null;
+
+// ════════════════════════════════
+//  CRM MODULE
+// ════════════════════════════════
+async function loadCRMModule() {
+  showLoading('Loading CRM…');
+  const { data:cos } = await sb.from('companies').select('id,legal_name').order('legal_name');
+  const sel = document.getElementById('crm-entity-select');
+  sel.innerHTML = '<option value="">— Select company —</option>'+(cos||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
+  if (!crmCompanyId && cos?.length) { crmCompanyId=cos[0].id; sel.value=crmCompanyId; }
+  else if (crmCompanyId) sel.value=crmCompanyId;
+  await loadCRMData(); hideLoading();
+}
+async function onCRMEntityChange() { crmCompanyId=document.getElementById('crm-entity-select').value||null; await loadCRMData(); }
+async function loadCRMData() {
+  if (!crmCompanyId) return;
+  const [{ data:contacts },{ data:deals }] = await Promise.all([
+    sb.from('crm_contacts').select('*').eq('company_id',crmCompanyId).order('last_name'),
+    sb.from('crm_deals').select('*, crm_contacts(first_name,last_name)').eq('company_id',crmCompanyId).order('deal_value',{ascending:false}),
+  ]);
+  crmContacts=contacts||[]; crmAllContacts=crmContacts; crmDeals=deals||[];
+  // Populate deal/contact selects in modals
+  const conOpts='<option value="">— None —</option>'+crmContacts.map(c=>`<option value="${c.id}">${c.first_name} ${c.last_name}</option>`).join('');
+  const dealOpts='<option value="">— None —</option>'+crmDeals.map(d=>`<option value="${d.id}">${d.deal_name}</option>`).join('');
+  ['deal-contact','act-contact'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=conOpts; });
+  ['act-deal'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=dealOpts; });
+  renderCRMPipeline();
+}
+function switchCRMTab(btn, panelId) {
+  document.querySelectorAll('#view-crm .inner-tab').forEach(t=>t.classList.remove('active')); btn.classList.add('active');
+  ['crm-panel-pipeline','crm-panel-contacts','crm-panel-activities','crm-panel-dashboard'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
+  const el=document.getElementById(panelId); if(el) el.style.display='';
+  if (panelId==='crm-panel-contacts')   renderCRMContacts();
+  if (panelId==='crm-panel-activities') loadCRMActivities();
+  if (panelId==='crm-panel-dashboard')  renderCRMDashboard();
+}
+
+// Pipeline
+function renderCRMPipeline() {
+  const c=document.getElementById('crm-pipeline-body'); if(!c) return;
+  const stages=[
+    { key:'prospect',    label:'Prospect',    color:'#95a5a6' },
+    { key:'qualified',   label:'Qualified',   color:'#3498db' },
+    { key:'proposal',    label:'Proposal',    color:'#9b59b6' },
+    { key:'negotiation', label:'Negotiation', color:'#f39c12' },
+    { key:'closed_won',  label:'Closed Won',  color:'#27ae60' },
+    { key:'closed_lost', label:'Closed Lost', color:'#e74c3c' },
+  ];
+  const fmt=v=>'$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:0});
+  c.innerHTML=`<div class="crm-pipeline">`+
+    stages.map(st=>{
+      const stDeals=crmDeals.filter(d=>d.stage===st.key);
+      const stValue=stDeals.reduce((s,d)=>s+parseFloat(d.deal_value||0),0);
+      return `<div class="crm-stage-col">
+        <div class="crm-stage-header" style="border-bottom-color:${st.color};">
+          <span style="color:${st.color};">${st.label}</span>
+          <span style="background:var(--border-light);border-radius:10px;padding:1px 6px;font-size:10px;">${stDeals.length}</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-light);padding:4px 0 8px;">${fmt(stValue)}</div>
+        ${stDeals.map(d=>`<div class="crm-deal-card stage-${d.stage}" onclick="editDeal('${d.id}')">
+          <div class="crm-deal-name">${d.deal_name}</div>
+          <div class="crm-deal-val">${fmt(d.deal_value)}</div>
+          <div class="crm-deal-meta">${d.crm_contacts?d.crm_contacts.first_name+' '+d.crm_contacts.last_name:'No contact'} · ${d.probability_pct||0}%</div>
+          ${d.expected_close_date?`<div class="crm-deal-meta">Close: ${fmtDate(d.expected_close_date)}</div>`:''}
+        </div>`).join('')}
+        <button onclick="openDealModal(null,'${st.key}')" style="background:none;border:2px dashed var(--border);border-radius:var(--radius);padding:6px;width:100%;cursor:pointer;font-size:11px;color:var(--text-light);font-family:'DM Sans',sans-serif;margin-top:4px;">+ Add deal</button>
+      </div>`;
+    }).join('')+
+    `</div>
+    <div style="display:flex;gap:16px;margin-top:12px;font-size:12px;color:var(--text-mid);">
+      <span>Total pipeline: <strong>$${crmDeals.filter(d=>!['closed_won','closed_lost'].includes(d.stage)).reduce((s,d)=>s+parseFloat(d.deal_value||0),0).toLocaleString()}</strong></span>
+      <span>Won: <strong style="color:var(--success);">$${crmDeals.filter(d=>d.stage==='closed_won').reduce((s,d)=>s+parseFloat(d.deal_value||0),0).toLocaleString()}</strong></span>
+      <span>Open deals: <strong>${crmDeals.filter(d=>!['closed_won','closed_lost'].includes(d.stage)).length}</strong></span>
+    </div>`;
+}
+
+// Contacts
+function renderCRMContacts() {
+  const c=document.getElementById('crm-contacts-body'); if(!c) return;
+  if (!crmContacts.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No contacts yet</div></div>`; return; }
+  const typeClass={ prospect:'ctype-prospect', customer:'ctype-customer', vendor:'ctype-vendor', investor:'ctype-investor' };
+  c.innerHTML=`<div style="display:flex;justify-content:flex-end;margin-bottom:12px;"><button class="btn-save" onclick="openContactModal()">+ Add Contact</button></div>`+
+  `<table class="acct-table"><thead><tr><th>Name</th><th>Organization</th><th>Type</th><th>Email</th><th>Phone</th><th>Status</th><th></th></tr></thead><tbody>`+
+  crmContacts.map(con=>`<tr>
+    <td><strong>${con.first_name} ${con.last_name}</strong>${con.title?`<div style="font-size:11px;color:var(--text-light);">${con.title}</div>`:''}</td>
+    <td style="font-size:12px;color:var(--text-mid);">${con.organization||'—'}</td>
+    <td><span class="status-pill ${typeClass[con.contact_type]||''}" style="font-size:10px;">${con.contact_type||'—'}</span></td>
+    <td style="font-size:12px;">${con.email||'—'}</td>
+    <td style="font-size:12px;color:var(--text-mid);">${con.phone||'—'}</td>
+    <td><span class="status-pill ${con.lead_status==='qualified'||con.lead_status==='converted'?'status-active':''}" style="font-size:10px;">${con.lead_status||'new'}</span></td>
+    <td>
+      <button onclick="editContact('${con.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button>
+      <button onclick="openActivityModal('${con.id}')" style="background:none;border:none;color:var(--text-mid);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">+ Activity</button>
+    </td>
+  </tr>`).join('')+`</tbody></table>`;
+}
+
+// Activities
+async function loadCRMActivities() {
+  const c=document.getElementById('crm-activities-body'); if(!c) return;
+  const { data:acts } = await sb.from('crm_activities').select('*, crm_contacts(first_name,last_name), crm_deals(deal_name)').eq('company_id',crmCompanyId).order('activity_date',{ascending:false}).limit(50);
+  if (!acts?.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No activities yet</div><div><button class="btn-save" onclick="openActivityModal()" style="margin-top:12px;">+ Log Activity</button></div></div>`; return; }
+  const typeIcon={ call:'📞', email:'📧', meeting:'🤝', note:'📝', task:'✅', demo:'🖥' };
+  c.innerHTML=`<div style="display:flex;justify-content:flex-end;margin-bottom:12px;"><button class="btn-save" onclick="openActivityModal()">+ Log Activity</button></div>`+
+  `<table class="acct-table"><thead><tr><th>Date</th><th>Type</th><th>Subject</th><th>Contact</th><th>Deal</th><th>Duration</th><th>Outcome</th></tr></thead><tbody>`+
+  acts.map(a=>`<tr>
+    <td>${fmtDate(a.activity_date)}</td>
+    <td>${typeIcon[a.activity_type]||''} <span style="font-size:12px;text-transform:capitalize;">${a.activity_type}</span></td>
+    <td><strong style="font-size:13px;">${a.subject}</strong>${a.description?`<div style="font-size:11px;color:var(--text-light);">${a.description.slice(0,60)}</div>`:''}</td>
+    <td style="font-size:12px;color:var(--text-mid);">${a.crm_contacts?a.crm_contacts.first_name+' '+a.crm_contacts.last_name:'—'}</td>
+    <td style="font-size:12px;color:var(--text-mid);">${a.crm_deals?.deal_name||'—'}</td>
+    <td style="font-size:12px;text-align:right;">${a.duration_minutes?a.duration_minutes+'m':'—'}</td>
+    <td style="font-size:12px;text-transform:capitalize;color:var(--text-mid);">${(a.outcome||'').replace(/_/g,' ')||'—'}</td>
+  </tr>`).join('')+`</tbody></table>`;
+}
+
+// CRM Dashboard
+function renderCRMDashboard() {
+  const c=document.getElementById('crm-dashboard-body'); if(!c) return;
+  const fmt=v=>'$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:0});
+  const openDeals=crmDeals.filter(d=>!['closed_won','closed_lost'].includes(d.stage));
+  const wonDeals=crmDeals.filter(d=>d.stage==='closed_won');
+  const pipeline=openDeals.reduce((s,d)=>s+parseFloat(d.deal_value||0),0);
+  const won=wonDeals.reduce((s,d)=>s+parseFloat(d.deal_value||0),0);
+  const weightedPipeline=openDeals.reduce((s,d)=>s+parseFloat(d.deal_value||0)*(parseFloat(d.probability_pct||0)/100),0);
+  const winRate=crmDeals.length?Math.round(wonDeals.length/crmDeals.filter(d=>['closed_won','closed_lost'].includes(d.stage)).length*100)||0:0;
+  const byStage={};
+  crmDeals.forEach(d=>{ byStage[d.stage]=(byStage[d.stage]||0)+parseFloat(d.deal_value||0); });
+  c.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;">
+      <div class="kpi-card"><div class="kpi-label">Pipeline Value</div><div class="kpi-value" style="font-size:22px;">${fmt(pipeline)}</div><div class="kpi-sub">${openDeals.length} open deals</div></div>
+      <div class="kpi-card" style="border-top-color:#27ae60;"><div class="kpi-label">Closed Won</div><div class="kpi-value" style="font-size:22px;color:var(--success);">${fmt(won)}</div><div class="kpi-sub">${wonDeals.length} deals won</div></div>
+      <div class="kpi-card"><div class="kpi-label">Weighted Pipeline</div><div class="kpi-value" style="font-size:22px;">${fmt(weightedPipeline)}</div><div class="kpi-sub">Probability-adjusted</div></div>
+      <div class="kpi-card"><div class="kpi-label">Win Rate</div><div class="kpi-value" style="font-size:22px;">${winRate}%</div><div class="kpi-sub">${crmContacts.length} total contacts</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;">
+        <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:14px;">Pipeline by Stage</div>
+        ${['prospect','qualified','proposal','negotiation'].map(st=>{
+          const v=byStage[st]||0; const pct=pipeline?Math.round(v/pipeline*100):0;
+          const colors={prospect:'#95a5a6',qualified:'#3498db',proposal:'#9b59b6',negotiation:'#f39c12'};
+          return `<div style="margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span style="text-transform:capitalize;">${st}</span><span style="font-weight:500;">${fmt(v)}</span></div>
+            <div style="height:6px;background:var(--border-light);border-radius:3px;overflow:hidden;"><div style="height:6px;width:${pct}%;background:${colors[st]};border-radius:3px;"></div></div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;">
+        <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:14px;">Contacts by Type</div>
+        ${['prospect','customer','vendor','investor','partner','advisor'].map(t=>{
+          const n=crmContacts.filter(c=>c.contact_type===t).length;
+          if (!n) return '';
+          const pct=crmContacts.length?Math.round(n/crmContacts.length*100):0;
+          return `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);font-size:12px;">
+            <span style="text-transform:capitalize;">${t}</span>
+            <span><strong>${n}</strong> <span style="color:var(--text-light);">(${pct}%)</span></span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+// Contact modal
+async function openContactModal(id=null) {
+  editingContactId=id;
+  document.getElementById('contactModalTitle').textContent=id?'Edit Contact':'New Contact';
+  ['con-first','con-last','con-email','con-phone','con-title','con-org','con-linkedin','con-notes'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+  document.getElementById('con-type').value='prospect';
+  document.getElementById('con-status').value='new';
+  document.getElementById('con-source').value='';
+  if (id) {
+    const con=crmContacts.find(c=>c.id===id);
+    if (con) {
+      const s=(fid,v)=>{ const el=document.getElementById(fid); if(el) el.value=v||''; };
+      s('con-first',con.first_name); s('con-last',con.last_name); s('con-email',con.email);
+      s('con-phone',con.phone); s('con-title',con.title); s('con-org',con.organization);
+      s('con-linkedin',con.linkedin_url); s('con-notes',con.notes);
+      s('con-type',con.contact_type); s('con-status',con.lead_status); s('con-source',con.lead_source);
+    }
+  }
+  document.getElementById('contactModal').classList.add('show');
+}
+function editContact(id) { openContactModal(id); }
+async function saveContact() {
+  const first=document.getElementById('con-first').value.trim();
+  const last=document.getElementById('con-last').value.trim();
+  if (!first||!last) { showToast('⚠ First and last name required',true); return; }
+  showLoading('Saving…');
+  const g=id=>document.getElementById(id)?.value||'';
+  const cid=editingContactId||('con-'+Date.now());
+  await sb.from('crm_contacts').upsert({
+    id:cid, company_id:crmCompanyId, first_name:first, last_name:last,
+    email:g('con-email'), phone:g('con-phone'), title:g('con-title'),
+    organization:g('con-org'), contact_type:g('con-type'),
+    lead_status:g('con-status'), lead_source:g('con-source')||null,
+    linkedin_url:g('con-linkedin'), notes:g('con-notes'), is_active:true,
+    updated_at:new Date().toISOString(),
+  });
+  hideLoading(); closeModal('contactModal'); showToast('✓ Contact saved'); await loadCRMData();
+}
+
+// Deal modal
+async function openDealModal(id=null, defaultStage=null) {
+  editingDealId=id;
+  document.getElementById('dealModalTitle').textContent=id?'Edit Deal':'New Deal';
+  ['deal-name','deal-value','deal-prob','deal-close','deal-next-action','deal-next-date','deal-desc'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+  document.getElementById('deal-stage').value=defaultStage||'prospect';
+  document.getElementById('deal-contact').innerHTML='<option value="">— None —</option>'+crmContacts.map(c=>`<option value="${c.id}">${c.first_name} ${c.last_name}</option>`).join('');
+  if (id) {
+    const d=crmDeals.find(x=>x.id===id);
+    if (d) {
+      const s=(fid,v)=>{ const el=document.getElementById(fid); if(el) el.value=v||''; };
+      s('deal-name',d.deal_name); s('deal-contact',d.contact_id); s('deal-stage',d.stage);
+      s('deal-value',d.deal_value); s('deal-prob',d.probability_pct); s('deal-close',d.expected_close_date);
+      s('deal-next-action',d.next_action); s('deal-next-date',d.next_action_date); s('deal-desc',d.description);
+    }
+  }
+  document.getElementById('dealModal').classList.add('show');
+}
+function editDeal(id) { openDealModal(id); }
+async function saveDeal() {
+  const name=document.getElementById('deal-name').value.trim();
+  if (!name) { showToast('⚠ Deal name required',true); return; }
+  showLoading('Saving…');
+  const g=id=>document.getElementById(id)?.value||'';
+  const did=editingDealId||('deal-'+Date.now());
+  await sb.from('crm_deals').upsert({
+    id:did, company_id:crmCompanyId, deal_name:name,
+    contact_id:g('deal-contact')||null, stage:g('deal-stage'),
+    deal_value:parseFloat(g('deal-value'))||0,
+    probability_pct:parseInt(g('deal-prob'))||0,
+    expected_close_date:g('deal-close')||null,
+    next_action:g('deal-next-action'), next_action_date:g('deal-next-date')||null,
+    description:g('deal-desc'), updated_at:new Date().toISOString(),
+  });
+  hideLoading(); closeModal('dealModal'); showToast('✓ Deal saved'); await loadCRMData();
+}
+
+// Activity modal
+function openActivityModal(contactId=null) {
+  document.getElementById('act-date').value=new Date().toISOString().slice(0,10);
+  ['act-subject','act-notes','act-duration'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+  document.getElementById('act-type').value='call';
+  document.getElementById('act-outcome').value='completed';
+  if (contactId) document.getElementById('act-contact').value=contactId;
+  document.getElementById('activityModal').classList.add('show');
+}
+async function saveActivity() {
+  const subject=document.getElementById('act-subject').value.trim();
+  if (!subject) { showToast('⚠ Subject required',true); return; }
+  showLoading('Saving…');
+  const g=id=>document.getElementById(id)?.value||'';
+  await sb.from('crm_activities').insert({
+    id:'act-'+Date.now(), company_id:crmCompanyId,
+    contact_id:g('act-contact')||null, deal_id:g('act-deal')||null,
+    activity_type:g('act-type'), subject, description:g('act-notes'),
+    activity_date:g('act-date'), duration_minutes:parseInt(g('act-duration'))||null,
+    outcome:g('act-outcome'), is_completed:true,
+  });
+  hideLoading(); closeModal('activityModal'); showToast('✓ Activity logged'); loadCRMActivities();
+}
+
+// ════════════════════════════════
+//  DOCUMENTS MODULE
+// ════════════════════════════════
+async function loadDocumentsModule() {
+  showLoading('Loading documents…');
+  const { data:cos } = await sb.from('companies').select('id,legal_name').order('legal_name');
+  const sel=document.getElementById('doc-entity-select');
+  sel.innerHTML='<option value="">— Select company —</option>'+(cos||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
+  if (!docCompanyId && cos?.length) { docCompanyId=cos[0].id; sel.value=docCompanyId; }
+  else if (docCompanyId) sel.value=docCompanyId;
+  await loadDocData(); hideLoading();
+}
+async function onDocEntityChange() { docCompanyId=document.getElementById('doc-entity-select').value||null; await loadDocData(); }
+async function loadDocData() {
+  if (!docCompanyId) return;
+  const { data:docs } = await sb.from('documents').select('*').eq('company_id',docCompanyId).eq('is_archived',false).order('created_at',{ascending:false});
+  docAllDocs=docs||[]; docFilteredDocs=docAllDocs; renderDocuments();
+}
+function filterDocuments() {
+  const search=(document.getElementById('doc-search')?.value||'').toLowerCase();
+  const type=document.getElementById('doc-type-filter')?.value||'';
+  docFilteredDocs=docAllDocs.filter(d=>
+    (!search||d.document_name.toLowerCase().includes(search)||(d.description||'').toLowerCase().includes(search))&&
+    (!type||d.document_type===type)
+  );
+  renderDocuments();
+}
+function renderDocuments() {
+  const c=document.getElementById('doc-body'); if(!c) return;
+  if (!docFilteredDocs.length) {
+    c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No documents yet</div><div><button class="btn-save" onclick="openDocModal()" style="margin-top:12px;">+ Upload First Document</button></div></div>`;
+    return;
+  }
+  const typeIcon={ contract:'📄', invoice:'🧾', tax_return:'🏛', financial_statement:'📊', legal:'⚖️', hr:'👤', other:'📁' };
+  const typeColor={ contract:'status-posted', invoice:'status-active', tax_return:'status-void', financial_statement:'status-partial' };
+  // Summary bar
+  const byType={};
+  docAllDocs.forEach(d=>{ byType[d.document_type]=(byType[d.document_type]||0)+1; });
+  c.innerHTML=`
+    <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+      ${Object.entries(byType).map(([t,n])=>`<div class="dash-card" style="padding:10px 16px;min-width:100px;"><div class="dash-card-label" style="text-transform:capitalize;">${t.replace(/_/g,' ')}</div><div class="dash-card-value" style="font-size:20px;">${n}</div></div>`).join('')}
+      <div class="dash-card" style="padding:10px 16px;min-width:100px;"><div class="dash-card-label">Total</div><div class="dash-card-value" style="font-size:20px;">${docAllDocs.length}</div></div>
+    </div>
+    <div class="doc-grid">
+      ${docFilteredDocs.map(doc=>`
+        <div class="doc-card" onclick="viewDocument('${doc.id}')">
+          <div class="doc-icon">${typeIcon[doc.document_type]||'📁'}</div>
+          <div class="doc-name" title="${doc.document_name}">${doc.document_name}</div>
+          <div style="margin:4px 0;"><span class="status-pill ${typeColor[doc.document_type]||''}" style="font-size:10px;">${(doc.document_type||'').replace(/_/g,' ')}</span></div>
+          <div class="doc-meta">${doc.description?.slice(0,50)||''}</div>
+          <div class="doc-meta" style="margin-top:6px;">${new Date(doc.created_at).toLocaleDateString()}</div>
+          ${doc.tags?.length?`<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:3px;">${doc.tags.slice(0,3).map(t=>`<span style="font-size:10px;padding:1px 6px;background:var(--gold-pale);border-radius:10px;color:var(--navy);">${t}</span>`).join('')}</div>`:''}
+          <div style="margin-top:8px;display:flex;gap:6px;">
+            <button onclick="event.stopPropagation();editDocument('${doc.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;">Edit</button>
+            <button onclick="event.stopPropagation();archiveDocument('${doc.id}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;">Archive</button>
+            ${doc.file_url?`<a href="${doc.file_url}" target="_blank" onclick="event.stopPropagation()" style="color:var(--navy);font-size:11px;font-family:'DM Sans',sans-serif;">↗ Open</a>`:''}
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+function viewDocument(id) { const doc=docAllDocs.find(d=>d.id===id); if(doc) editDocument(id); }
+async function openDocModal(id=null) {
+  editingDocId=id;
+  document.getElementById('docModalTitle').textContent=id?'Edit Document':'Upload Document';
+  ['doc-name','doc-url','doc-desc','doc-tags','doc-rel-id'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+  document.getElementById('doc-type').value='other';
+  document.getElementById('doc-version').value='1';
+  document.getElementById('doc-rel-type').value='';
+  if (id) {
+    const doc=docAllDocs.find(d=>d.id===id);
+    if (doc) {
+      const s=(fid,v)=>{ const el=document.getElementById(fid); if(el) el.value=v||''; };
+      s('doc-name',doc.document_name); s('doc-type',doc.document_type); s('doc-version',doc.version);
+      s('doc-url',doc.file_url); s('doc-desc',doc.description);
+      s('doc-rel-type',doc.related_record_type); s('doc-rel-id',doc.related_record_id);
+      if (doc.tags) document.getElementById('doc-tags').value=doc.tags.join(', ');
+    }
+  }
+  document.getElementById('docModal').classList.add('show');
+}
+function editDocument(id) { openDocModal(id); }
+async function saveDocument() {
+  const name=document.getElementById('doc-name').value.trim();
+  if (!name) { showToast('⚠ Document name required',true); return; }
+  showLoading('Saving…');
+  const g=id=>document.getElementById(id)?.value||'';
+  const did=editingDocId||('doc-'+Date.now());
+  const tagsRaw=g('doc-tags');
+  const tags=tagsRaw?tagsRaw.split(',').map(t=>t.trim()).filter(Boolean):[];
+  await sb.from('documents').upsert({
+    id:did, company_id:docCompanyId, document_name:name,
+    document_type:g('doc-type'), version:parseInt(g('doc-version'))||1,
+    file_url:g('doc-url')||null, description:g('doc-desc'),
+    related_record_type:g('doc-rel-type')||null, related_record_id:g('doc-rel-id')||null,
+    tags, is_archived:false, updated_at:new Date().toISOString(),
+  });
+  hideLoading(); closeModal('docModal'); showToast('✓ Document saved'); await loadDocData();
+}
+async function archiveDocument(id) {
+  if (!confirm('Archive this document?')) return;
+  await sb.from('documents').update({ is_archived:true }).eq('id',id);
+  showToast('Document archived'); await loadDocData();
+}
+
+// ════════════════════════════════
+//  REPORTS MODULE
+// ════════════════════════════════
+async function loadReportsModule() {
+  showLoading('Loading reports…');
+  const { data:cos } = await sb.from('companies').select('id,legal_name').order('legal_name');
+  const sel=document.getElementById('rpt-entity-select');
+  sel.innerHTML='<option value="">— Select company —</option>'+(cos||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
+  if (!rptCompanyId && cos?.length) { rptCompanyId=cos[0].id; sel.value=rptCompanyId; }
+  else if (rptCompanyId) sel.value=rptCompanyId;
+  // Set default date range
+  const now=new Date(), yearStart=`${now.getFullYear()}-01-01`, today=now.toISOString().slice(0,10);
+  document.getElementById('rpt-date-from').value=yearStart;
+  document.getElementById('rpt-date-to').value=today;
+  hideLoading();
+  loadSavedReports();
+  loadAutomationRules();
+  loadAlerts();
+}
+async function onRptEntityChange() { rptCompanyId=document.getElementById('rpt-entity-select').value||null; }
+function showRptPanel(panelId) {
+  document.querySelectorAll('.rpt-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.rpt-sidebar-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('rpt-panel-'+panelId)?.classList.add('active');
+  document.getElementById('rpt-nav-'+panelId)?.classList.add('active');
+  if (panelId==='saved')  loadSavedReports();
+  if (panelId==='rules')  loadAutomationRules();
+  if (panelId==='alerts') loadAlerts();
+}
+
+// ── REPORT BUILDER ──
+function onRptSourceChange() { /* future: show relevant column options */ }
+async function runCustomReport() {
+  if (!rptCompanyId) { showToast('⚠ Select a company first',true); return; }
+  const source=document.getElementById('rpt-source').value;
+  const dateFrom=document.getElementById('rpt-date-from').value;
+  const dateTo=document.getElementById('rpt-date-to').value;
+  const groupBy=document.getElementById('rpt-groupby').value;
+  const sortBy=document.getElementById('rpt-sortby').value;
+  const limit=parseInt(document.getElementById('rpt-limit').value)||100;
+  const c=document.getElementById('rpt-builder-result');
+  c.innerHTML=`<div style="text-align:center;padding:30px;color:var(--text-light);">Running report…</div>`;
+  showLoading('Running report…');
+
+  let data=[], columns=[], title='';
+  const fmt2=v=>'$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+
+  if (source==='gl') {
+    title='General Ledger Transactions';
+    let q=sb.from('journal_entry_lines').select('debit,credit,description,accounts(account_number,account_name,account_type),journal_entries(entry_date,description,status)').eq('journal_entries.company_id',rptCompanyId);
+    if (dateFrom) q=q.gte('journal_entries.entry_date',dateFrom);
+    if (dateTo) q=q.lte('journal_entries.entry_date',dateTo);
+    const { data:rows } = await q.limit(limit);
+    data=rows||[];
+    columns=[{key:'entry_date',label:'Date',render:r=>fmtDate(r.journal_entries?.entry_date)},
+      {key:'account',label:'Account',render:r=>r.accounts?r.accounts.account_number+' — '+r.accounts.account_name:'—'},
+      {key:'type',label:'Type',render:r=>r.accounts?.account_type||'—'},
+      {key:'description',label:'Description',render:r=>r.journal_entries?.description||r.description||'—'},
+      {key:'debit',label:'Debit',render:r=>r.debit>0?fmt2(r.debit):''},
+      {key:'credit',label:'Credit',render:r=>r.credit>0?fmt2(r.credit):''}];
+  } else if (source==='invoices') {
+    title='Customer Invoices';
+    let q=sb.from('invoices').select('invoice_number,invoice_date,due_date,status,total,balance_due,customers(name)').eq('company_id',rptCompanyId);
+    if (dateFrom) q=q.gte('invoice_date',dateFrom);
+    if (dateTo) q=q.lte('invoice_date',dateTo);
+    if (sortBy==='amount_desc') q=q.order('total',{ascending:false});
+    else if (sortBy==='amount_asc') q=q.order('total',{ascending:true});
+    else if (sortBy==='date_asc') q=q.order('invoice_date',{ascending:true});
+    else q=q.order('invoice_date',{ascending:false});
+    const { data:rows } = await q.limit(limit);
+    data=rows||[];
+    columns=[{key:'invoice_number',label:'Invoice #',render:r=>r.invoice_number||'—'},
+      {key:'customer',label:'Customer',render:r=>r.customers?.name||'—'},
+      {key:'date',label:'Date',render:r=>fmtDate(r.invoice_date)},
+      {key:'due',label:'Due',render:r=>fmtDate(r.due_date)},
+      {key:'status',label:'Status',render:r=>`<span class="status-pill ${r.status==='paid'?'status-active':r.status==='overdue'?'status-void':''}">${r.status}</span>`},
+      {key:'total',label:'Total',render:r=>fmt2(r.total)},
+      {key:'balance',label:'Balance Due',render:r=>fmt2(r.balance_due)}];
+  } else if (source==='bills') {
+    title='Vendor Bills';
+    let q=sb.from('bills').select('bill_number,bill_date,due_date,status,total,balance_due,vendors(name)').eq('company_id',rptCompanyId);
+    if (dateFrom) q=q.gte('bill_date',dateFrom);
+    if (dateTo) q=q.lte('bill_date',dateTo);
+    if (sortBy.includes('amount')) q=q.order('total',{ascending:sortBy==='amount_asc'});
+    else q=q.order('bill_date',{ascending:sortBy==='date_asc'});
+    const { data:rows } = await q.limit(limit);
+    data=rows||[];
+    columns=[{key:'bill_number',label:'Bill #',render:r=>r.bill_number||'—'},
+      {key:'vendor',label:'Vendor',render:r=>r.vendors?.name||'—'},
+      {key:'date',label:'Date',render:r=>fmtDate(r.bill_date)},
+      {key:'due',label:'Due',render:r=>fmtDate(r.due_date)},
+      {key:'status',label:'Status',render:r=>`<span class="status-pill ${r.status==='paid'?'status-active':r.status==='overdue'?'status-void':''}">${r.status}</span>`},
+      {key:'total',label:'Total',render:r=>fmt2(r.total)},
+      {key:'balance',label:'Balance Due',render:r=>fmt2(r.balance_due)}];
+  } else if (source==='payroll') {
+    title='Payroll Records';
+    const { data:rows } = await sb.from('payroll_records').select('*').eq('company_id',rptCompanyId).order('pay_date',{ascending:sortBy==='date_asc'}).limit(limit);
+    data=rows||[];
+    columns=[{key:'date',label:'Pay Date',render:r=>fmtDate(r.pay_date)},
+      {key:'period',label:'Period',render:r=>`${r.pay_period_start||''} — ${r.pay_period_end||''}`},
+      {key:'gross',label:'Gross Pay',render:r=>fmt2(r.total_gross)},
+      {key:'taxes',label:'Total Taxes',render:r=>fmt2((parseFloat(r.total_federal_tax||0)+parseFloat(r.total_state_tax||0)+parseFloat(r.total_ss_employee||0)+parseFloat(r.total_medicare_employee||0)))},
+      {key:'net',label:'Net Pay',render:r=>fmt2(r.total_net)},
+      {key:'status',label:'Status',render:r=>`<span class="status-pill ${r.status==='posted'?'status-active':''}">${r.status}</span>`}];
+  } else if (source==='inventory') {
+    title='Inventory Transactions';
+    const { data:rows } = await sb.from('inventory_transactions').select('transaction_date,transaction_type,quantity,unit_cost,total_cost,reference_number,items(sku,item_name)').eq('company_id',rptCompanyId).order('transaction_date',{ascending:sortBy==='date_asc'}).limit(limit);
+    data=rows||[];
+    columns=[{key:'date',label:'Date',render:r=>fmtDate(r.transaction_date)},
+      {key:'sku',label:'SKU',render:r=>r.items?.sku||'—'},
+      {key:'item',label:'Item',render:r=>r.items?.item_name||'—'},
+      {key:'type',label:'Type',render:r=>r.transaction_type.replace(/_/g,' ')},
+      {key:'qty',label:'Qty',render:r=>(parseFloat(r.quantity||0)>0?'+':'')+parseFloat(r.quantity||0).toFixed(2)},
+      {key:'cost',label:'Unit Cost',render:r=>fmt2(r.unit_cost)},
+      {key:'total',label:'Total',render:r=>fmt2(r.total_cost)}];
+  } else if (source==='projects') {
+    title='Projects';
+    const { data:rows } = await sb.from('projects').select('*').eq('company_id',rptCompanyId).order('created_at',{ascending:false}).limit(limit);
+    data=rows||[];
+    columns=[{key:'name',label:'Project',render:r=>r.project_name},
+      {key:'num',label:'#',render:r=>r.project_number||'—'},
+      {key:'type',label:'Type',render:r=>(r.project_type||'').replace(/_/g,' ')},
+      {key:'status',label:'Status',render:r=>`<span class="status-pill ${r.status==='active'?'status-active':''}">${r.status}</span>`},
+      {key:'value',label:'Contract Value',render:r=>fmt2(r.contract_value)},
+      {key:'start',label:'Start',render:r=>fmtDate(r.start_date)},
+      {key:'end',label:'End',render:r=>fmtDate(r.end_date)}];
+  } else if (source==='crm') {
+    title='CRM Deals';
+    const { data:rows } = await sb.from('crm_deals').select('*, crm_contacts(first_name,last_name)').eq('company_id',rptCompanyId).order('deal_value',{ascending:false}).limit(limit);
+    data=rows||[];
+    columns=[{key:'deal',label:'Deal Name',render:r=>r.deal_name},
+      {key:'contact',label:'Contact',render:r=>r.crm_contacts?r.crm_contacts.first_name+' '+r.crm_contacts.last_name:'—'},
+      {key:'stage',label:'Stage',render:r=>`<span class="status-pill stage-${r.stage}" style="font-size:10px;">${r.stage.replace(/_/g,' ')}</span>`},
+      {key:'value',label:'Value',render:r=>fmt2(r.deal_value)},
+      {key:'prob',label:'Probability',render:r=>(r.probability_pct||0)+'%'},
+      {key:'close',label:'Expected Close',render:r=>fmtDate(r.expected_close_date)}];
+  }
+
+  hideLoading();
+  if (!data.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No data found for the selected filters</div></div>`; return; }
+
+  // Optionally group by month
+  let tableHTML='';
+  if (groupBy==='month' && columns.find(col=>col.key==='date'||col.key==='date')) {
+    const groups={};
+    data.forEach(row=>{ const d=row.invoice_date||row.bill_date||row.pay_date||row.entry_date||row.transaction_date||row.created_at||''; const key=d?d.slice(0,7):'Other'; if(!groups[key]) groups[key]=[]; groups[key].push(row); });
+    Object.entries(groups).sort((a,b)=>a[0]<b[0]?1:-1).forEach(([month,rows])=>{
+      tableHTML+=`<tr style="background:var(--section-bg);"><td colspan="${columns.length}" style="font-weight:600;padding:8px 12px;font-size:12px;text-transform:uppercase;letter-spacing:0.07em;">${month}</td></tr>`;
+      rows.forEach(row=>{ tableHTML+=`<tr>${columns.map(col=>`<td>${col.render(row)}</td>`).join('')}</tr>`; });
+    });
+  } else {
+    data.forEach(row=>{ tableHTML+=`<tr>${columns.map(col=>`<td>${col.render(row)}</td>`).join('')}</tr>`; });
+  }
+
+  c.innerHTML=`
+    <div style="background:var(--gold-pale);padding:10px 16px;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:13px;"><strong>${title}</strong> · ${data.length} rows · ${dateFrom} to ${dateTo}</div>
+      <button onclick="exportReportCSV()" style="background:none;border:1px solid var(--gold);color:var(--gold);padding:4px 12px;border-radius:var(--radius);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">↓ Export CSV</button>
+    </div>
+    <div style="overflow-x:auto;">
+    <table class="acct-table" id="rpt-result-table">
+      <thead><tr>${columns.map(col=>`<th>${col.label}</th>`).join('')}</tr></thead>
+      <tbody>${tableHTML}</tbody>
+    </table></div>`;
+
+  // Store last report config for save/export
+  window._lastRptData={ title, columns, data, source };
+}
+
+function exportReportCSV() {
+  const table=document.getElementById('rpt-result-table'); if(!table) return;
+  const rows=[...table.querySelectorAll('tr')];
+  const csv=rows.map(r=>[...r.querySelectorAll('th,td')].map(cell=>`"${cell.textContent.replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='report_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+}
+
+async function saveCustomReport() {
+  const name=document.getElementById('rpt-report-name').value.trim()||'Custom Report '+new Date().toLocaleDateString();
+  if (!rptCompanyId) { showToast('⚠ Select a company',true); return; }
+  const config={ source:document.getElementById('rpt-source').value, date_from:document.getElementById('rpt-date-from').value, date_to:document.getElementById('rpt-date-to').value, group_by:document.getElementById('rpt-groupby').value, sort_by:document.getElementById('rpt-sortby').value, limit:document.getElementById('rpt-limit').value };
+  await sb.from('saved_reports').insert({ id:'rpt-'+Date.now(), company_id:rptCompanyId, report_name:name, data_source:config.source, config:JSON.stringify(config), last_run_at:new Date().toISOString() });
+  showToast('✓ Report saved'); loadSavedReports();
+}
+
+function printCustomReport() {
+  const content=document.getElementById('rpt-builder-result')?.innerHTML||'';
+  const name=document.getElementById('rpt-report-name').value||'Custom Report';
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>${name}</title>
+  <style>body{font-family:Arial,sans-serif;font-size:12px;max-width:1100px;margin:20px auto;}
+  table{width:100%;border-collapse:collapse;}th{background:#0f1f38;color:#d4b07a;padding:6px 10px;font-size:11px;text-align:left;}
+  td{padding:6px 10px;border-bottom:1px solid #eee;}.status-pill{font-size:10px;padding:2px 6px;border-radius:10px;background:#eee;}
+  @media print{button{display:none;}}</style></head>
+  <body><button onclick="window.print()" style="padding:7px 16px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:16px;">🖨 Print</button>
+  <h2>${name}</h2><p>Generated: ${new Date().toLocaleString()}</p>${content}</body></html>`);
+  win.document.close();
+}
+
+async function loadSavedReports() {
+  if (!rptCompanyId) return;
+  const c=document.getElementById('rpt-saved-body'); if(!c) return;
+  const { data:reports } = await sb.from('saved_reports').select('*').eq('company_id',rptCompanyId).order('created_at',{ascending:false});
+  if (!reports?.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No saved reports yet</div><div>Use the Report Builder and click Save.</div></div>`; return; }
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Report Name</th><th>Data Source</th><th>Last Run</th><th></th></tr></thead><tbody>`+
+    reports.map(r=>`<tr>
+      <td><strong>${r.report_name}</strong></td>
+      <td style="font-size:12px;text-transform:capitalize;">${(r.data_source||'').replace(/_/g,' ')}</td>
+      <td style="font-size:12px;color:var(--text-light);">${r.last_run_at?new Date(r.last_run_at).toLocaleDateString():'Never'}</td>
+      <td>
+        <button onclick="loadSavedReport('${r.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">▶ Run</button>
+        <button onclick="deleteSavedReport('${r.id}')" style="background:none;border:none;color:var(--error);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Delete</button>
+      </td>
+    </tr>`).join('')+`</tbody></table>`;
+}
+
+async function loadSavedReport(id) {
+  const { data:report } = await sb.from('saved_reports').select('*').eq('id',id).single();
+  if (!report) return;
+  const cfg=typeof report.config==='string'?JSON.parse(report.config):report.config;
+  document.getElementById('rpt-source').value=cfg.source||'gl';
+  document.getElementById('rpt-date-from').value=cfg.date_from||'';
+  document.getElementById('rpt-date-to').value=cfg.date_to||'';
+  document.getElementById('rpt-groupby').value=cfg.group_by||'';
+  document.getElementById('rpt-sortby').value=cfg.sort_by||'date_desc';
+  document.getElementById('rpt-limit').value=cfg.limit||'100';
+  document.getElementById('rpt-report-name').value=report.report_name;
+  showRptPanel('builder'); await runCustomReport();
+}
+
+async function deleteSavedReport(id) {
+  if (!confirm('Delete this saved report?')) return;
+  await sb.from('saved_reports').delete().eq('id',id);
+  showToast('Report deleted'); loadSavedReports();
+}
+
+// ── BOARD PACK ──
+async function generateBoardPack() {
+  if (!rptCompanyId) { showToast('⚠ Select a company first',true); return; }
+  showLoading('Generating board pack…');
+  const [fd, { data:projects }, { data:araging }, { data:apaging }] = await Promise.all([
+    getFinancialData ? getFinancialData(rptCompanyId, new Date().getFullYear()) : Promise.resolve({}),
+    sb.from('projects').select('project_name,status,contract_value,end_date').eq('company_id',rptCompanyId).eq('status','active'),
+    sb.from('invoices').select('total,balance_due,due_date').eq('company_id',rptCompanyId).eq('status','open'),
+    sb.from('bills').select('total,balance_due,due_date').eq('company_id',rptCompanyId).eq('status','open'),
+  ]);
+  hideLoading();
+  const fmt=v=>'$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:0});
+  const fmt2=v=>'$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+  const sections=document.querySelectorAll('.board-section-check:checked');
+  const selectedSections=new Set([...sections].map(s=>s.dataset.section));
+  const company=rptCompanyId;
+  let html=`<div id="board-pack-content" style="font-family:'Cormorant Garamond',serif;">`;
+  html+=`<div style="background:var(--navy);color:var(--gold-light);padding:32px 36px;border-radius:var(--radius-lg);margin-bottom:24px;">
+    <div style="font-size:28px;font-weight:600;margin-bottom:4px;">Board Report</div>
+    <div style="font-size:16px;opacity:0.7;">Fiscal Year ${new Date().getFullYear()} · As of ${new Date().toLocaleDateString()}</div>
+  </div>`;
+  if (selectedSections.has('Executive Summary')) {
+    html+=`<div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:16px;">
+      <div style="font-size:18px;font-weight:600;color:var(--navy);margin-bottom:14px;border-bottom:2px solid var(--gold);padding-bottom:8px;">Executive Summary</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+        ${[['Revenue',fmt(fd.revenue||0)],['Gross Profit',fmt(fd.grossProfit||0)],['Net Income',fmt(fd.netIncome||0)],['Cash Balance',fmt(fd.cash||0)]].map(([l,v])=>`<div style="background:var(--gold-pale);padding:12px;border-radius:6px;"><div style="font-size:11px;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-light);">${l}</div><div style="font-size:22px;font-weight:600;color:var(--navy);">${v}</div></div>`).join('')}
+      </div>
+    </div>`;
+  }
+  if (selectedSections.has('Income Statement')) {
+    html+=`<div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:16px;">
+      <div style="font-size:18px;font-weight:600;color:var(--navy);margin-bottom:14px;border-bottom:2px solid var(--gold);padding-bottom:8px;">Income Statement (YTD)</div>
+      ${[['Revenue',fd.revenue||0,false],['Cost of Goods Sold',fd.cogs||0,false],['Gross Profit',fd.grossProfit||0,true],['Operating Expenses',fd.opex||0,false],['EBITDA',fd.ebitda||0,true],['Net Income',fd.netIncome||0,true]].map(([l,v,bold])=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border-light);${bold?'font-weight:700;':''}"><span>${l}</span><span style="font-family:monospace;">${fmt2(v)}</span></div>`).join('')}
+    </div>`;
+  }
+  if (selectedSections.has('Project Status') && projects?.length) {
+    html+=`<div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:16px;">
+      <div style="font-size:18px;font-weight:600;color:var(--navy);margin-bottom:14px;border-bottom:2px solid var(--gold);padding-bottom:8px;">Active Projects</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;font-family:'DM Sans',sans-serif;">
+        <thead><tr style="background:var(--navy);color:var(--gold-light);">${['Project','Status','Contract Value','End Date'].map(h=>`<th style="padding:7px 12px;text-align:left;font-size:11px;">${h}</th>`).join('')}</tr></thead>
+        <tbody>${projects.map(p=>`<tr style="border-bottom:1px solid var(--border-light);"><td style="padding:7px 12px;">${p.project_name}</td><td style="padding:7px 12px;">${p.status}</td><td style="padding:7px 12px;font-family:monospace;">${fmt2(p.contract_value)}</td><td style="padding:7px 12px;">${fmtDate(p.end_date)}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>`;
+  }
+  if (selectedSections.has('AR/AP Aging')) {
+    const totalAR=(araging||[]).reduce((s,i)=>s+parseFloat(i.balance_due||0),0);
+    const totalAP=(apaging||[]).reduce((s,b)=>s+parseFloat(b.balance_due||0),0);
+    html+=`<div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:16px;">
+      <div style="font-size:18px;font-weight:600;color:var(--navy);margin-bottom:14px;border-bottom:2px solid var(--gold);padding-bottom:8px;">AR / AP Summary</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div><div style="font-size:13px;font-weight:600;margin-bottom:8px;">Accounts Receivable</div><div style="font-size:24px;font-weight:700;font-family:'Cormorant Garamond',serif;color:var(--success);">${fmt2(totalAR)}</div><div style="font-size:12px;color:var(--text-light);">${(araging||[]).length} open invoices</div></div>
+        <div><div style="font-size:13px;font-weight:600;margin-bottom:8px;">Accounts Payable</div><div style="font-size:24px;font-weight:700;font-family:'Cormorant Garamond',serif;color:var(--error);">${fmt2(totalAP)}</div><div style="font-size:12px;color:var(--text-light);">${(apaging||[]).length} open bills</div></div>
+      </div>
+    </div>`;
+  }
+  html+=`</div>`;
+  document.getElementById('rpt-board-body').innerHTML=html;
+  showToast('✓ Board pack generated');
+}
+
+function printBoardPack() {
+  const content=document.getElementById('board-pack-content')?.outerHTML||document.getElementById('rpt-board-body')?.innerHTML||'';
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>Board Pack</title>
+  <style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Georgia,serif;font-size:12px;max-width:900px;margin:20px auto;color:#1a1a2e;}
+  @page{margin:20mm;}@media print{button{display:none!important;}.no-print{display:none!important;}}</style></head>
+  <body><button onclick="window.print()" class="no-print" style="padding:7px 16px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:16px;">🖨 Print / Save as PDF</button>
+  ${content}</body></html>`);
+  win.document.close();
+}
+
+// ── AUTOMATION RULES ──
+async function loadAutomationRules() {
+  if (!rptCompanyId) return;
+  const c=document.getElementById('rpt-rules-body'); if(!c) return;
+  const { data:rules } = await sb.from('automation_rules').select('*').eq('company_id',rptCompanyId).order('created_at',{ascending:false});
+  if (!rules?.length) {
+    c.innerHTML=`<div style="text-align:center;padding:30px;">
+      <div style="font-size:15px;font-weight:600;color:var(--navy);margin-bottom:8px;">No automation rules yet</div>
+      <div style="font-size:13px;color:var(--text-mid);margin-bottom:16px;">Rules automatically check your data and create alerts when conditions are met.</div>
+      <button class="btn-save" onclick="openRuleModal()">+ Create First Rule</button>
+    </div>`; return;
+  }
+  const triggerLabels={ balance_below:'Cash Balance Below', invoice_overdue:'Invoice Overdue', inventory_low:'Inventory Low', budget_exceeded:'Budget Exceeded', payroll_due:'Payroll Due', ap_due:'AP Payment Due', deal_stale:'Deal Stale' };
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Rule Name</th><th>Trigger</th><th>Action</th><th>Triggered</th><th>Status</th><th></th></tr></thead><tbody>`+
+    rules.map(r=>`<tr>
+      <td><strong>${r.rule_name}</strong></td>
+      <td style="font-size:12px;">${triggerLabels[r.trigger_type]||r.trigger_type}</td>
+      <td style="font-size:12px;text-transform:capitalize;">${(r.action_type||'').replace(/_/g,' ')}</td>
+      <td style="font-family:monospace;font-size:12px;">${r.trigger_count||0}×</td>
+      <td>${r.is_active?'<span class="status-pill status-active">Active</span>':'<span class="status-pill">Inactive</span>'}</td>
+      <td>
+        <button onclick="runRule('${r.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">▶ Run</button>
+        <button onclick="toggleRule('${r.id}',${!r.is_active})" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">${r.is_active?'Disable':'Enable'}</button>
+        <button onclick="deleteRule('${r.id}')" style="background:none;border:none;color:var(--error);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Delete</button>
+      </td>
+    </tr>`).join('')+`</tbody></table>`;
+}
+
+function openRuleModal(id=null) {
+  editingRuleId=id;
+  document.getElementById('ruleModalTitle').textContent=id?'Edit Rule':'New Automation Rule';
+  ['rule-name','rule-threshold','rule-message'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+  document.getElementById('rule-trigger').value='balance_below';
+  document.getElementById('rule-action').value='send_alert';
+  document.getElementById('rule-severity').value='warning';
+  document.getElementById('rule-active').checked=true;
+  document.getElementById('ruleModal').classList.add('show');
+}
+
+async function saveRule() {
+  const name=document.getElementById('rule-name').value.trim();
+  if (!name||!rptCompanyId) { showToast('⚠ Rule name and company required',true); return; }
+  const g=id=>document.getElementById(id)?.value||'';
+  const rid=editingRuleId||('rule-'+Date.now());
+  const triggerConfig={ threshold:parseFloat(g('rule-threshold'))||0 };
+  const actionConfig={ message:g('rule-message'), severity:g('rule-severity') };
+  await sb.from('automation_rules').upsert({
+    id:rid, company_id:rptCompanyId, rule_name:name,
+    trigger_type:g('rule-trigger'), action_type:g('rule-action'),
+    trigger_config:JSON.stringify(triggerConfig),
+    action_config:JSON.stringify(actionConfig),
+    is_active:document.getElementById('rule-active').checked,
+    updated_at:new Date().toISOString(),
+  });
+  closeModal('ruleModal'); showToast('✓ Rule saved'); loadAutomationRules();
+}
+
+async function toggleRule(id, active) {
+  await sb.from('automation_rules').update({ is_active:active }).eq('id',id);
+  showToast(active?'Rule enabled':'Rule disabled'); loadAutomationRules();
+}
+
+async function deleteRule(id) {
+  if (!confirm('Delete this rule?')) return;
+  await sb.from('automation_rules').delete().eq('id',id);
+  showToast('Rule deleted'); loadAutomationRules();
+}
+
+async function runRule(ruleId) {
+  const { data:rule } = await sb.from('automation_rules').select('*').eq('id',ruleId).single();
+  if (!rule) return;
+  await executeRule(rule);
+}
+
+async function executeRule(rule) {
+  const cfg=typeof rule.trigger_config==='string'?JSON.parse(rule.trigger_config||'{}'):rule.trigger_config||{};
+  const acfg=typeof rule.action_config==='string'?JSON.parse(rule.action_config||'{}'):rule.action_config||{};
+  let triggered=false, message='', value=0;
+
+  if (rule.trigger_type==='balance_below') {
+    const { data:cos } = await sb.from('companies').select('id').eq('id',rule.company_id).single();
+    if (cos) {
+      const fd = await getFinancialData(rule.company_id, new Date().getFullYear());
+      value=fd.cash||0;
+      if (value<=parseFloat(cfg.threshold||0)) { triggered=true; message=`Cash balance $${value.toLocaleString()} is below threshold $${parseFloat(cfg.threshold||0).toLocaleString()}`; }
+    }
+  } else if (rule.trigger_type==='invoice_overdue') {
+    const today=new Date().toISOString().slice(0,10);
+    const { data:inv } = await sb.from('invoices').select('id,invoice_number,balance_due').eq('company_id',rule.company_id).eq('status','open').lt('due_date',today);
+    if (inv?.length) { triggered=true; value=inv.length; message=`${inv.length} overdue invoice${inv.length!==1?'s':''} totaling $${inv.reduce((s,i)=>s+parseFloat(i.balance_due||0),0).toLocaleString()}`; }
+  } else if (rule.trigger_type==='inventory_low') {
+    const { data:txns } = await sb.from('inventory_transactions').select('item_id,quantity').eq('company_id',rule.company_id);
+    const { data:items } = await sb.from('items').select('id,item_name,reorder_point').eq('company_id',rule.company_id).gt('reorder_point',0);
+    const sohMap={}; (txns||[]).forEach(t=>{ sohMap[t.item_id]=(sohMap[t.item_id]||0)+parseFloat(t.quantity||0); });
+    const lowItems=(items||[]).filter(i=>(sohMap[i.id]||0)<=parseFloat(i.reorder_point||0));
+    if (lowItems.length) { triggered=true; value=lowItems.length; message=`${lowItems.length} item${lowItems.length!==1?'s':''} below reorder point: ${lowItems.slice(0,3).map(i=>i.item_name).join(', ')}${lowItems.length>3?'…':''}`; }
+  } else if (rule.trigger_type==='ap_due') {
+    const today=new Date().toISOString().slice(0,10);
+    const soon=new Date(); soon.setDate(soon.getDate()+7);
+    const { data:bills } = await sb.from('bills').select('id,bill_number,balance_due,due_date').eq('company_id',rule.company_id).eq('status','open').lte('due_date',soon.toISOString().slice(0,10));
+    if (bills?.length) { triggered=true; value=bills.length; message=`${bills.length} AP payment${bills.length!==1?'s':''} due within 7 days totaling $${bills.reduce((s,b)=>s+parseFloat(b.balance_due||0),0).toLocaleString()}`; }
+  }
+
+  if (triggered && rule.action_type==='send_alert') {
+    const alertMsg=acfg.message||message;
+    await sb.from('alerts').insert({
+      id:'alert-'+Date.now()+'-'+Math.random().toString(36).slice(2,5),
+      company_id:rule.company_id, rule_id:rule.id,
+      alert_type:acfg.severity||'warning',
+      title:rule.rule_name, message:alertMsg,
+      is_read:false, is_dismissed:false,
+    });
+    await sb.from('automation_rules').update({ last_triggered_at:new Date().toISOString(), trigger_count:(rule.trigger_count||0)+1 }).eq('id',rule.id);
+    showToast(`🔔 Alert triggered: ${rule.rule_name}`);
+  } else if (!triggered) {
+    showToast(`✓ Rule checked — no trigger condition met`);
+  }
+  await loadAlerts(); await refreshAlertBadge();
+}
+
+async function runAllAutomations() {
+  if (!rptCompanyId) { showToast('⚠ Select a company first',true); return; }
+  showLoading('Running all automation rules…');
+  const { data:rules } = await sb.from('automation_rules').select('*').eq('company_id',rptCompanyId).eq('is_active',true);
+  let triggered=0;
+  for (const rule of (rules||[])) { await executeRule(rule); triggered++; }
+  hideLoading(); showToast(`✓ ${triggered} rule${triggered!==1?'s':''} checked`);
+  loadAutomationRules(); loadAlerts(); refreshAlertBadge();
+}
+
+// ── ALERT CENTER ──
+async function loadAlerts() {
+  if (!rptCompanyId) return;
+  const c=document.getElementById('rpt-alerts-body'); if(!c) return;
+  const { data:alerts } = await sb.from('alerts').select('*').eq('company_id',rptCompanyId).eq('is_dismissed',false).order('created_at',{ascending:false}).limit(50);
+  if (!alerts?.length) { c.innerHTML=`<div style="text-align:center;padding:40px;color:var(--success);font-size:15px;">✓ No active alerts</div>`; return; }
+  const dotClass={ warning:'alert-warning', critical:'alert-critical', info:'alert-info', success:'alert-success' };
+  c.innerHTML=`<div style="border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">` +
+    alerts.map(a=>`<div class="alert-item ${!a.is_read?'unread':''}">
+      <div class="alert-dot ${dotClass[a.alert_type]||'alert-info'}" style="margin-top:4px;"></div>
+      <div style="flex:1;">
+        <div style="font-weight:600;font-size:13px;color:var(--navy);">${a.title}</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:2px;">${a.message||'—'}</div>
+        <div style="font-size:11px;color:var(--text-light);margin-top:4px;">${new Date(a.created_at).toLocaleString()}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+        <span class="status-pill ${a.alert_type==='critical'?'status-void':a.alert_type==='warning'?'status-partial':'status-posted'}" style="font-size:10px;">${a.alert_type}</span>
+        <button onclick="dismissAlert('${a.id}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;">Dismiss</button>
+      </div>
+    </div>`).join('') + `</div>`;
+}
+
+async function dismissAlert(id) {
+  await sb.from('alerts').update({ is_dismissed:true }).eq('id',id);
+  loadAlerts(); refreshAlertBadge();
+}
+
+async function markAllAlertsRead() {
+  if (rptCompanyId) {
+    await sb.from('alerts').update({ is_read:true }).eq('company_id',rptCompanyId).eq('is_dismissed',false);
+    loadAlerts(); refreshAlertBadge();
+  }
+  // Also refresh drawer
+  await refreshAlertBadge();
+}
+
+async function refreshAlertBadge() {
+  // Count unread alerts across all companies
+  const { data:counts } = await sb.from('alerts').select('id').eq('is_read',false).eq('is_dismissed',false);
+  const n=(counts||[]).length;
+  const badge=document.getElementById('alert-badge');
+  if (badge) { badge.textContent=n; badge.style.display=n>0?'flex':'none'; }
+  // Update drawer
+  await refreshAlertDrawer();
+}
+
+async function refreshAlertDrawer() {
+  const body=document.getElementById('alert-drawer-body'); if(!body) return;
+  const { data:alerts } = await sb.from('alerts').select('*').eq('is_dismissed',false).order('created_at',{ascending:false}).limit(10);
+  if (!alerts?.length) { body.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-light);font-size:13px;">No alerts</div>'; return; }
+  const dotClass={ warning:'alert-warning', critical:'alert-critical', info:'alert-info', success:'alert-success' };
+  body.innerHTML=alerts.map(a=>`<div class="alert-item" style="padding:10px 14px;">
+    <div class="alert-dot ${dotClass[a.alert_type]||'alert-info'}" style="margin-top:3px;width:6px;height:6px;"></div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-weight:600;font-size:12px;color:var(--navy);">${a.title}</div>
+      <div style="font-size:11px;color:var(--text-mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.message||'—'}</div>
+    </div>
+    <button onclick="dismissAlert('${a.id}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:14px;flex-shrink:0;">×</button>
+  </div>`).join('');
+}
+
+function toggleAlertDrawer() {
+  const drawer=document.getElementById('alert-drawer');
+  if (!drawer) return;
+  const isOpen=drawer.style.display==='flex';
+  drawer.style.display=isOpen?'none':'flex';
+  if (!isOpen) refreshAlertDrawer();
+}
+
+// Close drawer on outside click
+document.addEventListener('click', e=>{
+  const drawer=document.getElementById('alert-drawer');
+  const bell=document.getElementById('alert-bell-btn');
+  if (drawer && drawer.style.display==='flex' && !drawer.contains(e.target) && e.target!==bell && !bell?.contains(e.target)) {
+    drawer.style.display='none';
+  }
+});
 
 // ── INIT
 loadDashboard();
