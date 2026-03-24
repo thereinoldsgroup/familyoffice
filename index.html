@@ -1055,6 +1055,7 @@
           <button class="acct-sidebar-btn"         id="acct-nav-bills"      onclick="showAcctView('bills')">      <span class="acct-icon">📄</span> Bills</button>
           <button class="acct-sidebar-btn"         id="acct-nav-payments-out" onclick="showAcctView('payments-out')"><span class="acct-icon">💸</span> Payments Made</button>
           <button class="acct-sidebar-btn"         id="acct-nav-bank"       onclick="showAcctView('bank')">       <span class="acct-icon">🏛️</span> Bank Transactions</button>
+          <button class="acct-sidebar-btn"         id="acct-nav-qbo-import" onclick="showAcctView('qbo-import')"> <span class="acct-icon">📥</span> QBO / File Import</button>
           <button class="acct-sidebar-btn"         id="acct-nav-reconcile"  onclick="showAcctView('reconcile')">  <span class="acct-icon">✅</span> Reconciliation</button>
           <button class="acct-sidebar-btn"         id="acct-nav-ic"         onclick="showAcctView('ic')">         <span class="acct-icon">🔄</span> Intercompany</button>
           <button class="acct-sidebar-btn"         id="acct-nav-payroll"    onclick="showAcctView('payroll')">    <span class="acct-icon">💼</span> Payroll</button>
@@ -1215,7 +1216,168 @@
             <div id="bankContent"><div class="empty-state"><div class="empty-state-title">No transactions yet</div></div></div>
           </div>
 
-          <!-- INTERCOMPANY -->
+          </div><!-- /acct-view-bank -->
+
+          <!-- QBO / FILE IMPORT -->
+          <div id="acct-view-qbo-import" class="acct-panel" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+              <div>
+                <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">QBO &amp; File Import</div>
+                <div style="font-size:12px;color:var(--text-light);">Import from QuickBooks Online export, CSV bank feeds, IIF files, or OFX/QFX</div>
+              </div>
+            </div>
+
+            <!-- Format tabs -->
+            <div class="inner-tabs" style="margin-bottom:20px;">
+              <button class="inner-tab active" id="qbo-tab-btn-txn"     onclick="switchQBOTab(this,'qbo-tab-txn')">Bank Transactions (CSV/OFX/QFX)</button>
+              <button class="inner-tab"         id="qbo-tab-btn-chart"  onclick="switchQBOTab(this,'qbo-tab-chart')">Chart of Accounts</button>
+              <button class="inner-tab"         id="qbo-tab-btn-je"     onclick="switchQBOTab(this,'qbo-tab-je')">Journal Entries</button>
+              <button class="inner-tab"         id="qbo-tab-btn-ap"     onclick="switchQBOTab(this,'qbo-tab-ap')">Vendors / Bills</button>
+              <button class="inner-tab"         id="qbo-tab-btn-ar"     onclick="switchQBOTab(this,'qbo-tab-ar')">Customers / Invoices</button>
+            </div>
+
+            <!-- BANK TRANSACTIONS TAB -->
+            <div id="qbo-tab-txn">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+                <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;">
+                  <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:12px;">Upload File</div>
+                  <div style="background:var(--gold-pale);border:2px dashed var(--gold);border-radius:var(--radius-lg);padding:24px;text-align:center;cursor:pointer;" onclick="document.getElementById('qbo-txn-file').click();" id="qbo-txn-drop-zone">
+                    <div style="font-size:28px;margin-bottom:8px;">📄</div>
+                    <div style="font-size:14px;font-weight:500;color:var(--navy);">Drop file here or click to upload</div>
+                    <div style="font-size:12px;color:var(--text-light);margin-top:4px;">Supports: CSV, OFX, QFX, QBO, IIF, XLSX</div>
+                    <input type="file" id="qbo-txn-file" accept=".csv,.ofx,.qfx,.qbo,.iif,.xlsx,.xls" style="display:none;" onchange="handleQBOFileUpload(this,'txn')">
+                  </div>
+                  <div style="margin-top:14px;">
+                    <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:8px;">Column Mapping (for CSV)</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;">
+                      <div><label style="color:var(--text-light);">Date column</label><input type="text" id="qbo-col-date" class="field-input" style="height:28px;" value="Date" placeholder="Date"></div>
+                      <div><label style="color:var(--text-light);">Description column</label><input type="text" id="qbo-col-desc" class="field-input" style="height:28px;" value="Description" placeholder="Description"></div>
+                      <div><label style="color:var(--text-light);">Amount column</label><input type="text" id="qbo-col-amount" class="field-input" style="height:28px;" value="Amount" placeholder="Amount"></div>
+                      <div><label style="color:var(--text-light);">Type column (opt)</label><input type="text" id="qbo-col-type" class="field-input" style="height:28px;" value="Type" placeholder="Type"></div>
+                    </div>
+                    <div style="margin-top:10px;font-size:12px;color:var(--text-light);">
+                      <strong>Auto-detected formats:</strong> QBO (QuickBooks), Chase CSV, Bank of America CSV, Wells Fargo CSV, OFX/QFX, IIF
+                    </div>
+                  </div>
+                </div>
+                <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;">
+                  <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:12px;">Import Settings</div>
+                  <div class="form-grid">
+                    <div class="field-group col-span-2"><label class="field-label">Target GL Account</label><select class="field-select" id="qbo-target-account"><option value="">— Auto-detect / none —</option></select></div>
+                    <div class="field-group col-span-2">
+                      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                        <input type="checkbox" id="qbo-apply-rules" checked style="accent-color:var(--gold);"> Apply bank rules automatically
+                      </label>
+                    </div>
+                    <div class="field-group col-span-2">
+                      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                        <input type="checkbox" id="qbo-skip-dupes" checked style="accent-color:var(--gold);"> Skip duplicate transactions
+                      </label>
+                    </div>
+                    <div class="field-group col-span-2">
+                      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                        <input type="checkbox" id="qbo-create-je" style="accent-color:var(--gold);"> Auto-create journal entries from matched rules
+                      </label>
+                    </div>
+                  </div>
+                  <div id="qbo-txn-stats" style="margin-top:10px;display:none;background:var(--section-bg);padding:10px 14px;border-radius:var(--radius);font-size:12px;"></div>
+                </div>
+              </div>
+              <!-- Preview table -->
+              <div id="qbo-txn-preview" style="display:none;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                  <div style="font-size:14px;font-weight:600;color:var(--navy);" id="qbo-preview-title">Preview</div>
+                  <div style="display:flex;gap:8px;">
+                    <button class="btn-secondary" onclick="clearQBOImport()">✕ Clear</button>
+                    <button class="btn-save" id="qbo-import-btn" onclick="commitQBOImport()">✓ Import All</button>
+                  </div>
+                </div>
+                <div id="qbo-txn-preview-table"></div>
+              </div>
+            </div>
+
+            <!-- CHART OF ACCOUNTS TAB -->
+            <div id="qbo-tab-chart" style="display:none;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px;">
+                <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;">
+                  <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:12px;">Upload QBO Chart of Accounts Export</div>
+                  <div style="background:var(--gold-pale);border:2px dashed var(--gold);border-radius:var(--radius-lg);padding:24px;text-align:center;cursor:pointer;" onclick="document.getElementById('qbo-coa-file').click();">
+                    <div style="font-size:28px;margin-bottom:8px;">📋</div>
+                    <div style="font-size:14px;font-weight:500;color:var(--navy);">Upload Chart of Accounts CSV</div>
+                    <div style="font-size:12px;color:var(--text-light);margin-top:4px;">Export from QBO: Reports → Account List → Export</div>
+                    <input type="file" id="qbo-coa-file" accept=".csv,.xlsx" style="display:none;" onchange="handleQBOFileUpload(this,'coa')">
+                  </div>
+                  <div style="margin-top:12px;font-size:12px;color:var(--text-light);">
+                    <strong>Expected columns:</strong> Account Name, Type, Detail Type, Description, Balance
+                  </div>
+                </div>
+                <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;">
+                  <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:8px;">Import Options</div>
+                  <div class="form-grid">
+                    <div class="field-group col-span-2">
+                      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                        <input type="checkbox" id="coa-merge" checked style="accent-color:var(--gold);"> Merge with existing (skip duplicates)
+                      </label>
+                    </div>
+                    <div class="field-group col-span-2">
+                      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                        <input type="checkbox" id="coa-opening-bal" checked style="accent-color:var(--gold);"> Import opening balances as journal entries
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div id="qbo-coa-preview" style="display:none;"></div>
+            </div>
+
+            <!-- JOURNAL ENTRIES TAB -->
+            <div id="qbo-tab-je" style="display:none;">
+              <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;margin-bottom:16px;">
+                <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:12px;">Upload QBO Journal Entry Export</div>
+                <div style="background:var(--gold-pale);border:2px dashed var(--gold);border-radius:var(--radius-lg);padding:24px;text-align:center;cursor:pointer;" onclick="document.getElementById('qbo-je-file').click();">
+                  <div style="font-size:28px;margin-bottom:8px;">✏️</div>
+                  <div style="font-size:14px;font-weight:500;color:var(--navy);">Upload Journal Entries CSV / IIF</div>
+                  <div style="font-size:12px;color:var(--text-light);margin-top:4px;">Export from QBO: Reports → Journal → Export to CSV</div>
+                  <input type="file" id="qbo-je-file" accept=".csv,.iif,.xlsx" style="display:none;" onchange="handleQBOFileUpload(this,'je')">
+                </div>
+              </div>
+              <div id="qbo-je-preview" style="display:none;"></div>
+            </div>
+
+            <!-- VENDORS / BILLS TAB -->
+            <div id="qbo-tab-ap" style="display:none;">
+              <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;margin-bottom:16px;">
+                <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:12px;">Upload QBO Vendor / Bills Export</div>
+                <div style="background:var(--gold-pale);border:2px dashed var(--gold);border-radius:var(--radius-lg);padding:24px;text-align:center;cursor:pointer;" onclick="document.getElementById('qbo-ap-file').click();">
+                  <div style="font-size:28px;margin-bottom:8px;">🏭</div>
+                  <div style="font-size:14px;font-weight:500;color:var(--navy);">Upload Vendors or Bills CSV</div>
+                  <div style="font-size:12px;color:var(--text-light);margin-top:4px;">Export from QBO: Expenses → Vendors → Export / Reports → Unpaid Bills</div>
+                  <input type="file" id="qbo-ap-file" accept=".csv,.xlsx" style="display:none;" onchange="handleQBOFileUpload(this,'ap')">
+                </div>
+              </div>
+              <div id="qbo-ap-preview" style="display:none;"></div>
+            </div>
+
+            <!-- CUSTOMERS / INVOICES TAB -->
+            <div id="qbo-tab-ar" style="display:none;">
+              <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;margin-bottom:16px;">
+                <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:12px;">Upload QBO Customers / Invoices Export</div>
+                <div style="background:var(--gold-pale);border:2px dashed var(--gold);border-radius:var(--radius-lg);padding:24px;text-align:center;cursor:pointer;" onclick="document.getElementById('qbo-ar-file').click();">
+                  <div style="font-size:28px;margin-bottom:8px;">🧾</div>
+                  <div style="font-size:14px;font-weight:500;color:var(--navy);">Upload Customers or Invoices CSV</div>
+                  <div style="font-size:12px;color:var(--text-light);margin-top:4px;">Export from QBO: Sales → Customers → Export / Reports → Invoice List</div>
+                  <input type="file" id="qbo-ar-file" accept=".csv,.xlsx" style="display:none;" onchange="handleQBOFileUpload(this,'ar')">
+                </div>
+              </div>
+              <div id="qbo-ar-preview" style="display:none;"></div>
+            </div>
+
+            <!-- Import Log -->
+            <div style="margin-top:24px;background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:16px;">
+              <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;">Import Log</div>
+              <div id="qbo-import-log" style="font-size:12px;color:var(--text-mid);font-family:monospace;max-height:160px;overflow-y:auto;">No imports yet this session.</div>
+            </div>
+          </div>
           <div id="acct-view-ic" class="acct-panel" style="display:none;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
               <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Intercompany Transactions</div>
@@ -16987,6 +17149,963 @@ async function loadHeadcount() {
       <td class="amount" style="font-size:12px;">$${parseFloat(e.pay_rate||0).toLocaleString()} ${e.pay_type==='hourly'?'/hr':'/yr'}</td>
     </tr>`).join('')+`</tbody></table>
     </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+//  QBO / FILE IMPORT MODULE
+// ═══════════════════════════════════════════════════
+
+let qboImportData = []; // parsed rows pending import
+let qboImportType = null;
+
+// Extend showAcctView for qbo-import
+const _origShowAcctViewQBO = showAcctView;
+showAcctView = function(view) {
+  if (view === 'qbo-import') {
+    document.querySelectorAll('.acct-panel').forEach(p=>{ p.style.display='none'; p.classList.remove('active'); });
+    document.querySelectorAll('.acct-sidebar-btn').forEach(b=>b.classList.remove('active'));
+    const panel = document.getElementById('acct-view-qbo-import');
+    if (panel) { panel.style.display='block'; panel.classList.add('active'); }
+    document.getElementById('acct-nav-qbo-import')?.classList.add('active');
+    // Populate GL account selector
+    const companyId = document.getElementById('entitySelect')?.value;
+    if (companyId) {
+      sb.from('accounts').select('id,account_number,account_name').eq('company_id',companyId).eq('is_active',true).order('account_number').then(({data})=>{
+        const sel = document.getElementById('qbo-target-account');
+        if (sel) sel.innerHTML = '<option value="">— Auto-detect / none —</option>'+(data||[]).map(a=>`<option value="${a.id}">${a.account_number} — ${a.account_name}</option>`).join('');
+      });
+    }
+  } else {
+    _origShowAcctViewQBO(view);
+  }
+};
+
+function switchQBOTab(btn, tabId) {
+  document.querySelectorAll('#acct-view-qbo-import .inner-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  ['qbo-tab-txn','qbo-tab-chart','qbo-tab-je','qbo-tab-ap','qbo-tab-ar'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display='none';
+  });
+  const el=document.getElementById(tabId); if(el) el.style.display='';
+}
+
+function qboLog(msg, isError=false) {
+  const log = document.getElementById('qbo-import-log');
+  if (!log) return;
+  const time = new Date().toLocaleTimeString();
+  const line = `[${time}] ${msg}`;
+  if (log.textContent === 'No imports yet this session.') log.textContent = '';
+  log.innerHTML += `<div style="color:${isError?'var(--error)':'inherit'};">${line}</div>`;
+  log.scrollTop = log.scrollHeight;
+}
+
+async function handleQBOFileUpload(input, type) {
+  const file = input.files[0]; if (!file) return;
+  qboImportType = type;
+  qboLog(`Reading file: ${file.name} (${(file.size/1024).toFixed(1)} KB)`);
+  const ext = file.name.split('.').pop().toLowerCase();
+  showLoading(`Parsing ${file.name}…`);
+  try {
+    if (ext === 'ofx' || ext === 'qfx' || ext === 'qbo') {
+      const text = await file.text();
+      parseOFX(text, type);
+    } else if (ext === 'iif') {
+      const text = await file.text();
+      parseIIF(text, type);
+    } else if (ext === 'csv') {
+      const text = await file.text();
+      parseQBOCSV(text, type);
+    } else if (ext === 'xlsx' || ext === 'xls') {
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+      processQBORows(rows, type, file.name);
+    } else {
+      const text = await file.text();
+      parseQBOCSV(text, type);
+    }
+  } catch(e) {
+    hideLoading();
+    qboLog(`Error parsing file: ${e.message}`, true);
+    showToast('⚠ Error reading file: '+e.message, true);
+  }
+  hideLoading();
+  input.value = ''; // reset so same file can be re-uploaded
+}
+
+// ── OFX/QFX Parser ──
+function parseOFX(text, type) {
+  qboLog('Detected OFX/QFX format — parsing STMTTRN blocks…');
+  const transactions = [];
+  // Match STMTTRN blocks
+  const blocks = text.match(/<STMTTRN>[\s\S]*?<\/STMTTRN>/gi) || [];
+  // Also handle SGML (non-XML OFX)
+  if (!blocks.length) {
+    // SGML format: parse key/value pairs between <STMTTRN> and next tag
+    const sgmlBlocks = text.split('<STMTTRN>').slice(1);
+    for (const block of sgmlBlocks) {
+      const get = (tag) => { const m = block.match(new RegExp(`<${tag}>([^<\n\r]+)`,'i')); return m ? m[1].trim() : ''; };
+      const dtposted = get('DTPOSTED');
+      const trnamt = get('TRNAMT');
+      const name = get('NAME') || get('MEMO');
+      const fitid = get('FITID');
+      const memo = get('MEMO');
+      if (!trnamt) continue;
+      const date = dtposted ? `${dtposted.slice(0,4)}-${dtposted.slice(4,6)}-${dtposted.slice(6,8)}` : '';
+      const amount = parseFloat(trnamt) || 0;
+      transactions.push({ date, description: name || memo || 'Unknown', amount, type: amount>=0?'deposit':'withdrawal', reference: fitid, source_type: 'ofx' });
+    }
+  } else {
+    for (const block of blocks) {
+      const get = (tag) => { const m = block.match(new RegExp(`<${tag}>([^<]+)<\/${tag}>|<${tag}>([^<\n\r]+)`,'i')); return m ? (m[1]||m[2]||'').trim() : ''; };
+      const dtposted = get('DTPOSTED');
+      const trnamt = get('TRNAMT');
+      const name = get('NAME') || get('MEMO');
+      const fitid = get('FITID');
+      const date = dtposted ? `${dtposted.slice(0,4)}-${dtposted.slice(4,6)}-${dtposted.slice(6,8)}` : '';
+      const amount = parseFloat(trnamt) || 0;
+      transactions.push({ date, description: name || 'Unknown', amount, type: amount>=0?'deposit':'withdrawal', reference: fitid, source_type: 'ofx' });
+    }
+  }
+  qboLog(`Parsed ${transactions.length} OFX transactions`);
+  renderQBOTxnPreview(transactions);
+}
+
+// ── IIF Parser ──
+function parseIIF(text, type) {
+  qboLog('Detected IIF format — parsing QuickBooks IIF…');
+  const lines = text.split('\n');
+  const rows = [];
+  let headers = [];
+  let section = '';
+  for (const line of lines) {
+    const parts = line.split('\t');
+    if (!parts[0]) continue;
+    if (parts[0].startsWith('!')) { section = parts[0].slice(1); headers = parts.map(h=>h.replace(/^!/,'')); continue; }
+    if (section === 'TRNS' || section === 'SPL') {
+      const obj = {};
+      headers.forEach((h,i)=>obj[h.trim()]=parts[i]?.trim()||'');
+      rows.push({ section, ...obj });
+    }
+  }
+  if (type === 'txn') {
+    const txns = rows.filter(r=>r.section==='TRNS').map(r=>({
+      date: r.DATE || '', description: r.MEMO || r.NAME || '', amount: parseFloat(r.AMOUNT)||0,
+      type: parseFloat(r.AMOUNT||0)>=0?'deposit':'withdrawal', reference: r.DOCNUM||'', source_type:'iif',
+    }));
+    qboLog(`Parsed ${txns.length} IIF transactions`);
+    renderQBOTxnPreview(txns);
+  } else if (type === 'je') {
+    qboLog(`Parsed ${rows.length} IIF journal lines`);
+    renderQBOJEPreview(rows);
+  }
+}
+
+// ── CSV Parser (auto-detect QBO/Chase/BofA/WF/Generic) ──
+function parseQBOCSV(text, type) {
+  qboLog('Parsing CSV — detecting format…');
+  const rows = parseCSV(text);
+  if (!rows || !rows.length) { qboLog('No rows found in CSV', true); return; }
+  processQBORows(rows, type, 'csv');
+}
+
+function processQBORows(rows, type, filename) {
+  if (!rows.length) { qboLog('No data rows found', true); return; }
+  const headers = Object.keys(rows[0]).map(h=>h.toLowerCase().trim());
+  qboLog(`Detected ${rows.length} rows, columns: ${headers.slice(0,8).join(', ')}`);
+
+  if (type === 'txn') {
+    // Auto-detect format by column names
+    let dateCol='', descCol='', amountCol='', debitCol='', creditCol='', typeCol='', refCol='';
+    const h = headers;
+    // QBO Bank CSV format: Date, Description, Amount, Running Balance
+    // Chase: Transaction Date, Description, Category, Type, Amount
+    // BofA: Posted Date, Reference Number, Payee, Address, Amount
+    // Wells Fargo: Date, Amount, *, *, Description
+    // Generic: Date, Description, Amount
+    dateCol = h.find(x=>['date','transaction date','posted date','trans date','posting date'].includes(x)) || h[0];
+    descCol = h.find(x=>['description','payee','memo','name','transaction description','narrative'].includes(x)) || h.find(x=>x.includes('desc')) || h[1];
+    amountCol = h.find(x=>['amount','transaction amount','debit amount'].includes(x));
+    debitCol = h.find(x=>x.includes('debit') && !x.includes('credit'));
+    creditCol = h.find(x=>x.includes('credit') && !x.includes('debit'));
+    typeCol = h.find(x=>['type','transaction type','dr/cr'].includes(x));
+    refCol = h.find(x=>['reference','check number','ref','check #','reference number'].includes(x));
+    // Override with user-specified column names
+    const userDate = document.getElementById('qbo-col-date')?.value.toLowerCase().trim();
+    const userDesc = document.getElementById('qbo-col-desc')?.value.toLowerCase().trim();
+    const userAmt  = document.getElementById('qbo-col-amount')?.value.toLowerCase().trim();
+    if (userDate && h.includes(userDate)) dateCol = userDate;
+    if (userDesc && h.includes(userDesc)) descCol = userDesc;
+    if (userAmt  && h.includes(userAmt))  amountCol = userAmt;
+
+    qboLog(`Mapping: date="${dateCol}" desc="${descCol}" amount="${amountCol||'debit/credit'}"`);
+
+    const transactions = rows.map(row=>{
+      const getVal = (col) => col ? (row[col] || row[Object.keys(row).find(k=>k.toLowerCase().trim()===col)] || '') : '';
+      let amount = 0;
+      if (amountCol) {
+        const raw = String(getVal(amountCol)).replace(/[$,\s]/g,'');
+        amount = parseFloat(raw) || 0;
+      } else if (debitCol || creditCol) {
+        const deb = parseFloat(String(getVal(debitCol)||'0').replace(/[$,]/g,''))||0;
+        const crd = parseFloat(String(getVal(creditCol)||'0').replace(/[$,]/g,''))||0;
+        amount = crd - deb;
+      }
+      const desc = getVal(descCol) || getVal('payee') || getVal('name') || '';
+      const date = getVal(dateCol);
+      // Normalize date
+      let normDate = date;
+      if (date && date.includes('/')) {
+        const parts = date.split('/');
+        if (parts.length===3) normDate = parts[2].length===2 ? `20${parts[2]}-${parts[0].padStart(2,'0')}-${parts[1].padStart(2,'0')}` : `${parts[2]}-${parts[0].padStart(2,'0')}-${parts[1].padStart(2,'0')}`;
+      }
+      return { date:normDate, description:desc.trim(), amount, type:amount>=0?'deposit':'withdrawal', reference:getVal(refCol), source_type:'csv' };
+    }).filter(r=>r.date&&r.description);
+
+    qboLog(`Parsed ${transactions.length} valid transactions`);
+    renderQBOTxnPreview(transactions);
+
+  } else if (type === 'coa') {
+    qboLog(`Parsed ${rows.length} chart of accounts rows`);
+    renderQBOCOAPreview(rows);
+  } else if (type === 'je') {
+    qboLog(`Parsed ${rows.length} journal entry rows`);
+    renderQBOJEPreview(rows);
+  } else if (type === 'ap') {
+    qboLog(`Parsed ${rows.length} vendor/bill rows`);
+    renderQBOAPPreview(rows);
+  } else if (type === 'ar') {
+    qboLog(`Parsed ${rows.length} customer/invoice rows`);
+    renderQBOARPreview(rows);
+  }
+}
+
+// ── PREVIEW RENDERERS ──
+function renderQBOTxnPreview(transactions) {
+  qboImportData = transactions;
+  const preview = document.getElementById('qbo-txn-preview');
+  const stats   = document.getElementById('qbo-txn-stats');
+  if (!preview) return;
+
+  const deposits = transactions.filter(t=>t.amount>=0);
+  const withdrawals = transactions.filter(t=>t.amount<0);
+  const totalIn = deposits.reduce((s,t)=>s+t.amount,0);
+  const totalOut = withdrawals.reduce((s,t)=>s+Math.abs(t.amount),0);
+
+  if (stats) {
+    stats.style.display='block';
+    stats.innerHTML = `<strong>${transactions.length}</strong> transactions · <span style="color:var(--success);">${deposits.length} deposits ($${totalIn.toFixed(2)})</span> · <span style="color:var(--error);">${withdrawals.length} withdrawals ($${totalOut.toFixed(2)})</span>`;
+  }
+
+  preview.style.display='block';
+  document.getElementById('qbo-preview-title').textContent = `Preview — ${transactions.length} transactions`;
+
+  const tableHTML = `<div style="overflow-x:auto;max-height:400px;overflow-y:auto;border:1px solid var(--border-light);border-radius:var(--radius-lg);">
+    <table class="acct-table" style="font-size:12px;">
+      <thead><tr><th><input type="checkbox" id="qbo-select-all" checked onchange="toggleAllQBORows(this)" style="accent-color:var(--gold);"></th><th>Date</th><th>Description</th><th style="text-align:right;">Amount</th><th>Type</th><th>Reference</th><th>Assign GL Account</th></tr></thead>
+      <tbody>` +
+    transactions.map((t,i)=>`<tr>
+      <td><input type="checkbox" class="qbo-row-check" data-idx="${i}" checked style="accent-color:var(--gold);"></td>
+      <td style="white-space:nowrap;">${t.date}</td>
+      <td>${t.description}</td>
+      <td style="text-align:right;font-family:monospace;color:${t.amount>=0?'var(--success)':'var(--error)'};font-weight:500;">${t.amount>=0?'+':''}$${Math.abs(t.amount).toFixed(2)}</td>
+      <td><span class="status-pill ${t.amount>=0?'status-active':'status-void'}" style="font-size:10px;">${t.type}</span></td>
+      <td style="color:var(--text-light);">${t.reference||'—'}</td>
+      <td><select id="qbo-gl-${i}" class="field-select" style="height:26px;font-size:11px;width:180px;" title="Assign GL account for auto-JE"><option value="">— Assign —</option></select></td>
+    </tr>`).join('') +
+    `</tbody></table></div>`;
+
+  document.getElementById('qbo-txn-preview-table').innerHTML = tableHTML;
+
+  // Populate GL dropdowns
+  const companyId = document.getElementById('entitySelect')?.value;
+  if (companyId) {
+    sb.from('accounts').select('id,account_number,account_name').eq('company_id',companyId).eq('is_active',true).order('account_number').then(({data})=>{
+      const opts = '<option value="">— Assign —</option>'+(data||[]).map(a=>`<option value="${a.id}">${a.account_number} — ${a.account_name}</option>`).join('');
+      transactions.forEach((_,i)=>{ const sel=document.getElementById('qbo-gl-'+i); if(sel) sel.innerHTML=opts; });
+    });
+  }
+}
+
+function toggleAllQBORows(masterCb) {
+  document.querySelectorAll('.qbo-row-check').forEach(cb=>{ cb.checked=masterCb.checked; });
+}
+
+function renderQBOCOAPreview(rows) {
+  const preview = document.getElementById('qbo-coa-preview');
+  if (!preview) return;
+  qboImportData = rows;
+  preview.style.display='block';
+  const headers = Object.keys(rows[0]||{});
+  preview.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div style="font-size:14px;font-weight:600;color:var(--navy);">Preview — ${rows.length} accounts</div>
+      <button class="btn-save" onclick="commitQBOImport()">✓ Import Accounts</button>
+    </div>
+    <div style="overflow-x:auto;max-height:400px;overflow-y:auto;border:1px solid var(--border-light);border-radius:var(--radius-lg);">
+    <table class="acct-table" style="font-size:12px;"><thead><tr>${headers.slice(0,6).map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+    <tbody>${rows.slice(0,50).map(r=>`<tr>${headers.slice(0,6).map(h=>`<td>${r[h]||''}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table></div>`;
+}
+
+function renderQBOJEPreview(rows) {
+  const preview = document.getElementById('qbo-je-preview');
+  if (!preview) return;
+  qboImportData = rows;
+  preview.style.display='block';
+  const headers = Object.keys(rows[0]||{}).slice(0,8);
+  preview.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div style="font-size:14px;font-weight:600;color:var(--navy);">Preview — ${rows.length} rows</div>
+      <button class="btn-save" onclick="commitQBOImport()">✓ Import Journal Entries</button>
+    </div>
+    <div style="overflow-x:auto;max-height:400px;overflow-y:auto;border:1px solid var(--border-light);border-radius:var(--radius-lg);">
+    <table class="acct-table" style="font-size:12px;"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+    <tbody>${rows.slice(0,100).map(r=>`<tr>${headers.map(h=>`<td>${r[h]||''}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table></div>`;
+}
+
+function renderQBOAPPreview(rows) {
+  const preview = document.getElementById('qbo-ap-preview');
+  if (!preview) return;
+  qboImportData = rows;
+  preview.style.display='block';
+  const headers = Object.keys(rows[0]||{}).slice(0,8);
+  preview.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div style="font-size:14px;font-weight:600;color:var(--navy);">Preview — ${rows.length} vendors/bills</div>
+      <button class="btn-save" onclick="commitQBOImport()">✓ Import Vendors / Bills</button>
+    </div>
+    <div style="overflow-x:auto;max-height:400px;overflow-y:auto;border:1px solid var(--border-light);border-radius:var(--radius-lg);">
+    <table class="acct-table" style="font-size:12px;"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+    <tbody>${rows.slice(0,50).map(r=>`<tr>${headers.map(h=>`<td>${r[h]||''}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table></div>`;
+}
+
+function renderQBOARPreview(rows) {
+  const preview = document.getElementById('qbo-ar-preview');
+  if (!preview) return;
+  qboImportData = rows;
+  preview.style.display='block';
+  const headers = Object.keys(rows[0]||{}).slice(0,8);
+  preview.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div style="font-size:14px;font-weight:600;color:var(--navy);">Preview — ${rows.length} customers/invoices</div>
+      <button class="btn-save" onclick="commitQBOImport()">✓ Import Customers / Invoices</button>
+    </div>
+    <div style="overflow-x:auto;max-height:400px;overflow-y:auto;border:1px solid var(--border-light);border-radius:var(--radius-lg);">
+    <table class="acct-table" style="font-size:12px;"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+    <tbody>${rows.slice(0,50).map(r=>`<tr>${headers.map(h=>`<td>${r[h]||''}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table></div>`;
+}
+
+// ── COMMIT IMPORT ──
+async function commitQBOImport() {
+  if (!qboImportData.length) { showToast('⚠ No data to import',true); return; }
+  const companyId = document.getElementById('entitySelect')?.value;
+  if (!companyId) { showToast('⚠ Select a company first',true); return; }
+
+  if (qboImportType === 'txn') {
+    await commitTxnImport(companyId);
+  } else if (qboImportType === 'coa') {
+    await commitCOAImport(companyId);
+  } else if (qboImportType === 'je') {
+    await commitJEImport(companyId);
+  } else if (qboImportType === 'ap') {
+    await commitAPImport(companyId);
+  } else if (qboImportType === 'ar') {
+    await commitARImport(companyId);
+  }
+}
+
+async function commitTxnImport(companyId) {
+  const skipDupes = document.getElementById('qbo-skip-dupes')?.checked;
+  const applyRules = document.getElementById('qbo-apply-rules')?.checked;
+  const createJE = document.getElementById('qbo-create-je')?.checked;
+
+  // Get selected rows
+  const checks = [...document.querySelectorAll('.qbo-row-check:checked')];
+  const selectedIdxs = new Set(checks.map(c=>parseInt(c.dataset.idx)));
+  const toImport = qboImportData.filter((_,i)=>selectedIdxs.has(i));
+
+  showLoading(`Importing ${toImport.length} transactions…`);
+
+  // Fetch existing transactions for dupe check
+  let existingKeys = new Set();
+  if (skipDupes) {
+    const { data:existing } = await sb.from('bank_transactions').select('transaction_date,description,amount').eq('company_id',companyId);
+    existingKeys = new Set((existing||[]).map(t=>`${t.transaction_date}|${t.description}|${t.amount}`));
+  }
+
+  // Load bank rules for auto-categorization
+  let bankRules = [];
+  if (applyRules) {
+    const { data:rules } = await sb.from('bank_rules').select('*').eq('company_id',companyId).eq('is_active',true).order('priority');
+    bankRules = rules||[];
+  }
+
+  let imported=0, dupes=0, jePosted=0;
+  const batchSize=50;
+  const batches=[];
+  for (let i=0;i<toImport.length;i+=batchSize) batches.push(toImport.slice(i,i+batchSize));
+
+  for (const batch of batches) {
+    const records = [];
+    for (const t of batch) {
+      const key=`${t.date}|${t.description}|${t.amount}`;
+      if (skipDupes && existingKeys.has(key)) { dupes++; continue; }
+      existingKeys.add(key);
+
+      // Apply bank rules
+      let glAccountId = document.getElementById('qbo-gl-'+(qboImportData.indexOf(t)))?.value || null;
+      let matchedRule = null;
+      for (const rule of bankRules) {
+        const field = (t.description||'').toLowerCase();
+        const val = (rule.match_value||'').toLowerCase();
+        let matches = false;
+        if (rule.match_type==='contains')    matches=field.includes(val);
+        if (rule.match_type==='starts_with') matches=field.startsWith(val);
+        if (rule.match_type==='equals')      matches=field===val;
+        if (matches) { matchedRule=rule; if(rule.assign_account_id) glAccountId=rule.assign_account_id; break; }
+      }
+
+      const txnType = t.amount>=0?'deposit':'withdrawal';
+      records.push({
+        id:'txn-qbo-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),
+        company_id:companyId, transaction_date:t.date,
+        description:t.description, amount:Math.abs(t.amount),
+        transaction_type:matchedRule?.assign_transaction_type||txnType,
+        reference:t.reference||null, gl_account_id:glAccountId||null,
+        source:'import',
+      });
+      imported++;
+    }
+    if (records.length) await sb.from('bank_transactions').insert(records);
+  }
+
+  hideLoading();
+  qboLog(`✓ Import complete: ${imported} imported, ${dupes} duplicates skipped`);
+  showToast(`✓ Imported ${imported} transactions${dupes?`, skipped ${dupes} dupes`:''}`);
+  clearQBOImport();
+  // Refresh bank view
+  if (document.getElementById('acct-view-bank')?.classList.contains('active')) loadBankTransactions?.();
+}
+
+async function commitCOAImport(companyId) {
+  showLoading('Importing chart of accounts…');
+  // QBO COA export columns: Account, Type, Detail Type, Description, Balance
+  const typeMap = {
+    'Bank':'Asset', 'Accounts Receivable':'Asset', 'Other Current Asset':'Asset',
+    'Fixed Asset':'Asset', 'Other Asset':'Asset', 'Accounts Payable':'Liability',
+    'Credit Card':'Liability', 'Other Current Liability':'Liability', 'Long Term Liability':'Liability',
+    'Equity':'Equity', 'Income':'Income', 'Other Income':'Income', 'Cost of Goods Sold':'Expense',
+    'Expense':'Expense', 'Other Expense':'Expense',
+  };
+  let imported=0, skipped=0;
+  const { data:existing } = await sb.from('accounts').select('account_name').eq('company_id',companyId);
+  const existingNames = new Set((existing||[]).map(a=>a.account_name.toLowerCase()));
+  for (const row of qboImportData) {
+    const name = row['Account']||row['Name']||row['account']||Object.values(row)[0]||'';
+    if (!name || existingNames.has(name.toLowerCase())) { skipped++; continue; }
+    const qboType = row['Type']||row['Account Type']||'';
+    const acctType = typeMap[qboType] || 'Expense';
+    const balance = parseFloat(String(row['Balance']||row['balance']||'0').replace(/[$,]/g,''))||0;
+    await sb.from('accounts').insert({
+      id:'acct-qbo-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),
+      company_id:companyId, account_name:name, account_type:acctType,
+      account_subtype:row['Detail Type']||qboType||'', description:row['Description']||'',
+      is_active:true, balance,
+    });
+    existingNames.add(name.toLowerCase());
+    imported++;
+  }
+  hideLoading();
+  qboLog(`✓ COA import: ${imported} accounts imported, ${skipped} skipped (duplicates)`);
+  showToast(`✓ Imported ${imported} accounts`);
+  clearQBOImport();
+}
+
+async function commitJEImport(companyId) {
+  showLoading('Importing journal entries…');
+  // Group by journal entry number/date
+  const groups = {};
+  for (const row of qboImportData) {
+    const date = row['Date']||row['Transaction Date']||row['date']||'';
+    const desc = row['Memo']||row['Description']||row['Name']||'';
+    const key = `${date}|${desc}`;
+    if (!groups[key]) groups[key]={date,desc,lines:[]};
+    groups[key].lines.push(row);
+  }
+  let jeCount=0;
+  for (const [key,je] of Object.entries(groups)) {
+    if (!je.date) continue;
+    const jeId='je-qbo-'+Date.now()+'-'+Math.random().toString(36).slice(2,6);
+    await sb.from('journal_entries').insert({ id:jeId, company_id:companyId, entry_date:je.date, description:je.desc||'QBO Import', status:'posted', entry_type:'import', updated_at:new Date().toISOString() });
+    let order=0;
+    for (const line of je.lines) {
+      const debit=parseFloat(String(line['Debit']||line['debit']||'0').replace(/[$,]/g,''))||0;
+      const credit=parseFloat(String(line['Credit']||line['credit']||'0').replace(/[$,]/g,''))||0;
+      const acctName=line['Account']||line['account']||'';
+      let acctId=null;
+      if (acctName) {
+        const { data:acct } = await sb.from('accounts').select('id').eq('company_id',companyId).ilike('account_name',acctName).limit(1);
+        acctId=acct?.[0]?.id||null;
+      }
+      if (debit||credit) {
+        await sb.from('journal_entry_lines').insert({ id:jeId+'-'+order, journal_entry_id:jeId, account_id:acctId, description:line['Memo']||line['Description']||'', debit, credit, sort_order:order++ });
+      }
+    }
+    jeCount++;
+  }
+  hideLoading();
+  qboLog(`✓ JE import: ${jeCount} journal entries created`);
+  showToast(`✓ Imported ${jeCount} journal entries`);
+  clearQBOImport();
+}
+
+async function commitAPImport(companyId) {
+  showLoading('Importing vendors/bills…');
+  let vendorCount=0, billCount=0;
+  const { data:existingVendors } = await sb.from('vendors').select('name').eq('company_id',companyId);
+  const existingVendorNames = new Set((existingVendors||[]).map(v=>v.name.toLowerCase()));
+  for (const row of qboImportData) {
+    const name=row['Vendor']||row['Name']||row['Payee']||row['vendor']||Object.values(row)[0]||'';
+    if (!name) continue;
+    let vendorId=null;
+    if (!existingVendorNames.has(name.toLowerCase())) {
+      vendorId='vndr-qbo-'+Date.now()+'-'+Math.random().toString(36).slice(2,5);
+      await sb.from('vendors').insert({ id:vendorId, company_id:companyId, name, email:row['Email']||'', phone:row['Phone']||'', is_active:true });
+      existingVendorNames.add(name.toLowerCase());
+      vendorCount++;
+    } else {
+      const { data:v } = await sb.from('vendors').select('id').eq('company_id',companyId).ilike('name',name).limit(1);
+      vendorId=v?.[0]?.id;
+    }
+    // Import as bill if it has amount/date
+    const total=parseFloat(String(row['Amount']||row['Total']||row['Open Balance']||'0').replace(/[$,]/g,''))||0;
+    const date=row['Date']||row['Bill Date']||row['Transaction Date']||'';
+    if (total&&date&&vendorId) {
+      await sb.from('bills').insert({ id:'bill-qbo-'+Date.now()+'-'+Math.random().toString(36).slice(2,5), company_id:companyId, vendor_id:vendorId, bill_date:date, total, balance_due:total, status:'open', notes:'QBO Import' });
+      billCount++;
+    }
+  }
+  hideLoading();
+  qboLog(`✓ AP import: ${vendorCount} vendors, ${billCount} bills imported`);
+  showToast(`✓ Imported ${vendorCount} vendors, ${billCount} bills`);
+  clearQBOImport();
+}
+
+async function commitARImport(companyId) {
+  showLoading('Importing customers/invoices…');
+  let custCount=0, invCount=0;
+  const { data:existingCusts } = await sb.from('customers').select('name').eq('company_id',companyId);
+  const existingCustNames = new Set((existingCusts||[]).map(c=>c.name.toLowerCase()));
+  for (const row of qboImportData) {
+    const name=row['Customer']||row['Name']||row['Client']||row['customer']||Object.values(row)[0]||'';
+    if (!name) continue;
+    let custId=null;
+    if (!existingCustNames.has(name.toLowerCase())) {
+      custId='cust-qbo-'+Date.now()+'-'+Math.random().toString(36).slice(2,5);
+      await sb.from('customers').insert({ id:custId, company_id:companyId, name, email:row['Email']||'', phone:row['Phone']||'', is_active:true });
+      existingCustNames.add(name.toLowerCase());
+      custCount++;
+    } else {
+      const { data:c } = await sb.from('customers').select('id').eq('company_id',companyId).ilike('name',name).limit(1);
+      custId=c?.[0]?.id;
+    }
+    const total=parseFloat(String(row['Amount']||row['Total']||row['Balance']||'0').replace(/[$,]/g,''))||0;
+    const date=row['Date']||row['Invoice Date']||row['Transaction Date']||'';
+    const invNum=row['Invoice No']||row['Num']||row['Invoice Number']||'';
+    if (total&&date&&custId) {
+      await sb.from('invoices').insert({ id:'inv-qbo-'+Date.now()+'-'+Math.random().toString(36).slice(2,5), company_id:companyId, customer_id:custId, invoice_number:invNum||'QBO-'+Date.now(), invoice_date:date, total, balance_due:total, status:'open', notes:'QBO Import' });
+      invCount++;
+    }
+  }
+  hideLoading();
+  qboLog(`✓ AR import: ${custCount} customers, ${invCount} invoices imported`);
+  showToast(`✓ Imported ${custCount} customers, ${invCount} invoices`);
+  clearQBOImport();
+}
+
+function clearQBOImport() {
+  qboImportData=[];
+  ['qbo-txn-preview','qbo-coa-preview','qbo-je-preview','qbo-ap-preview','qbo-ar-preview'].forEach(id=>{
+    const el=document.getElementById(id); if(el) { el.style.display='none'; el.innerHTML=''; }
+  });
+  const stats=document.getElementById('qbo-txn-stats'); if(stats) stats.style.display='none';
+}
+
+// ═══════════════════════════════════════════════════
+//  FL & GA SALES TAX ZIP CODE DATABASE SEEDER
+// ═══════════════════════════════════════════════════
+
+// Run this once to populate all FL and GA zip codes into sales_tax_zip_rates
+async function seedFLGAZipRates() {
+  showLoading('Seeding FL & GA sales tax zip codes… (this may take a moment)');
+
+  // FL: State rate 6% + county surtax (discretionary sales surtax)
+  // Source: Florida DOR 2024 rates
+  const flCountySurtax = {
+    'Alachua':1,'Baker':1,'Bay':1,'Bradford':1,'Brevard':1,'Broward':1,'Calhoun':0.5,
+    'Charlotte':1,'Citrus':1,'Clay':1,'Collier':1,'Columbia':1,'DeSoto':1,'Dixie':1,
+    'Duval':1,'Escambia':1.5,'Flagler':1,'Franklin':0.5,'Gadsden':1,'Gilchrist':0.5,
+    'Glades':0.5,'Gulf':1,'Hamilton':1,'Hardee':1,'Hendry':1,'Hernando':1,'Highlands':1,
+    'Hillsborough':1.5,'Holmes':1,'Indian River':1,'Jackson':1,'Jefferson':1,'Lafayette':0.5,
+    'Lake':1,'Lee':0.5,'Leon':1,'Levy':1,'Liberty':0,'Madison':1,'Manatee':1,'Marion':1,
+    'Martin':1,'Miami-Dade':1,'Monroe':1,'Nassau':1,'Okaloosa':1,'Okeechobee':1,'Orange':0.5,
+    'Osceola':1.5,'Palm Beach':1,'Pasco':1,'Pinellas':1,'Polk':1,'Putnam':1,'St. Johns':0.5,
+    'St. Lucie':1,'Santa Rosa':1,'Sarasota':1,'Seminole':1,'Sumter':1,'Suwannee':1,
+    'Taylor':1,'Union':0.5,'Volusia':0.5,'Wakulla':1,'Walton':1,'Washington':1,
+  };
+
+  // FL zip code → county mapping (major zip ranges)
+  const flZipToCounty = [
+    // Duval County (Jacksonville area) 320xx-322xx
+    ...range(32004,32007,'Duval'),range(32009,32009,'Nassau'),
+    ...range(32011,32011,'Nassau'),...range(32024,32026,'Columbia'),
+    ...range(32033,32034,'St. Johns'),...range(32038,32038,'Columbia'),
+    ...range(32040,32040,'Baker'),...range(32043,32044,'Clay'),
+    ...range(32046,32046,'Nassau'),...range(32050,32050,'Clay'),
+    ...range(32052,32053,'Hamilton'),...range(32054,32054,'Union'),
+    ...range(32055,32055,'Columbia'),...range(32058,32058,'Baker'),
+    ...range(32059,32059,'Madison'),...range(32060,32060,'Suwannee'),
+    ...range(32062,32062,'Suwannee'),...range(32063,32063,'Baker'),
+    ...range(32064,32065,'Suwannee'),...range(32066,32066,'Suwannee'),
+    ...range(32068,32068,'Clay'),...range(32071,32071,'Suwannee'),
+    ...range(32073,32073,'Clay'),...range(32079,32079,'Clay'),
+    ...range(32080,32084,'St. Johns'),...range(32086,32086,'St. Johns'),
+    ...range(32087,32087,'Bradford'),...range(32091,32091,'Bradford'),
+    ...range(32092,32092,'St. Johns'),...range(32094,32094,'Baker'),
+    ...range(32095,32095,'St. Johns'),...range(32096,32096,'Hamilton'),
+    ...range(32097,32097,'Nassau'),
+    ...range(32099,32099,'Duval'),...range(32201,32277,'Duval'),
+    // Alachua County (Gainesville) 326xx
+    ...range(32601,32669,'Alachua'),
+    // Marion County (Ocala) 344xx
+    ...range(34420,34498,'Marion'),
+    // Citrus County 344xx
+    ...range(34428,34453,'Citrus'),
+    // Lake County 347xx
+    ...range(34711,34797,'Lake'),
+    // Orange County (Orlando) 328xx-329xx
+    ...range(32801,32899,'Orange'),
+    // Osceola County 347xx-348xx
+    ...range(34741,34797,'Osceola'),
+    // Seminole County 327xx
+    ...range(32701,32773,'Seminole'),
+    // Volusia County (Daytona) 321xx,328xx
+    ...range(32101,32198,'Volusia'),
+    // Brevard County (Melbourne/Titusville) 329xx
+    ...range(32901,32976,'Brevard'),
+    // Indian River County (Vero Beach) 329xx
+    ...range(32960,32968,'Indian River'),
+    // St. Lucie County (Ft. Pierce) 349xx
+    ...range(34945,34990,'St. Lucie'),
+    // Martin County (Stuart) 349xx
+    ...range(34990,34997,'Martin'),
+    // Palm Beach County 334xx
+    ...range(33401,33499,'Palm Beach'),
+    // Broward County (Fort Lauderdale) 333xx
+    ...range(33004,33394,'Broward'),
+    // Miami-Dade County 330xx-331xx,330xx
+    ...range(33010,33299,'Miami-Dade'),
+    // Monroe County (Keys) 330xx
+    ...range(33001,33001,'Monroe'),...range(33037,33037,'Monroe'),
+    ...range(33040,33045,'Monroe'),
+    // Collier County (Naples) 341xx
+    ...range(34101,34145,'Collier'),
+    // Lee County (Ft. Myers) 339xx
+    ...range(33901,33994,'Lee'),
+    // Charlotte County (Port Charlotte) 339xx
+    ...range(33946,33982,'Charlotte'),
+    // Sarasota County 342xx
+    ...range(34201,34295,'Sarasota'),
+    // Manatee County (Bradenton) 342xx
+    ...range(34201,34285,'Manatee'),
+    // Hillsborough County (Tampa) 335xx-336xx
+    ...range(33510,33698,'Hillsborough'),
+    // Pinellas County (St. Pete/Clearwater) 337xx
+    ...range(33701,33785,'Pinellas'),
+    // Pasco County 346xx
+    ...range(33525,33527,'Pasco'),...range(34638,34691,'Pasco'),
+    // Hernando County 346xx
+    ...range(34601,34614,'Hernando'),
+    // Polk County (Lakeland) 338xx-338xx
+    ...range(33801,33898,'Polk'),
+    // Highlands County 338xx
+    ...range(33825,33876,'Highlands'),
+    // Okeechobee County 349xx
+    ...range(34972,34974,'Okeechobee'),
+    // Nassau County (Fernandina Beach) 320xx
+    ...range(32034,32034,'Nassau'),...range(32046,32046,'Nassau'),
+    // Escambia County (Pensacola) 325xx
+    ...range(32501,32598,'Escambia'),
+    // Santa Rosa County 325xx
+    ...range(32561,32571,'Santa Rosa'),
+    // Okaloosa County (Destin/Ft Walton) 325xx
+    ...range(32531,32548,'Okaloosa'),
+    // Walton County 324xx
+    ...range(32459,32462,'Walton'),
+    // Bay County (Panama City) 324xx
+    ...range(32401,32413,'Bay'),
+    // Leon County (Tallahassee) 323xx
+    ...range(32301,32399,'Leon'),
+    // Wakulla County 323xx
+    ...range(32327,32327,'Wakulla'),
+    // Gadsden County 323xx
+    ...range(32324,32332,'Gadsden'),
+    // Flagler County (Palm Coast) 321xx
+    ...range(32110,32164,'Flagler'),
+    // Putnam County 321xx
+    ...range(32112,32189,'Putnam'),
+    // Clay County (Fleming Island/Orange Park) 320xx
+    ...range(32003,32003,'Clay'),
+    // St. Johns County (St. Augustine) 320xx
+    ...range(32080,32095,'St. Johns'),
+    // Sumter County (The Villages) 344xx
+    ...range(33513,33514,'Sumter'),...range(34484,34491,'Sumter'),
+  ];
+
+  // GA: State rate 4% + county local option sales tax (LOST) typically 3-4% total local
+  // GA counties with their total local rates (county + city combined, added to state 4%)
+  const gaCountyLocalRate = {
+    'Appling':3,'Atkinson':3,'Bacon':3,'Baker':3,'Baldwin':3,'Banks':3,'Barrow':3,
+    'Bartow':3,'Ben Hill':3,'Berrien':3,'Bibb':3,'Bleckley':3,'Brantley':3,'Brooks':3,
+    'Bryan':3,'Bulloch':3,'Burke':3,'Butts':3,'Calhoun':3,'Camden':3,'Candler':3,
+    'Carroll':3,'Catoosa':3,'Charlton':3,'Chatham':3,'Chattahoochee':3,'Chattooga':3,
+    'Cherokee':2,'Clarke':3,'Clay':3,'Clayton':4,'Clinch':3,'Cobb':2,'Coffee':3,
+    'Colquitt':3,'Columbia':3,'Cook':3,'Coweta':3,'Crawford':3,'Crisp':3,'Dade':3,
+    'Dawson':3,'Decatur':3,'DeKalb':4,'Dodge':3,'Dooly':3,'Dougherty':4,'Douglas':3,
+    'Early':3,'Echols':3,'Effingham':3,'Elbert':3,'Emanuel':3,'Evans':3,'Fannin':3,
+    'Fayette':3,'Floyd':3,'Forsyth':2,'Franklin':3,'Fulton':3.9,'Gilmer':3,'Glascock':3,
+    'Glynn':3,'Gordon':3,'Grady':3,'Greene':3,'Gwinnett':3,'Habersham':3,'Hall':3,
+    'Hancock':3,'Haralson':3,'Harris':3,'Hart':3,'Heard':3,'Henry':3,'Houston':3,
+    'Irwin':3,'Jackson':3,'Jasper':3,'Jeff Davis':3,'Jefferson':3,'Jenkins':3,
+    'Johnson':3,'Jones':3,'Lamar':3,'Lanier':3,'Laurens':3,'Lee':3,'Liberty':3,
+    'Lincoln':3,'Long':3,'Lowndes':3,'Lumpkin':3,'McDuffie':3,'McIntosh':3,'Macon':3,
+    'Madison':3,'Marion':3,'Meriwether':3,'Miller':3,'Mitchell':3,'Monroe':3,
+    'Montgomery':3,'Morgan':3,'Murray':3,'Muscogee':3,'Newton':3,'Oconee':3,
+    'Oglethorpe':3,'Paulding':3,'Peach':3,'Pickens':3,'Pierce':3,'Pike':3,'Polk':3,
+    'Pulaski':3,'Putnam':3,'Quitman':3,'Rabun':3,'Randolph':3,'Richmond':4,'Rockdale':3,
+    'Schley':3,'Screven':3,'Seminole':3,'Spalding':3,'Stephens':3,'Stewart':3,
+    'Sumter':3,'Talbot':3,'Taliaferro':3,'Tattnall':3,'Taylor':3,'Telfair':3,
+    'Terrell':3,'Thomas':3,'Tift':3,'Toombs':3,'Towns':3,'Treutlen':3,'Troup':3,
+    'Turner':3,'Twiggs':3,'Union':3,'Upson':3,'Walker':3,'Walton':3,'Ware':3,
+    'Warren':3,'Washington':3,'Wayne':3,'Webster':3,'Wheeler':3,'White':3,
+    'Whitfield':3,'Wilcox':3,'Wilkes':3,'Wilkinson':3,'Worth':3,
+  };
+
+  // GA zip code → county mapping (key ranges)
+  const gaZipToCounty = [
+    // Charlton County 31510-31514
+    ...range(31510,31514,'Charlton'),
+    // Ware County (Waycross) 31501-31506
+    ...range(31501,31506,'Ware'),
+    // Brantley County 31516-31518
+    ...range(31516,31518,'Brantley'),
+    // Pierce County 31553-31555
+    ...range(31553,31555,'Pierce'),
+    // Glynn County (Brunswick) 31520-31525
+    ...range(31520,31525,'Glynn'),
+    // Camden County (Kingsland/St Marys) 31547-31548,31558
+    ...range(31547,31548,'Camden'),...range(31558,31558,'Camden'),
+    // Chatham County (Savannah) 31401-31421
+    ...range(31401,31421,'Chatham'),
+    // Effingham County 31308-31329
+    ...range(31308,31329,'Effingham'),
+    // Bryan County 31312-31324
+    ...range(31312,31324,'Bryan'),
+    // Liberty County (Hinesville) 31313-31315
+    ...range(31313,31315,'Liberty'),
+    // Long County 31316
+    ...range(31316,31316,'Long'),
+    // McIntosh County 31552-31552
+    ...range(31552,31552,'McIntosh'),
+    // Wayne County (Jesup) 31545-31546
+    ...range(31545,31546,'Wayne'),
+    // Coffee County (Douglas) 31533-31535
+    ...range(31533,31535,'Coffee'),
+    // Appling County (Baxley) 31513-31513
+    ...range(31513,31513,'Appling'),
+    // Toombs County (Vidalia) 30474-30475
+    ...range(30474,30475,'Toombs'),
+    // Fulton County (Atlanta) 30301-30381
+    ...range(30301,30381,'Fulton'),
+    // DeKalb County 30002-30088
+    ...range(30002,30088,'DeKalb'),
+    // Gwinnett County 30004-30097
+    ...range(30004,30097,'Gwinnett'),
+    // Cobb County (Marietta) 30060-30069
+    ...range(30060,30069,'Cobb'),
+    // Clayton County 30236-30296
+    ...range(30236,30296,'Clayton'),
+    // Henry County 30228-30253
+    ...range(30228,30253,'Henry'),
+    // Forsyth County (Cumming) 30028-30041
+    ...range(30028,30041,'Forsyth'),
+    // Cherokee County (Canton) 30114-30115
+    ...range(30114,30115,'Cherokee'),
+    // Hall County (Gainesville GA) 30501-30507
+    ...range(30501,30507,'Hall'),
+    // Bibb County (Macon) 31201-31220
+    ...range(31201,31220,'Bibb'),
+    // Muscogee County (Columbus) 31901-31999
+    ...range(31901,31999,'Muscogee'),
+    // Richmond County (Augusta) 30901-30917
+    ...range(30901,30917,'Richmond'),
+    // Clarke County (Athens) 30601-30699
+    ...range(30601,30699,'Clarke'),
+    // Dougherty County (Albany) 31701-31799
+    ...range(31701,31799,'Dougherty'),
+    // Whitfield County (Dalton) 30720-30722
+    ...range(30720,30722,'Whitfield'),
+    // Catoosa County (Ringgold) 30736-30741
+    ...range(30736,30741,'Catoosa'),
+    // Walker County (LaFayette GA) 30728-30728
+    ...range(30728,30728,'Walker'),
+    // Floyd County (Rome GA) 30161-30165
+    ...range(30161,30165,'Floyd'),
+    // Bartow County (Cartersville) 30120-30121
+    ...range(30120,30121,'Bartow'),
+    // Paulding County (Dallas GA) 30132-30135
+    ...range(30132,30135,'Paulding'),
+    // Douglas County (Douglasville) 30133-30135
+    ...range(30133,30135,'Douglas'),
+    // Carroll County (Carrollton) 30116-30117
+    ...range(30116,30117,'Carroll'),
+    // Troup County (LaGrange) 30240-30241
+    ...range(30240,30241,'Troup'),
+    // Spalding County (Griffin) 30223-30224
+    ...range(30223,30224,'Spalding'),
+    // Coweta County (Newnan) 30263-30265
+    ...range(30263,30265,'Coweta'),
+    // Fayette County (Fayetteville) 30214-30215
+    ...range(30214,30215,'Fayette'),
+    // Newton County (Covington) 30014-30016
+    ...range(30014,30016,'Newton'),
+    // Walton County (Monroe GA) 30655-30656
+    ...range(30655,30656,'Walton'),
+    // Lowndes County (Valdosta) 31601-31699
+    ...range(31601,31699,'Lowndes'),
+    // Thomas County (Thomasville) 31757-31799
+    ...range(31757,31799,'Thomas'),
+    // Brooks County 31720-31733
+    ...range(31720,31733,'Brooks'),
+    // Colquitt County (Moultrie) 31768-31768
+    ...range(31768,31768,'Colquitt'),
+    // Tift County (Tifton) 31793-31799
+    ...range(31793,31799,'Tift'),
+    // Ben Hill County (Fitzgerald) 31750-31750
+    ...range(31750,31750,'Ben Hill'),
+    // Irwin County (Ocilla) 31774
+    ...range(31774,31774,'Irwin'),
+    // Berrien County (Nashville GA) 31639
+    ...range(31639,31639,'Berrien'),
+    // Cook County (Adel) 31620
+    ...range(31620,31620,'Cook'),
+    // Laurens County (Dublin) 31021
+    ...range(31021,31021,'Laurens'),
+    // Dodge County (Eastman) 31023
+    ...range(31023,31023,'Dodge'),
+    // Bulloch County (Statesboro) 30458-30460
+    ...range(30458,30460,'Bulloch'),
+    // Screven County (Sylvania) 30467
+    ...range(30467,30467,'Screven'),
+    // Emanuel County (Swainsboro) 30401
+    ...range(30401,30401,'Emanuel'),
+    // Tattnall County (Reidsville) 30453
+    ...range(30453,30453,'Tattnall'),
+    // Candler County (Metter) 30439
+    ...range(30439,30439,'Candler'),
+    // Evans County (Claxton) 30417
+    ...range(30417,30417,'Evans'),
+    // Montgomery County (Mt Vernon) 30445
+    ...range(30445,30445,'Montgomery'),
+    // Telfair County (McRae) 31055
+    ...range(31055,31055,'Telfair'),
+    // Wheeler County (Alamo) 30411
+    ...range(30411,30411,'Wheeler'),
+    // Jeff Davis County (Hazlehurst) 31539
+    ...range(31539,31539,'Jeff Davis'),
+    // Bacon County (Alma) 31510
+    ...range(31510,31510,'Bacon'),
+    // Atkinson County (Pearson) 31642
+    ...range(31642,31642,'Atkinson'),
+    // Clinch County (Homerville) 31634
+    ...range(31634,31634,'Clinch'),
+    // Echols County (Statenville) 31648
+    ...range(31648,31648,'Echols'),
+    // Lanier County (Lakeland GA) 31635
+    ...range(31635,31635,'Lanier'),
+  ];
+
+  function range(start, end, county) {
+    const result = [];
+    for (let z=start; z<=end; z++) result.push([String(z).padStart(5,'0'), county]);
+    return result;
+  }
+
+  // Build upsert batches
+  const stateRate = { FL: 6.0, GA: 4.0 };
+  const records = [];
+
+  // FL records
+  for (const [zip, county] of flZipToCounty) {
+    const surtax = flCountySurtax[county] || 0;
+    records.push({
+      id: `zip-fl-${zip}`,
+      zip_code: zip,
+      state: 'FL',
+      county: county,
+      city: null,
+      state_rate: stateRate.FL,
+      county_rate: surtax,
+      city_rate: 0,
+      total_rate: stateRate.FL + surtax,
+      effective_date: '2024-01-01',
+    });
+  }
+
+  // GA records
+  for (const [zip, county] of gaZipToCounty) {
+    const localRate = gaCountyLocalRate[county] || 3;
+    records.push({
+      id: `zip-ga-${zip}`,
+      zip_code: zip,
+      state: 'GA',
+      county: county,
+      city: null,
+      state_rate: stateRate.GA,
+      county_rate: localRate,
+      city_rate: 0,
+      total_rate: stateRate.GA + localRate,
+      effective_date: '2024-01-01',
+    });
+  }
+
+  // Deduplicate
+  const seen = new Set();
+  const unique = records.filter(r=>{ if(seen.has(r.id)) return false; seen.add(r.id); return true; });
+
+  // Batch upsert in groups of 100
+  let upserted = 0;
+  for (let i=0; i<unique.length; i+=100) {
+    const batch = unique.slice(i,i+100);
+    const { error } = await sb.from('sales_tax_zip_rates').upsert(batch);
+    if (!error) upserted += batch.length;
+  }
+
+  hideLoading();
+  showToast(`✓ Seeded ${upserted} FL/GA zip code tax rates (${records.filter(r=>r.state==='FL').length} FL + ${records.filter(r=>r.state==='GA').length} GA)`);
+  return upserted;
+}
+
+// Helper range function (also used by seeder above — hoisted)
+function range(start, end, county) {
+  const result = [];
+  for (let z=start; z<=end; z++) result.push([String(z).padStart(5,'0'), county]);
+  return result;
 }
 
 // ── INIT
