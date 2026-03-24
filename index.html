@@ -174,7 +174,7 @@
   /* When sidebar hidden, panels take full width */
   .sidebar-hidden ~ .main { padding-left: 40px; }
   /* Tax layout */
-  .tax-layout { display:flex; gap:0; min-height:calc(100vh - 240px); }
+  .tax-layout { display:flex; gap:0; }
   /* Ownership and Financials panels also use full width */
   #view-ownership, #view-financials, #view-tax { width: 100%; }
   .page-header {
@@ -384,7 +384,7 @@
   .elim-off { color: var(--text-light); }
 
   /* ── ACCOUNTING MODULE ── */
-  .acct-layout { display: flex; gap: 0; min-height: calc(100vh - 180px); }
+  .acct-layout { display: flex; gap: 0; }
   .acct-sidebar { width: 220px; flex-shrink: 0; background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 8px 0; box-shadow: var(--shadow-sm); height: fit-content; position: sticky; top: 80px; }
   .acct-sidebar-section { font-size: 10px; font-weight: 600; letter-spacing: 0.10em; text-transform: uppercase; color: var(--text-light); padding: 14px 16px 6px; }
   .acct-sidebar-btn { display: flex; align-items: center; gap: 9px; padding: 8px 16px; font-size: 13px; color: var(--text-mid); cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-family: 'DM Sans', sans-serif; border-left: 3px solid transparent; transition: all 0.15s; }
@@ -453,7 +453,7 @@
   .coa-group-header { padding: 8px 16px; background: var(--navy); color: var(--gold-light); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 
   /* ── BATCH 8: SHARED MODULE LAYOUT ── */
-  .b8-layout { display:flex; gap:0; min-height:calc(100vh - 240px); }
+  .b8-layout { display:flex; gap:0; }
   .b8-sidebar { width:210px; flex-shrink:0; background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:8px 0; box-shadow:var(--shadow-sm); height:fit-content; position:sticky; top:80px; }
   .b8-sidebar-section { font-size:10px; font-weight:600; letter-spacing:0.10em; text-transform:uppercase; color:var(--text-light); padding:14px 16px 6px; }
   .b8-sidebar-btn { display:flex; align-items:center; gap:9px; padding:9px 16px; font-size:13px; color:var(--text-mid); cursor:pointer; border:none; background:none; width:100%; text-align:left; font-family:'DM Sans',sans-serif; border-left:3px solid transparent; transition:all 0.15s; }
@@ -533,7 +533,7 @@
   .alert-critical { background:var(--error); }
   .alert-info     { background:#3498db; }
   .alert-success  { background:var(--success); }
-  .set-layout { display:flex; gap:0; min-height:calc(100vh - 240px); }
+  .set-layout { display:flex; gap:0; }
   .set-sidebar { width:210px; flex-shrink:0; background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:8px 0; box-shadow:var(--shadow-sm); height:fit-content; position:sticky; top:80px; }
   .set-sidebar-section { font-size:10px; font-weight:600; letter-spacing:0.10em; text-transform:uppercase; color:var(--text-light); padding:14px 16px 6px; }
   .set-sidebar-btn { display:flex; align-items:center; gap:9px; padding:9px 16px; font-size:13px; color:var(--text-mid); cursor:pointer; border:none; background:none; width:100%; text-align:left; font-family:'DM Sans',sans-serif; border-left:3px solid transparent; transition:all 0.15s; }
@@ -568,7 +568,7 @@
   .plan-price { font-size:28px; font-weight:700; color:var(--navy); margin:10px 0 4px; }
   .plan-feature { font-size:12px; color:var(--text-mid); padding:4px 0; display:flex; align-items:center; gap:6px; }
   .plan-feature::before { content:'✓'; color:var(--success); font-weight:600; }
-  .bud-layout { display:flex; gap:0; min-height:calc(100vh - 240px); }
+  .bud-layout { display:flex; gap:0; }
   .bud-sidebar { width:210px; flex-shrink:0; background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:8px 0; box-shadow:var(--shadow-sm); height:fit-content; position:sticky; top:80px; }
   .bud-sidebar-section { font-size:10px; font-weight:600; letter-spacing:0.10em; text-transform:uppercase; color:var(--text-light); padding:14px 16px 6px; }
   .bud-sidebar-btn { display:flex; align-items:center; gap:9px; padding:9px 16px; font-size:13px; color:var(--text-mid); cursor:pointer; border:none; background:none; width:100%; text-align:left; font-family:'DM Sans',sans-serif; border-left:3px solid transparent; transition:all 0.15s; }
@@ -607,7 +607,7 @@
   .scenario-card { background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:16px 20px; box-shadow:var(--shadow-sm); cursor:pointer; transition:all 0.2s; border-top:3px solid var(--border); }
   .scenario-card:hover { box-shadow:var(--shadow-md); border-top-color:var(--gold); }
   .scenario-card.active-scenario { border-top-color:var(--gold); background:var(--gold-pale); }
-  .inv-layout { display:flex; gap:0; min-height:calc(100vh - 240px); }
+  .inv-layout { display:flex; gap:0; }
   .inv-sidebar { width:210px; flex-shrink:0; background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:8px 0; box-shadow:var(--shadow-sm); height:fit-content; position:sticky; top:80px; }
   .inv-sidebar-section { font-size:10px; font-weight:600; letter-spacing:0.10em; text-transform:uppercase; color:var(--text-light); padding:14px 16px 6px; }
   .inv-sidebar-btn { display:flex; align-items:center; gap:9px; padding:9px 16px; font-size:13px; color:var(--text-mid); cursor:pointer; border:none; background:none; width:100%; text-align:left; font-family:'DM Sans',sans-serif; border-left:3px solid transparent; transition:all 0.15s; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -632,7 +632,7 @@
   /* Cycle count */
   .count-row { display:grid; grid-template-columns:1fr 100px 110px 110px 100px 100px; gap:8px; align-items:center; padding:8px 12px; border-bottom:1px solid var(--border-light); font-size:13px; }
   .count-row:hover { background:var(--gold-pale); }
-  .pm-layout { display:flex; gap:0; min-height:calc(100vh - 240px); }
+  .pm-layout { display:flex; gap:0; }
   .pm-sidebar { width:220px; flex-shrink:0; background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:8px 0; box-shadow:var(--shadow-sm); height:fit-content; position:sticky; top:80px; overflow:hidden; }
   .pm-sidebar-section { font-size:10px; font-weight:600; letter-spacing:0.10em; text-transform:uppercase; color:var(--text-light); padding:14px 16px 6px; }
   .pm-sidebar-btn { display:flex; align-items:center; gap:9px; padding:9px 16px; font-size:13px; color:var(--text-mid); cursor:pointer; border:none; background:none; width:100%; text-align:left; font-family:'DM Sans',sans-serif; border-left:3px solid transparent; transition:all 0.15s; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
