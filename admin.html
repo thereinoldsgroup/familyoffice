@@ -1,0 +1,2181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clarus Admin — Platform Control Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:        #0B0F14;
+  --bg2:       #111820;
+  --bg3:       #171F28;
+  --card:      #1A2231;
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.12);
+  --teal:      #2CA6A4;
+  --teal-dim:  rgba(44,166,164,0.15);
+  --teal-glow: rgba(44,166,164,0.08);
+  --navy:      #1E2A38;
+  --gold:      #C2A46D;
+  --red:       #E05252;
+  --red-dim:   rgba(224,82,82,0.12);
+  --amber:     #F0A500;
+  --amber-dim: rgba(240,165,0,0.12);
+  --green:     #3DD68C;
+  --green-dim: rgba(61,214,140,0.10);
+  --text:      #E8EDF2;
+  --text2:     #8A97A6;
+  --text3:     #4A5568;
+  --radius:    8px;
+  --radius-lg: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  height: 52px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 20px;
+  flex-shrink: 0;
+  z-index: 100;
+}
+.topbar-brand {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Syne', sans-serif;
+}
+.brand-logo {
+  width: 30px; height: 30px;
+  background: var(--teal);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff; letter-spacing: .03em;
+}
+.brand-name { font-size: 15px; font-weight: 600; color: var(--text); }
+.brand-tag {
+  font-size: 10px; font-weight: 500;
+  background: rgba(44,166,164,0.18);
+  color: var(--teal);
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  font-family: 'DM Mono', monospace;
+}
+.topbar-spacer { flex: 1; }
+.topbar-status {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--text2);
+  font-family: 'DM Mono', monospace;
+}
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+.topbar-admin {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 12px;
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.admin-avatar {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), #1A7A78);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 600; color: #fff;
+}
+.topbar-admin span { font-size: 12px; color: var(--text2); }
+
+/* ── LAYOUT ── */
+.app-layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 220px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+.nav-section-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 20px 16px 6px;
+  font-family: 'DM Mono', monospace;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 0;
+  transition: all .15s;
+  color: var(--text2);
+  font-size: 13px;
+  border-left: 2px solid transparent;
+  user-select: none;
+}
+.nav-item:hover { background: var(--teal-glow); color: var(--text); }
+.nav-item.active {
+  background: var(--teal-dim);
+  color: var(--teal);
+  border-left-color: var(--teal);
+  font-weight: 500;
+}
+.nav-icon { font-size: 14px; flex-shrink: 0; }
+.nav-badge {
+  margin-left: auto;
+  font-size: 10px;
+  background: var(--red);
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-family: 'DM Mono', monospace;
+}
+.nav-badge.amber { background: var(--amber); color: #000; }
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px;
+  border-top: 1px solid var(--border);
+}
+.kill-switch-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px;
+  background: var(--red-dim);
+  border: 1px solid rgba(224,82,82,0.2);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 11px; color: var(--red);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.kill-switch-row:hover { background: rgba(224,82,82,0.2); }
+
+/* ── MAIN ── */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  min-height: 0;
+}
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── SHARED COMPONENTS ── */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.page-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 600;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.page-sub { font-size: 12px; color: var(--text2); }
+.page-actions { display: flex; gap: 8px; align-items: center; }
+
+.btn {
+  padding: 7px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: var(--card);
+  color: var(--text2);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn:hover { background: var(--bg3); color: var(--text); border-color: var(--teal); }
+.btn-primary {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: #fff;
+}
+.btn-primary:hover { background: #1A8A88; border-color: #1A8A88; color: #fff; }
+.btn-danger {
+  background: var(--red-dim);
+  border-color: rgba(224,82,82,0.3);
+  color: var(--red);
+}
+.btn-danger:hover { background: rgba(224,82,82,0.2); }
+.btn-sm { padding: 4px 10px; font-size: 11px; }
+
+/* Stat cards */
+.stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+}
+.stat-label { font-size: 10px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; font-family: 'DM Mono', monospace; }
+.stat-value { font-size: 26px; font-weight: 600; color: var(--text); font-family: 'Syne', sans-serif; margin-bottom: 3px; }
+.stat-sub { font-size: 11px; color: var(--text2); }
+.stat-card.teal { border-top: 2px solid var(--teal); }
+.stat-card.gold  { border-top: 2px solid var(--gold); }
+.stat-card.green { border-top: 2px solid var(--green); }
+.stat-card.red   { border-top: 2px solid var(--red); }
+
+/* Table */
+.data-table { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.table-header {
+  display: grid;
+  padding: 10px 16px;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+  font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text3); font-family: 'DM Mono', monospace;
+}
+.table-row {
+  display: grid;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  transition: background .1s;
+  font-size: 13px;
+}
+.table-row:last-child { border-bottom: none; }
+.table-row:hover { background: rgba(255,255,255,0.02); }
+
+/* Badges */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 20px;
+  font-size: 10px; font-weight: 500; font-family: 'DM Mono', monospace;
+  letter-spacing: .04em;
+}
+.badge-active   { background: var(--green-dim); color: var(--green); }
+.badge-trial    { background: var(--amber-dim); color: var(--amber); }
+.badge-suspended{ background: var(--red-dim); color: var(--red); }
+.badge-cancelled{ background: rgba(255,255,255,0.06); color: var(--text3); }
+.badge-sandbox  { background: rgba(194,164,109,0.15); color: var(--gold); }
+.badge-production { background: var(--teal-dim); color: var(--teal); }
+.badge-feature-on  { background: var(--teal-dim); color: var(--teal); }
+.badge-feature-off { background: rgba(255,255,255,0.05); color: var(--text3); }
+
+/* Modal */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: none; align-items: center; justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  width: 100%; max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-lg { max-width: 820px; }
+.modal-header {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 600; color: var(--text); }
+.modal-close {
+  background: none; border: none; color: var(--text3);
+  font-size: 20px; cursor: pointer; line-height: 1;
+  transition: color .15s;
+}
+.modal-close:hover { color: var(--text); }
+.modal-body { padding: 18px 20px; }
+.modal-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: flex-end; gap: 8px;
+}
+
+/* Form fields */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.field-group { display: flex; flex-direction: column; gap: 5px; }
+.field-group.full { grid-column: span 2; }
+.field-label { font-size: 11px; font-weight: 500; color: var(--text2); letter-spacing: .04em; }
+.field-label .req { color: var(--red); margin-left: 2px; }
+.field-input, .field-select {
+  padding: 8px 10px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  transition: border-color .15s;
+  width: 100%;
+}
+.field-input:focus, .field-select:focus {
+  outline: none;
+  border-color: var(--teal);
+  box-shadow: 0 0 0 2px var(--teal-dim);
+}
+.field-select option { background: var(--bg2); color: var(--text); }
+textarea.field-input { resize: vertical; min-height: 60px; }
+
+/* Tabs */
+.tab-row {
+  display: flex; gap: 2px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.tab-btn {
+  padding: 8px 14px; font-size: 12px;
+  background: none; border: none;
+  color: var(--text2); cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  font-family: 'DM Sans', sans-serif;
+  transition: all .15s;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--teal); border-bottom-color: var(--teal); font-weight: 500; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Toggle switch */
+.toggle-wrap { display: flex; align-items: center; gap: 8px; }
+.toggle {
+  position: relative; width: 32px; height: 18px; cursor: pointer;
+}
+.toggle input { display: none; }
+.toggle-track {
+  position: absolute; inset: 0;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 9px;
+  transition: .2s;
+}
+.toggle input:checked ~ .toggle-track { background: var(--teal); border-color: var(--teal); }
+.toggle-thumb {
+  position: absolute; top: 2px; left: 2px;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--text3);
+  transition: .2s;
+}
+.toggle input:checked ~ .toggle-thumb { left: 16px; background: #fff; }
+
+/* Loading */
+.loading-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--teal);
+  z-index: 9999;
+  display: none;
+  animation: loading-anim 1.2s infinite;
+}
+@keyframes loading-anim {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 20px; right: 20px;
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 10px 16px;
+  font-size: 13px; color: var(--text);
+  z-index: 9998;
+  display: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.toast.show { display: block; animation: fade-in .2s; }
+.toast.error { border-left: 3px solid var(--red); }
+.toast.success { border-left: 3px solid var(--teal); }
+@keyframes fade-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* Kill switch panel */
+.kill-panel { background: var(--bg2); border: 1px solid rgba(224,82,82,0.2); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; }
+.kill-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.kill-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.kill-desc { font-size: 11px; color: var(--text2); }
+.kill-active { border-left: 3px solid var(--red); }
+
+/* Feature flag grid */
+.feature-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.feature-item {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.feature-name { font-size: 12px; color: var(--text); }
+.feature-group { font-size: 10px; color: var(--text3); margin-top: 1px; }
+
+/* Metric mini chart */
+.mini-chart-wrap { position: relative; height: 60px; }
+
+/* Empty state */
+.empty {
+  text-align: center; padding: 48px 20px;
+  color: var(--text2);
+}
+.empty-icon { font-size: 32px; margin-bottom: 10px; opacity: .4; }
+.empty-title { font-size: 14px; font-weight: 500; color: var(--text2); margin-bottom: 4px; }
+.empty-sub { font-size: 12px; color: var(--text3); }
+
+/* Chart section */
+.chart-grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 16px; }
+.chart-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+.chart-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+.chart-title { font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 2px; }
+.chart-sub { font-size: 10px; color: var(--text3); margin-bottom: 12px; }
+.chart-wrap { position: relative; }
+
+/* Login screen */
+#login-screen {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+}
+.login-card {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 40px 36px;
+  width: 100%; max-width: 380px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+}
+.login-logo-wrap { display: flex; justify-content: center; margin-bottom: 24px; }
+.login-logo {
+  width: 44px; height: 44px;
+  background: var(--teal);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-size: 16px; font-weight: 700; color: #fff;
+}
+.login-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 600;
+  color: var(--text); text-align: center; margin-bottom: 4px;
+}
+.login-sub { font-size: 12px; color: var(--text2); text-align: center; margin-bottom: 28px; }
+.login-error {
+  background: var(--red-dim);
+  border: 1px solid rgba(224,82,82,0.25);
+  color: var(--red);
+  font-size: 12px; padding: 9px 12px;
+  border-radius: var(--radius); margin-bottom: 12px; display: none;
+}
+.login-btn {
+  width: 100%; height: 40px;
+  background: var(--teal); border: none;
+  border-radius: var(--radius);
+  color: #fff; font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 500; cursor: pointer;
+  transition: background .2s;
+}
+.login-btn:hover { background: #1A8A88; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* Impersonation banner */
+.impersonate-banner {
+  background: rgba(240,165,0,0.12);
+  border-bottom: 1px solid rgba(240,165,0,0.25);
+  padding: 8px 24px;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 12px; color: var(--amber);
+  display: none;
+}
+.impersonate-banner.show { display: flex; }
+</style>
+</head>
+<body>
+
+<div class="loading-bar" id="loadingBar"></div>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo-wrap"><div class="login-logo">CL</div></div>
+    <div class="login-title">Clarus Admin</div>
+    <div class="login-sub">Platform Control Center — Authorized Access Only</div>
+    <div class="login-error" id="loginError"></div>
+    <div class="field-group" style="margin-bottom:12px;">
+      <label class="field-label">Admin Email</label>
+      <input type="email" class="field-input" id="loginEmail" placeholder="admin@clarus.io" onkeydown="if(event.key==='Enter')doAdminLogin()">
+    </div>
+    <div class="field-group" style="margin-bottom:20px;">
+      <label class="field-label">Password</label>
+      <input type="password" class="field-input" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doAdminLogin()">
+    </div>
+    <button class="login-btn" onclick="doAdminLogin()" id="loginBtn">Sign In</button>
+  </div>
+</div>
+
+<!-- IMPERSONATION BANNER -->
+<div class="impersonate-banner" id="impersonateBanner">
+  <span>⚠</span>
+  <span>Impersonating tenant: <strong id="impersonateName"></strong></span>
+  <span style="color:var(--text3);">— Read-only support view</span>
+  <button onclick="endImpersonation()" style="margin-left:auto;" class="btn btn-sm">End Session</button>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar" id="main-topbar" style="display:none;">
+  <div class="topbar-brand">
+    <div class="brand-logo">CL</div>
+    <div class="brand-name">Clarus</div>
+    <div class="brand-tag">Super Admin</div>
+  </div>
+  <div class="topbar-spacer"></div>
+  <div class="topbar-status">
+    <div class="status-dot"></div>
+    <span id="topbar-env">Production</span>
+    <span style="color:var(--text3);">•</span>
+    <span id="topbar-time"></span>
+  </div>
+  <div class="topbar-admin" id="adminBadge">
+    <div class="admin-avatar" id="adminInitials">SA</div>
+    <span id="adminEmail">admin</span>
+  </div>
+</div>
+
+<!-- APP LAYOUT -->
+<div class="app-layout" id="appLayout" style="display:none;">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="nav-section-label">Platform</div>
+    <div class="nav-item active" data-panel="overview" onclick="switchPanel('overview')">
+      <span class="nav-icon">⬡</span> Overview
+    </div>
+    <div class="nav-item" data-panel="analytics" onclick="switchPanel('analytics')">
+      <span class="nav-icon">◈</span> Analytics & MRR
+    </div>
+
+    <div class="nav-section-label">Tenants</div>
+    <div class="nav-item" data-panel="tenants" onclick="switchPanel('tenants')">
+      <span class="nav-icon">⊞</span> Tenant Management
+    </div>
+    <div class="nav-item" data-panel="subscriptions" onclick="switchPanel('subscriptions')">
+      <span class="nav-icon">◎</span> Subscriptions & Billing
+    </div>
+    <div class="nav-item" data-panel="features" onclick="switchPanel('features')">
+      <span class="nav-icon">⊛</span> Feature Gating
+    </div>
+    <div class="nav-item" data-panel="limits" onclick="switchPanel('limits')">
+      <span class="nav-icon">⊘</span> Limits & Quotas
+    </div>
+
+    <div class="nav-section-label">Platform</div>
+    <div class="nav-item" data-panel="plans" onclick="switchPanel('plans')">
+      <span class="nav-icon">◇</span> Plan Management
+    </div>
+    <div class="nav-item" data-panel="modules" onclick="switchPanel('modules')">
+      <span class="nav-icon">⊡</span> Module Registry
+    </div>
+    <div class="nav-item" data-panel="usage" onclick="switchPanel('usage')">
+      <span class="nav-icon">⊹</span> Usage & Metering
+    </div>
+
+    <div class="nav-section-label">Operations</div>
+    <div class="nav-item" data-panel="audit" onclick="switchPanel('audit')">
+      <span class="nav-icon">⊟</span> Audit Log
+    </div>
+    <div class="nav-item" data-panel="support" onclick="switchPanel('support')">
+      <span class="nav-icon">⊕</span> Support Tools
+    </div>
+    <div class="nav-item" data-panel="sandbox" onclick="switchPanel('sandbox')">
+      <span class="nav-icon">⊗</span> Sandbox & Demo
+    </div>
+    <div class="nav-item" data-panel="security" onclick="switchPanel('security')">
+      <span class="nav-icon">⊛</span> Security & Compliance
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="kill-switch-row" onclick="switchPanel('killswitches')">
+        <span>⏻</span> Kill Switches
+      </div>
+      <div style="font-size:10px;color:var(--text3);text-align:center;margin-top:4px;font-family:'DM Mono',monospace;">
+        v14.0 · <span id="sb-tenant-count">—</span> tenants
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+    <!-- ══════════════════════════
+         OVERVIEW
+    ══════════════════════════ -->
+    <div class="panel active" id="panel-overview">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Platform Overview</div>
+          <div class="page-sub">Real-time health of the Clarus platform</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn" onclick="loadOverview()">↻ Refresh</button>
+          <button class="btn btn-primary" onclick="openNewTenant()">+ New Tenant</button>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card teal">
+          <div class="stat-label">Active Tenants</div>
+          <div class="stat-value" id="ov-active">—</div>
+          <div class="stat-sub" id="ov-active-sub">Loading…</div>
+        </div>
+        <div class="stat-card gold">
+          <div class="stat-label">Monthly MRR</div>
+          <div class="stat-value" id="ov-mrr">—</div>
+          <div class="stat-sub" id="ov-mrr-sub">Across all subscriptions</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Trial Tenants</div>
+          <div class="stat-value" id="ov-trial">—</div>
+          <div class="stat-sub" id="ov-trial-sub">Conversion opportunities</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Suspended</div>
+          <div class="stat-value" id="ov-suspended">—</div>
+          <div class="stat-sub">Require attention</div>
+        </div>
+      </div>
+
+      <div class="chart-grid-2">
+        <div class="chart-card">
+          <div class="chart-title">Tenant Status Distribution</div>
+          <div class="chart-sub">All tenants by status</div>
+          <div class="chart-wrap" style="height:200px;"><canvas id="ov-status-chart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Plan Distribution</div>
+          <div class="chart-sub">Tenants by subscription plan</div>
+          <div class="chart-wrap" style="height:200px;"><canvas id="ov-plan-chart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Recent tenants -->
+      <div class="data-table">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);">Recent Tenants</div>
+          <button class="btn btn-sm" onclick="switchPanel('tenants')">View all →</button>
+        </div>
+        <div class="table-header" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr 80px;">
+          <div>Company</div><div>Plan</div><div>Status</div><div>MRR</div><div>Created</div><div>Action</div>
+        </div>
+        <div id="ov-recent-tenants"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════
+         ANALYTICS
+    ══════════════════════════ -->
+    <div class="panel" id="panel-analytics">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Analytics & Revenue</div>
+          <div class="page-sub">MRR, churn, expansion, and growth metrics</div>
+        </div>
+        <div class="page-actions">
+          <select class="field-select" style="height:32px;width:120px;" id="analytics-period" onchange="loadAnalytics()">
+            <option value="3">3 months</option>
+            <option value="6" selected>6 months</option>
+            <option value="12">12 months</option>
+          </select>
+          <button class="btn" onclick="loadAnalytics()">↻ Refresh</button>
+        </div>
+      </div>
+
+      <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat-card teal"><div class="stat-label">MRR</div><div class="stat-value" id="an-mrr">—</div><div class="stat-sub" id="an-mrr-sub">Monthly recurring</div></div>
+        <div class="stat-card gold"><div class="stat-label">ARR</div><div class="stat-value" id="an-arr">—</div><div class="stat-sub">Annualized</div></div>
+        <div class="stat-card green"><div class="stat-label">Active Tenants</div><div class="stat-value" id="an-active">—</div><div class="stat-sub" id="an-active-sub">Paying customers</div></div>
+        <div class="stat-card red"><div class="stat-label">Churn Rate</div><div class="stat-value" id="an-churn">—</div><div class="stat-sub">Cancelled / total</div></div>
+      </div>
+
+      <div class="chart-grid-2" style="margin-bottom:14px;">
+        <div class="chart-card">
+          <div class="chart-title">MRR Growth</div>
+          <div class="chart-sub">Monthly recurring revenue trend</div>
+          <div class="chart-wrap" style="height:200px;"><canvas id="an-mrr-chart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">New vs Churned Tenants</div>
+          <div class="chart-sub">Monthly acquisition and loss</div>
+          <div class="chart-wrap" style="height:200px;"><canvas id="an-churn-chart"></canvas></div>
+        </div>
+      </div>
+      <div class="chart-grid-3">
+        <div class="chart-card">
+          <div class="chart-title">Revenue by Plan</div>
+          <div class="chart-sub">MRR contribution</div>
+          <div class="chart-wrap" style="height:160px;"><canvas id="an-plan-rev-chart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Trial Conversion</div>
+          <div class="chart-sub">Trial → Active rate</div>
+          <div class="chart-wrap" style="height:160px;"><canvas id="an-conv-chart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Feature Adoption</div>
+          <div class="chart-sub">Most-enabled modules</div>
+          <div id="an-feature-list" style="display:flex;flex-direction:column;gap:6px;margin-top:4px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════
+         TENANT MANAGEMENT
+    ══════════════════════════ -->
+    <div class="panel" id="panel-tenants">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Tenant Management</div>
+          <div class="page-sub">All customer accounts and access control</div>
+        </div>
+        <div class="page-actions">
+          <input type="text" class="field-input" placeholder="Search tenants…" style="width:200px;height:32px;" id="tenant-search" oninput="filterTenants()">
+          <select class="field-select" style="height:32px;width:130px;" id="tenant-status-filter" onchange="filterTenants()">
+            <option value="">All statuses</option>
+            <option value="active">Active</option>
+            <option value="trial">Trial</option>
+            <option value="suspended">Suspended</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <button class="btn btn-primary" onclick="openNewTenant()">+ New Tenant</button>
+        </div>
+      </div>
+      <div class="data-table">
+        <div class="table-header" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr 120px;">
+          <div>Tenant</div><div>Plan</div><div>Status</div><div>Env</div><div>MRR</div><div>Created</div><div>Actions</div>
+        </div>
+        <div id="tenants-body"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════
+         SUBSCRIPTIONS
+    ══════════════════════════ -->
+    <div class="panel" id="panel-subscriptions">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Subscriptions & Billing</div>
+          <div class="page-sub">Plan assignments, billing cycles, trials</div>
+        </div>
+        <button class="btn" onclick="loadSubscriptions()">↻ Refresh</button>
+      </div>
+      <div class="data-table">
+        <div class="table-header" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr 80px;">
+          <div>Tenant</div><div>Plan</div><div>Cycle</div><div>MRR</div><div>Trial Ends</div><div>Sub End</div><div>Edit</div>
+        </div>
+        <div id="subscriptions-body"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════
+         FEATURE GATING
+    ══════════════════════════ -->
+    <div class="panel" id="panel-features">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Feature Gating</div>
+          <div class="page-sub">Control which modules each tenant can access</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;">
+        <div style="width:240px;flex-shrink:0;">
+          <div style="font-size:11px;font-weight:500;color:var(--text2);margin-bottom:8px;letter-spacing:.04em;">SELECT TENANT</div>
+          <div id="features-tenant-list" style="display:flex;flex-direction:column;gap:4px;"></div>
+        </div>
+        <div style="flex:1;">
+          <div id="features-tenant-name" style="font-family:'Syne',sans-serif;font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;">Select a tenant to manage features</div>
+          <div id="features-tenant-plan" style="font-size:11px;color:var(--text2);margin-bottom:16px;"></div>
+          <div id="features-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════
+         LIMITS & QUOTAS
+    ══════════════════════════ -->
+    <div class="panel" id="panel-limits">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Limits & Quotas</div>
+          <div class="page-sub">Per-tenant overrides for entities, users, transactions, storage</div>
+        </div>
+      </div>
+      <div class="data-table">
+        <div class="table-header" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr 80px;">
+          <div>Tenant</div><div>Max Entities</div><div>Max Users</div><div>Max Txns/mo</div><div>Storage GB</div><div>Edit</div>
+        </div>
+        <div id="limits-body"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════
+         PLAN MANAGEMENT
+    ══════════════════════════ -->
+    <div class="panel" id="panel-plans">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Plan Management</div>
+          <div class="page-sub">Define subscription tiers and default limits</div>
+        </div>
+        <button class="btn btn-primary" onclick="openNewPlan()">+ New Plan</button>
+      </div>
+      <div id="plans-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;"></div>
+    </div>
+
+    <!-- ══════════════════════════
+         MODULE REGISTRY
+    ══════════════════════════ -->
+    <div class="panel" id="panel-modules">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Module Registry</div>
+          <div class="page-sub">All feature flags available in the platform</div>
+        </div>
+        <button class="btn btn-primary" onclick="openNewFeature()">+ New Feature Flag</button>
+      </div>
+      <div id="modules-by-group"></div>
+    </div>
+
+    <!-- ══════════════════════════
+         USAGE & METERING
+    ══════════════════════════ -->
+    <div class="panel" id="panel-usage">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Usage & Metering</div>
+          <div class="page-sub">Track transactions, storage, API calls, and active users per tenant</div>
+        </div>
+        <button class="btn" onclick="loadUsage()">↻ Refresh</button>
+      </div>
+      <div class="data-table">
+        <div class="table-header" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr;">
+          <div>Tenant</div><div>Active Users</div><div>Entities</div><div>Txns (30d)</div><div>Storage</div><div>Last Updated</div>
+        </div>
+        <div id="usage-body"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════
+         AUDIT LOG
+    ══════════════════════════ -->
+    <div class="panel" id="panel-audit">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Platform Audit Log</div>
+          <div class="page-sub">All admin actions and security events</div>
+        </div>
+        <button class="btn" onclick="loadAuditLog()">↻ Refresh</button>
+      </div>
+      <div class="data-table">
+        <div class="table-header" style="grid-template-columns:1fr 1fr 2fr 1fr;">
+          <div>Timestamp</div><div>Admin</div><div>Action</div><div>Target</div>
+        </div>
+        <div id="audit-body"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════
+         SUPPORT TOOLS
+    ══════════════════════════ -->
+    <div class="panel" id="panel-support">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Support & Debug Tools</div>
+          <div class="page-sub">Impersonation, tenant data viewer, error inspection</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:10px;letter-spacing:.04em;">IMPERSONATE TENANT</div>
+          <div id="support-tenant-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:10px;letter-spacing:.04em;">QUICK STATS</div>
+          <div id="support-stats" style="display:flex;flex-direction:column;gap:8px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════
+         SANDBOX
+    ══════════════════════════ -->
+    <div class="panel" id="panel-sandbox">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Sandbox & Demo Environments</div>
+          <div class="page-sub">Create, reset, and manage demo tenants for sales and testing</div>
+        </div>
+        <button class="btn btn-primary" onclick="createDemoTenant()">+ Create Demo</button>
+      </div>
+      <div class="data-table">
+        <div class="table-header" style="grid-template-columns:2fr 1fr 1fr 1fr 120px;">
+          <div>Demo Tenant</div><div>Created</div><div>Status</div><div>Last Reset</div><div>Actions</div>
+        </div>
+        <div id="sandbox-body"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════
+         SECURITY
+    ══════════════════════════ -->
+    <div class="panel" id="panel-security">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Security & Compliance</div>
+          <div class="page-sub">Platform-wide security policies and enforcement</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="chart-card">
+          <div class="chart-title" style="font-size:13px;margin-bottom:12px;">Global Security Policies</div>
+          <div style="display:flex;flex-direction:column;gap:12px;" id="security-policies"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title" style="font-size:13px;margin-bottom:12px;">Recent Security Events</div>
+          <div id="security-events" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════
+         KILL SWITCHES
+    ══════════════════════════ -->
+    <div class="panel" id="panel-killswitches">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Kill Switches</div>
+          <div class="page-sub">Emergency controls — use with caution</div>
+        </div>
+      </div>
+      <div style="background:var(--red-dim);border:1px solid rgba(224,82,82,0.2);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:16px;font-size:12px;color:var(--red);">
+        ⚠ These switches affect all tenants immediately. Each toggle action is logged to the platform audit log with your admin identity and a timestamp.
+      </div>
+      <div id="kill-switches-list"></div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app-layout -->
+
+<!-- TOAST -->
+<div class="toast" id="adminToast"></div>
+
+<!-- NEW / EDIT TENANT MODAL -->
+<div class="modal-overlay" id="tenantModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title" id="tenantModalTitle">New Tenant</span>
+      <button class="modal-close" onclick="closeModal('tenantModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="tab-row">
+        <button class="tab-btn active" onclick="switchTenantTab('basic',this)">Basic Info</button>
+        <button class="tab-btn" onclick="switchTenantTab('billing',this)">Billing</button>
+        <button class="tab-btn" onclick="switchTenantTab('features',this)">Features</button>
+        <button class="tab-btn" onclick="switchTenantTab('limits',this)">Limits</button>
+      </div>
+
+      <div class="tab-panel active" id="tt-basic">
+        <div class="form-grid">
+          <div class="field-group"><label class="field-label">Company Name <span class="req">*</span></label><input type="text" class="field-input" id="t-name" placeholder="Acme Family Office"></div>
+          <div class="field-group"><label class="field-label">Slug (subdomain)</label><input type="text" class="field-input" id="t-slug" placeholder="acme-family"></div>
+          <div class="field-group"><label class="field-label">Owner Email <span class="req">*</span></label><input type="email" class="field-input" id="t-email" placeholder="owner@acme.com"></div>
+          <div class="field-group"><label class="field-label">Owner Name</label><input type="text" class="field-input" id="t-owner" placeholder="John Smith"></div>
+          <div class="field-group"><label class="field-label">Status</label>
+            <select class="field-select" id="t-status">
+              <option value="trial">Trial</option>
+              <option value="active">Active</option>
+              <option value="suspended">Suspended</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="field-group"><label class="field-label">Environment</label>
+            <select class="field-select" id="t-env">
+              <option value="production">Production</option>
+              <option value="sandbox">Sandbox</option>
+              <option value="demo">Demo</option>
+            </select>
+          </div>
+          <div class="field-group"><label class="field-label">Data Region</label>
+            <select class="field-select" id="t-region">
+              <option value="us-east-1">US East (N. Virginia)</option>
+              <option value="us-west-2">US West (Oregon)</option>
+              <option value="eu-west-1">EU (Ireland)</option>
+              <option value="ap-southeast-1">Asia Pacific (Singapore)</option>
+            </select>
+          </div>
+          <div class="field-group"><label class="field-label">Notes</label><input type="text" class="field-input" id="t-notes" placeholder="Internal notes…"></div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tt-billing">
+        <div class="form-grid">
+          <div class="field-group"><label class="field-label">Subscription Plan</label>
+            <select class="field-select" id="t-plan" onchange="updatePlanDefaults()">
+              <option value="">— Select plan —</option>
+            </select>
+          </div>
+          <div class="field-group"><label class="field-label">Billing Cycle</label>
+            <select class="field-select" id="t-cycle">
+              <option value="monthly">Monthly</option>
+              <option value="annual">Annual</option>
+            </select>
+          </div>
+          <div class="field-group"><label class="field-label">Monthly MRR Override ($)</label><input type="text" class="field-input" id="t-mrr" placeholder="Auto from plan"></div>
+          <div class="field-group"><label class="field-label">Trial Ends</label><input type="date" class="field-input" id="t-trial-end"></div>
+          <div class="field-group"><label class="field-label">Subscription Start</label><input type="date" class="field-input" id="t-sub-start"></div>
+          <div class="field-group"><label class="field-label">Subscription End</label><input type="date" class="field-input" id="t-sub-end"></div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tt-features">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">Override feature access for this tenant. Unchecked = blocked even if plan includes it. Checked = enabled even if plan doesn't include it.</div>
+        <div id="t-features-grid" class="feature-grid"></div>
+      </div>
+
+      <div class="tab-panel" id="tt-limits">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px;">Override the limits from the assigned plan. Leave blank to use plan defaults.</div>
+        <div class="form-grid">
+          <div class="field-group"><label class="field-label">Max Entities</label><input type="number" class="field-input" id="t-max-entities" placeholder="From plan"></div>
+          <div class="field-group"><label class="field-label">Max Users (seats)</label><input type="number" class="field-input" id="t-max-users" placeholder="From plan"></div>
+          <div class="field-group"><label class="field-label">Max Transactions / mo</label><input type="number" class="field-input" id="t-max-txns" placeholder="Unlimited"></div>
+          <div class="field-group"><label class="field-label">Storage Limit (GB)</label><input type="number" class="field-input" id="t-max-storage" placeholder="From plan"></div>
+          <div class="field-group full"><label class="field-label">Override Reason</label><input type="text" class="field-input" id="t-limit-reason" placeholder="e.g. Enterprise deal — approved by CEO"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('tenantModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTenant()" id="saveTenantBtn">Create Tenant</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIMIT EDIT MODAL -->
+<div class="modal-overlay" id="limitModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Edit Limits — <span id="limit-tenant-name"></span></span>
+      <button class="modal-close" onclick="closeModal('limitModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group"><label class="field-label">Max Entities</label><input type="number" class="field-input" id="lim-entities"></div>
+        <div class="field-group"><label class="field-label">Max Users</label><input type="number" class="field-input" id="lim-users"></div>
+        <div class="field-group"><label class="field-label">Max Transactions/mo</label><input type="number" class="field-input" id="lim-txns" placeholder="blank = unlimited"></div>
+        <div class="field-group"><label class="field-label">Storage (GB)</label><input type="number" class="field-input" id="lim-storage"></div>
+        <div class="field-group full"><label class="field-label">Reason</label><input type="text" class="field-input" id="lim-reason" placeholder="Why is this being overridden?"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('limitModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveLimitOverride()">Save Limits</button>
+    </div>
+  </div>
+</div>
+
+<!-- BILLING EDIT MODAL -->
+<div class="modal-overlay" id="billingModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Edit Subscription — <span id="billing-tenant-name"></span></span>
+      <button class="modal-close" onclick="closeModal('billingModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group"><label class="field-label">Plan</label>
+          <select class="field-select" id="bill-plan"></select>
+        </div>
+        <div class="field-group"><label class="field-label">Billing Cycle</label>
+          <select class="field-select" id="bill-cycle">
+            <option value="monthly">Monthly</option>
+            <option value="annual">Annual</option>
+          </select>
+        </div>
+        <div class="field-group"><label class="field-label">MRR Override ($)</label><input type="number" class="field-input" id="bill-mrr"></div>
+        <div class="field-group"><label class="field-label">Status</label>
+          <select class="field-select" id="bill-status">
+            <option value="trial">Trial</option>
+            <option value="active">Active</option>
+            <option value="suspended">Suspended</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="field-group"><label class="field-label">Trial Ends</label><input type="date" class="field-input" id="bill-trial"></div>
+        <div class="field-group"><label class="field-label">Sub End</label><input type="date" class="field-input" id="bill-subend"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('billingModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveBilling()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+//  CONFIG
+// ════════════════════════════════════════
+const SUPABASE_URL = 'https://xttprsvwmvmarfetmwuu.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0dHByc3Z3bXZtYXJmZXRtd3V1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMTQwNzQsImV4cCI6MjA4OTc5MDA3NH0.i-7OaSKtIwZP88IXCDwr8gI3siSHYGtcQZhfO4Zpk_8';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Admin emails (in production, check a platform_admins table or Supabase role)
+const ADMIN_EMAILS = ['admin@clarus.io','superadmin@clarus.io'];
+
+// Clarus palette for charts
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#8A97A6';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.07)';
+
+const COLORS = {
+  teal:  '#2CA6A4', navy: '#1E2A38', gold: '#C2A46D',
+  green: '#3DD68C', red: '#E05252', amber: '#F0A500',
+  slate: '#3A4A5A', steel: '#8A97A6',
+};
+const _charts = {};
+function destroyChart(id) { if(_charts[id]){try{_charts[id].destroy();}catch(e){} delete _charts[id];} }
+
+// ── State ──
+let currentAdmin = null;
+let allTenants   = [];
+let allPlans     = [];
+let allFeatures  = [];
+let editingTenantId = null;
+let editingLimitId  = null;
+let editingBillingId = null;
+let selectedFeatureTenantId = null;
+
+// ════════════════════════════════════════
+//  UTILITIES
+// ════════════════════════════════════════
+function showLoad() { document.getElementById('loadingBar').style.display = 'block'; }
+function hideLoad() { document.getElementById('loadingBar').style.display = 'none'; }
+function toast(msg, err=false) {
+  const el = document.getElementById('adminToast');
+  el.textContent = msg;
+  el.className = 'toast show' + (err ? ' error' : ' success');
+  setTimeout(() => el.className = 'toast', 3200);
+}
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function fmtDate(d) { if(!d)return'—'; return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+function fmtMoney(v) {
+  const n = parseFloat(v||0);
+  if(n>=1000000) return '$'+(n/1000000).toFixed(1)+'M';
+  if(n>=1000)    return '$'+(n/1000).toFixed(0)+'K';
+  return '$'+n.toLocaleString();
+}
+function fmtNum(n) { return parseInt(n||0).toLocaleString(); }
+function statusBadge(s) {
+  const map = { active:'badge-active', trial:'badge-trial', suspended:'badge-suspended', cancelled:'badge-cancelled' };
+  return `<span class="badge ${map[s]||'badge-cancelled'}">${s||'—'}</span>`;
+}
+function envBadge(e) {
+  if(e==='sandbox') return `<span class="badge badge-sandbox">sandbox</span>`;
+  if(e==='demo')    return `<span class="badge badge-amber">demo</span>`;
+  return `<span class="badge badge-production">prod</span>`;
+}
+function planName(planId) {
+  const p = allPlans.find(x=>x.id===planId);
+  return p?.plan_name || '—';
+}
+
+async function auditLog(action, targetType='', targetId='', details={}) {
+  if(!currentAdmin) return;
+  await sb.from('platform_audit_log').insert({
+    id: 'pal-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),
+    admin_email: currentAdmin.email,
+    action, target_type: targetType, target_id: targetId,
+    details, created_at: new Date().toISOString()
+  });
+}
+
+// ════════════════════════════════════════
+//  AUTH
+// ════════════════════════════════════════
+async function doAdminLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginError');
+  const btn   = document.getElementById('loginBtn');
+  errEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false; btn.textContent = 'Sign In';
+  if (error || !data.user) {
+    errEl.textContent = error?.message === 'Invalid login credentials'
+      ? 'Invalid credentials. Admin access only.' : (error?.message || 'Login failed.');
+    errEl.style.display = 'block'; return;
+  }
+  // Validate admin access
+  const isAdmin = ADMIN_EMAILS.includes(email) || (data.user.email?.includes('clarus'));
+  if (!isAdmin) {
+    errEl.textContent = 'Access denied. This portal is for platform administrators only.';
+    errEl.style.display = 'block';
+    await sb.auth.signOut(); return;
+  }
+  currentAdmin = data.user;
+  showApp();
+  auditLog('admin_login','admin',email);
+}
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-topbar').style.display = 'flex';
+  document.getElementById('appLayout').style.display = 'flex';
+  const name = currentAdmin.email;
+  const initials = name.split('@')[0].slice(0,2).toUpperCase();
+  document.getElementById('adminInitials').textContent = initials;
+  document.getElementById('adminEmail').textContent = name;
+  startClock();
+  loadAllData();
+}
+
+function startClock() {
+  const update = () => {
+    document.getElementById('topbar-time').textContent = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  };
+  update(); setInterval(update, 1000);
+}
+
+// ════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════
+function switchPanel(panelId) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + panelId)?.classList.add('active');
+  document.querySelector(`[data-panel="${panelId}"]`)?.classList.add('active');
+  // Lazy-load panel data
+  const loaders = {
+    analytics: loadAnalytics,
+    tenants: renderTenants,
+    subscriptions: loadSubscriptions,
+    features: loadFeaturesPanel,
+    limits: loadLimits,
+    plans: loadPlans,
+    modules: loadModules,
+    usage: loadUsage,
+    audit: loadAuditLog,
+    support: loadSupportTools,
+    sandbox: loadSandbox,
+    security: loadSecurity,
+    killswitches: loadKillSwitches,
+  };
+  if (loaders[panelId]) loaders[panelId]();
+}
+
+function switchTenantTab(tab, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tt-' + tab)?.classList.add('active');
+  btn.classList.add('active');
+}
+
+// ════════════════════════════════════════
+//  LOAD ALL DATA
+// ════════════════════════════════════════
+async function loadAllData() {
+  showLoad();
+  const [{ data: tenants }, { data: plans }, { data: features }] = await Promise.all([
+    sb.from('tenants').select('*').order('created_at', { ascending: false }),
+    sb.from('platform_plans').select('*').order('sort_order'),
+    sb.from('platform_features').select('*').order('module_group').order('feature_name'),
+  ]);
+  allTenants  = tenants  || [];
+  allPlans    = plans    || [];
+  allFeatures = features || [];
+  document.getElementById('sb-tenant-count').textContent = allTenants.length;
+  // Populate plan selectors
+  ['t-plan','bill-plan'].forEach(id => {
+    const el = document.getElementById(id); if(!el)return;
+    el.innerHTML = '<option value="">— Select plan —</option>' +
+      allPlans.map(p => `<option value="${p.id}">${p.plan_name} — $${p.base_price_monthly}/mo</option>`).join('');
+  });
+  hideLoad();
+  loadOverview();
+}
+
+// ════════════════════════════════════════
+//  OVERVIEW
+// ════════════════════════════════════════
+async function loadOverview() {
+  const active    = allTenants.filter(t=>t.status==='active').length;
+  const trial     = allTenants.filter(t=>t.status==='trial').length;
+  const suspended = allTenants.filter(t=>t.status==='suspended').length;
+  const mrr       = allTenants.filter(t=>t.status==='active').reduce((s,t)=>s+parseFloat(t.mrr||0),0);
+
+  document.getElementById('ov-active').textContent     = active;
+  document.getElementById('ov-active-sub').textContent = `${allTenants.length} total tenants`;
+  document.getElementById('ov-mrr').textContent        = fmtMoney(mrr);
+  document.getElementById('ov-trial').textContent      = trial;
+  document.getElementById('ov-trial-sub').textContent  = trial + ' awaiting conversion';
+  document.getElementById('ov-suspended').textContent  = suspended;
+
+  // Status donut
+  destroyChart('ov-status');
+  const ctx1 = document.getElementById('ov-status-chart')?.getContext('2d');
+  if (ctx1) {
+    const statusCounts = ['active','trial','suspended','cancelled'].map(s=>allTenants.filter(t=>t.status===s).length);
+    _charts['ov-status'] = new Chart(ctx1, {
+      type: 'doughnut',
+      data: { labels:['Active','Trial','Suspended','Cancelled'], datasets:[{ data:statusCounts, backgroundColor:[COLORS.teal, COLORS.amber, COLORS.red, '#2A3A4A'], borderWidth:2, borderColor:'#1A2231', hoverOffset:4 }] },
+      options: { responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{ legend:{ display:true, position:'right', labels:{ color:'#8A97A6', font:{size:11}, boxWidth:10 } } } }
+    });
+  }
+
+  // Plan donut
+  destroyChart('ov-plan');
+  const ctx2 = document.getElementById('ov-plan-chart')?.getContext('2d');
+  if (ctx2) {
+    const planCounts = allPlans.map(p => allTenants.filter(t=>t.plan_id===p.id).length);
+    _charts['ov-plan'] = new Chart(ctx2, {
+      type: 'doughnut',
+      data: { labels: allPlans.map(p=>p.plan_name), datasets:[{ data:planCounts, backgroundColor:[COLORS.teal, COLORS.gold, '#5DCAA5', COLORS.amber], borderWidth:2, borderColor:'#1A2231', hoverOffset:4 }] },
+      options: { responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{ legend:{ display:true, position:'right', labels:{ color:'#8A97A6', font:{size:11}, boxWidth:10 } } } }
+    });
+  }
+
+  // Recent tenants table
+  const c = document.getElementById('ov-recent-tenants');
+  const recent = [...allTenants].slice(0, 10);
+  if (!recent.length) {
+    c.innerHTML = `<div class="empty"><div class="empty-icon">⊞</div><div class="empty-title">No tenants yet</div><div class="empty-sub">Create your first tenant to get started</div></div>`; return;
+  }
+  c.innerHTML = recent.map(t => `
+    <div class="table-row" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr 80px;">
+      <div>
+        <div style="font-weight:500;color:var(--text);">${t.company_name}</div>
+        <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">${t.owner_email}</div>
+      </div>
+      <div style="font-size:12px;">${planName(t.plan_id)}</div>
+      <div>${statusBadge(t.status)}</div>
+      <div style="font-size:12px;color:var(--teal);font-family:'DM Mono',monospace;">${fmtMoney(t.mrr)}/mo</div>
+      <div style="font-size:11px;color:var(--text2);">${fmtDate(t.created_at)}</div>
+      <div><button class="btn btn-sm" onclick="editTenant('${t.id}')">Edit</button></div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════
+//  ANALYTICS
+// ════════════════════════════════════════
+async function loadAnalytics() {
+  const period = parseInt(document.getElementById('analytics-period')?.value || 6);
+  const active = allTenants.filter(t=>t.status==='active').length;
+  const cancelled = allTenants.filter(t=>t.status==='cancelled').length;
+  const total = allTenants.length;
+  const mrr = allTenants.filter(t=>t.status==='active').reduce((s,t)=>s+parseFloat(t.mrr||0),0);
+  const arr = mrr * 12;
+  const churn = total > 0 ? ((cancelled/total)*100).toFixed(1)+'%' : '0%';
+
+  document.getElementById('an-mrr').textContent = fmtMoney(mrr);
+  document.getElementById('an-arr').textContent = fmtMoney(arr);
+  document.getElementById('an-active').textContent = active;
+  document.getElementById('an-active-sub').textContent = `${allTenants.filter(t=>t.status==='trial').length} in trial`;
+  document.getElementById('an-churn').textContent = churn;
+
+  // Simulate monthly MRR growth (real: would query usage_metrics table)
+  const months = [];
+  const mrrData = [];
+  const now = new Date();
+  for (let i = period-1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    months.push(d.toLocaleString('default',{month:'short'}) + ' ' + String(d.getFullYear()).slice(2));
+    // Simulate growth: ramp up to current MRR
+    mrrData.push(Math.round(mrr * (0.6 + 0.4 * ((period-i)/period))));
+  }
+
+  // MRR trend
+  destroyChart('an-mrr');
+  const ctx1 = document.getElementById('an-mrr-chart')?.getContext('2d');
+  if (ctx1) {
+    _charts['an-mrr'] = new Chart(ctx1, {
+      type:'line', data:{ labels:months, datasets:[{ data:mrrData, borderColor:COLORS.teal, backgroundColor:COLORS.teal+'20', borderWidth:2.5, pointRadius:4, fill:true, tension:0.35 }] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#8A97A6',font:{size:10} } }, y:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ callback:v=>fmtMoney(v), color:'#8A97A6',font:{size:10} } } } }
+    });
+  }
+
+  // New vs churned (simulated)
+  const newData    = months.map((_,i) => Math.max(0, Math.round(Math.random()*3 + (i<3?1:2))));
+  const churnData  = months.map(() => Math.max(0, Math.round(Math.random()*1.5)));
+  destroyChart('an-churn');
+  const ctx2 = document.getElementById('an-churn-chart')?.getContext('2d');
+  if (ctx2) {
+    _charts['an-churn'] = new Chart(ctx2, {
+      type:'bar', data:{ labels:months, datasets:[
+        { label:'New', data:newData, backgroundColor:COLORS.teal+'CC', borderRadius:3 },
+        { label:'Churned', data:churnData, backgroundColor:COLORS.red+'99', borderRadius:3 }
+      ]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:true, labels:{color:'#8A97A6',font:{size:10},boxWidth:8} } }, scales:{ x:{ grid:{ display:false }, ticks:{ color:'#8A97A6',font:{size:10} } }, y:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ stepSize:1, color:'#8A97A6',font:{size:10} } } } }
+    });
+  }
+
+  // Revenue by plan
+  const planRevs = allPlans.map(p => allTenants.filter(t=>t.plan_id===p.id&&t.status==='active').reduce((s,t)=>s+parseFloat(t.mrr||0),0));
+  destroyChart('an-plan-rev');
+  const ctx3 = document.getElementById('an-plan-rev-chart')?.getContext('2d');
+  if (ctx3) {
+    _charts['an-plan-rev'] = new Chart(ctx3, {
+      type:'doughnut', data:{ labels:allPlans.map(p=>p.plan_name), datasets:[{ data:planRevs, backgroundColor:[COLORS.teal,COLORS.gold,'#5DCAA5',COLORS.amber], borderWidth:2, borderColor:'#1A2231' }] },
+      options:{ responsive:true, maintainAspectRatio:false, cutout:'60%', plugins:{ legend:{ display:true, position:'bottom', labels:{color:'#8A97A6',font:{size:10},boxWidth:8} } } }
+    });
+  }
+
+  // Trial conversion gauge
+  const trialTotal = allTenants.filter(t=>t.status==='trial'||t.status==='active').length;
+  const convRate = trialTotal > 0 ? Math.round((active/trialTotal)*100) : 0;
+  destroyChart('an-conv');
+  const ctx4 = document.getElementById('an-conv-chart')?.getContext('2d');
+  if (ctx4) {
+    _charts['an-conv'] = new Chart(ctx4, {
+      type:'doughnut', data:{ labels:['Converted','In Trial'], datasets:[{ data:[convRate,100-convRate], backgroundColor:[COLORS.teal,'rgba(255,255,255,0.05)'], borderWidth:0 }] },
+      options:{ responsive:true, maintainAspectRatio:false, cutout:'72%', plugins:{ legend:{ display:false },
+        tooltip:{ callbacks:{ label:c=>c.dataIndex===0?`${convRate}% conversion rate`:'' } } } }
+    });
+    ctx4.canvas.parentElement.insertAdjacentHTML('afterend',`<div style="text-align:center;font-size:20px;font-weight:600;color:var(--teal);margin-top:-80px;position:relative;pointer-events:none;">${convRate}%</div>`);
+  }
+
+  // Feature adoption
+  const featureEl = document.getElementById('an-feature-list');
+  if (featureEl && allTenants.length) {
+    const { data: tfData } = await sb.from('tenant_features').select('feature_key').eq('is_enabled',true);
+    const counts = {};
+    (tfData||[]).forEach(f => counts[f.feature_key]=(counts[f.feature_key]||0)+1);
+    const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    featureEl.innerHTML = sorted.length ? sorted.map(([key,cnt]) => {
+      const feat = allFeatures.find(f=>f.feature_key===key);
+      const pct = Math.round((cnt/allTenants.length)*100);
+      return `<div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:11px;">
+          <span style="color:var(--text2);">${feat?.feature_name||key}</span>
+          <span style="color:var(--teal);font-family:'DM Mono',monospace;">${pct}%</span>
+        </div>
+        <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:2px;">
+          <div style="width:${pct}%;height:100%;background:var(--teal);border-radius:2px;"></div>
+        </div>
+      </div>`;
+    }).join('') : '<div style="font-size:11px;color:var(--text3);">No feature data yet</div>';
+  }
+}
+
+// ════════════════════════════════════════
+//  TENANTS
+// ════════════════════════════════════════
+function renderTenants() {
+  const search = document.getElementById('tenant-search')?.value.toLowerCase() || '';
+  const statusF = document.getElementById('tenant-status-filter')?.value || '';
+  const filtered = allTenants.filter(t =>
+    (!search || t.company_name?.toLowerCase().includes(search) || t.owner_email?.toLowerCase().includes(search)) &&
+    (!statusF || t.status === statusF)
+  );
+  const c = document.getElementById('tenants-body');
+  if (!filtered.length) {
+    c.innerHTML = `<div class="empty"><div class="empty-icon">⊞</div><div class="empty-title">No tenants found</div></div>`; return;
+  }
+  c.innerHTML = filtered.map(t => `
+    <div class="table-row" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr 120px;">
+      <div>
+        <div style="font-weight:500;color:var(--text);">${t.company_name}</div>
+        <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">${t.owner_email}</div>
+      </div>
+      <div style="font-size:12px;">${planName(t.plan_id)}</div>
+      <div>${statusBadge(t.status)}</div>
+      <div>${envBadge(t.environment)}</div>
+      <div style="font-size:12px;color:var(--teal);font-family:'DM Mono',monospace;">${fmtMoney(t.mrr)}/mo</div>
+      <div style="font-size:11px;color:var(--text2);">${fmtDate(t.created_at)}</div>
+      <div style="display:flex;gap:4px;">
+        <button class="btn btn-sm" onclick="editTenant('${t.id}')">Edit</button>
+        <button class="btn btn-sm" onclick="quickSuspend('${t.id}','${t.status}')" title="${t.status==='suspended'?'Activate':'Suspend'}">${t.status==='suspended'?'✓':'⏸'}</button>
+        <button class="btn btn-sm" onclick="startImpersonation('${t.id}','${t.company_name}')" title="Impersonate">👁</button>
+      </div>
+    </div>`).join('');
+}
+function filterTenants() { renderTenants(); }
+
+async function quickSuspend(tenantId, currentStatus) {
+  const newStatus = currentStatus === 'suspended' ? 'active' : 'suspended';
+  await sb.from('tenants').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', tenantId);
+  const t = allTenants.find(x=>x.id===tenantId);
+  if(t) t.status = newStatus;
+  toast(`Tenant ${newStatus === 'suspended' ? 'suspended' : 'reactivated'}`);
+  auditLog(`tenant_${newStatus}`, 'tenant', tenantId);
+  renderTenants();
+  loadOverview();
+}
+
+// ════════════════════════════════════════
+//  NEW / EDIT TENANT
+// ════════════════════════════════════════
+async function openNewTenant() {
+  editingTenantId = null;
+  document.getElementById('tenantModalTitle').textContent = 'New Tenant';
+  document.getElementById('saveTenantBtn').textContent = 'Create Tenant';
+  ['t-name','t-slug','t-email','t-owner','t-notes','t-mrr','t-max-entities','t-max-users','t-max-txns','t-max-storage','t-limit-reason'].forEach(id => { const el=document.getElementById(id); if(el)el.value=''; });
+  document.getElementById('t-status').value = 'trial';
+  document.getElementById('t-env').value = 'production';
+  document.getElementById('t-region').value = 'us-east-1';
+  document.getElementById('t-plan').value = '';
+  document.getElementById('t-cycle').value = 'monthly';
+  // Set trial end to 14 days from now
+  const trial = new Date(Date.now()+14*24*60*60*1000).toISOString().slice(0,10);
+  document.getElementById('t-trial-end').value = trial;
+  document.getElementById('t-sub-start').value = '';
+  document.getElementById('t-sub-end').value = '';
+  populateFeatureToggles();
+  document.getElementById('tenantModal').classList.add('show');
+  // Reset to first tab
+  switchTenantTab('basic', document.querySelector('.tab-btn'));
+}
+
+async function editTenant(id) {
+  const t = allTenants.find(x=>x.id===id);
+  if (!t) return;
+  editingTenantId = id;
+  document.getElementById('tenantModalTitle').textContent = 'Edit Tenant — ' + t.company_name;
+  document.getElementById('saveTenantBtn').textContent = 'Save Changes';
+  const s = (fid, val) => { const el=document.getElementById(fid); if(el) el.value=val||''; };
+  s('t-name', t.company_name); s('t-slug', t.slug);
+  s('t-email', t.owner_email); s('t-owner', t.owner_name);
+  s('t-notes', t.notes); s('t-mrr', t.mrr);
+  document.getElementById('t-status').value  = t.status || 'trial';
+  document.getElementById('t-env').value     = t.environment || 'production';
+  document.getElementById('t-region').value  = t.data_region || 'us-east-1';
+  document.getElementById('t-plan').value    = t.plan_id || '';
+  document.getElementById('t-cycle').value   = t.billing_cycle || 'monthly';
+  s('t-trial-end', t.trial_ends_at?.slice(0,10));
+  s('t-sub-start', t.subscription_start?.slice(0,10));
+  s('t-sub-end', t.subscription_end?.slice(0,10));
+  // Load limits
+  const { data: lim } = await sb.from('tenant_limits').select('*').eq('tenant_id', id).maybeSingle();
+  if(lim) { s('t-max-entities',lim.max_entities); s('t-max-users',lim.max_users); s('t-max-txns',lim.max_transactions_monthly); s('t-max-storage',lim.max_storage_gb); s('t-limit-reason',lim.override_reason); }
+  await populateFeatureToggles(id);
+  document.getElementById('tenantModal').classList.add('show');
+}
+
+async function populateFeatureToggles(tenantId=null) {
+  const grid = document.getElementById('t-features-grid');
+  let enabledFeatures = new Set();
+  if (tenantId) {
+    const { data: tf } = await sb.from('tenant_features').select('feature_key,is_enabled').eq('tenant_id', tenantId);
+    (tf||[]).filter(f=>f.is_enabled).forEach(f => enabledFeatures.add(f.feature_key));
+  }
+  grid.innerHTML = allFeatures.map(f => `
+    <div class="feature-item">
+      <div>
+        <div class="feature-name">${f.feature_name}</div>
+        <div class="feature-group">${f.module_group}</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" class="feat-toggle" data-key="${f.feature_key}" ${enabledFeatures.has(f.feature_key)||(!tenantId)?'checked':''}>
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+    </div>`).join('');
+}
+
+async function saveTenant() {
+  const name  = document.getElementById('t-name').value.trim();
+  const email = document.getElementById('t-email').value.trim();
+  if (!name || !email) { toast('Company name and email required', true); return; }
+  showLoad();
+  const tid = editingTenantId || ('ten-' + Date.now());
+  const plan = document.getElementById('t-plan').value;
+  const cycle = document.getElementById('t-cycle').value;
+  const planData = allPlans.find(p=>p.id===plan);
+  const mrrRaw = document.getElementById('t-mrr').value;
+  const mrr = mrrRaw ? parseFloat(mrrRaw) : (planData ? (cycle==='annual' ? Math.round(planData.base_price_annual/12) : planData.base_price_monthly) : 0);
+
+  const payload = {
+    id: tid, company_name: name,
+    slug: document.getElementById('t-slug').value.trim() || name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,''),
+    owner_email: email,
+    owner_name: document.getElementById('t-owner').value.trim(),
+    status: document.getElementById('t-status').value,
+    environment: document.getElementById('t-env').value,
+    data_region: document.getElementById('t-region').value,
+    plan_id: plan || null,
+    billing_cycle: cycle,
+    mrr,
+    notes: document.getElementById('t-notes').value.trim(),
+    trial_ends_at: document.getElementById('t-trial-end').value || null,
+    subscription_start: document.getElementById('t-sub-start').value || null,
+    subscription_end: document.getElementById('t-sub-end').value || null,
+    updated_at: new Date().toISOString(),
+  };
+  if (!editingTenantId) payload.created_at = new Date().toISOString();
+
+  const { error } = await sb.from('tenants').upsert(payload);
+  if (error) { hideLoad(); toast('Error: ' + error.message, true); return; }
+
+  // Save limits
+  const maxE = document.getElementById('t-max-entities').value;
+  const maxU = document.getElementById('t-max-users').value;
+  const maxT = document.getElementById('t-max-txns').value;
+  const maxS = document.getElementById('t-max-storage').value;
+  if (maxE || maxU || maxT || maxS) {
+    await sb.from('tenant_limits').upsert({
+      id: 'tl-' + tid,
+      tenant_id: tid,
+      max_entities: maxE ? parseInt(maxE) : (planData?.max_entities||null),
+      max_users: maxU ? parseInt(maxU) : (planData?.max_users||null),
+      max_transactions_monthly: maxT ? parseInt(maxT) : null,
+      max_storage_gb: maxS ? parseFloat(maxS) : (planData?.max_storage_gb||null),
+      override_reason: document.getElementById('t-limit-reason').value || null,
+    });
+  }
+
+  // Save feature overrides
+  const featureToggles = document.querySelectorAll('.feat-toggle');
+  for (const toggle of featureToggles) {
+    await sb.from('tenant_features').upsert({
+      id: `tf-${tid}-${toggle.dataset.key}`,
+      tenant_id: tid,
+      feature_key: toggle.dataset.key,
+      is_enabled: toggle.checked,
+      set_by: currentAdmin?.email,
+    }, { onConflict: 'tenant_id,feature_key' });
+  }
+
+  // Update local state
+  if (editingTenantId) { const idx=allTenants.findIndex(t=>t.id===editingTenantId); if(idx>=0) allTenants[idx]={...allTenants[idx],...payload}; }
+  else allTenants.unshift(payload);
+
+  document.getElementById('sb-tenant-count').textContent = allTenants.length;
+  hideLoad(); closeModal('tenantModal');
+  toast(editingTenantId ? '✓ Tenant updated' : '✓ Tenant created');
+  auditLog(editingTenantId ? 'tenant_updated' : 'tenant_created', 'tenant', tid, { name, email });
+  renderTenants(); loadOverview();
+}
+
+function updatePlanDefaults() {
+  const plan = allPlans.find(p=>p.id===document.getElementById('t-plan').value);
+  if (!plan) return;
+  const el = id => document.getElementById(id);
+  if (!el('t-max-entities').value) el('t-max-entities').placeholder = 'Default: ' + plan.max_entities;
+  if (!el('t-max-users').value)    el('t-max-users').placeholder = 'Default: ' + plan.max_users;
+  if (!el('t-max-storage').value)  el('t-max-storage').placeholder = 'Default: ' + plan.max_storage_gb + ' GB';
+}
+
+// ════════════════════════════════════════
+//  SUBSCRIPTIONS
+// ════════════════════════════════════════
+function loadSubscriptions() {
+  const c = document.getElementById('subscriptions-body');
+  c.innerHTML = allTenants.map(t => `
+    <div class="table-row" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr 80px;">
+      <div>
+        <div style="font-weight:500;color:var(--text);">${t.company_name}</div>
+        <div style="font-size:11px;color:var(--text3);">${t.owner_email}</div>
+      </div>
+      <div style="font-size:12px;">${planName(t.plan_id)}</div>
+      <div style="font-size:11px;color:var(--text2);">${t.billing_cycle||'monthly'}</div>
+      <div style="font-size:12px;color:var(--teal);font-family:'DM Mono',monospace;">${fmtMoney(t.mrr)}/mo</div>
+      <div style="font-size:11px;color:var(--text2);">${fmtDate(t.trial_ends_at)}</div>
+      <div style="font-size:11px;color:var(--text2);">${fmtDate(t.subscription_end)}</div>
+      <div><button class="btn btn-sm" onclick="openBillingEdit('${t.id}')">Edit</button></div>
+    </div>`).join('');
+}
+
+function openBillingEdit(tenantId) {
+  editingBillingId = tenantId;
+  const t = allTenants.find(x=>x.id===tenantId);
+  if(!t) return;
+  document.getElementById('billing-tenant-name').textContent = t.company_name;
+  document.getElementById('bill-plan').value   = t.plan_id || '';
+  document.getElementById('bill-cycle').value  = t.billing_cycle || 'monthly';
+  document.getElementById('bill-mrr').value    = t.mrr || '';
+  document.getElementById('bill-status').value = t.status || 'trial';
+  document.getElementById('bill-trial').value  = t.trial_ends_at?.slice(0,10) || '';
+  document.getElementById('bill-subend').value = t.subscription_end?.slice(0,10) || '';
+  document.getElementById('billingModal').classList.add('show');
+}
+
+async function saveBilling() {
+  const t = allTenants.find(x=>x.id===editingBillingId); if(!t) return;
+  const plan = document.getElementById('bill-plan').value;
+  const cycle = document.getElementById('bill-cycle').value;
+  const planData = allPlans.find(p=>p.id===plan);
+  const mrrRaw = document.getElementById('bill-mrr').value;
+  const mrr = mrrRaw ? parseFloat(mrrRaw) : (planData ? (cycle==='annual' ? Math.round(planData.base_price_annual/12) : planData.base_price_monthly) : 0);
+  const payload = {
+    plan_id: plan||null, billing_cycle: cycle, mrr,
+    status: document.getElementById('bill-status').value,
+    trial_ends_at: document.getElementById('bill-trial').value || null,
+    subscription_end: document.getElementById('bill-subend').value || null,
+    updated_at: new Date().toISOString()
+  };
+  await sb.from('tenants').update(payload).eq('id', editingBillingId);
+  Object.assign(t, payload);
+  closeModal('billingModal');
+  toast('✓ Subscription updated');
+  auditLog('subscription_updated','tenant',editingBillingId,{plan,cycle,mrr});
+  loadSubscriptions(); loadOverview();
+}
+
+// ════════════════════════════════════════
+//  FEATURE GATING
+// ════════════════════════════════════════
+async function loadFeaturesPanel() {
+  // Tenant selector list
+  const list = document.getElementById('features-tenant-list');
+  list.innerHTML = allTenants.map(t => `
+    <div onclick="selectFeatureTenant('${t.id}')" style="padding:8px 10px;border-radius:var(--radius);cursor:pointer;transition:background .1s;border:1px solid transparent;" id="ftl-${t.id}"
+      onmouseover="this.style.background='rgba(44,166,164,0.08)'" onmouseout="this.style.background='transparent'">
+      <div style="font-size:12px;font-weight:500;color:var(--text);">${t.company_name}</div>
+      <div style="font-size:10px;color:var(--text3);">${statusBadge(t.status)}</div>
+    </div>`).join('');
+}
+
+async function selectFeatureTenant(tenantId) {
+  selectedFeatureTenantId = tenantId;
+  document.querySelectorAll('[id^="ftl-"]').forEach(el => {
+    el.style.border = el.id==='ftl-'+tenantId ? '1px solid var(--teal)' : '1px solid transparent';
+    el.style.background = el.id==='ftl-'+tenantId ? 'var(--teal-dim)' : 'transparent';
+  });
+  const t = allTenants.find(x=>x.id===tenantId);
+  document.getElementById('features-tenant-name').textContent = t?.company_name || 'Tenant';
+  document.getElementById('features-tenant-plan').textContent = 'Plan: ' + planName(t?.plan_id);
+  const { data: tf } = await sb.from('tenant_features').select('*').eq('tenant_id', tenantId);
+  const featureMap = {};
+  (tf||[]).forEach(f => featureMap[f.feature_key] = f);
+  // Group by module
+  const groups = {};
+  allFeatures.forEach(f => { if(!groups[f.module_group]) groups[f.module_group]=[]; groups[f.module_group].push(f); });
+  const grid = document.getElementById('features-grid');
+  grid.innerHTML = Object.entries(groups).map(([group, feats]) => `
+    <div style="margin-bottom:16px;">
+      <div style="font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--text3);text-transform:uppercase;margin-bottom:8px;font-family:'DM Mono',monospace;">${group}</div>
+      <div class="feature-grid">
+        ${feats.map(f => {
+          const rec = featureMap[f.feature_key];
+          const on = rec ? rec.is_enabled : false;
+          return `<div class="feature-item">
+            <div>
+              <div class="feature-name">${f.feature_name}</div>
+              <div class="feature-group">${f.feature_key}</div>
+            </div>
+            <label class="toggle" title="${on?'Click to disable':'Click to enable'}">
+              <input type="checkbox" onchange="toggleFeature('${tenantId}','${f.feature_key}',this.checked,'${f.feature_name}')" ${on?'checked':''}>
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`).join('');
+}
+
+async function toggleFeature(tenantId, featureKey, enabled, featureName) {
+  await sb.from('tenant_features').upsert({
+    id: `tf-${tenantId}-${featureKey}`,
+    tenant_id: tenantId, feature_key: featureKey,
+    is_enabled: enabled, set_by: currentAdmin?.email,
+  }, { onConflict: 'tenant_id,feature_key' });
+  toast(`${featureName} ${enabled?'enabled':'disabled'} for tenant`);
+  auditLog(`feature_${enabled?'enabled':'disabled'}`, 'feature', featureKey, { tenantId });
+}
+
+// ════════════════════════════════════════
+//  LIMITS
+// ════════════════════════════════════════
+async function loadLimits() {
+  const { data: limits } = await sb.from('tenant_limits').select('*');
+  const limitMap = {};
+  (limits||[]).forEach(l => limitMap[l.tenant_id]=l);
+  const c = document.getElementById('limits-body');
+  c.innerHTML = allTenants.map(t => {
+    const lim = limitMap[t.id] || {};
+    const plan = allPlans.find(p=>p.id===t.plan_id);
+    const maxE = lim.max_entities ?? plan?.max_entities ?? '∞';
+    const maxU = lim.max_users    ?? plan?.max_users    ?? '∞';
+    const maxT = lim.max_transactions_monthly ?? '∞';
+    const maxS = lim.max_storage_gb ?? plan?.max_storage_gb ?? '∞';
+    const hasOverride = lim.id ? true : false;
+    return `<div class="table-row" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr 80px;${hasOverride?'background:rgba(44,166,164,0.04);':''}">
+      <div>
+        <div style="font-weight:500;color:var(--text);">${t.company_name}</div>
+        ${hasOverride?'<div style="font-size:10px;color:var(--teal);">Custom override</div>':''}
+      </div>
+      <div style="font-size:12px;font-family:'DM Mono',monospace;">${maxE}</div>
+      <div style="font-size:12px;font-family:'DM Mono',monospace;">${maxU}</div>
+      <div style="font-size:12px;font-family:'DM Mono',monospace;">${typeof maxT==='number'?fmtNum(maxT):maxT}</div>
+      <div style="font-size:12px;font-family:'DM Mono',monospace;">${typeof maxS==='number'?maxS+' GB':maxS}</div>
+      <div><button class="btn btn-sm" onclick="openLimitEdit('${t.id}')">Edit</button></div>
+    </div>`;
+  }).join('');
+}
+
+async function openLimitEdit(tenantId) {
+  editingLimitId = tenantId;
+  const t = allTenants.find(x=>x.id===tenantId);
+  document.getElementById('limit-tenant-name').textContent = t?.company_name;
+  const { data: lim } = await sb.from('tenant_limits').select('*').eq('tenant_id', tenantId).maybeSingle();
+  const plan = allPlans.find(p=>p.id===t?.plan_id);
+  document.getElementById('lim-entities').value  = lim?.max_entities  ?? plan?.max_entities ?? '';
+  document.getElementById('lim-users').value     = lim?.max_users     ?? plan?.max_users    ?? '';
+  document.getElementById('lim-txns').value      = lim?.max_transactions_monthly ?? '';
+  document.getElementById('lim-storage').value   = lim?.max_storage_gb ?? plan?.max_storage_gb ?? '';
+  document.getElementById('lim-reason').value    = lim?.override_reason ?? '';
+  document.getElementById('limitModal').classList.add('show');
+}
+
+async function saveLimitOverride() {
+  const tid = editingLimitId;
+  await sb.from('tenant_limits').upsert({
+    id: 'tl-' + tid,
+    tenant_id: tid,
+    max_entities: parseInt(document.getElementById('lim-entities').value)||null,
+    max_users: parseInt(document.getElementById('lim-users').value)||null,
+    max_transactions_monthly: parseInt(document.getElementById('lim-txns').value)||null,
+    max_storage_gb: parseFloat(document.getElementById('lim-storage').value)||null,
+    override_reason: document.getElementById('lim-reason').value||null,
+  });
+  closeModal('limitModal');
+  toast('✓ Limits updated');
+  auditLog('limits_updated', 'tenant', tid);
+  loadLimits();
+}
+
+// ════════════════════════════════════════
+//  PLANS
+// ════════════════════════════════════════
+async function loadPlans() {
+  const { data: plans } = await sb.from('platform_plans').select('*').order('sort_order');
+  allPlans = plans || [];
+  const grid = document.getElementById('plans-grid');
+  const planColors = [COLORS.teal, COLORS.gold, '#5DCAA5', COLORS.amber];
+  grid.innerHTML = allPlans.map((p, i) => {
+    const tenantCount = allTenants.filter(t=>t.plan_id===p.id).length;
+    return `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;border-top:3px solid ${planColors[i]||COLORS.teal};">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:600;color:var(--text);">${p.plan_name}</div>
+        <span class="badge" style="background:rgba(255,255,255,0.06);color:var(--text2);">${tenantCount} tenants</span>
+      </div>
+      <div style="font-size:24px;font-weight:600;color:${planColors[i]||COLORS.teal};margin-bottom:4px;font-family:'Syne',sans-serif;">$${p.base_price_monthly}<span style="font-size:13px;font-weight:400;color:var(--text2);">/mo</span></div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:14px;">$${Math.round(p.base_price_annual/12)}/mo billed annually</div>
+      <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--text2);">
+        <div>Max entities: <span style="color:var(--text);">${p.max_entities >= 999 ? 'Unlimited' : p.max_entities}</span></div>
+        <div>Max users: <span style="color:var(--text);">${p.max_users >= 999 ? 'Unlimited' : p.max_users}</span></div>
+        <div>Storage: <span style="color:var(--text);">${p.max_storage_gb} GB</span></div>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:14px;">
+        <button class="btn btn-sm" onclick="editPlan('${p.id}')">Edit</button>
+        <button class="btn btn-sm ${p.is_active?'':'btn-danger'}" onclick="togglePlanActive('${p.id}',${!p.is_active})">${p.is_active?'Active':'Inactive'}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function togglePlanActive(planId, active) {
+  await sb.from('platform_plans').update({ is_active: active }).eq('id', planId);
+  toast(`Plan ${active?'activated':'deactivated'}`);
+  auditLog(`plan_${active?'activated':'deactivated'}`, 'plan', planId);
+  loadPlans();
+}
+
+function openNewPlan() { toast('Plan creation coming — edit directly in Supabase for now.', false); }
+function editPlan(id)   { toast('Plan editing coming — edit directly in Supabase for now.', false); }
+
+// ════════════════════════════════════════
+//  MODULES (FEATURE FLAGS)
+// ════════════════════════════════════════
+async function loadModules() {
+  const { data: feats } = await sb.from('platform_features').select('*').order('module_group').order('feature_name');
+  allFeatures = feats || [];
+  const groups = {};
+  allFeatures.forEach(f => { if(!groups[f.module_group]) groups[f.module_group]=[]; groups[f.module_group].push(f); });
+  const wrap = document.getElementById('modules-by-group');
+  wrap.innerHTML = Object.entries(groups).map(([group, feats]) => `
+    <div style="margin-bottom:20px;">
+      <div style="font-size:10px;font-weight:600;letter-spacing:.09em;color:var(--text3);text-transform:uppercase;margin-bottom:8px;font-family:'DM Mono',monospace;">${group}</div>
+      <div class="data-table">
+        ${feats.map(f => `
+          <div class="table-row" style="grid-template-columns:1fr 2fr 1fr 1fr;">
+            <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--teal);">${f.feature_key}</div>
+            <div style="font-size:12px;color:var(--text2);">${f.description||f.feature_name}</div>
+            <div><span class="badge ${f.is_active?'badge-feature-on':'badge-feature-off'}">${f.is_active?'active':'inactive'}</span></div>
+            <div>
+              <button class="btn btn-sm" onclick="toggleGlobalFeature('${f.id}',${!f.is_active})">${f.is_active?'Disable globally':'Enable globally'}</button>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+async function toggleGlobalFeature(featId, active) {
+  if (!confirm(`${active?'Enable':'Disable'} this feature globally?`)) return;
+  await sb.from('platform_features').update({ is_active: active }).eq('id', featId);
+  toast(`Feature ${active?'enabled':'disabled'} globally`);
+  auditLog(`global_feature_${active?'enabled':'disabled'}`, 'feature', featId);
+  loadModules();
+}
+
+function openNewFeature() { toast('Add new feature flags directly in Supabase — coming to UI soon.', false); }
+
+// ════════════════════════════════════════
+//  USAGE
+// ════════════════════════════════════════
+async function loadUsage() {
+  const { data: metrics } = await sb.from('usage_metrics').select('*').order('metric_date',{ascending:false});
+  const metricMap = {};
+  (metrics||[]).forEach(m => { if(!metricMap[m.tenant_id]) metricMap[m.tenant_id]=m; });
+  const c = document.getElementById('usage-body');
+  c.innerHTML = allTenants.map(t => {
+    const m = metricMap[t.id] || {};
+    return `<div class="table-row" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr;">
+      <div style="font-weight:500;color:var(--text);">${t.company_name}</div>
+      <div style="font-size:12px;font-family:'DM Mono',monospace;">${m.active_users||0}</div>
+      <div style="font-size:12px;font-family:'DM Mono',monospace;">${m.entity_count||0}</div>
+      <div style="font-size:12px;font-family:'DM Mono',monospace;">${fmtNum(m.transaction_count||0)}</div>
+      <div style="font-size:12px;font-family:'DM Mono',monospace;">${m.storage_gb?.toFixed(2)||'0.00'} GB</div>
+      <div style="font-size:11px;color:var(--text2);">${m.metric_date?fmtDate(m.metric_date):'No data'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+//  AUDIT LOG
+// ════════════════════════════════════════
+async function loadAuditLog() {
+  const { data: logs } = await sb.from('platform_audit_log').select('*').order('created_at',{ascending:false}).limit(100);
+  const c = document.getElementById('audit-body');
+  if (!logs?.length) {
+    c.innerHTML = `<div class="empty"><div class="empty-icon">⊟</div><div class="empty-title">No audit events yet</div></div>`; return;
+  }
+  c.innerHTML = logs.map(l => `
+    <div class="table-row" style="grid-template-columns:1fr 1fr 2fr 1fr;">
+      <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">${new Date(l.created_at).toLocaleString()}</div>
+      <div style="font-size:12px;color:var(--text2);">${l.admin_email||'system'}</div>
+      <div style="font-size:12px;color:var(--text);font-family:'DM Mono',monospace;">${l.action}</div>
+      <div style="font-size:11px;color:var(--text3);">${l.target_type?`${l.target_type}:${(l.target_id||'').slice(-8)}`:'—'}</div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════
+//  SUPPORT / IMPERSONATION
+// ════════════════════════════════════════
+function loadSupportTools() {
+  const list = document.getElementById('support-tenant-list');
+  list.innerHTML = allTenants.map(t => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:6px;">
+      <div>
+        <div style="font-size:13px;font-weight:500;color:var(--text);">${t.company_name}</div>
+        <div style="font-size:11px;color:var(--text3);">${t.owner_email} · ${statusBadge(t.status)}</div>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-sm" onclick="startImpersonation('${t.id}','${t.company_name}')">👁 View</button>
+        <button class="btn btn-sm" onclick="viewTenantData('${t.id}')">Data</button>
+      </div>
+    </div>`).join('');
+
+  const stats = document.getElementById('support-stats');
+  const totalMRR = allTenants.filter(t=>t.status==='active').reduce((s,t)=>s+parseFloat(t.mrr||0),0);
+  stats.innerHTML = [
+    ['Total Tenants', allTenants.length],
+    ['Active', allTenants.filter(t=>t.status==='active').length],
+    ['Trial', allTenants.filter(t=>t.status==='trial').length],
+    ['Suspended', allTenants.filter(t=>t.status==='suspended').length],
+    ['MRR', fmtMoney(totalMRR)],
+    ['ARR', fmtMoney(totalMRR*12)],
+  ].map(([l,v]) => `
+    <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);font-size:12px;">
+      <span style="color:var(--text2);">${l}</span>
+      <span style="font-weight:500;color:var(--text);font-family:'DM Mono',monospace;">${v}</span>
+    </div>`).join('');
+}
+
+function startImpersonation(tenantId, tenantName) {
+  document.getElementById('impersonateName').textContent = tenantName;
+  document.getElementById('impersonateBanner').classList.add('show');
+  toast(`Now viewing as: ${tenantName} (read-only)`);
+  auditLog('tenant_impersonation_started', 'tenant', tenantId, { tenantName });
+}
+function endImpersonation() {
+  document.getElementById('impersonateBanner').classList.remove('show');
+  auditLog('tenant_impersonation_ended');
+}
+async function viewTenantData(tenantId) {
+  const t = allTenants.find(x=>x.id===tenantId);
+  toast(`Tenant: ${t?.company_name} — Open the main Clarus app and select this entity for a full data view.`);
+}
+
+// ════════════════════════════════════════
+//  SANDBOX
+// ════════════════════════════════════════
+async function loadSandbox() {
+  const demos = allTenants.filter(t=>t.environment==='demo'||t.environment==='sandbox');
+  const c = document.getElementById('sandbox-body');
+  if (!demos.length) {
+    c.innerHTML = `<div class="empty"><div class="empty-icon">⊗</div><div class="empty-title">No demo environments</div><div class="empty-sub">Click "+ Create Demo" to spin up a sandbox tenant</div></div>`; return;
+  }
+  c.innerHTML = demos.map(t => `
+    <div class="table-row" style="grid-template-columns:2fr 1fr 1fr 1fr 120px;">
+      <div style="font-weight:500;color:var(--text);">${t.company_name}</div>
+      <div style="font-size:11px;color:var(--text2);">${fmtDate(t.created_at)}</div>
+      <div>${statusBadge(t.status)}</div>
+      <div style="font-size:11px;color:var(--text3);">—</div>
+      <div style="display:flex;gap:4px;">
+        <button class="btn btn-sm" onclick="resetDemoData('${t.id}')">Reset</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteDemoTenant('${t.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+async function createDemoTenant() {
+  const name = 'Demo — ' + new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const id = 'ten-demo-' + Date.now();
+  await sb.from('tenants').insert({
+    id, company_name: name, owner_email: 'demo@clarus.io',
+    status: 'active', environment: 'demo', plan_id: 'plan-professional',
+    mrr: 0, created_at: new Date().toISOString(), updated_at: new Date().toISOString()
+  });
+  allTenants.unshift({ id, company_name: name, status:'active', environment:'demo', plan_id:'plan-professional', mrr:0, created_at:new Date().toISOString() });
+  toast('✓ Demo tenant created');
+  auditLog('demo_tenant_created','tenant',id);
+  loadSandbox(); loadOverview();
+}
+
+async function resetDemoData(id) {
+  if (!confirm('Reset this demo tenant? This will clear all data.')) return;
+  toast('Demo reset queued — data truncation runs server-side.');
+  auditLog('demo_reset','tenant',id);
+}
+
+async function deleteDemoTenant(id) {
+  if (!confirm('Permanently delete this demo tenant?')) return;
+  await sb.from('tenants').delete().eq('id',id);
+  allTenants = allTenants.filter(t=>t.id!==id);
+  toast('Demo tenant deleted');
+  auditLog('demo_deleted','tenant',id);
+  loadSandbox(); loadOverview();
+}
+
+// ════════════════════════════════════════
+//  SECURITY
+// ════════════════════════════════════════
+function loadSecurity() {
+  const policies = [
+    { name: 'Require MFA for all admins', enabled: true },
+    { name: 'Enforce password complexity', enabled: true },
+    { name: 'Session timeout: 8 hours', enabled: true },
+    { name: 'Admin IP allowlist', enabled: false },
+    { name: 'Login attempt lockout (5 attempts)', enabled: true },
+    { name: 'Audit log retention: 7 years', enabled: true },
+  ];
+  document.getElementById('security-policies').innerHTML = policies.map(p => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+      <span style="font-size:12px;color:${p.enabled?'var(--text)':'var(--text3)'};">${p.name}</span>
+      <span class="badge ${p.enabled?'badge-active':'badge-cancelled'}">${p.enabled?'ON':'OFF'}</span>
+    </div>`).join('');
+
+  // Recent security events from audit log
+  sb.from('platform_audit_log').select('*').order('created_at',{ascending:false}).limit(10).then(({data}) => {
+    document.getElementById('security-events').innerHTML = (data||[]).map(l => `
+      <div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;white-space:nowrap;">${new Date(l.created_at).toLocaleTimeString()}</span>
+        <span style="font-size:11px;color:var(--text2);">${l.action}</span>
+      </div>`).join('') || '<div style="font-size:11px;color:var(--text3);">No events yet</div>';
+  });
+}
+
+// ════════════════════════════════════════
+//  KILL SWITCHES
+// ════════════════════════════════════════
+async function loadKillSwitches() {
+  const { data: switches } = await sb.from('global_kill_switches').select('*').order('switch_name');
+  const c = document.getElementById('kill-switches-list');
+  c.innerHTML = (switches||[]).map(sw => `
+    <div class="kill-panel ${sw.is_active?'kill-active':''}">
+      <div class="kill-panel-header">
+        <div>
+          <div class="kill-name">${sw.switch_name.replace(/_/g,' ')}</div>
+          <div class="kill-desc">${sw.description}</div>
+          ${sw.is_active && sw.activated_by ? `<div style="font-size:10px;color:var(--red);margin-top:4px;font-family:'DM Mono',monospace;">Activated by ${sw.activated_by} · ${fmtDate(sw.activated_at)}</div>` : ''}
+        </div>
+        <label class="toggle" title="${sw.is_active?'Switch is ON — click to deactivate':'Switch is OFF — click to activate'}">
+          <input type="checkbox" ${sw.is_active?'checked':''} onchange="toggleKillSwitch('${sw.id}','${sw.switch_name}',this.checked)">
+          <div class="toggle-track" style="${sw.is_active?'background:var(--red);border-color:var(--red);':''}"></div>
+          <div class="toggle-thumb" style="${sw.is_active?'left:16px;background:#fff;':''}"></div>
+        </label>
+      </div>
+    </div>`).join('');
+}
+
+async function toggleKillSwitch(id, name, active) {
+  if (active && !confirm(`⚠ ACTIVATE kill switch "${name}"?\n\nThis will affect ALL tenants immediately.`)) {
+    loadKillSwitches(); return;
+  }
+  await sb.from('global_kill_switches').update({
+    is_active: active,
+    activated_by: active ? currentAdmin?.email : null,
+    activated_at: active ? new Date().toISOString() : null,
+  }).eq('id', id);
+  toast(active ? `⚠ Kill switch "${name}" ACTIVATED` : `✓ Kill switch deactivated`, active);
+  auditLog(`killswitch_${active?'activated':'deactivated'}`, 'system', id, { name });
+  loadKillSwitches();
+}
+
+// ════════════════════════════════════════
+//  CLOCK
+// ════════════════════════════════════════
+// already started in showApp()
+
+// ════════════════════════════════════════
+//  INIT — check for existing session
+// ════════════════════════════════════════
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user && (ADMIN_EMAILS.includes(session.user.email) || session.user.email?.includes('clarus'))) {
+    currentAdmin = session.user;
+    showApp();
+  }
+})();
+</script>
+</body>
+</html>
