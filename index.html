@@ -20923,10 +20923,22 @@ async function loadBudgetingCharts() {
         <div style="font-size:22px;font-weight:600;color:var(--navy);font-family:'Playfair Display',serif;" id="rent-total">$0.00</div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-secondary" onclick="closeModal('rentalModal')">Cancel</button>
-      <button class="btn-secondary" id="rent-bill-btn" style="display:none;" onclick="saveRentalAndBill()">💵 Save &amp; Create Invoice</button>
-      <button class="btn-save" onclick="saveRental()">Save Rental</button>
+    <div class="modal-footer" style="flex-direction:column;gap:10px;align-items:stretch;">
+      <!-- Bill to customer option — shown for all rentals -->
+      <div style="background:var(--teal-light);border:1px solid var(--teal);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input type="checkbox" id="rent-create-invoice" style="accent-color:var(--teal);width:16px;height:16px;cursor:pointer;">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--teal-mid);">Create invoice for this rental</div>
+            <div style="font-size:11px;color:var(--text-light);">An invoice will be created and linked to this rental after saving</div>
+          </div>
+        </div>
+        <span style="font-size:11px;color:var(--text-light);">Optional</span>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button class="btn-secondary" onclick="closeModal('rentalModal')">Cancel</button>
+        <button class="btn-save" onclick="saveRental()">Save Rental</button>
+      </div>
     </div>
   </div>
 </div>
@@ -21324,7 +21336,7 @@ function renderRentalCalendar() {
     const isToday = dateKey === today;
     const dayRentals = dateMap[dateKey] || [];
     const rentalBars = dayRentals.slice(0, 3).map(r =>
-      `<div onclick="editRental('${r.id}')" title="${r.items?.item_name||'Item'} — ${r.customers?.name||'Customer'}" style="font-size:9px;padding:1px 4px;border-radius:2px;background:${statusColor[r.status]||'#2CA6A4'};color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;margin-bottom:1px;">${r.items?.item_name||'Rental'}</div>`
+      `<div onclick="editRental('${r.id}')" title="${r.items?.item_name||'Item'} — ${r.customers?.name||'Customer'}" style="font-size:9px;padding:1px 4px;border-radius:2px;background:${statusColor[r.status]||'#2CA6A4'};color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;margin-bottom:1px;">${r.items?.sku || r.items?.item_name||'Rental'}</div>`
     ).join('');
     const more = dayRentals.length > 3 ? `<div style="font-size:9px;color:var(--text-light);padding:0 4px;">+${dayRentals.length-3} more</div>` : '';
     html += `<div onclick="openRentalModalForDate('${dateKey}')" style="min-height:80px;padding:4px;border:1px solid var(--border-light);cursor:pointer;transition:background .1s;${isToday?'background:rgba(44,166,164,0.06);border-color:var(--teal);':''}" onmouseover="this.style.background='rgba(44,166,164,0.04)'" onmouseout="this.style.background='${isToday?'rgba(44,166,164,0.06)':'var(--white)'}'">
@@ -21398,7 +21410,15 @@ function renderRentalsList() {
 async function openRentalModal(rentalId=null) {
   editingRentalId = rentalId;
   document.getElementById('rentalModalTitle').textContent = rentalId ? 'Edit Rental' : 'New Rental';
-  document.getElementById('rent-bill-btn').style.display = rentalId ? 'inline-flex' : 'none';
+  // Reset invoice checkbox
+  const invCb = document.getElementById('rent-create-invoice');
+  if (invCb) {
+    invCb.checked = false;
+    // Hide checkbox for existing rentals that already have an invoice
+    const existingRental = rentalId ? allRentals.find(r=>r.id===rentalId) : null;
+    const alreadyInvoiced = !!(existingRental?.invoice_id);
+    invCb.closest('div').closest('div').style.display = alreadyInvoiced ? 'none' : '';
+  }
   if (!rentalId) {
     ['rent-rate','rent-deposit','rent-notes'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
     document.getElementById('rent-status').value  = 'reserved';
@@ -21470,8 +21490,14 @@ async function editRental(id) {
   document.getElementById('rent-deposit').value  = r.deposit_amount || '';
   document.getElementById('rent-status').value   = r.status || 'reserved';
   document.getElementById('rent-notes').value    = r.notes || '';
-  document.getElementById('rent-bill-btn').style.display = !r.invoice_id && r.status !== 'cancelled' ? 'inline-flex' : 'none';
+  // Hide invoice checkbox if already invoiced
+  const invCb = document.getElementById('rent-create-invoice');
+  if (invCb) {
+    invCb.checked = false;
+    invCb.closest('div').closest('div').style.display = r.invoice_id ? 'none' : '';
+  }
   calcRentalTotal();
+  await refreshRentalItemDropdown();
   document.getElementById('rentalModal').classList.add('show');
 }
 
@@ -21515,35 +21541,133 @@ async function saveRental() {
   if (!custId || !itemId || !start || !end || !rate) {
     showToast('⚠ Customer, equipment, dates and rate required', true); return;
   }
+  const createInvoice = document.getElementById('rent-create-invoice')?.checked || false;
   showLoading('Saving rental…');
   const rid     = editingRentalId || ('rent-' + Date.now());
   const days    = Math.max(1, Math.round((new Date(end) - new Date(start)) / (1000*60*60*24)) + 1);
   const period  = document.getElementById('rent-period').value;
   const divisor = { day:1, week:7, month:30, year:365 }[period] || 1;
   const total   = Math.round(rate * (days/divisor) * 100) / 100;
+  const rntNum  = editingRentalId
+    ? (allRentals.find(r=>r.id===rid)?.rental_number || undefined)
+    : 'RNT-' + Date.now().toString().slice(-4);
+
   const payload = {
-    id: rid, company_id: currentRentalsCompanyId, customer_id: custId, item_id: itemId,
-    rental_number: editingRentalId ? undefined : 'RNT-' + Date.now().toString().slice(-4),
-    start_date: start, end_date: end, status: document.getElementById('rent-status').value,
-    rental_rate: rate, rate_period: period,
+    id: rid,
+    company_id: currentRentalsCompanyId,
+    customer_id: custId,
+    item_id: itemId,
+    rental_number: rntNum,
+    start_date: start,
+    end_date: end,
+    status: document.getElementById('rent-status').value,
+    rental_rate: rate,
+    rate_period: period,
     estimated_total: total,
     deposit_amount: parseFloat(document.getElementById('rent-deposit').value || 0) || 0,
     notes: document.getElementById('rent-notes').value,
     updated_at: new Date().toISOString(),
   };
   if (!editingRentalId) payload.created_at = new Date().toISOString();
+
   const { error } = await sb.from('rentals').upsert(payload);
+  if (error) { hideLoading(); showToast('Error: ' + error.message, true); return; }
+
+  // Create invoice if checkbox was checked
+  if (createInvoice) {
+    await createInvoiceFromRental(rid, custId, itemId, start, end, rate, period, days, total);
+  }
+
   hideLoading();
-  if (error) { showToast('Error: ' + error.message, true); return; }
   closeModal('rentalModal');
-  showToast('✓ Rental saved');
+  showToast(createInvoice ? '✓ Rental saved and invoice created' : '✓ Rental saved');
   logActivity('rental_saved', `Rental ${rid}`);
   await loadRentals();
 }
 
+async function createInvoiceFromRental(rentalId, custId, itemId, start, end, rate, period, days, total) {
+  try {
+    // Get item name and sku for the invoice line
+    const item = rentalItems.find(i => i.id === itemId) || {};
+    const itemLabel = item.sku ? `${item.sku} — ${item.item_name||'Equipment'}` : (item.item_name || 'Equipment rental');
+
+    // Get customer details
+    const { data: custData } = await sb.from('customers')
+      .select('name, email').eq('id', custId).single();
+
+    // Build invoice id and number
+    const invId  = 'inv-rnt-' + rentalId.slice(-8) + '-' + Date.now().toString().slice(-4);
+    const invNum = 'RNT-' + rentalId.slice(-6).toUpperCase();
+    const invDate = new Date().toISOString().slice(0, 10);
+
+    // Get AR and Income account for this company
+    let arAcctId = null, incAcctId = null;
+    if (currentRentalsCompanyId) {
+      const { data: accts } = await sb.from('accounts')
+        .select('id, account_name, account_type')
+        .eq('company_id', currentRentalsCompanyId)
+        .in('account_type', ['Asset', 'Income']);
+      const arAcct  = (accts||[]).find(a => a.account_name.toLowerCase().includes('accounts receivable') || a.account_name.toLowerCase().includes('receivable'));
+      const incAcct = (accts||[]).find(a => a.account_type === 'Income' && (a.account_name.toLowerCase().includes('rental') || a.account_name.toLowerCase().includes('revenue') || a.account_name.toLowerCase().includes('income')));
+      arAcctId  = arAcct?.id  || null;
+      incAcctId = incAcct?.id || null;
+    }
+
+    const lineDesc = `${itemLabel} · ${fmtDate(start)} – ${fmtDate(end)} · ${days} day${days!==1?'s':''} @ ${fmtMoney(rate)}/${period}`;
+
+    // Insert invoice
+    await sb.from('invoices').insert({
+      id: invId,
+      company_id: currentRentalsCompanyId,
+      customer_id: custId,
+      invoice_number: invNum,
+      invoice_date: invDate,
+      due_date: end,
+      status: 'draft',
+      subtotal: total,
+      tax_amount: 0,
+      total: total,
+      balance_due: total,
+      amount_paid: 0,
+      memo: `Rental: ${item.item_name||'Equipment'} · ${fmtDate(start)} – ${fmtDate(end)}`,
+      ar_account_id: arAcctId,
+      income_account_id: incAcctId,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+
+    // Insert invoice line
+    await sb.from('invoice_lines').insert({
+      id: 'il-' + invId + '-0',
+      invoice_id: invId,
+      description: lineDesc,
+      quantity: 1,
+      unit_price: total,
+      tax_rate: 0,
+      amount: total,
+      sort_order: 0,
+    });
+
+    // Link invoice back to rental + mark as invoiced
+    await sb.from('rentals').update({
+      invoice_id: invId,
+      status: 'invoiced',
+      updated_at: new Date().toISOString(),
+    }).eq('id', rentalId);
+
+    return invId;
+  } catch(e) {
+    console.error('createInvoiceFromRental error:', e);
+    showToast('Rental saved but invoice creation failed: ' + (e.message||e), true);
+    return null;
+  }
+}
+
 async function saveRentalAndBill() {
+  // Legacy: programmatically check the invoice checkbox then save
+  const cb = document.getElementById('rent-create-invoice');
+  if (cb) cb.checked = true;
   await saveRental();
-  if (editingRentalId) await billRental(editingRentalId);
 }
 
 async function billRental(rentalId) {
@@ -21859,3 +21983,4 @@ initApp();
 </script>
 </body>
 </html>
+
