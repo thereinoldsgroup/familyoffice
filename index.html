@@ -6392,7 +6392,7 @@ function showDetail() {
   document.getElementById('tab-company-info').classList.add('active');
   document.getElementById('tab-officers').classList.remove('active');
   // Scroll to top so page-header is visible
-  const m = document.querySelector('.main'); if (m) m.scrollTop = 0;
+  requestAnimationFrame(()=>{ const _m=document.querySelector('.main');if(_m)_m.scrollTop=0; });
 }
 
 // editCompanyInfo opens the edit form directly (used from hub)
@@ -6793,51 +6793,67 @@ function switchModule(module) {
   // Always scroll to top when switching modules
   const _m=document.querySelector('.main');if(_m)_m.scrollTop=0;else window.scrollTo(0,0);
   if (module === 'companies') {
+    requestAnimationFrame(()=>{ const _sm=document.querySelector('.main');if(_sm)_sm.scrollTop=0; });
     showDashboard();
   } else if (module === 'ownership') {
     document.getElementById('view-ownership').classList.add('active');
+    requestAnimationFrame(()=>{ const _sm=document.querySelector('.main');if(_sm)_sm.scrollTop=0; });
     loadOwnershipModule();
   } else if (module === 'financials') {
     document.getElementById('view-financials').classList.add('active');
+    requestAnimationFrame(()=>{ const _sm=document.querySelector('.main');if(_sm)_sm.scrollTop=0; });
     loadFinancialsModule();
   } else if (module === 'tax') {
     document.getElementById('view-tax').classList.add('active');
+    requestAnimationFrame(()=>{ const _sm=document.querySelector('.main');if(_sm)_sm.scrollTop=0; });
     loadTaxModule();
   } else if (module === 'projects') {
     document.getElementById('view-projects').classList.add('active');
+    requestAnimationFrame(()=>{ const _sm=document.querySelector('.main');if(_sm)_sm.scrollTop=0; });
     loadPMModule();
   } else if (module === 'inventory') {
     document.getElementById('view-inventory').classList.add('active');
+    requestAnimationFrame(()=>{ const _sm=document.querySelector('.main');if(_sm)_sm.scrollTop=0; });
     loadInvModule();
   } else if (module === 'budgeting') {
     document.getElementById('view-budgeting').classList.add('active');
+    requestAnimationFrame(()=>{ const _sm=document.querySelector('.main');if(_sm)_sm.scrollTop=0; });
     loadBudgetingModule();
   } else if (module === 'settings') {
     document.getElementById('view-settings').classList.add('active');
+    requestAnimationFrame(()=>{ const _sm=document.querySelector('.main');if(_sm)_sm.scrollTop=0; });
     loadSettingsModule();
   } else if (module === 'crm') {
     document.getElementById('view-crm').classList.add('active');
+    requestAnimationFrame(()=>{ const _sm=document.querySelector('.main');if(_sm)_sm.scrollTop=0; });
     loadCRMModule();
   } else if (module === 'documents') {
     document.getElementById('view-documents').classList.add('active');
+    requestAnimationFrame(()=>{ const _sm=document.querySelector('.main');if(_sm)_sm.scrollTop=0; });
     loadDocumentsModule();
   } else if (module === 'reports') {
     document.getElementById('view-reports').classList.add('active');
+    requestAnimationFrame(()=>{ const _sm=document.querySelector('.main');if(_sm)_sm.scrollTop=0; });
     loadReportsModule();
   } else if (module === 'purchasing') {
     document.getElementById('view-purchasing').classList.add('active');
+    requestAnimationFrame(()=>{ const _sm=document.querySelector('.main');if(_sm)_sm.scrollTop=0; });
     loadPurchasingModule();
   } else if (module === 'equity') {
     document.getElementById('view-equity').classList.add('active');
+    requestAnimationFrame(()=>{ const _sm=document.querySelector('.main');if(_sm)_sm.scrollTop=0; });
     loadEquityModule();
   } else if (module === 'debt') {
     document.getElementById('view-debt').classList.add('active');
+    requestAnimationFrame(()=>{ const _sm=document.querySelector('.main');if(_sm)_sm.scrollTop=0; });
     loadDebtModule();
   } else if (module === 'hr') {
     document.getElementById('view-hr').classList.add('active');
+    requestAnimationFrame(()=>{ const _sm=document.querySelector('.main');if(_sm)_sm.scrollTop=0; });
     loadHRModule();
   } else if (module === 'rentals') {
     document.getElementById('view-rentals').classList.add('active');
+    requestAnimationFrame(()=>{ const _sm=document.querySelector('.main');if(_sm)_sm.scrollTop=0; });
     loadRentalsModule();
   }
 }
@@ -10476,22 +10492,24 @@ let taxDocs = [];
 // ── MODULE LOAD ──
 async function loadTaxModule() {
   showLoading('Loading tax module…');
-  const { data: companies } = await sb.from('companies').select('id,legal_name,structure,acct_method_tax,suta_state').order('legal_name');
-  hideLoading();
-  const sel = document.getElementById('taxEntitySelect');
-  sel.innerHTML = '<option value="">— Select a company —</option>' +
-    (companies||[]).map(c => `<option value="${c.id}" data-structure="${c.structure||''}">${c.legal_name}</option>`).join('');
-  taxYear = parseInt(document.getElementById('taxYearSelect').value) || 2025;
-
-  // Auto-select first company
-  if (companies && companies.length > 0 && !taxCompanyId) {
-    sel.value = companies[0].id;
-    taxCompanyId = companies[0].id;
-    await loadTaxEntityData();
-    showTaxDashboard(companies[0]);
-  } else if (taxCompanyId) {
-    sel.value = taxCompanyId;
-  }
+  try {
+    const { data: companies } = await sb.from('companies').select('id,legal_name,structure,acct_method_tax,suta_state').order('legal_name');
+    const sel = document.getElementById('taxEntitySelect');
+    if (sel) {
+      sel.innerHTML = '<option value="">— Select a company —</option>' +
+        (companies||[]).map(c => `<option value="${c.id}" data-structure="${c.structure||''}">${c.legal_name}</option>`).join('');
+    }
+    taxYear = parseInt(document.getElementById('taxYearSelect')?.value) || new Date().getFullYear();
+    if (companies?.length && !taxCompanyId) {
+      if(sel) sel.value = companies[0].id;
+      taxCompanyId = companies[0].id;
+      await loadTaxEntityData();
+      showTaxDashboard(companies[0]);
+    } else if (taxCompanyId && sel) {
+      sel.value = taxCompanyId;
+    }
+  } catch(e) { console.error('loadTaxModule error:', e); }
+  finally { hideLoading(); }
 }
 
 function showTaxDashboard(company) {
@@ -11430,18 +11448,18 @@ function pmStatusPill(s) {
 // ── LOAD PM MODULE ──
 async function loadPMModule() {
   showLoading('Loading projects…');
-  const { data: companies } = await sb.from('companies').select('id,legal_name').order('legal_name');
-  const sel = document.getElementById('pm-entity-select');
-  sel.innerHTML = '<option value="">— All companies —</option>' +
-    (companies||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
-  if (companies?.length && !pmCompanyId) {
-    pmCompanyId = companies[0].id;
-    sel.value = pmCompanyId;
-  } else if (pmCompanyId) {
-    sel.value = pmCompanyId;
-  }
-  await loadPMData();
-  hideLoading();
+  try {
+    const { data: companies } = await sb.from('companies').select('id,legal_name').order('legal_name');
+    const sel = document.getElementById('pm-entity-select');
+    if (sel) {
+      sel.innerHTML = '<option value="">— All companies —</option>' +
+        (companies||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
+      if (companies?.length && !pmCompanyId) { pmCompanyId = companies[0].id; sel.value = pmCompanyId; }
+      else if (pmCompanyId) sel.value = pmCompanyId;
+    }
+    await loadPMData();
+  } catch(e) { console.error('loadPMModule error:', e); }
+  finally { hideLoading(); }
 }
 
 async function onPMEntityChange() {
@@ -12721,18 +12739,20 @@ let editingItemId = null, editingLocId = null;
 // ── MODULE LOAD ──
 async function loadInvModule() {
   showLoading('Loading inventory…');
-  const { data: companies } = await sb.from('companies').select('id,legal_name').order('legal_name');
-  const sel = document.getElementById('inv-entity-select');
-  sel.innerHTML = '<option value="">— Select company —</option>' +
-    (companies||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
-  if (companies?.length && !invCompanyId) {
-    invCompanyId = companies[0].id;
-    sel.value = invCompanyId;
-  } else if (invCompanyId) { sel.value = invCompanyId; }
-  const { data: uoms } = await sb.from('units_of_measure').select('*').order('uom_name');
-  invUOMs = uoms || [];
-  await loadInvData();
-  hideLoading();
+  try {
+    const { data: companies } = await sb.from('companies').select('id,legal_name').order('legal_name');
+    const sel = document.getElementById('inv-entity-select');
+    if (sel) {
+      sel.innerHTML = '<option value="">— Select company —</option>' +
+        (companies||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
+      if (companies?.length && !invCompanyId) { invCompanyId = companies[0].id; sel.value = invCompanyId; }
+      else if (invCompanyId) sel.value = invCompanyId;
+    }
+    const { data: uoms } = await sb.from('units_of_measure').select('*').order('uom_name');
+    invUOMs = uoms || [];
+    await loadInvData();
+  } catch(e) { console.error('loadInvModule error:', e); }
+  finally { hideLoading(); }
 }
 
 async function onInvEntityChange() {
@@ -13533,17 +13553,19 @@ const MONTH_KEYS = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct',
 // ── MODULE LOAD ──
 async function loadBudgetingModule() {
   showLoading('Loading budgeting module…');
-  const { data: companies } = await sb.from('companies').select('id,legal_name').order('legal_name');
-  const sel = document.getElementById('bud-entity-select');
-  sel.innerHTML = '<option value="">— Select company —</option>' +
-    (companies||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
-  budFiscalYear = parseInt(document.getElementById('bud-year-select')?.value) || 2025;
-  if (companies?.length && !budCompanyId) {
-    budCompanyId = companies[0].id;
-    sel.value = budCompanyId;
-  } else if (budCompanyId) { sel.value = budCompanyId; }
-  await loadBudgetingData();
-  hideLoading();
+  try {
+    const { data: companies } = await sb.from('companies').select('id,legal_name').order('legal_name');
+    const sel = document.getElementById('bud-entity-select');
+    if (sel) {
+      sel.innerHTML = '<option value="">— Select company —</option>' +
+        (companies||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
+      if (companies?.length && !budCompanyId) { budCompanyId = companies[0].id; sel.value = budCompanyId; }
+      else if (budCompanyId) sel.value = budCompanyId;
+    }
+    budFiscalYear = parseInt(document.getElementById('bud-year-select')?.value) || new Date().getFullYear();
+    await loadBudgetingData();
+  } catch(e) { console.error('loadBudgetingModule error:', e); }
+  finally { hideLoading(); }
 }
 
 async function onBudEntityChange() {
@@ -14527,28 +14549,27 @@ let editingUserId = null, editingRoleId = null, editingWorkflowId = null;
 // ── MODULE LOAD ──
 async function loadSettingsModule() {
   showLoading('Loading settings…');
-  const [{ data: users }, { data: roles }, { data: perms }, { data: companies }] = await Promise.all([
-    sb.from('app_users').select('*').order('full_name'),
-    sb.from('roles').select('*').order('role_name'),
-    sb.from('permissions').select('*').order('module').order('action'),
-    sb.from('companies').select('id,legal_name').order('legal_name'),
-  ]);
-  setUsers = users || [];
-  setRoles = roles || [];
-  setPermissions = perms || [];
-  setCompanies = companies || [];
-
-  // Populate dropdowns
-  const userOpts = '<option value="">— Select user —</option>' + setUsers.map(u=>`<option value="${u.id}">${u.full_name} (${u.email})</option>`).join('');
-  const coOpts   = '<option value="">— Select company —</option>' + setCompanies.map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
-  const roleOpts = '<option value="">— Any admin —</option>' + setRoles.map(r=>`<option value="${r.id}">${r.role_name}</option>`).join('');
-  ['ea-user','activity-user-filter'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=userOpts; });
-  ['ea-company','wf-company'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=coOpts; });
-  ['wf-role'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=roleOpts; });
-
-  hideLoading();
-  showSetPanel('users');
-  loadUsers();
+  try {
+    const [{ data: users }, { data: roles }, { data: perms }, { data: companies }] = await Promise.all([
+      sb.from('app_users').select('*').order('full_name'),
+      sb.from('roles').select('*').order('role_name'),
+      sb.from('permissions').select('*').order('module').order('action'),
+      sb.from('companies').select('id,legal_name').order('legal_name'),
+    ]);
+    setUsers = users || [];
+    setRoles = roles || [];
+    setPermissions = perms || [];
+    setCompanies = companies || [];
+    const userOpts = '<option value="">— Select user —</option>' + setUsers.map(u=>`<option value="${u.id}">${u.full_name} (${u.email})</option>`).join('');
+    const coOpts   = '<option value="">— Select company —</option>' + setCompanies.map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
+    const roleOpts = '<option value="">— Any admin —</option>' + setRoles.map(r=>`<option value="${r.id}">${r.role_name}</option>`).join('');
+    ['ea-user','activity-user-filter'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=userOpts; });
+    ['ea-company','wf-company'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=coOpts; });
+    ['wf-role'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=roleOpts; });
+    showSetPanel('users');
+    loadUsers();
+  } catch(e) { console.error('loadSettingsModule error:', e); }
+  finally { hideLoading(); }
 }
 
 // ── PANEL NAVIGATION ──
@@ -15084,12 +15105,17 @@ let editingContactId=null, editingDealId=null, editingDocId=null, editingRuleId=
 // ════════════════════════════════
 async function loadCRMModule() {
   showLoading('Loading CRM…');
-  const { data:cos } = await sb.from('companies').select('id,legal_name').order('legal_name');
-  const sel = document.getElementById('crm-entity-select');
-  sel.innerHTML = '<option value="">— Select company —</option>'+(cos||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
-  if (!crmCompanyId && cos?.length) { crmCompanyId=cos[0].id; sel.value=crmCompanyId; }
-  else if (crmCompanyId) sel.value=crmCompanyId;
-  await loadCRMData(); hideLoading();
+  try {
+    const { data:cos } = await sb.from('companies').select('id,legal_name').order('legal_name');
+    const sel = document.getElementById('crm-entity-select');
+    if (sel) {
+      sel.innerHTML = '<option value="">— Select company —</option>'+(cos||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
+      if (!crmCompanyId && cos?.length) { crmCompanyId=cos[0].id; sel.value=crmCompanyId; }
+      else if (crmCompanyId) sel.value=crmCompanyId;
+    }
+    await loadCRMData();
+  } catch(e) { console.error('loadCRMModule error:', e); }
+  finally { hideLoading(); }
 }
 async function onCRMEntityChange() { crmCompanyId=document.getElementById('crm-entity-select').value||null; await loadCRMData(); }
 async function loadCRMData() {
@@ -15345,12 +15371,17 @@ async function saveActivity() {
 // ════════════════════════════════
 async function loadDocumentsModule() {
   showLoading('Loading documents…');
-  const { data:cos } = await sb.from('companies').select('id,legal_name').order('legal_name');
-  const sel=document.getElementById('doc-entity-select');
-  sel.innerHTML='<option value="">— Select company —</option>'+(cos||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
-  if (!docCompanyId && cos?.length) { docCompanyId=cos[0].id; sel.value=docCompanyId; }
-  else if (docCompanyId) sel.value=docCompanyId;
-  await loadDocData(); hideLoading();
+  try {
+    const { data:cos } = await sb.from('companies').select('id,legal_name').order('legal_name');
+    const sel=document.getElementById('doc-entity-select');
+    if (sel) {
+      sel.innerHTML='<option value="">— Select company —</option>'+(cos||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
+      if (!docCompanyId && cos?.length) { docCompanyId=cos[0].id; sel.value=docCompanyId; }
+      else if (docCompanyId) sel.value=docCompanyId;
+    }
+    await loadDocData();
+  } catch(e) { console.error('loadDocumentsModule error:', e); }
+  finally { hideLoading(); }
 }
 async function onDocEntityChange() { docCompanyId=document.getElementById('doc-entity-select').value||null; await loadDocData(); }
 async function loadDocData() {
@@ -15449,19 +15480,22 @@ async function archiveDocument(id) {
 // ════════════════════════════════
 async function loadReportsModule() {
   showLoading('Loading reports…');
-  const { data:cos } = await sb.from('companies').select('id,legal_name').order('legal_name');
-  const sel=document.getElementById('rpt-entity-select');
-  sel.innerHTML='<option value="">— Select company —</option>'+(cos||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
-  if (!rptCompanyId && cos?.length) { rptCompanyId=cos[0].id; sel.value=rptCompanyId; }
-  else if (rptCompanyId) sel.value=rptCompanyId;
-  // Set default date range
-  const now=new Date(), yearStart=`${now.getFullYear()}-01-01`, today=now.toISOString().slice(0,10);
-  document.getElementById('rpt-date-from').value=yearStart;
-  document.getElementById('rpt-date-to').value=today;
-  hideLoading();
-  loadSavedReports();
-  loadAutomationRules();
-  loadAlerts();
+  try {
+    const { data:cos } = await sb.from('companies').select('id,legal_name').order('legal_name');
+    const sel=document.getElementById('rpt-entity-select');
+    if (sel) {
+      sel.innerHTML='<option value="">— Select company —</option>'+(cos||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
+      if (!rptCompanyId && cos?.length) { rptCompanyId=cos[0].id; sel.value=rptCompanyId; }
+      else if (rptCompanyId) sel.value=rptCompanyId;
+    }
+    const now=new Date();
+    const df=document.getElementById('rpt-date-from'); if(df) df.value=`${now.getFullYear()}-01-01`;
+    const dt=document.getElementById('rpt-date-to');   if(dt) dt.value=now.toISOString().slice(0,10);
+    loadSavedReports();
+    loadAutomationRules();
+    loadAlerts();
+  } catch(e) { console.error('loadReportsModule error:', e); }
+  finally { hideLoading(); }
 }
 async function onRptEntityChange() { rptCompanyId=document.getElementById('rpt-entity-select').value||null; }
 function showRptPanel(panelId) {
@@ -16987,10 +17021,12 @@ function showHRPanel(p) {
 // ═══════════════════════
 async function loadPurchasingModule() {
   showLoading('Loading purchasing…');
-  await b8InitCompanySelect('po-entity-select','poCompanyId', async (cid) => {
-    poCompanyId=cid; await loadPOData();
-  });
-  hideLoading();
+  try {
+    await b8InitCompanySelect('po-entity-select','poCompanyId', async (cid) => {
+      poCompanyId=cid; await loadPOData();
+    });
+  } catch(e) { console.error('loadPurchasingModule error:', e); }
+  finally { hideLoading(); }
 }
 async function onPOEntityChange() { poCompanyId=document.getElementById('po-entity-select').value||null; await loadPOData(); }
 async function loadPOData() {
@@ -17227,10 +17263,12 @@ function printPO(poId) {
 // ═══════════════════════
 async function loadEquityModule() {
   showLoading('Loading cap table…');
-  await b8InitCompanySelect('eq-entity-select','eqCompanyId', async (cid) => {
-    eqCompanyId=cid; await loadEQData();
-  });
-  hideLoading();
+  try {
+    await b8InitCompanySelect('eq-entity-select','eqCompanyId', async (cid) => {
+      eqCompanyId=cid; await loadEQData();
+    });
+  } catch(e) { console.error('loadEquityModule error:', e); }
+  finally { hideLoading(); }
 }
 async function onEQEntityChange() { eqCompanyId=document.getElementById('eq-entity-select').value||null; await loadEQData(); }
 async function loadEQData() {
@@ -17445,10 +17483,12 @@ async function saveCapTableEntry() {
 // ═══════════════════════
 async function loadDebtModule() {
   showLoading('Loading debt…');
-  await b8InitCompanySelect('debt-entity-select','debtCompanyId', async (cid) => {
-    debtCompanyId=cid; await loadDebtData();
-  });
-  hideLoading();
+  try {
+    await b8InitCompanySelect('debt-entity-select','debtCompanyId', async (cid) => {
+      debtCompanyId=cid; await loadDebtData();
+    });
+  } catch(e) { console.error('loadDebtModule error:', e); }
+  finally { hideLoading(); }
 }
 async function onDebtEntityChange() { debtCompanyId=document.getElementById('debt-entity-select').value||null; await loadDebtData(); }
 async function loadDebtData() {
@@ -17662,10 +17702,12 @@ async function saveLoan() {
 // ═══════════════════════
 async function loadHRModule() {
   showLoading('Loading HR…');
-  await b8InitCompanySelect('hr-entity-select','hrCompanyId', async (cid) => {
-    hrCompanyId=cid; await loadHRData();
-  });
-  hideLoading();
+  try {
+    await b8InitCompanySelect('hr-entity-select','hrCompanyId', async (cid) => {
+      hrCompanyId=cid; await loadHRData();
+    });
+  } catch(e) { console.error('loadHRModule error:', e); }
+  finally { hideLoading(); }
 }
 async function onHREntityChange() { hrCompanyId=document.getElementById('hr-entity-select').value||null; await loadHRData(); }
 async function loadHRData() {
