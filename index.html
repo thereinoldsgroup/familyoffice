@@ -2586,7 +2586,7 @@
                   <option value="12">Last 12 months</option>
                   <option value="ytd">Year to date</option>
                 </select>
-                <button class="btn-primary" onclick="refreshKPIs()">↻ Refresh</button>
+                <button class="btn-primary" onclick="refreshKPIs().then(()=>loadBudgetingCharts())">↻ Refresh</button>
                 <button class="btn-secondary" onclick="printKPIDashboard()">Print</button>
               </div>
             </div>
@@ -20252,12 +20252,14 @@ loadDashboard = async function() {
 //  BUDGETING KPI CHARTS
 // ══════════════════════════
 
-// Hook into refreshKPIs to also render budgeting charts
-const _origRefreshKPIs = typeof refreshKPIs === 'function' ? refreshKPIs : null;
-async function refreshKPIs() {
-  if (_origRefreshKPIs) await _origRefreshKPIs();
-  await loadBudgetingCharts();
-}
+// Budgeting charts are loaded by patching the budgeting module's panel switch
+// refreshKPIs is NOT redefined here — the original function at line ~13504 stands.
+// Instead, we hook the KPI refresh button's onclick via showBudPanel override.
+const _b10ShowBudPanel = typeof showBudPanel === 'function' ? showBudPanel : null;
+showBudPanel = function(panelId) {
+  if (_b10ShowBudPanel) _b10ShowBudPanel(panelId);
+  if (panelId === 'kpi') setTimeout(loadBudgetingCharts, 600);
+};
 
 async function loadBudgetingCharts() {
   const companyId = acctCompanyId || budCompanyId;
