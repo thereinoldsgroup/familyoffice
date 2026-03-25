@@ -1009,6 +1009,366 @@
   <main class="main">
 
     <!-- DASHBOARD -->
+    <div id="view-company-detail" class="panel">
+      <div class="page-header">
+        <div>
+          <div class="page-title" id="detailCompanyName">New Company</div>
+          <div class="page-subtitle">Company record — Clarus Financial Management</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn-danger" id="deleteBtn" onclick="deleteCurrentCompany()" style="display:none;">Delete</button>
+          <button class="btn-secondary" onclick="showDashboard()">← Back</button>
+          <button class="btn-save" id="saveBtn" onclick="saveRecord()">Save Record</button>
+        </div>
+      </div>
+
+      <div class="inner-tabs">
+        <button class="inner-tab active" onclick="switchTab(this,'tab-company-info')">Company Information</button>
+        <button class="inner-tab" onclick="switchTab(this,'tab-officers')">Corporate Officers</button>
+      </div>
+
+      <!-- TAB: Company Info -->
+      <div id="tab-company-info" class="panel active">
+
+        <!-- Business Identity -->
+        <div class="form-section">
+          <div class="form-section-header" onclick="toggleSection(this)">
+            <span class="section-icon">🏢</span>
+            <span class="form-section-title">Business Identity</span>
+            <span class="form-section-toggle">▾</span>
+          </div>
+          <div class="form-section-body">
+            <div class="form-grid">
+              <div class="field-group col-span-2">
+                <label class="field-label required">Legal Business Name</label>
+                <input type="text" class="field-input" id="f-legalName" placeholder="Full legal name as registered" oninput="document.getElementById('detailCompanyName').textContent=this.value||'New Company'">
+              </div>
+              <div class="field-group">
+                <label class="field-label">DBA Name (Doing Business As)</label>
+                <input type="text" class="field-input" id="f-dba" placeholder="Trade name, if applicable">
+              </div>
+              <div class="field-group">
+                <label class="field-label required">FEIN</label>
+                <input type="text" class="field-input" id="f-fein" placeholder="XX-XXXXXXX" maxlength="10" oninput="formatFEIN(this)">
+                <span class="field-hint">Digits only — auto-formatted XX-XXXXXXX</span>
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Organizational Structure</label>
+                <select class="field-select" id="f-structure">
+                  <option value="">— Select —</option>
+                  <option>S Corporation</option>
+                  <option>C Corporation</option>
+                  <option>LLC (Single Member)</option>
+                  <option>LLC (Multi-Member)</option>
+                  <option>Limited Partnership (LP)</option>
+                  <option>Limited Liability Partnership (LLP)</option>
+                  <option>General Partnership</option>
+                  <option>Sole Proprietorship</option>
+                  <option>Non-Profit Corporation</option>
+                  <option>Trust</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Country of Organization</label>
+                <select class="field-select" id="f-countryOfOrg">
+                  <option value="">— Select —</option>
+                  <option>United States</option>
+                  <option>Canada</option>
+                  <option>United Kingdom</option>
+                  <option>Cayman Islands</option>
+                  <option>British Virgin Islands</option>
+                  <option>Luxembourg</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Date of Organization</label>
+                <input type="date" class="field-input" id="f-dateOfOrg">
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Industry Type</label>
+                <select class="field-select" id="f-industryType">
+                  <option value="">— Select —</option>
+                  <option>Real Estate</option>
+                  <option>Finance &amp; Investment</option>
+                  <option>Manufacturing</option>
+                  <option>Retail Trade</option>
+                  <option>Wholesale Trade</option>
+                  <option>Healthcare</option>
+                  <option>Technology</option>
+                  <option>Construction</option>
+                  <option>Transportation</option>
+                  <option>Hospitality</option>
+                  <option>Agriculture</option>
+                  <option>Professional Services</option>
+                  <option>Energy</option>
+                  <option>Equipment Rental</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">NAICS Code</label>
+                <input type="text" class="field-input" id="f-naics" placeholder="6-digit code" maxlength="6" oninput="this.value=this.value.replace(/\D/g,'')">
+              </div>
+              <div class="field-group col-span-2" style="border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;background:var(--section-bg);">
+                <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-mid);cursor:pointer;font-weight:500;">
+                  <input type="checkbox" id="f-isRentalCompany" style="accent-color:var(--teal);width:16px;height:16px;">
+                  <span>This entity is a <strong>Rental Company</strong></span>
+                </label>
+                <div style="font-size:12px;color:var(--text-light);margin-top:6px;margin-left:26px;">Enables the Rental Scheduling module under Operations. Equipment in Inventory will show rental rate fields, and rentals will tie to invoices.</div>
+              </div>
+              
+              <div class="field-group col-span-2">
+                <label class="field-label">Products / Services Sold</label>
+                <textarea class="field-textarea" id="f-productServices" placeholder="Describe the primary products or services offered…"></textarea>
+              </div>
+              <div class="field-group col-span-2">
+                <label class="field-label required">States in Which Business is Conducted</label>
+                <select class="field-select" id="f-statesOfBusiness" multiple>
+                  <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option>
+                  <option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option>
+                  <option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option>
+                  <option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option>
+                  <option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option>
+                  <option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
+                  <option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option>
+                  <option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option>
+                  <option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
+                  <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option>
+                  <option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option>
+                  <option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option>
+                  <option>Wisconsin</option><option>Wyoming</option>
+                </select>
+                <span class="field-hint">Hold Ctrl (Windows) or ⌘ Command (Mac) to select multiple states</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accounting -->
+        <div class="form-section">
+          <div class="form-section-header" onclick="toggleSection(this)">
+            <span class="section-icon">📊</span>
+            <span class="form-section-title">Accounting &amp; Fiscal Year</span>
+            <span class="form-section-toggle">▾</span>
+          </div>
+          <div class="form-section-body">
+            <div class="form-grid">
+              <div class="field-group">
+                <label class="field-label required">Accounting Year End</label>
+                <select class="field-select" id="f-acctYearEnd">
+                  <option value="">— Select —</option>
+                  <option>Calendar Year (Dec 31)</option>
+                  <option>Fiscal Year (Custom)</option>
+                </select>
+              </div>
+              <div class="field-group"></div>
+              <div class="field-group">
+                <label class="field-label">Fiscal Year End — Month</label>
+                <select class="field-select" id="f-acctYearEndMonth">
+                  <option value="">— Month —</option>
+                  <option>January</option><option>February</option><option>March</option>
+                  <option>April</option><option>May</option><option>June</option>
+                  <option>July</option><option>August</option><option>September</option>
+                  <option>October</option><option>November</option><option>December</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Fiscal Year End — Day</label>
+                <select class="field-select" id="f-acctYearEndDay">
+                  <option value="">— Day —</option>
+                  <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+                  <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+                  <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
+                  <option>16</option><option>17</option><option>18</option><option>19</option><option>20</option>
+                  <option>21</option><option>22</option><option>23</option><option>24</option><option>25</option>
+                  <option>26</option><option>27</option><option>28</option><option>29</option><option>30</option>
+                  <option>31</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Accounting Method (GL)</label>
+                <select class="field-select" id="f-acctMethodGL">
+                  <option value="">— Select —</option>
+                  <option>Accrual</option><option>Cash</option><option>Modified Cash</option><option>Other</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Accounting Method (Tax)</label>
+                <select class="field-select" id="f-acctMethodTax">
+                  <option value="">— Select —</option>
+                  <option>Accrual</option><option>Cash</option><option>Hybrid</option><option>Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payroll Tax Rates -->
+        <div class="form-section">
+          <div class="form-section-header" onclick="toggleSection(this)">
+            <span class="section-icon">🧾</span>
+            <span class="form-section-title">Payroll Tax Rates</span>
+            <span class="form-section-toggle">▾</span>
+          </div>
+          <div class="form-section-body">
+            <div class="form-grid">
+              <div class="field-group">
+                <label class="field-label">State Reemployment (SUTA) Rate</label>
+                <input type="text" class="field-input" id="f-sutaRate" placeholder="e.g. 2.7" oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+                <span class="field-hint">Enter as a percentage (e.g. 2.7 for 2.7%). Update whenever the state revises your rate.</span>
+              </div>
+              <div class="field-group">
+                <label class="field-label">SUTA Wage Base ($)</label>
+                <input type="text" class="field-input" id="f-sutaWageBase" placeholder="7000" oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+                <span class="field-hint">Annual per-employee wage base for your state.</span>
+              </div>
+              <div class="field-group">
+                <label class="field-label">SUTA State</label>
+                <select class="field-select" id="f-sutaState">
+                  <option value="">— State —</option>
+                  <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">FUTA Rate (%)</label>
+                <input type="text" class="field-input" id="f-futaRate" placeholder="0.6" oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+                <span class="field-hint">Standard net FUTA rate is 0.6% after state credit. First $7,000 per employee.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-header" onclick="toggleSection(this)">
+            <span class="section-icon">👤</span>
+            <span class="form-section-title">Business Contact</span>
+            <span class="form-section-toggle">▾</span>
+          </div>
+          <div class="form-section-body">
+            <div class="form-grid">
+              <div class="field-group">
+                <label class="field-label required">Contact Name</label>
+                <input type="text" class="field-input" id="f-contactName" placeholder="Full name">
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Contact Title</label>
+                <input type="text" class="field-input" id="f-contactTitle" placeholder="e.g. CEO, Controller, Manager">
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Phone Number</label>
+                <input type="tel" class="field-input" id="f-contactPhone" placeholder="(000) 000-0000" oninput="formatPhone(this)">
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Email Address</label>
+                <input type="email" class="field-input" id="f-contactEmail" placeholder="contact@company.com">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Addresses -->
+        <div class="form-section">
+          <div class="form-section-header" onclick="toggleSection(this)">
+            <span class="section-icon">📍</span>
+            <span class="form-section-title">Addresses</span>
+            <span class="form-section-toggle">▾</span>
+          </div>
+          <div class="form-section-body">
+            <p class="subsection-label">Primary Business Address</p>
+            <div class="form-grid">
+              <div class="field-group col-span-2">
+                <label class="field-label required">Street Address Line 1</label>
+                <input type="text" class="field-input" id="f-primAddr1" placeholder="Street address">
+              </div>
+              <div class="field-group col-span-2">
+                <label class="field-label">Street Address Line 2</label>
+                <input type="text" class="field-input" id="f-primAddr2" placeholder="Suite, floor, unit, etc.">
+              </div>
+              <div class="field-group">
+                <label class="field-label required">City</label>
+                <input type="text" class="field-input" id="f-primCity" placeholder="City">
+              </div>
+              <div class="field-group">
+                <label class="field-label required">State</label>
+                <select class="field-select" id="f-primState"><option value="">— State —</option>
+                  <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">ZIP Code</label>
+                <input type="text" class="field-input" id="f-primZip" placeholder="00000" maxlength="10">
+              </div>
+              <div class="field-group">
+                <label class="field-label required">Country</label>
+                <select class="field-select" id="f-primCountry">
+                  <option value="">— Country —</option>
+                  <option>United States</option><option>Canada</option><option>Other</option>
+                </select>
+              </div>
+            </div>
+            <hr class="form-divider">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+              <p class="subsection-label" style="margin:0;">Mailing Address</p>
+              <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-mid);cursor:pointer;">
+                <input type="checkbox" style="accent-color:var(--gold);" onchange="toggleSameAddress(this)"> Same as Primary
+              </label>
+            </div>
+            <div class="form-grid" id="mailingAddressGrid">
+              <div class="field-group col-span-2">
+                <label class="field-label">Street Address Line 1</label>
+                <input type="text" class="field-input" id="f-mailAddr1" placeholder="Street address">
+              </div>
+              <div class="field-group col-span-2">
+                <label class="field-label">Street Address Line 2</label>
+                <input type="text" class="field-input" id="f-mailAddr2" placeholder="Suite, floor, unit, etc.">
+              </div>
+              <div class="field-group">
+                <label class="field-label">City</label>
+                <input type="text" class="field-input" id="f-mailCity" placeholder="City">
+              </div>
+              <div class="field-group">
+                <label class="field-label">State</label>
+                <select class="field-select" id="f-mailState"><option value="">— State —</option>
+                  <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">ZIP Code</label>
+                <input type="text" class="field-input" id="f-mailZip" placeholder="00000">
+              </div>
+              <div class="field-group">
+                <label class="field-label">Country</label>
+                <select class="field-select" id="f-mailCountry">
+                  <option value="">— Country —</option>
+                  <option>United States</option><option>Canada</option><option>Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /tab-company-info -->
+
+      <!-- TAB: Officers -->
+      <div id="tab-officers" class="panel">
+        <div class="form-section">
+          <div class="form-section-header" onclick="toggleSection(this)">
+            <span class="section-icon">🎖️</span>
+            <span class="form-section-title">Corporate Officers &amp; Related Parties</span>
+            <span class="form-section-toggle">▾</span>
+          </div>
+          <div class="form-section-body">
+            <div class="officers-list" id="officersList"></div>
+            <button class="add-officer-btn" onclick="addOfficer()">
+              <span style="font-size:20px;line-height:1">+</span> Add Corporate Officer / Related Party
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /view-company-detail -->
+
     <div id="view-dashboard" class="panel active">
       <!-- Header row -->
       <div class="page-header" style="margin-bottom:20px;">
@@ -3790,368 +4150,7 @@
     </div>
 
     <!-- COMPANY DETAIL -->
-    <div id="view-company-detail" class="panel">
-      <div class="page-header">
-        <div>
-          <div class="page-title" id="detailCompanyName">New Company</div>
-          <div class="page-subtitle">Company record — Clarus Financial Management</div>
-        </div>
-        <div class="page-actions">
-          <button class="btn-danger" id="deleteBtn" onclick="deleteCurrentCompany()" style="display:none;">Delete</button>
-          <button class="btn-secondary" onclick="showDashboard()">← Back</button>
-          <button class="btn-save" id="saveBtn" onclick="saveRecord()">Save Record</button>
-        </div>
-      </div>
-
-      <div class="inner-tabs">
-        <button class="inner-tab active" onclick="switchTab(this,'tab-company-info')">Company Information</button>
-        <button class="inner-tab" onclick="switchTab(this,'tab-officers')">Corporate Officers</button>
-      </div>
-
-      <!-- TAB: Company Info -->
-      <div id="tab-company-info" class="panel active">
-
-        <!-- Business Identity -->
-        <div class="form-section">
-          <div class="form-section-header" onclick="toggleSection(this)">
-            <span class="section-icon">🏢</span>
-            <span class="form-section-title">Business Identity</span>
-            <span class="form-section-toggle">▾</span>
-          </div>
-          <div class="form-section-body">
-            <div class="form-grid">
-              <div class="field-group col-span-2">
-                <label class="field-label required">Legal Business Name</label>
-                <input type="text" class="field-input" id="f-legalName" placeholder="Full legal name as registered" oninput="document.getElementById('detailCompanyName').textContent=this.value||'New Company'">
-              </div>
-              <div class="field-group">
-                <label class="field-label">DBA Name (Doing Business As)</label>
-                <input type="text" class="field-input" id="f-dba" placeholder="Trade name, if applicable">
-              </div>
-              <div class="field-group">
-                <label class="field-label required">FEIN</label>
-                <input type="text" class="field-input" id="f-fein" placeholder="XX-XXXXXXX" maxlength="10" oninput="formatFEIN(this)">
-                <span class="field-hint">Digits only — auto-formatted XX-XXXXXXX</span>
-              </div>
-              <div class="field-group">
-                <label class="field-label required">Organizational Structure</label>
-                <select class="field-select" id="f-structure">
-                  <option value="">— Select —</option>
-                  <option>S Corporation</option>
-                  <option>C Corporation</option>
-                  <option>LLC (Single Member)</option>
-                  <option>LLC (Multi-Member)</option>
-                  <option>Limited Partnership (LP)</option>
-                  <option>Limited Liability Partnership (LLP)</option>
-                  <option>General Partnership</option>
-                  <option>Sole Proprietorship</option>
-                  <option>Non-Profit Corporation</option>
-                  <option>Trust</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div class="field-group">
-                <label class="field-label required">Country of Organization</label>
-                <select class="field-select" id="f-countryOfOrg">
-                  <option value="">— Select —</option>
-                  <option>United States</option>
-                  <option>Canada</option>
-                  <option>United Kingdom</option>
-                  <option>Cayman Islands</option>
-                  <option>British Virgin Islands</option>
-                  <option>Luxembourg</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div class="field-group">
-                <label class="field-label required">Date of Organization</label>
-                <input type="date" class="field-input" id="f-dateOfOrg">
-              </div>
-              <div class="field-group">
-                <label class="field-label required">Industry Type</label>
-                <select class="field-select" id="f-industryType">
-                  <option value="">— Select —</option>
-                  <option>Real Estate</option>
-                  <option>Finance &amp; Investment</option>
-                  <option>Manufacturing</option>
-                  <option>Retail Trade</option>
-                  <option>Wholesale Trade</option>
-                  <option>Healthcare</option>
-                  <option>Technology</option>
-                  <option>Construction</option>
-                  <option>Transportation</option>
-                  <option>Hospitality</option>
-                  <option>Agriculture</option>
-                  <option>Professional Services</option>
-                  <option>Energy</option>
-                  <option>Equipment Rental</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div class="field-group">
-                <label class="field-label">NAICS Code</label>
-                <input type="text" class="field-input" id="f-naics" placeholder="6-digit code" maxlength="6" oninput="this.value=this.value.replace(/\D/g,'')">
-              </div>
-              <div class="field-group col-span-2" style="border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;background:var(--section-bg);">
-                <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-mid);cursor:pointer;font-weight:500;">
-                  <input type="checkbox" id="f-isRentalCompany" style="accent-color:var(--teal);width:16px;height:16px;">
-                  <span>This entity is a <strong>Rental Company</strong></span>
-                </label>
-                <div style="font-size:12px;color:var(--text-light);margin-top:6px;margin-left:26px;">Enables the Rental Scheduling module under Operations. Equipment in Inventory will show rental rate fields, and rentals will tie to invoices.</div>
-              </div>
-              <div class="field-group col-span-2">
-                <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-mid);cursor:pointer;">
-                  <input type="checkbox" id="f-isRentalCompany" style="accent-color:var(--teal);"> This entity is a rental company (enables Rental Scheduling module)</label>
-              </div>
-              <div class="field-group col-span-2">
-                <label class="field-label">Products / Services Sold</label>
-                <textarea class="field-textarea" id="f-productServices" placeholder="Describe the primary products or services offered…"></textarea>
-              </div>
-              <div class="field-group col-span-2">
-                <label class="field-label required">States in Which Business is Conducted</label>
-                <select class="field-select" id="f-statesOfBusiness" multiple>
-                  <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option>
-                  <option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option>
-                  <option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option>
-                  <option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option>
-                  <option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option>
-                  <option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
-                  <option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option>
-                  <option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option>
-                  <option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
-                  <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option>
-                  <option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option>
-                  <option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option>
-                  <option>Wisconsin</option><option>Wyoming</option>
-                </select>
-                <span class="field-hint">Hold Ctrl (Windows) or ⌘ Command (Mac) to select multiple states</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Accounting -->
-        <div class="form-section">
-          <div class="form-section-header" onclick="toggleSection(this)">
-            <span class="section-icon">📊</span>
-            <span class="form-section-title">Accounting &amp; Fiscal Year</span>
-            <span class="form-section-toggle">▾</span>
-          </div>
-          <div class="form-section-body">
-            <div class="form-grid">
-              <div class="field-group">
-                <label class="field-label required">Accounting Year End</label>
-                <select class="field-select" id="f-acctYearEnd">
-                  <option value="">— Select —</option>
-                  <option>Calendar Year (Dec 31)</option>
-                  <option>Fiscal Year (Custom)</option>
-                </select>
-              </div>
-              <div class="field-group"></div>
-              <div class="field-group">
-                <label class="field-label">Fiscal Year End — Month</label>
-                <select class="field-select" id="f-acctYearEndMonth">
-                  <option value="">— Month —</option>
-                  <option>January</option><option>February</option><option>March</option>
-                  <option>April</option><option>May</option><option>June</option>
-                  <option>July</option><option>August</option><option>September</option>
-                  <option>October</option><option>November</option><option>December</option>
-                </select>
-              </div>
-              <div class="field-group">
-                <label class="field-label">Fiscal Year End — Day</label>
-                <select class="field-select" id="f-acctYearEndDay">
-                  <option value="">— Day —</option>
-                  <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
-                  <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
-                  <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
-                  <option>16</option><option>17</option><option>18</option><option>19</option><option>20</option>
-                  <option>21</option><option>22</option><option>23</option><option>24</option><option>25</option>
-                  <option>26</option><option>27</option><option>28</option><option>29</option><option>30</option>
-                  <option>31</option>
-                </select>
-              </div>
-              <div class="field-group">
-                <label class="field-label required">Accounting Method (GL)</label>
-                <select class="field-select" id="f-acctMethodGL">
-                  <option value="">— Select —</option>
-                  <option>Accrual</option><option>Cash</option><option>Modified Cash</option><option>Other</option>
-                </select>
-              </div>
-              <div class="field-group">
-                <label class="field-label required">Accounting Method (Tax)</label>
-                <select class="field-select" id="f-acctMethodTax">
-                  <option value="">— Select —</option>
-                  <option>Accrual</option><option>Cash</option><option>Hybrid</option><option>Other</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Payroll Tax Rates -->
-        <div class="form-section">
-          <div class="form-section-header" onclick="toggleSection(this)">
-            <span class="section-icon">🧾</span>
-            <span class="form-section-title">Payroll Tax Rates</span>
-            <span class="form-section-toggle">▾</span>
-          </div>
-          <div class="form-section-body">
-            <div class="form-grid">
-              <div class="field-group">
-                <label class="field-label">State Reemployment (SUTA) Rate</label>
-                <input type="text" class="field-input" id="f-sutaRate" placeholder="e.g. 2.7" oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
-                <span class="field-hint">Enter as a percentage (e.g. 2.7 for 2.7%). Update whenever the state revises your rate.</span>
-              </div>
-              <div class="field-group">
-                <label class="field-label">SUTA Wage Base ($)</label>
-                <input type="text" class="field-input" id="f-sutaWageBase" placeholder="7000" oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
-                <span class="field-hint">Annual per-employee wage base for your state.</span>
-              </div>
-              <div class="field-group">
-                <label class="field-label">SUTA State</label>
-                <select class="field-select" id="f-sutaState">
-                  <option value="">— State —</option>
-                  <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
-                </select>
-              </div>
-              <div class="field-group">
-                <label class="field-label">FUTA Rate (%)</label>
-                <input type="text" class="field-input" id="f-futaRate" placeholder="0.6" oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
-                <span class="field-hint">Standard net FUTA rate is 0.6% after state credit. First $7,000 per employee.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header" onclick="toggleSection(this)">
-            <span class="section-icon">👤</span>
-            <span class="form-section-title">Business Contact</span>
-            <span class="form-section-toggle">▾</span>
-          </div>
-          <div class="form-section-body">
-            <div class="form-grid">
-              <div class="field-group">
-                <label class="field-label required">Contact Name</label>
-                <input type="text" class="field-input" id="f-contactName" placeholder="Full name">
-              </div>
-              <div class="field-group">
-                <label class="field-label required">Contact Title</label>
-                <input type="text" class="field-input" id="f-contactTitle" placeholder="e.g. CEO, Controller, Manager">
-              </div>
-              <div class="field-group">
-                <label class="field-label required">Phone Number</label>
-                <input type="tel" class="field-input" id="f-contactPhone" placeholder="(000) 000-0000" oninput="formatPhone(this)">
-              </div>
-              <div class="field-group">
-                <label class="field-label required">Email Address</label>
-                <input type="email" class="field-input" id="f-contactEmail" placeholder="contact@company.com">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Addresses -->
-        <div class="form-section">
-          <div class="form-section-header" onclick="toggleSection(this)">
-            <span class="section-icon">📍</span>
-            <span class="form-section-title">Addresses</span>
-            <span class="form-section-toggle">▾</span>
-          </div>
-          <div class="form-section-body">
-            <p class="subsection-label">Primary Business Address</p>
-            <div class="form-grid">
-              <div class="field-group col-span-2">
-                <label class="field-label required">Street Address Line 1</label>
-                <input type="text" class="field-input" id="f-primAddr1" placeholder="Street address">
-              </div>
-              <div class="field-group col-span-2">
-                <label class="field-label">Street Address Line 2</label>
-                <input type="text" class="field-input" id="f-primAddr2" placeholder="Suite, floor, unit, etc.">
-              </div>
-              <div class="field-group">
-                <label class="field-label required">City</label>
-                <input type="text" class="field-input" id="f-primCity" placeholder="City">
-              </div>
-              <div class="field-group">
-                <label class="field-label required">State</label>
-                <select class="field-select" id="f-primState"><option value="">— State —</option>
-                  <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
-                </select>
-              </div>
-              <div class="field-group">
-                <label class="field-label">ZIP Code</label>
-                <input type="text" class="field-input" id="f-primZip" placeholder="00000" maxlength="10">
-              </div>
-              <div class="field-group">
-                <label class="field-label required">Country</label>
-                <select class="field-select" id="f-primCountry">
-                  <option value="">— Country —</option>
-                  <option>United States</option><option>Canada</option><option>Other</option>
-                </select>
-              </div>
-            </div>
-            <hr class="form-divider">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-              <p class="subsection-label" style="margin:0;">Mailing Address</p>
-              <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-mid);cursor:pointer;">
-                <input type="checkbox" style="accent-color:var(--gold);" onchange="toggleSameAddress(this)"> Same as Primary
-              </label>
-            </div>
-            <div class="form-grid" id="mailingAddressGrid">
-              <div class="field-group col-span-2">
-                <label class="field-label">Street Address Line 1</label>
-                <input type="text" class="field-input" id="f-mailAddr1" placeholder="Street address">
-              </div>
-              <div class="field-group col-span-2">
-                <label class="field-label">Street Address Line 2</label>
-                <input type="text" class="field-input" id="f-mailAddr2" placeholder="Suite, floor, unit, etc.">
-              </div>
-              <div class="field-group">
-                <label class="field-label">City</label>
-                <input type="text" class="field-input" id="f-mailCity" placeholder="City">
-              </div>
-              <div class="field-group">
-                <label class="field-label">State</label>
-                <select class="field-select" id="f-mailState"><option value="">— State —</option>
-                  <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
-                </select>
-              </div>
-              <div class="field-group">
-                <label class="field-label">ZIP Code</label>
-                <input type="text" class="field-input" id="f-mailZip" placeholder="00000">
-              </div>
-              <div class="field-group">
-                <label class="field-label">Country</label>
-                <select class="field-select" id="f-mailCountry">
-                  <option value="">— Country —</option>
-                  <option>United States</option><option>Canada</option><option>Other</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /tab-company-info -->
-
-      <!-- TAB: Officers -->
-      <div id="tab-officers" class="panel">
-        <div class="form-section">
-          <div class="form-section-header" onclick="toggleSection(this)">
-            <span class="section-icon">🎖️</span>
-            <span class="form-section-title">Corporate Officers &amp; Related Parties</span>
-            <span class="form-section-toggle">▾</span>
-          </div>
-          <div class="form-section-body">
-            <div class="officers-list" id="officersList"></div>
-            <button class="add-officer-btn" onclick="addOfficer()">
-              <span style="font-size:20px;line-height:1">+</span> Add Corporate Officer / Related Party
-            </button>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /view-company-detail -->
+    
 
   </main>
 </div>
@@ -6258,9 +6257,11 @@ function toggleSection(header) {
 }
 
 function switchTab(btn, tabId) {
-  document.querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
+  // Scope to company detail panel only
+  const panel = btn.closest('#view-company-detail') || document.getElementById('view-company-detail');
+  panel.querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
-  document.querySelectorAll('#tab-company-info, #tab-officers').forEach(p => p.classList.remove('active'));
+  panel.querySelectorAll('[id^="tab-"]').forEach(p => p.classList.remove('active'));
   document.getElementById(tabId).classList.add('active');
 }
 
@@ -6386,9 +6387,12 @@ function showDetail() {
   document.getElementById('sidebarDashBtn').classList.remove('active');
   setSidebarVisible(true);
   // Reset to first tab
-  document.querySelectorAll('.inner-tab').forEach((t,i) => t.classList.toggle('active', i===0));
+  const allInnerTabs = document.querySelectorAll('#view-company-detail .inner-tab');
+  allInnerTabs.forEach((t,i) => t.classList.toggle('active', i===0));
   document.getElementById('tab-company-info').classList.add('active');
   document.getElementById('tab-officers').classList.remove('active');
+  // Scroll to top so page-header is visible
+  const m = document.querySelector('.main'); if (m) m.scrollTop = 0;
 }
 
 // editCompanyInfo opens the edit form directly (used from hub)
@@ -6782,7 +6786,7 @@ function buildOfficerCard(data) {
 function switchModule(module) {
   document.querySelectorAll('.topbar-nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('nav-' + module)?.classList.add('active');
-  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub','view-tax','view-projects','view-inventory','view-budgeting','view-settings','view-crm','view-documents','view-reports','view-purchasing','view-equity','view-debt','view-hr'].forEach(id => {
+  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub','view-tax','view-projects','view-inventory','view-budgeting','view-settings','view-crm','view-documents','view-reports','view-purchasing','view-rentals','view-equity','view-debt','view-hr'].forEach(id => {
     document.getElementById(id)?.classList.remove('active');
   });
   setSidebarVisible(module === 'companies');
@@ -6832,6 +6836,9 @@ function switchModule(module) {
   } else if (module === 'hr') {
     document.getElementById('view-hr').classList.add('active');
     loadHRModule();
+  } else if (module === 'rentals') {
+    document.getElementById('view-rentals').classList.add('active');
+    loadRentalsModule();
   }
 }
 
@@ -21275,15 +21282,7 @@ saveInvoice = async function(status) {
   }
 };
 
-// ── Hook switchModule to load rental companies ──
-const _b15SwitchModule = typeof switchModule === 'function' ? switchModule : null;
-if (_b15SwitchModule) {
-  const __b15orig = switchModule;
-  switchModule = function(module) {
-    __b15orig(module);
-    if (module === 'rentals') loadRentalsModule();
-  };
-}
+// Rentals handled directly in switchModule
 
 
 // ── INIT
