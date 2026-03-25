@@ -7418,29 +7418,48 @@ function renderCOA(accounts) {
 }
 
 async function seedDefaultCOA() {
-  if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
-  const { data: existing } = await sb.from('accounts').select('id').eq('company_id', acctCompanyId);
+  if (!acctCompanyId) {
+    showToast('⚠ Select a company first', true);
+    const sel = document.getElementById('acctEntitySelect');
+    if (sel) { sel.focus(); sel.style.outline='2px solid var(--teal)'; setTimeout(()=>sel.style.outline='',2000); }
+    return;
+  }
+  // Check for existing accounts
+  const { data: existing, error: chkErr } = await sb.from('accounts').select('id').eq('company_id', acctCompanyId).limit(1);
+  if (chkErr) { showToast('Error checking existing accounts: ' + chkErr.message, true); return; }
   if (existing && existing.length > 0) {
-    if (!confirm('This company already has accounts. Add missing default accounts?')) return;
+    if (!confirm('This company already has accounts. Add any missing default accounts?')) return;
   }
   showLoading('Loading default chart of accounts…');
-  const rows = DEFAULT_COA.map(a => ({
-    id:              'acct-' + acctCompanyId.slice(-6) + '-' + a.n,
-    company_id:      acctCompanyId,
-    account_number:  a.n,
-    account_name:    a.name,
-    account_type:    a.type,
-    account_subtype: a.sub,
-    normal_balance:  normalBalance(a.type),
-    is_active:       true,
-    is_system:       false,
-  }));
-  const { error } = await sb.from('accounts').upsert(rows, { onConflict: 'id' });
-  hideLoading();
-  if (error) { showToast('Error: ' + error.message, true); return; }
-  showToast('✓ Default chart of accounts loaded — ' + rows.length + ' accounts');
-  document.getElementById('seedCOABtn').style.display = 'none';
-  loadCOA();
+  try {
+    const rows = DEFAULT_COA.map(a => ({
+      id:              'acct-' + acctCompanyId.slice(-6) + '-' + a.n,
+      company_id:      acctCompanyId,
+      account_number:  a.n,
+      account_name:    a.name,
+      account_type:    a.type,
+      account_subtype: a.sub,
+      normal_balance:  normalBalance(a.type),
+      is_active:       true,
+      is_system:       false,
+    }));
+    // Upsert in batches of 25 to avoid request size limits
+    const batchSize = 25;
+    for (let i = 0; i < rows.length; i += batchSize) {
+      const batch = rows.slice(i, i + batchSize);
+      const { error } = await sb.from('accounts').upsert(batch, { ignoreDuplicates: false });
+      if (error) { showToast('Error seeding accounts: ' + error.message, true); return; }
+    }
+    showToast('✓ Default chart of accounts loaded — ' + rows.length + ' accounts');
+    const btn = document.getElementById('seedCOABtn');
+    if (btn) btn.style.display = 'none';
+    loadCOA();
+  } catch(e) {
+    showToast('Unexpected error: ' + (e.message || e), true);
+    console.error('seedDefaultCOA error:', e);
+  } finally {
+    hideLoading();
+  }
 }
 
 function openAccountModal(id=null) {
