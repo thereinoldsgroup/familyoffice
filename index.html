@@ -6510,7 +6510,7 @@ async function saveRecord() {
     industry_type:     g('f-industryType'),
     naics:             g('f-naics'),
     products_services: g('f-productServices'),
-    is_rental_company: document.getElementById('f-isRentalCompany')?.checked||false,
+    ...(document.getElementById('f-isRentalCompany') ? {is_rental_company: document.getElementById('f-isRentalCompany').checked} : {}),
     states_of_business: states,
     acct_year_end:      g('f-acctYearEnd'),
     acct_year_end_month:g('f-acctYearEndMonth'),
@@ -12967,11 +12967,13 @@ async function saveItem() {
     cogs_account_id:g('item-cogs-acct')||null,
     income_account_id:g('item-income-acct')||null,
     is_taxable:cb('item-taxable'), is_active:cb('item-active'),
-    is_rental_item: g('item-type')==='rental',
-    rental_rate_daily: parseFloat(document.getElementById('item-rate-daily')?.value)||null,
-    rental_rate_weekly: parseFloat(document.getElementById('item-rate-weekly')?.value)||null,
-    rental_rate_monthly: parseFloat(document.getElementById('item-rate-monthly')?.value)||null,
-    rental_rate_annual: parseFloat(document.getElementById('item-rate-annual')?.value)||null,
+    ...(document.getElementById('item-rate-daily') ? {
+      is_rental_item: g('item-type')==='rental',
+      rental_rate_daily: parseFloat(document.getElementById('item-rate-daily')?.value)||null,
+      rental_rate_weekly: parseFloat(document.getElementById('item-rate-weekly')?.value)||null,
+      rental_rate_monthly: parseFloat(document.getElementById('item-rate-monthly')?.value)||null,
+      rental_rate_annual: parseFloat(document.getElementById('item-rate-annual')?.value)||null,
+    } : {}),
     updated_at:new Date().toISOString(),
   };
   const { error } = await sb.from('items').upsert(newData);
@@ -20915,16 +20917,28 @@ openItemModal = async function(id=null) {
 // ════════════════════════════════
 
 async function loadRentalsModule() {
-  // Populate rental company selector
   const sel = document.getElementById('rentals-company-sel');
   if (!sel) return;
-  const { data: companies } = await sb.from('companies')
-    .select('id, legal_name, is_rental_company')
-    .eq('is_rental_company', true)
-    .order('legal_name');
+  let companies = [];
+  try {
+    // Try filtering by is_rental_company (requires SQL migration to be run)
+    const { data, error } = await sb.from('companies')
+      .select('id, legal_name, is_rental_company')
+      .eq('is_rental_company', true)
+      .order('legal_name');
+    if (error) throw error;
+    companies = data || [];
+  } catch(e) {
+    // Column may not exist yet — fall back to all companies with a notice
+    const { data } = await sb.from('companies').select('id, legal_name').order('legal_name');
+    companies = data || [];
+    if (companies.length) {
+      showToast('⚠ Run the Batch 15 SQL in Supabase to enable rental company filtering', true);
+    }
+  }
   sel.innerHTML = '<option value="">— Select rental entity —</option>' +
-    (companies || []).map(c => `<option value="${c.id}">${c.legal_name}</option>`).join('');
-  if (companies?.length === 1) {
+    companies.map(c => `<option value="${c.id}">${c.legal_name}</option>`).join('');
+  if (companies.length === 1) {
     sel.value = companies[0].id;
     loadRentals();
   }
@@ -20942,11 +20956,27 @@ async function loadRentals() {
   document.getElementById('rentals-empty').style.display = 'none';
 
   // Load rentals and rental items
-  const [{ data: rentals }, { data: items }, { data: customers }] = await Promise.all([
-    sb.from('rentals').select('*, items(item_name, sku), customers(name)').eq('company_id', companyId).order('start_date'),
-    sb.from('items').select('*').eq('company_id', companyId).eq('is_rental_item', true).eq('is_active', true),
-    sb.from('customers').select('id, name, email').eq('company_id', companyId).eq('is_active', true),
-  ]);
+  let rentals = [], items = [], customers = [];
+  try {
+    const r1 = await sb.from('rentals').select('*, items(item_name, sku), customers(name)').eq('company_id', companyId).order('start_date');
+    rentals = r1.data || [];
+  } catch(e) { showToast('⚠ Run Batch 15 SQL in Supabase to enable Rentals table', true); }
+  try {
+    // Try filtering by is_rental_item; fall back to all items if column missing
+    const r2 = await sb.from('items').select('*').eq('company_id', companyId).eq('is_rental_item', true).eq('is_active', true);
+    if (r2.error) throw r2.error;
+    items = r2.data || [];
+  } catch(e) {
+    const r2b = await sb.from('items').select('*').eq('company_id', companyId).eq('is_active', true);
+    items = r2b.data || [];
+  }
+  try {
+    const r3 = await sb.from('customers').select('id, name, email').eq('company_id', companyId).eq('is_active', true);
+    customers = r3.data || [];
+  } catch(e) {
+    const r3b = await sb.from('customers').select('id, name').eq('company_id', companyId);
+    customers = r3b.data || [];
+  }
   allRentals  = rentals   || [];
   rentalItems = items     || [];
 
