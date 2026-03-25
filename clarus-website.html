@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clarus — Financial Operating System for Family Offices</title>
+<meta name="description" content="Multi-entity accounting, reporting, and control built for complex wealth structures. The financial operating system for family offices and private investment firms.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   CLARUS — DESIGN SYSTEM
+══════════════════════════════════════════ */
+:root {
+  --navy:       #1E2A38;
+  --navy-deep:  #0F1820;
+  --navy-mid:   #243040;
+  --teal:       #2CA6A4;
+  --teal-light: #E6F5F5;
+  --teal-mid:   #1A8A88;
+  --gold:       #C2A46D;
+  --gold-light: #EAD9B8;
+  --white:      #FFFFFF;
+  --off-white:  #F7F8FA;
+  --light-gray: #F0F2F5;
+  --border:     #E2E6EA;
+  --text:       #1E2A38;
+  --text-mid:   #3A4A5A;
+  --text-light: #6B7A8D;
+  --text-xlight:#9AAAB8;
+  --shadow-sm:  0 1px 4px rgba(30,42,56,0.06);
+  --shadow-md:  0 4px 20px rgba(30,42,56,0.10);
+  --shadow-lg:  0 12px 48px rgba(30,42,56,0.14);
+  --radius:     6px;
+  --radius-lg:  12px;
+  --radius-xl:  20px;
+  --max:        1200px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  color: var(--text);
+  background: var(--white);
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+a { text-decoration: none; color: inherit; }
+img { max-width: 100%; }
+
+/* ── PAGES ── */
+.page { display: none; animation: page-in .35s ease; }
+.page.active { display: block; }
+@keyframes page-in { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+/* ══════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════ */
+.nav {
+  position: sticky; top: 0; z-index: 1000;
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  height: 68px;
+  display: flex; align-items: center; gap: 0;
+}
+.nav-inner {
+  width: 100%; max-width: var(--max);
+  margin: 0 auto;
+  display: flex; align-items: center; gap: 0;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer; margin-right: 48px;
+}
+.nav-logo-mark {
+  width: 32px; height: 32px;
+  background: var(--teal);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 14px; font-weight: 700; color: #fff;
+}
+.nav-logo-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; font-weight: 600; color: var(--navy);
+  letter-spacing: 0.02em;
+}
+.nav-links {
+  display: flex; gap: 0;
+  margin-right: auto;
+}
+.nav-link {
+  padding: 8px 16px;
+  font-size: 14px;
+  color: var(--text-mid);
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: all .15s;
+  white-space: nowrap;
+}
+.nav-link:hover { color: var(--navy); background: var(--off-white); }
+.nav-link.active { color: var(--teal); font-weight: 500; }
+.nav-ctas { display: flex; gap: 10px; align-items: center; }
+.btn-nav-ghost {
+  padding: 8px 20px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-mid);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 400;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-nav-ghost:hover { border-color: var(--navy); color: var(--navy); }
+.btn-nav-primary {
+  padding: 9px 22px;
+  background: var(--teal);
+  border: none;
+  border-radius: var(--radius);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 500;
+  cursor: pointer;
+  transition: background .15s;
+}
+.btn-nav-primary:hover { background: var(--teal-mid); }
+
+/* ══════════════════════════════════════════
+   SHARED COMPONENTS
+══════════════════════════════════════════ */
+.container { max-width: var(--max); margin: 0 auto; padding: 0 40px; }
+.section { padding: 96px 0; }
+.section-sm { padding: 64px 0; }
+.section-dark { background: var(--navy); color: #fff; }
+.section-off { background: var(--off-white); }
+.section-navy-deep { background: var(--navy-deep); color: #fff; }
+
+.eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; font-weight: 500;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 14px;
+  display: block;
+}
+.eyebrow-light { color: rgba(44,166,164,0.8); }
+
+h1, h2, h3, h4 { font-family: 'Playfair Display', serif; line-height: 1.18; }
+.display-1 { font-size: clamp(44px, 5vw, 72px); font-weight: 600; line-height: 1.1; letter-spacing: -.02em; }
+.display-2 { font-size: clamp(34px, 4vw, 54px); font-weight: 600; line-height: 1.12; letter-spacing: -.015em; }
+.display-3 { font-size: clamp(26px, 3vw, 38px); font-weight: 600; line-height: 1.2; }
+.display-4 { font-size: clamp(20px, 2.5vw, 28px); font-weight: 500; }
+.body-lg { font-size: 18px; line-height: 1.7; color: var(--text-mid); }
+.body-md { font-size: 16px; line-height: 1.65; color: var(--text-mid); }
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px;
+  background: var(--teal); color: #fff;
+  border: none; border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-primary:hover { background: var(--teal-mid); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(44,166,164,0.3); }
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 28px;
+  background: transparent;
+  border: 1.5px solid var(--navy);
+  color: var(--navy);
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 400;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-secondary:hover { background: var(--navy); color: #fff; }
+.btn-white {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px;
+  background: #fff; color: var(--navy);
+  border: none; border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-white:hover { background: var(--off-white); transform: translateY(-1px); }
+.btn-white-outline {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 28px;
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.35);
+  color: #fff;
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-white-outline:hover { border-color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.08); }
+
+/* Grid */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; }
+
+/* Cards */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  transition: box-shadow .2s, transform .2s;
+}
+.card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.card-dark {
+  background: var(--navy-mid);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+}
+
+/* Divider */
+.divider { height: 1px; background: var(--border); }
+.divider-light { height: 1px; background: rgba(255,255,255,0.1); }
+
+/* Tags */
+.tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px; font-weight: 500;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: .04em;
+  background: var(--teal-light);
+  color: var(--teal-mid);
+}
+
+/* ══════════════════════════════════════════
+   MOCK DASHBOARD COMPONENT
+══════════════════════════════════════════ */
+.mock-dashboard {
+  background: #F4F6F8;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(30,42,56,0.08);
+  font-family: 'DM Sans', sans-serif;
+}
+.mock-topbar {
+  background: #1E2A38;
+  height: 44px;
+  display: flex; align-items: center; padding: 0 16px;
+  gap: 12px;
+}
+.mock-logo-dot { width: 22px; height: 22px; background: var(--teal); border-radius: 5px; display:flex;align-items:center;justify-content:center; font-size:9px;font-weight:700;color:#fff; }
+.mock-brand { color: #fff; font-size: 12px; font-weight: 500; }
+.mock-nav-items { display: flex; gap: 2px; margin-left: 20px; }
+.mock-nav-item { padding: 4px 10px; border-radius: 4px; font-size: 11px; color: rgba(255,255,255,0.55); }
+.mock-nav-item.active-nav { background: var(--teal); color: #fff; }
+.mock-body { display: grid; grid-template-columns: 200px 1fr; min-height: 340px; }
+.mock-sidebar { background: #1E2A38; padding: 16px 0; }
+.mock-sidebar-item { padding: 7px 16px; font-size: 11px; color: rgba(255,255,255,0.45); display: flex; gap: 8px; align-items: center; }
+.mock-sidebar-item.active-si { color: rgba(44,166,164,0.9); background: rgba(44,166,164,0.12); border-left: 2px solid var(--teal); }
+.mock-content { padding: 16px; }
+.mock-kpi-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 12px; }
+.mock-kpi {
+  background: #fff;
+  border: 1px solid #E8ECF0;
+  border-radius: 8px;
+  padding: 11px 13px;
+}
+.mock-kpi-label { font-size: 9px; text-transform: uppercase; letter-spacing: .07em; color: #8A97A6; margin-bottom: 4px; }
+.mock-kpi-val { font-size: 17px; font-weight: 500; color: #1E2A38; font-family: 'DM Mono', monospace; }
+.mock-kpi-sub { font-size: 9px; color: #8A97A6; margin-top: 2px; }
+.mock-kpi.accent-top { border-top: 2px solid var(--teal); }
+.mock-charts { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; }
+.mock-chart-card { background: #fff; border: 1px solid #E8ECF0; border-radius: 8px; padding: 12px; }
+.mock-chart-title { font-size: 10px; font-weight: 500; color: #3A4A5A; margin-bottom: 8px; }
+.mock-chart-area { position: relative; height: 80px; overflow: hidden; }
+.mock-line {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  width: 110%;
+  height: 100%;
+}
+/* Animated SVG chart lines */
+@keyframes draw-line {
+  from { stroke-dashoffset: 400; }
+  to   { stroke-dashoffset: 0; }
+}
+.mock-line-path { stroke-dasharray: 400; animation: draw-line 2s ease forwards; }
+.mock-bars { display: flex; gap: 4px; align-items: flex-end; height: 80px; padding-top: 8px; }
+.mock-bar {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+  animation: bar-grow .8s ease forwards;
+  transform-origin: bottom;
+}
+@keyframes bar-grow { from{transform:scaleY(0)} to{transform:scaleY(1)} }
+
+/* Mini stat items in mock */
+.mock-mini-list { display: flex; flex-direction: column; gap: 5px; }
+.mock-mini-item { display: flex; justify-content: space-between; align-items: center; font-size: 10px; }
+.mock-mini-label { color: #6B7A8D; }
+.mock-mini-val { font-family: 'DM Mono', monospace; color: #1E2A38; font-weight: 500; }
+.mock-progress { height: 3px; background: #E8ECF0; border-radius: 2px; margin-top: 2px; }
+.mock-progress-fill { height: 100%; background: var(--teal); border-radius: 2px; }
+
+/* ══════════════════════════════════════════
+   HERO
+══════════════════════════════════════════ */
+.hero {
+  background: var(--navy-deep);
+  padding: 80px 0 0;
+  overflow: hidden;
+  position: relative;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -100px; right: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(ellipse, rgba(44,166,164,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 40px;
+}
+.hero-text { max-width: 620px; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px;
+  background: rgba(44,166,164,0.12);
+  border: 1px solid rgba(44,166,164,0.2);
+  border-radius: 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 24px;
+}
+.hero-headline {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(44px, 5.5vw, 76px);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -.025em;
+  color: #fff;
+  margin-bottom: 24px;
+}
+.hero-headline em { font-style: italic; color: var(--teal); }
+.hero-subline {
+  font-size: 18px; line-height: 1.7;
+  color: rgba(255,255,255,0.6);
+  max-width: 520px;
+  margin-bottom: 36px;
+}
+.hero-ctas { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.hero-trust {
+  display: flex; align-items: center; gap: 20px;
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.hero-trust-label { font-size: 11px; color: rgba(255,255,255,0.35); letter-spacing: .08em; text-transform: uppercase; font-family: 'DM Mono', monospace; }
+.hero-trust-items { display: flex; gap: 28px; }
+.hero-trust-item { font-size: 13px; color: rgba(255,255,255,0.45); display: flex; align-items: center; gap: 6px; }
+.hero-trust-item::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+.hero-visual {
+  margin-top: 56px;
+  padding: 0 40px;
+  max-width: calc(var(--max) + 80px);
+  margin-left: auto; margin-right: auto;
+}
+
+/* ══════════════════════════════════════════
+   LOGOS / TRUST BAR
+══════════════════════════════════════════ */
+.trust-bar {
+  padding: 28px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--off-white);
+}
+.trust-bar-inner {
+  max-width: var(--max); margin: 0 auto; padding: 0 40px;
+  display: flex; align-items: center; gap: 40px;
+}
+.trust-bar-label { font-size: 12px; color: var(--text-xlight); white-space: nowrap; letter-spacing: .06em; text-transform: uppercase; font-family: 'DM Mono', monospace; }
+.trust-logos { display: flex; gap: 40px; align-items: center; flex: 1; }
+.trust-logo-item { font-size: 15px; font-weight: 500; color: var(--text-xlight); letter-spacing: .03em; white-space: nowrap; }
+
+/* ══════════════════════════════════════════
+   VALUE PROPS
+══════════════════════════════════════════ */
+.props-grid {
+  display: grid;
+  grid-template-columns: repeat(5,1fr);
+  gap: 1px;
+  background: var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.prop-item {
+  background: var(--white);
+  padding: 28px 24px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.prop-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: var(--teal-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.prop-name { font-size: 14px; font-weight: 500; color: var(--navy); line-height: 1.3; }
+.prop-desc { font-size: 13px; color: var(--text-light); line-height: 1.5; }
+
+/* ══════════════════════════════════════════
+   PRODUCT SECTIONS
+══════════════════════════════════════════ */
+.product-feature {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  padding: 80px 0;
+  border-bottom: 1px solid var(--border);
+}
+.product-feature:last-child { border-bottom: none; }
+.product-feature.reversed .feature-visual { order: -1; }
+.feature-module { margin-bottom: 8px; }
+.feature-title { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 600; color: var(--navy); margin-bottom: 16px; line-height: 1.2; }
+.feature-body { font-size: 16px; color: var(--text-mid); line-height: 1.7; margin-bottom: 24px; }
+.feature-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.feature-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--text-mid); }
+.feature-list li::before { content: ''; width: 16px; height: 16px; border-radius: 50%; background: var(--teal-light); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8l3.5 3.5L13 4.5' stroke='%232CA6A4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-size: contain; background-repeat: no-repeat; }
+.feature-visual {
+  background: var(--light-gray);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.feature-visual-inner { width: 100%; padding: 24px; }
+
+/* ══════════════════════════════════════════
+   WHO IT'S FOR
+══════════════════════════════════════════ */
+.audience-grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 20px;
+}
+.audience-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  position: relative;
+  overflow: hidden;
+}
+.audience-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: var(--teal);
+  transform: scaleX(0);
+  transition: transform .3s;
+  transform-origin: left;
+}
+.audience-card:hover::after { transform: scaleX(1); }
+.audience-icon { font-size: 28px; margin-bottom: 14px; }
+.audience-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; color: var(--navy); margin-bottom: 10px; }
+.audience-pain { font-size: 13px; color: var(--text-light); margin-bottom: 16px; line-height: 1.6; }
+.audience-list { display: flex; flex-direction: column; gap: 6px; }
+.audience-list li { font-size: 13px; color: var(--text-mid); list-style: none; display: flex; gap: 7px; align-items: flex-start; }
+.audience-list li::before { content: '→'; color: var(--teal); flex-shrink: 0; font-size: 12px; margin-top: 1px; }
+
+/* ══════════════════════════════════════════
+   COMPARISON
+══════════════════════════════════════════ */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.compare-table th {
+  padding: 14px 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; font-weight: 500;
+  letter-spacing: .08em; text-transform: uppercase;
+  text-align: left;
+  border-bottom: 2px solid var(--border);
+  color: var(--text-light);
+}
+.compare-table th.clarus-col {
+  background: rgba(44,166,164,0.06);
+  color: var(--teal-mid);
+  border-bottom-color: var(--teal);
+}
+.compare-table td {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-mid);
+  vertical-align: top;
+}
+.compare-table td.clarus-col { background: rgba(44,166,164,0.04); font-weight: 500; color: var(--navy); }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tr:hover td { background: var(--off-white); }
+.compare-table tr:hover td.clarus-col { background: rgba(44,166,164,0.06); }
+.check-yes { color: var(--teal); font-size: 16px; }
+.check-partial { color: var(--gold); font-size: 13px; }
+.check-no { color: #C4CDD6; font-size: 16px; }
+
+/* ══════════════════════════════════════════
+   PRICING
+══════════════════════════════════════════ */
+.pricing-cards {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 16px;
+  align-items: start;
+}
+.pricing-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  position: relative;
+}
+.pricing-card.featured {
+  border: 2px solid var(--teal);
+  box-shadow: 0 0 0 4px rgba(44,166,164,0.06);
+}
+.pricing-popular {
+  position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  background: var(--teal);
+  color: #fff;
+  font-size: 11px; font-weight: 500;
+  padding: 3px 12px; border-radius: 20px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: .05em;
+  white-space: nowrap;
+}
+.pricing-plan { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+.pricing-tagline { font-size: 13px; color: var(--text-light); margin-bottom: 18px; }
+.pricing-price { font-size: 36px; font-weight: 600; color: var(--navy); font-family: 'Playfair Display', serif; }
+.pricing-price sup { font-size: 20px; vertical-align: top; margin-top: 8px; }
+.pricing-period { font-size: 14px; color: var(--text-light); font-family: 'DM Sans', sans-serif; }
+.pricing-included { font-size: 12px; color: var(--text-light); margin: 12px 0 18px; padding-top: 12px; border-top: 1px solid var(--border); }
+.pricing-features { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+.pricing-features li { font-size: 13px; color: var(--text-mid); display: flex; gap: 8px; align-items: flex-start; }
+.pricing-features li::before { content: '✓'; color: var(--teal); font-weight: 600; flex-shrink: 0; }
+.pricing-btn {
+  width: 100%; padding: 12px;
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all .2s;
+}
+.pricing-btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--navy); }
+.pricing-btn-outline:hover { border-color: var(--navy); }
+.pricing-btn-primary { background: var(--teal); border: none; color: #fff; }
+.pricing-btn-primary:hover { background: var(--teal-mid); }
+
+/* ══════════════════════════════════════════
+   SECURITY
+══════════════════════════════════════════ */
+.security-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+.security-items { display: flex; flex-direction: column; gap: 20px; }
+.security-item { display: flex; gap: 16px; }
+.security-icon {
+  width: 44px; height: 44px; flex-shrink: 0;
+  background: rgba(44,166,164,0.1);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+}
+.security-title { font-size: 15px; font-weight: 500; color: #fff; margin-bottom: 4px; }
+.security-desc { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+.security-cert-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.security-cert {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  text-align: center;
+}
+.security-cert-name { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 4px; font-family: 'Playfair Display', serif; }
+.security-cert-status {
+  display: inline-block;
+  font-size: 11px; font-family: 'DM Mono', monospace;
+  padding: 2px 8px; border-radius: 10px;
+  background: rgba(44,166,164,0.15);
+  color: var(--teal);
+}
+.security-cert-status.roadmap { background: rgba(194,164,109,0.15); color: var(--gold); }
+
+/* ══════════════════════════════════════════
+   TESTIMONIALS / INSIGHTS
+══════════════════════════════════════════ */
+.quote-block {
+  padding: 48px;
+  background: var(--white);
+  border-left: 4px solid var(--teal);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  box-shadow: var(--shadow-md);
+}
+.quote-text { font-family: 'Playfair Display', serif; font-size: 22px; line-height: 1.55; color: var(--navy); font-style: italic; margin-bottom: 20px; }
+.quote-author { font-size: 14px; color: var(--text-light); }
+.quote-author strong { color: var(--navy); font-weight: 500; font-family: 'DM Sans', sans-serif; }
+
+.insights-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+.insight-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: box-shadow .2s, transform .2s;
+}
+.insight-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+.insight-header { height: 160px; display: flex; align-items: center; justify-content: center; font-size: 48px; position: relative; }
+.insight-body { padding: 24px; }
+.insight-tag { font-size: 11px; font-family: 'DM Mono', monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+.insight-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--navy); margin-bottom: 8px; line-height: 1.3; }
+.insight-excerpt { font-size: 13px; color: var(--text-light); line-height: 1.6; }
+.insight-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--teal); margin-top: 14px; font-weight: 500; cursor: pointer; }
+
+/* ══════════════════════════════════════════
+   CTA SECTION
+══════════════════════════════════════════ */
+.cta-section {
+  background: var(--navy);
+  padding: 96px 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-section::before {
+  content: '';
+  position: absolute;
+  top: -200px; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 400px;
+  background: radial-gradient(ellipse, rgba(44,166,164,0.12) 0%, transparent 70%);
+}
+
+/* ══════════════════════════════════════════
+   CONTACT / DEMO FORM
+══════════════════════════════════════════ */
+.demo-form-wrap {
+  max-width: 560px;
+  margin: 0 auto;
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: 40px;
+  box-shadow: var(--shadow-lg);
+}
+.demo-form-title { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--navy); margin-bottom: 6px; }
+.demo-form-sub { font-size: 15px; color: var(--text-light); margin-bottom: 28px; }
+.form-field { margin-bottom: 16px; }
+.form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-mid); margin-bottom: 6px; }
+.form-input {
+  width: 100%; padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif; font-size: 14px;
+  color: var(--text);
+  transition: border-color .15s;
+  background: var(--white);
+}
+.form-input:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(44,166,164,0.1); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-select {
+  width: 100%; padding: 11px 14px;
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text);
+  background: var(--white);
+  transition: border-color .15s;
+}
+.form-select:focus { outline: none; border-color: var(--teal); }
+.form-submit {
+  width: 100%; padding: 14px;
+  background: var(--teal); color: #fff; border: none;
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500;
+  cursor: pointer; transition: all .2s; margin-top: 6px;
+}
+.form-submit:hover { background: var(--teal-mid); }
+.form-privacy { text-align: center; font-size: 12px; color: var(--text-xlight); margin-top: 12px; }
+.form-success {
+  text-align: center; padding: 40px 20px; display: none;
+}
+.form-success-icon { font-size: 40px; margin-bottom: 16px; }
+.form-success-title { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--navy); margin-bottom: 8px; }
+.form-success-body { font-size: 14px; color: var(--text-light); }
+
+/* ══════════════════════════════════════════
+   ABOUT
+══════════════════════════════════════════ */
+.about-grid {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 80px;
+  align-items: start;
+}
+.about-photo {
+  aspect-ratio: 3/4;
+  background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+  border-radius: var(--radius-xl);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 80px;
+  color: rgba(255,255,255,0.15);
+  position: relative;
+  overflow: hidden;
+}
+.about-photo::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0; height: 40%;
+  background: linear-gradient(to top, rgba(44,166,164,0.15), transparent);
+}
+.about-stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; margin: 32px 0; }
+.about-stat { text-align: center; }
+.about-stat-num { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 600; color: var(--navy); }
+.about-stat-label { font-size: 13px; color: var(--text-light); margin-top: 4px; }
+
+/* ══════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════ */
+.footer {
+  background: var(--navy-deep);
+  padding: 64px 0 32px;
+  color: rgba(255,255,255,0.55);
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 48px;
+}
+.footer-brand { margin-bottom: 16px; }
+.footer-brand-name { font-family: 'Playfair Display', serif; font-size: 20px; color: #fff; margin-bottom: 10px; }
+.footer-tagline { font-size: 13px; line-height: 1.6; max-width: 260px; }
+.footer-heading { font-size: 12px; font-family: 'DM Mono', monospace; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 16px; }
+.footer-links { display: flex; flex-direction: column; gap: 8px; }
+.footer-link { font-size: 14px; color: rgba(255,255,255,0.55); cursor: pointer; transition: color .15s; }
+.footer-link:hover { color: #fff; }
+.footer-bottom {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 28px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 13px;
+}
+.footer-legal { display: flex; gap: 24px; }
+.footer-legal a { color: rgba(255,255,255,0.35); cursor: pointer; }
+.footer-legal a:hover { color: rgba(255,255,255,0.7); }
+
+/* ══════════════════════════════════════════
+   SCROLL ANIMATION
+══════════════════════════════════════════ */
+.fade-up {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity .65s ease, transform .65s ease;
+}
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-up:nth-child(2) { transition-delay: .1s; }
+.fade-up:nth-child(3) { transition-delay: .2s; }
+.fade-up:nth-child(4) { transition-delay: .3s; }
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     NAVIGATION
+══════════════════════════════════════════ -->
+<nav class="nav" id="mainNav">
+  <div class="nav-inner">
+    <div class="nav-logo" onclick="showPage('home')">
+      <div class="nav-logo-mark">C</div>
+      <span class="nav-logo-name">Clarus</span>
+    </div>
+    <div class="nav-links">
+      <div class="nav-link" onclick="showPage('product')">Product</div>
+      <div class="nav-link" onclick="showPage('who')">Who It's For</div>
+      <div class="nav-link" onclick="showPage('why')">Why Clarus</div>
+      <div class="nav-link" onclick="showPage('security')">Security</div>
+      <div class="nav-link" onclick="showPage('pricing')">Pricing</div>
+      <div class="nav-link" onclick="showPage('insights')">Insights</div>
+      <div class="nav-link" onclick="showPage('about')">About</div>
+    </div>
+    <div class="nav-ctas">
+      <button class="btn-nav-ghost" onclick="showPage('contact')">Sign In</button>
+      <button class="btn-nav-primary" onclick="showPage('contact')">Request Demo</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     HOME PAGE
+══════════════════════════════════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-text">
+        <div class="hero-eyebrow">Platform · Family Office ERP</div>
+        <h1 class="hero-headline">Financial Operating<br>System for <em>Complex</em><br>Wealth Structures</h1>
+        <p class="hero-subline">Multi-entity accounting, real-time reporting, and institutional-grade controls — purpose-built for family offices and private investment firms.</p>
+        <div class="hero-ctas">
+          <button class="btn-white" onclick="showPage('contact')">Request Demo</button>
+          <button class="btn-white-outline" onclick="showPage('product')">Explore Platform →</button>
+        </div>
+        <div class="hero-trust">
+          <span class="hero-trust-label">Built for</span>
+          <div class="hero-trust-items">
+            <span class="hero-trust-item">Family Offices</span>
+            <span class="hero-trust-item">Private Investment Firms</span>
+            <span class="hero-trust-item">Multi-Entity Operations</span>
+            <span class="hero-trust-item">Advisory Firms</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Dashboard visual -->
+    <div class="hero-visual">
+      <div class="mock-dashboard">
+        <div class="mock-topbar">
+          <div class="mock-logo-dot">CL</div>
+          <span class="mock-brand">Clarus</span>
+          <div class="mock-nav-items">
+            <div class="mock-nav-item active-nav">Accounting</div>
+            <div class="mock-nav-item">Operations</div>
+            <div class="mock-nav-item">People</div>
+            <div class="mock-nav-item">Intelligence</div>
+          </div>
+          <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+            <div style="width:20px;height:20px;border-radius:50%;background:rgba(44,166,164,0.3);"></div>
+            <span style="font-size:10px;color:rgba(255,255,255,0.4);">admin@family.com</span>
+          </div>
+        </div>
+        <div class="mock-body">
+          <div class="mock-sidebar">
+            <div class="mock-sidebar-item active-si">◈ Dashboard</div>
+            <div class="mock-sidebar-item">⊟ General Ledger</div>
+            <div class="mock-sidebar-item">◎ AR / AP</div>
+            <div class="mock-sidebar-item">⊞ Payroll</div>
+            <div style="height:1px;background:rgba(255,255,255,0.06);margin:10px 0;"></div>
+            <div style="padding:6px 16px;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:.08em;text-transform:uppercase;">Entities</div>
+            <div class="mock-sidebar-item">· Reinolds Holdings</div>
+            <div class="mock-sidebar-item">· Reinolds RE</div>
+            <div class="mock-sidebar-item">· Coastal Ventures</div>
+            <div class="mock-sidebar-item">· Family Trust</div>
+          </div>
+          <div class="mock-content">
+            <div style="font-size:11px;font-weight:500;color:#3A4A5A;margin-bottom:10px;">Dashboard — All Entities · Q2 2025</div>
+            <div class="mock-kpi-row">
+              <div class="mock-kpi accent-top">
+                <div class="mock-kpi-label">Total Revenue</div>
+                <div class="mock-kpi-val">$4.2M</div>
+                <div class="mock-kpi-sub">YTD ↑ 12.4%</div>
+              </div>
+              <div class="mock-kpi">
+                <div class="mock-kpi-label">Total Expenses</div>
+                <div class="mock-kpi-val">$2.8M</div>
+                <div class="mock-kpi-sub">YTD budget 91%</div>
+              </div>
+              <div class="mock-kpi accent-top">
+                <div class="mock-kpi-label">Net Income</div>
+                <div class="mock-kpi-val">$1.4M</div>
+                <div class="mock-kpi-sub">33% margin</div>
+              </div>
+              <div class="mock-kpi">
+                <div class="mock-kpi-label">Active Entities</div>
+                <div class="mock-kpi-val">4</div>
+                <div class="mock-kpi-sub">1 consolidation</div>
+              </div>
+            </div>
+            <div class="mock-charts">
+              <div class="mock-chart-card">
+                <div class="mock-chart-title">Revenue vs Expenses — 6 months</div>
+                <div class="mock-chart-area">
+                  <svg viewBox="0 0 300 80" style="width:100%;height:100%;" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="tealGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#2CA6A4" stop-opacity=".3"/>
+                        <stop offset="100%" stop-color="#2CA6A4" stop-opacity="0"/>
+                      </linearGradient>
+                    </defs>
+                    <path d="M0,68 L50,55 L100,45 L150,48 L200,35 L250,28 L300,20" fill="none" stroke="#2CA6A4" stroke-width="2.5" class="mock-line-path"/>
+                    <path d="M0,68 L50,55 L100,45 L150,48 L200,35 L250,28 L300,20 L300,80 L0,80 Z" fill="url(#tealGrad)"/>
+                    <path d="M0,75 L50,68 L100,62 L150,65 L200,58 L250,50 L300,45" fill="none" stroke="#1E2A38" stroke-width="1.8" stroke-dasharray="4 2" opacity=".5" class="mock-line-path"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="mock-chart-card">
+                <div class="mock-chart-title">Active Projects</div>
+                <div class="mock-mini-list" style="margin-top:4px;">
+                  <div class="mock-mini-item">
+                    <span class="mock-mini-label">Office Renovation</span>
+                    <span class="mock-mini-val">65%</span>
+                  </div>
+                  <div class="mock-progress"><div class="mock-progress-fill" style="width:65%"></div></div>
+                  <div class="mock-mini-item" style="margin-top:6px;">
+                    <span class="mock-mini-label">Solar Installation</span>
+                    <span class="mock-mini-val">90%</span>
+                  </div>
+                  <div class="mock-progress"><div class="mock-progress-fill" style="width:90%;background:var(--gold);"></div></div>
+                  <div class="mock-mini-item" style="margin-top:6px;">
+                    <span class="mock-mini-label">New Development</span>
+                    <span class="mock-mini-val">40%</span>
+                  </div>
+                  <div class="mock-progress"><div class="mock-progress-fill" style="width:40%"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST BAR -->
+  <div class="trust-bar">
+    <div class="trust-bar-inner">
+      <span class="trust-bar-label">Trusted by</span>
+      <div class="trust-logos">
+        <span class="trust-logo-item">Private Family Offices</span>
+        <span class="trust-logo-item">Investment Holding Companies</span>
+        <span class="trust-logo-item">Multi-Entity Real Estate Groups</span>
+        <span class="trust-logo-item">Private Operating Companies</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VALUE PROPS -->
+  <section class="section">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:48px;">
+        <span class="eyebrow">Core capabilities</span>
+        <h2 class="display-3" style="max-width:520px;margin:0 auto;">Everything your office needs. Nothing it doesn't.</h2>
+      </div>
+      <div class="props-grid">
+        <div class="prop-item">
+          <div class="prop-icon">⊞</div>
+          <div class="prop-name">Multi-Entity Consolidation</div>
+          <div class="prop-desc">Manage unlimited entities with automated intercompany eliminations and consolidated reporting.</div>
+        </div>
+        <div class="prop-item">
+          <div class="prop-icon">◈</div>
+          <div class="prop-name">Real-Time Financial Clarity</div>
+          <div class="prop-desc">Live dashboards across all entities with drill-down from consolidated to transaction level.</div>
+        </div>
+        <div class="prop-item">
+          <div class="prop-icon">⊡</div>
+          <div class="prop-name">Integrated Tax & Reporting</div>
+          <div class="prop-desc">1120-S, 1065, K-1 allocations, sales tax, and state filings — all from the same data source.</div>
+        </div>
+        <div class="prop-item">
+          <div class="prop-icon">⊛</div>
+          <div class="prop-name">Role-Based Governance</div>
+          <div class="prop-desc">Granular permissions, approval workflows, and complete audit trails across every module.</div>
+        </div>
+        <div class="prop-item">
+          <div class="prop-icon">⊟</div>
+          <div class="prop-name">Audit-Ready Infrastructure</div>
+          <div class="prop-desc">SOC 2-aligned controls, immutable logs, and data security built for institutional requirements.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUOTE -->
+  <section class="section-sm section-off">
+    <div class="container" style="max-width:800px;">
+      <div class="quote-block">
+        <p class="quote-text">"We were managing six entities across three states in QuickBooks and Excel. Consolidation took two weeks every quarter. Clarus gave us a single source of truth we could trust on the first day."</p>
+        <div class="quote-author"><strong>Director of Finance</strong> · Multi-generational family office, Southeast US</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MINI CTA -->
+  <section class="cta-section">
+    <div class="container" style="position:relative;z-index:1;">
+      <span class="eyebrow eyebrow-light">Get started</span>
+      <h2 class="display-2" style="color:#fff;max-width:600px;margin:0 auto 20px;text-align:center;">Ready to see Clarus in action?</h2>
+      <p style="color:rgba(255,255,255,0.55);font-size:17px;margin-bottom:36px;text-align:center;">Schedule a personalized walkthrough with our team.</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn-white" onclick="showPage('contact')">Request Demo</button>
+        <button class="btn-white-outline" onclick="showPage('contact')">Schedule Consultation</button>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /home -->
+
+<!-- ══════════════════════════════════════════
+     PRODUCT PAGE
+══════════════════════════════════════════ -->
+<div class="page" id="page-product">
+  <section style="background:var(--navy);padding:64px 0 56px;">
+    <div class="container">
+      <span class="eyebrow eyebrow-light">Platform overview</span>
+      <h1 class="display-2" style="color:#fff;max-width:600px;margin-bottom:16px;">Every module your office runs on. One system.</h1>
+      <p style="color:rgba(255,255,255,0.55);font-size:17px;max-width:520px;">Clarus is not a point solution. It's the complete financial and operational platform for family offices — accounting, tax, projects, HR, and intelligence, all sharing one database.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="product-feature">
+        <div>
+          <span class="eyebrow feature-module">Accounting</span>
+          <h2 class="feature-title">Institutional-grade general ledger</h2>
+          <p class="feature-body">A full double-entry accounting system designed for complex structures — multi-entity, multi-currency, and multi-period. Not adapted from small business software.</p>
+          <ul class="feature-list">
+            <li>Chart of accounts with unlimited dimensions</li>
+            <li>Automated AP/AR with invoice and bill management</li>
+            <li>Bank reconciliation with auto-matching rules</li>
+            <li>Intercompany transactions and eliminations</li>
+            <li>Fixed assets with depreciation schedules</li>
+            <li>Consolidated financial statements on demand</li>
+          </ul>
+        </div>
+        <div class="feature-visual">
+          <div class="feature-visual-inner">
+            <div style="background:#fff;border-radius:10px;padding:16px;box-shadow:var(--shadow-sm);">
+              <div style="font-size:10px;font-weight:600;color:#3A4A5A;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px;">Journal Entry — Intercompany</div>
+              <table style="width:100%;font-size:11px;border-collapse:collapse;">
+                <tr style="background:#F4F6F8;">
+                  <td style="padding:6px 8px;color:#6B7A8D;">Account</td>
+                  <td style="padding:6px 8px;color:#6B7A8D;text-align:right;">Debit</td>
+                  <td style="padding:6px 8px;color:#6B7A8D;text-align:right;">Credit</td>
+                </tr>
+                <tr style="border-bottom:1px solid #E8ECF0;">
+                  <td style="padding:7px 8px;color:#1E2A38;">1100 · Cash — Holdings</td>
+                  <td style="padding:7px 8px;text-align:right;font-family:'DM Mono',monospace;color:#1E2A38;">$250,000</td>
+                  <td style="padding:7px 8px;text-align:right;color:#9AAAB8;">—</td>
+                </tr>
+                <tr style="border-bottom:1px solid #E8ECF0;">
+                  <td style="padding:7px 8px;color:#1E2A38;">2010 · Due to Reinolds RE</td>
+                  <td style="padding:7px 8px;text-align:right;color:#9AAAB8;">—</td>
+                  <td style="padding:7px 8px;text-align:right;font-family:'DM Mono',monospace;color:#1E2A38;">$250,000</td>
+                </tr>
+                <tr>
+                  <td colspan="3" style="padding:8px;text-align:center;background:#E6F5F5;color:#2CA6A4;font-weight:500;font-size:10px;border-radius:6px;margin-top:4px;">✓ Balanced · Posted</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-feature reversed">
+        <div>
+          <span class="eyebrow feature-module">Reporting & Intelligence</span>
+          <h2 class="feature-title">Custom reports built in minutes, not days</h2>
+          <p class="feature-body">A drag-and-drop report builder that connects to any data in the system. Board packs, investor reports, and compliance packages — generated automatically from live data.</p>
+          <ul class="feature-list">
+            <li>Custom report builder with 7 data sources</li>
+            <li>Automated board pack generation</li>
+            <li>Multi-entity consolidated statements</li>
+            <li>Budget vs. actual variance analysis</li>
+            <li>KPI dashboards with period comparison</li>
+            <li>CSV export and print-to-PDF</li>
+          </ul>
+        </div>
+        <div class="feature-visual">
+          <div class="feature-visual-inner">
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="background:#fff;border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:center;border-left:3px solid var(--teal);">
+                <div><div style="font-size:11px;font-weight:500;color:#1E2A38;">Q2 Board Package</div><div style="font-size:10px;color:#6B7A8D;">8 pages · All entities</div></div>
+                <span style="font-size:10px;color:var(--teal);background:var(--teal-light);padding:2px 8px;border-radius:10px;">Ready</span>
+              </div>
+              <div style="background:#fff;border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:center;border-left:3px solid var(--gold);">
+                <div><div style="font-size:11px;font-weight:500;color:#1E2A38;">Investor Distribution Report</div><div style="font-size:10px;color:#6B7A8D;">K-1 Allocations · 12 partners</div></div>
+                <span style="font-size:10px;color:var(--gold);background:rgba(194,164,109,0.15);padding:2px 8px;border-radius:10px;">Generating</span>
+              </div>
+              <div style="background:#fff;border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:center;border-left:3px solid #E8ECF0;">
+                <div><div style="font-size:11px;font-weight:500;color:#1E2A38;">Annual Tax Package</div><div style="font-size:10px;color:#6B7A8D;">1120-S + 1065 · 4 entities</div></div>
+                <span style="font-size:10px;color:#9AAAB8;background:#F4F6F8;padding:2px 8px;border-radius:10px;">Scheduled</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-feature">
+        <div>
+          <span class="eyebrow feature-module">Tax Management</span>
+          <h2 class="feature-title">All your tax filings, one source of truth</h2>
+          <p class="feature-body">Corporate income tax, sales tax, payroll tax, and property tax — all pre-filled from your accounting data. No more exporting to Excel and re-entering numbers in TurboTax.</p>
+          <ul class="feature-list">
+            <li>1120-S, 1120, 1065 corporate returns</li>
+            <li>K-1 generation with partner allocations</li>
+            <li>FL DR-15 and GA ST-3 sales tax</li>
+            <li>Form 941/940 and W-2 generation</li>
+            <li>Property tax parcel tracking</li>
+            <li>Electronic filing via IRS MeF (Batch 13)</li>
+          </ul>
+        </div>
+        <div class="feature-visual">
+          <div class="feature-visual-inner">
+            <div style="background:#fff;border-radius:10px;padding:16px;">
+              <div style="font-size:10px;font-weight:600;color:#3A4A5A;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;">K-1 Summary — 2025</div>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;background:#F4F6F8;padding:6px 8px;border-radius:6px;font-size:10px;color:#6B7A8D;">
+                  <span>Partner</span><span style="text-align:right;">Ownership</span><span style="text-align:right;">Allocated</span>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:5px 8px;font-size:11px;border-bottom:1px solid #E8ECF0;">
+                  <span>Reinolds, J.</span><span style="text-align:right;color:#6B7A8D;">45%</span><span style="text-align:right;font-family:'DM Mono',monospace;color:#1E2A38;">$283,500</span>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:5px 8px;font-size:11px;border-bottom:1px solid #E8ECF0;">
+                  <span>Reinolds Trust</span><span style="text-align:right;color:#6B7A8D;">35%</span><span style="text-align:right;font-family:'DM Mono',monospace;color:#1E2A38;">$220,500</span>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:5px 8px;font-size:11px;">
+                  <span>Coastal Holdings</span><span style="text-align:right;color:#6B7A8D;">20%</span><span style="text-align:right;font-family:'DM Mono',monospace;color:#1E2A38;">$126,000</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Module grid for remaining -->
+      <div style="margin-top:60px;">
+        <h2 class="display-4" style="color:var(--navy);margin-bottom:28px;">Additional modules included</h2>
+        <div class="grid-3" style="gap:20px;">
+          <div class="card">
+            <div style="font-size:22px;margin-bottom:12px;">📋</div>
+            <div style="font-size:16px;font-weight:500;color:var(--navy);margin-bottom:6px;font-family:'Playfair Display',serif;">Project Management</div>
+            <div style="font-size:13px;color:var(--text-light);line-height:1.6;">Kanban, Gantt, time tracking, project P&L, billing, and cost management for every investment and construction project.</div>
+          </div>
+          <div class="card">
+            <div style="font-size:22px;margin-bottom:12px;">💼</div>
+            <div style="font-size:16px;font-weight:500;color:var(--navy);margin-bottom:6px;font-family:'Playfair Display',serif;">HR & Payroll</div>
+            <div style="font-size:13px;color:var(--text-light);line-height:1.6;">Employee records, benefits administration, payroll runs with time-to-payroll automation, W-2s, and payroll tax filings.</div>
+          </div>
+          <div class="card">
+            <div style="font-size:22px;margin-bottom:12px;">📦</div>
+            <div style="font-size:16px;font-weight:500;color:var(--navy);margin-bottom:6px;font-family:'Playfair Display',serif;">Inventory & Purchasing</div>
+            <div style="font-size:13px;color:var(--text-light);line-height:1.6;">FIFO inventory tracking, purchase orders, vendor management, and automated receiving that posts directly to the GL.</div>
+          </div>
+          <div class="card">
+            <div style="font-size:22px;margin-bottom:12px;">📈</div>
+            <div style="font-size:16px;font-weight:500;color:var(--navy);margin-bottom:6px;font-family:'Playfair Display',serif;">Equity & Cap Table</div>
+            <div style="font-size:13px;color:var(--text-light);line-height:1.6;">Share classes, vesting schedules, cap table management, liquidation waterfall modeling, and equity transaction history.</div>
+          </div>
+          <div class="card">
+            <div style="font-size:22px;margin-bottom:12px;">🤝</div>
+            <div style="font-size:16px;font-weight:500;color:var(--navy);margin-bottom:6px;font-family:'Playfair Display',serif;">CRM</div>
+            <div style="font-size:13px;color:var(--text-light);line-height:1.6;">Pipeline management, contact tracking, deal activity, and relationship management for advisors and counterparties.</div>
+          </div>
+          <div class="card">
+            <div style="font-size:22px;margin-bottom:12px;">📁</div>
+            <div style="font-size:16px;font-weight:500;color:var(--navy);margin-bottom:6px;font-family:'Playfair Display',serif;">Document Management</div>
+            <div style="font-size:13px;color:var(--text-light);line-height:1.6;">Attach documents to any record, with sync to Google Drive or SharePoint. Every transaction has a document trail.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="container" style="position:relative;z-index:1;text-align:center;">
+      <h2 class="display-3" style="color:#fff;margin-bottom:20px;">See every module in one walkthrough</h2>
+      <p style="color:rgba(255,255,255,0.55);font-size:17px;margin-bottom:32px;">Our team will show you the exact workflows relevant to your structure.</p>
+      <button class="btn-white" onclick="showPage('contact')">Schedule Demo</button>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════
+     WHO IT'S FOR
+══════════════════════════════════════════ -->
+<div class="page" id="page-who">
+  <section style="background:var(--navy);padding:64px 0 56px;">
+    <div class="container">
+      <span class="eyebrow eyebrow-light">Ideal clients</span>
+      <h1 class="display-2" style="color:#fff;max-width:600px;margin-bottom:16px;">Built specifically for you.</h1>
+      <p style="color:rgba(255,255,255,0.55);font-size:17px;max-width:500px;">Clarus is not for everyone. It's designed for organizations where financial complexity is a fact of life, not an edge case.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="audience-grid">
+        <div class="audience-card">
+          <div class="audience-icon">🏛️</div>
+          <h3 class="audience-title">Family Offices</h3>
+          <p class="audience-pain">Managing multiple trusts, LLCs, and operating companies — each with its own books, tax requirements, and ownership structure — across a patchwork of QuickBooks files and spreadsheets.</p>
+          <ul class="audience-list">
+            <li>Consolidated reporting across all entities in minutes</li>
+            <li>K-1 allocations and trust accounting built in</li>
+            <li>Multi-generational ownership structure support</li>
+            <li>Investment tracking alongside operational accounting</li>
+          </ul>
+        </div>
+        <div class="audience-card">
+          <div class="audience-icon">💼</div>
+          <h3 class="audience-title">Private Investment Firms</h3>
+          <p class="audience-pain">Portfolio companies with different structures, different auditors, and no shared financial infrastructure. Partners waiting weeks for consolidated performance numbers.</p>
+          <ul class="audience-list">
+            <li>Portfolio-level consolidation with intercompany elimination</li>
+            <li>Equity and cap table management per portfolio company</li>
+            <li>Debt facility tracking with amortization schedules</li>
+            <li>Partner distribution and LP reporting workflows</li>
+          </ul>
+        </div>
+        <div class="audience-card">
+          <div class="audience-icon">🏢</div>
+          <h3 class="audience-title">Multi-Entity Businesses</h3>
+          <p class="audience-pain">Operating companies with subsidiaries in multiple states, each entity needing its own P&L but management needing a real-time consolidated view for decision-making.</p>
+          <ul class="audience-list">
+            <li>Entity-level and consolidated financial statements</li>
+            <li>Intercompany management fees and recharges</li>
+            <li>Multi-state sales tax and payroll compliance</li>
+            <li>Project cost tracking across all operating entities</li>
+          </ul>
+        </div>
+        <div class="audience-card">
+          <div class="audience-icon">📊</div>
+          <h3 class="audience-title">Advisory Firms</h3>
+          <p class="audience-pain">Accounting and advisory firms managing books for multiple family office clients — each needing isolation, each needing custom reports, all needing a consistent workflow.</p>
+          <ul class="audience-list">
+            <li>Firm-level dashboard across all client entities</li>
+            <li>Client data fully isolated and permissioned</li>
+            <li>Shared chart of account templates</li>
+            <li>Board pack generation per client in minutes</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════
+     WHY CLARUS
+══════════════════════════════════════════ -->
+<div class="page" id="page-why">
+  <section style="background:var(--navy);padding:64px 0 56px;">
+    <div class="container">
+      <span class="eyebrow eyebrow-light">The honest comparison</span>
+      <h1 class="display-2" style="color:#fff;max-width:620px;margin-bottom:16px;">More capable than QuickBooks. Far simpler than NetSuite.</h1>
+      <p style="color:rgba(255,255,255,0.55);font-size:17px;max-width:540px;">We built Clarus because the market offered two bad choices: software too simple for your complexity, or software too complex for your team.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div style="overflow-x:auto;">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th style="min-width:200px;">Capability</th>
+              <th class="clarus-col" style="min-width:160px;">Clarus</th>
+              <th>QuickBooks Online</th>
+              <th>Sage Intacct</th>
+              <th>Oracle NetSuite</th>
+              <th>Spreadsheets</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="font-weight:500;">Multi-entity accounting</td><td class="clarus-col"><span class="check-yes">✓</span> Unlimited</td><td><span class="check-no">✗</span> Not supported</td><td><span class="check-yes">✓</span> Yes</td><td><span class="check-yes">✓</span> OneWorld add-on</td><td><span class="check-partial">△</span> Manual</td></tr>
+            <tr><td style="font-weight:500;">Consolidated statements</td><td class="clarus-col"><span class="check-yes">✓</span> Automated</td><td><span class="check-no">✗</span></td><td><span class="check-yes">✓</span></td><td><span class="check-yes">✓</span></td><td><span class="check-partial">△</span> Hours of work</td></tr>
+            <tr><td style="font-weight:500;">Cap table & equity management</td><td class="clarus-col"><span class="check-yes">✓</span> Built-in</td><td><span class="check-no">✗</span></td><td><span class="check-no">✗</span></td><td><span class="check-no">✗</span></td><td><span class="check-partial">△</span> Manual</td></tr>
+            <tr><td style="font-weight:500;">Full tax return module</td><td class="clarus-col"><span class="check-yes">✓</span> 1120-S, 1065, K-1</td><td><span class="check-partial">△</span> Basic</td><td><span class="check-no">✗</span></td><td><span class="check-no">✗</span></td><td><span class="check-no">✗</span></td></tr>
+            <tr><td style="font-weight:500;">Project management</td><td class="clarus-col"><span class="check-yes">✓</span> Built-in</td><td><span class="check-partial">△</span> Basic</td><td><span class="check-partial">△</span> Add-on $</td><td><span class="check-partial">△</span> Add-on $</td><td><span class="check-no">✗</span></td></tr>
+            <tr><td style="font-weight:500;">HR & payroll module</td><td class="clarus-col"><span class="check-yes">✓</span> Built-in</td><td><span class="check-partial">△</span> +$50/mo + per-emp</td><td><span class="check-partial">△</span> Add-on</td><td><span class="check-partial">△</span> Add-on</td><td><span class="check-no">✗</span></td></tr>
+            <tr><td style="font-weight:500;">Implementation cost</td><td class="clarus-col" style="color:var(--teal-mid);font-weight:600;">$0</td><td>$0</td><td>$10K–$150K</td><td>$35K–$150K+</td><td>$0</td></tr>
+            <tr><td style="font-weight:500;">Monthly starting price</td><td class="clarus-col" style="color:var(--teal-mid);font-weight:600;">$149/mo</td><td>$275/mo</td><td>$750+/mo</td><td>$2,000+/mo</td><td>$0</td></tr>
+            <tr><td style="font-weight:500;">Designed for family offices</td><td class="clarus-col"><span class="check-yes">✓</span> Purpose-built</td><td><span class="check-no">✗</span> Small business</td><td><span class="check-partial">△</span> Adapted</td><td><span class="check-partial">△</span> Adapted</td><td><span class="check-no">✗</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:60px;">
+        <div class="card" style="border-top:3px solid var(--teal);">
+          <h3 style="font-family:'Playfair Display',serif;font-size:20px;color:var(--navy);margin-bottom:12px;">vs. QuickBooks</h3>
+          <p style="font-size:14px;color:var(--text-mid);line-height:1.65;">QuickBooks is built for a single business with a simple chart of accounts. The moment you have two entities that need to talk to each other, you're exporting to Excel. Clarus starts where QuickBooks stops.</p>
+        </div>
+        <div class="card" style="border-top:3px solid var(--gold);">
+          <h3 style="font-family:'Playfair Display',serif;font-size:20px;color:var(--navy);margin-bottom:12px;">vs. Sage Intacct</h3>
+          <p style="font-size:14px;color:var(--text-mid);line-height:1.65;">Sage is excellent accounting software with a $10K–$150K implementation price tag and a 90-day onboarding process. Clarus delivers comparable multi-entity capability at a fraction of the cost, from day one.</p>
+        </div>
+        <div class="card" style="border-top:3px solid var(--navy);">
+          <h3 style="font-family:'Playfair Display',serif;font-size:20px;color:var(--navy);margin-bottom:12px;">vs. NetSuite</h3>
+          <p style="font-size:14px;color:var(--text-mid);line-height:1.65;">NetSuite is a powerful ERP built for manufacturing and distribution companies. It does almost everything, including things you'll never need — at $2,000+/month before a single module is added. Clarus gives you what matters.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SECURITY PAGE
+══════════════════════════════════════════ -->
+<div class="page" id="page-security">
+  <section style="background:var(--navy);padding:64px 0 56px;">
+    <div class="container">
+      <span class="eyebrow eyebrow-light">Infrastructure & compliance</span>
+      <h1 class="display-2" style="color:#fff;max-width:600px;margin-bottom:16px;">Security is not a feature. It's the foundation.</h1>
+      <p style="color:rgba(255,255,255,0.55);font-size:17px;max-width:500px;">Your clients trust you with their most sensitive financial data. We build Clarus accordingly.</p>
+    </div>
+  </section>
+
+  <section class="section section-navy-deep">
+    <div class="container">
+      <div class="security-grid">
+        <div class="security-items">
+          <div class="security-item">
+            <div class="security-icon">🔐</div>
+            <div>
+              <div class="security-title">AES-256 Encryption at Rest</div>
+              <div class="security-desc">All data stored in Supabase PostgreSQL is encrypted at rest using AES-256. Sensitive fields — API keys, tokens, credentials — are additionally encrypted at the application layer before storage.</div>
+            </div>
+          </div>
+          <div class="security-item">
+            <div class="security-icon">🔒</div>
+            <div>
+              <div class="security-title">TLS Encryption in Transit</div>
+              <div class="security-desc">All data in motion is protected by TLS 1.3. There is no path between your browser and the database that is not encrypted end-to-end.</div>
+            </div>
+          </div>
+          <div class="security-item">
+            <div class="security-icon">👁</div>
+            <div>
+              <div class="security-title">Role-Based Access Control</div>
+              <div class="security-desc">Granular permissions down to the module and action level. Every user has a defined role; every role has defined permissions. No one sees data they shouldn't see.</div>
+            </div>
+          </div>
+          <div class="security-item">
+            <div class="security-icon">📋</div>
+            <div>
+              <div class="security-title">Immutable Audit Logs</div>
+              <div class="security-desc">Every data access, modification, and authentication event is logged with a timestamp, user identity, and change record. Logs are retained for 7 years in compliance with SOX Section 802.</div>
+            </div>
+          </div>
+          <div class="security-item">
+            <div class="security-icon">⏱</div>
+            <div>
+              <div class="security-title">Automated Backups & Recovery</div>
+              <div class="security-desc">Daily automated backups with Point-in-Time Recovery (PITR). Database can be restored to any moment within the retention window. DR procedures are documented and tested quarterly.</div>
+            </div>
+          </div>
+          <div class="security-item">
+            <div class="security-icon">🛡</div>
+            <div>
+              <div class="security-title">Multi-Factor Authentication</div>
+              <div class="security-desc">MFA is available for all users and enforceable as a platform-wide policy for Enterprise accounts. Session timeouts and login attempt limits are configurable per organization.</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:20px;font-family:'DM Mono',monospace;">Compliance status</div>
+          <div class="security-cert-grid">
+            <div class="security-cert">
+              <div class="security-cert-name">SOC 2 Type II</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.4);margin:6px 0 8px;">Infrastructure certified via Supabase</div>
+              <span class="security-cert-status">Active</span>
+            </div>
+            <div class="security-cert">
+              <div class="security-cert-name">SOX Controls</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.4);margin:6px 0 8px;">Sections 302, 404, 409, 802</div>
+              <span class="security-cert-status">Aligned</span>
+            </div>
+            <div class="security-cert">
+              <div class="security-cert-name">GDPR</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.4);margin:6px 0 8px;">EU data handling compliant</div>
+              <span class="security-cert-status roadmap">Roadmap</span>
+            </div>
+            <div class="security-cert">
+              <div class="security-cert-name">ISO 27001</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.4);margin:6px 0 8px;">Information security standard</div>
+              <span class="security-cert-status roadmap">Roadmap</span>
+            </div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-lg);padding:20px;margin-top:20px;">
+            <div style="font-size:13px;font-weight:500;color:#fff;margin-bottom:8px;">Incident Response</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.45);line-height:1.6;">A written Incident Response Plan covering P1–P4 severity classification, regulatory notification timelines (SOX, FL, GA, IRS), and DR procedures is included with every Enterprise account.</div>
+            <div style="margin-top:12px;font-family:'DM Mono',monospace;font-size:10px;color:var(--teal);">→ Request security documentation</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PRICING
+══════════════════════════════════════════ -->
+<div class="page" id="page-pricing">
+  <section style="background:var(--navy);padding:64px 0 56px;">
+    <div class="container" style="text-align:center;">
+      <span class="eyebrow eyebrow-light">Transparent pricing</span>
+      <h1 class="display-2" style="color:#fff;max-width:580px;margin:0 auto 16px;">No implementation fees. No surprises.</h1>
+      <p style="color:rgba(255,255,255,0.55);font-size:17px;max-width:480px;margin:0 auto;">Every plan includes onboarding, support, and all updates. Month-to-month available.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="pricing-cards">
+        <div class="pricing-card">
+          <div class="pricing-plan">Starter</div>
+          <div class="pricing-tagline">Single entity · Lean team</div>
+          <div class="pricing-price"><sup>$</sup>149<span class="pricing-period">/mo</span></div>
+          <div class="pricing-included">3 users · 1 entity · 5 GB storage</div>
+          <ul class="pricing-features">
+            <li>Full GL, AP/AR, bank reconciliation</li>
+            <li>Invoicing & bill management</li>
+            <li>Fixed assets & depreciation</li>
+            <li>Financial statements</li>
+            <li>Tax returns (1120-S, 1065)</li>
+            <li>Document attachments</li>
+          </ul>
+          <button class="pricing-btn pricing-btn-outline" onclick="showPage('contact')">Get started</button>
+        </div>
+        <div class="pricing-card featured">
+          <div class="pricing-popular">Most Popular</div>
+          <div class="pricing-plan">Professional</div>
+          <div class="pricing-tagline">Multi-entity family office</div>
+          <div class="pricing-price"><sup>$</sup>349<span class="pricing-period">/mo</span></div>
+          <div class="pricing-included">10 users · 5 entities · 25 GB storage</div>
+          <ul class="pricing-features">
+            <li>Everything in Starter</li>
+            <li>Multi-entity + consolidation</li>
+            <li>Intercompany eliminations</li>
+            <li>Equity & cap table management</li>
+            <li>Debt & loan schedules</li>
+            <li>Budgeting & forecasting</li>
+            <li>Custom report builder</li>
+            <li>Automation rules & alerts</li>
+          </ul>
+          <button class="pricing-btn pricing-btn-primary" onclick="showPage('contact')">Request Demo</button>
+        </div>
+        <div class="pricing-card">
+          <div class="pricing-plan">Enterprise</div>
+          <div class="pricing-tagline">Large or complex office</div>
+          <div class="pricing-price"><sup>$</sup>749<span class="pricing-period">/mo</span></div>
+          <div class="pricing-included">Unlimited users · Unlimited entities</div>
+          <ul class="pricing-features">
+            <li>Everything in Professional</li>
+            <li>Priority support & onboarding</li>
+            <li>SOC 2 report access</li>
+            <li>SSO / SAML integration</li>
+            <li>Google Drive / SharePoint sync</li>
+            <li>Dedicated account manager</li>
+            <li>Custom branding</li>
+          </ul>
+          <button class="pricing-btn pricing-btn-outline" onclick="showPage('contact')">Contact Sales</button>
+        </div>
+        <div class="pricing-card">
+          <div class="pricing-plan">Accounting Firm</div>
+          <div class="pricing-tagline">For CPA firms managing clients</div>
+          <div class="pricing-price"><sup>$</sup>1,299<span class="pricing-period">/mo</span></div>
+          <div class="pricing-included">Unlimited users · 10 clients included</div>
+          <ul class="pricing-features">
+            <li>All Enterprise features</li>
+            <li>Firm-level dashboard</li>
+            <li>Client isolation & permissions</li>
+            <li>Cross-client reporting</li>
+            <li>$99/mo each additional client</li>
+            <li>Accountant audit log access</li>
+          </ul>
+          <button class="pricing-btn pricing-btn-outline" onclick="showPage('contact')">Contact Sales</button>
+        </div>
+      </div>
+
+      <div style="background:var(--off-white);border-radius:var(--radius-lg);padding:32px;margin-top:40px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:24px;">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--navy);margin-bottom:4px;">+ Payroll</div>
+            <div style="font-size:13px;color:var(--text-light);">$8/employee/mo · min $40/mo</div>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--navy);margin-bottom:4px;">+ Project Management</div>
+            <div style="font-size:13px;color:var(--text-light);">$79/mo add-on</div>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--navy);margin-bottom:4px;">+ CRM</div>
+            <div style="font-size:13px;color:var(--text-light);">$49/mo add-on</div>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--navy);margin-bottom:4px;">+ Additional Entities</div>
+            <div style="font-size:13px;color:var(--text-light);">$49/entity/mo beyond plan limit</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════
+     INSIGHTS
+══════════════════════════════════════════ -->
+<div class="page" id="page-insights">
+  <section style="background:var(--navy);padding:64px 0 56px;">
+    <div class="container">
+      <span class="eyebrow eyebrow-light">Thought leadership</span>
+      <h1 class="display-2" style="color:#fff;max-width:560px;margin-bottom:16px;">Insights for financial professionals managing complexity</h1>
+      <p style="color:rgba(255,255,255,0.55);font-size:17px;max-width:480px;">Practical guidance on multi-entity accounting, family office operations, tax strategy, and financial controls.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="insights-grid">
+        <div class="insight-card">
+          <div class="insight-header" style="background:var(--navy);color:rgba(255,255,255,0.15);">⊞</div>
+          <div class="insight-body">
+            <div class="insight-tag">Multi-Entity Accounting</div>
+            <h3 class="insight-title">The Multi-Entity Accounting Playbook for Family Offices</h3>
+            <p class="insight-excerpt">How to structure your chart of accounts, handle intercompany transactions, and generate consolidated financials without losing accuracy across 4–20 entities.</p>
+            <div class="insight-link">Read article →</div>
+          </div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-header" style="background:var(--teal-light);">📊</div>
+          <div class="insight-body">
+            <div class="insight-tag">Reporting</div>
+            <h3 class="insight-title">What Goes Into a Best-in-Class Family Office Board Pack</h3>
+            <p class="insight-excerpt">The 8 sections every quarterly board report should contain — and how to generate them automatically from your accounting system instead of spending 40 hours in Excel.</p>
+            <div class="insight-link">Read article →</div>
+          </div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-header" style="background:rgba(194,164,109,0.12);">🏛️</div>
+          <div class="insight-body">
+            <div class="insight-tag">Tax Strategy</div>
+            <h3 class="insight-title">K-1 Allocation Workflows That Don't Break at Tax Time</h3>
+            <p class="insight-excerpt">Setting up partnership accounting so that K-1 allocations are clean, partner distributions are tracked, and your CPA can file without a week of reconciliation work.</p>
+            <div class="insight-link">Read article →</div>
+          </div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-header" style="background:#F4F6F8;">⊛</div>
+          <div class="insight-body">
+            <div class="insight-tag">Governance</div>
+            <h3 class="insight-title">Access Controls for Family Office Finance Systems</h3>
+            <p class="insight-excerpt">Who should see what — and how to enforce it. A practical guide to role-based permissions, approval workflows, and the audit trails that protect you when things go wrong.</p>
+            <div class="insight-link">Read article →</div>
+          </div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-header" style="background:var(--navy);color:rgba(255,255,255,0.15);">📋</div>
+          <div class="insight-body">
+            <div class="insight-tag">Operations</div>
+            <h3 class="insight-title">From Spreadsheets to a Single Source of Truth: A Migration Guide</h3>
+            <p class="insight-excerpt">Step-by-step guidance for moving a multi-entity family office off Excel and QuickBooks onto a consolidated platform — without losing historical data or disrupting the close cycle.</p>
+            <div class="insight-link">Read article →</div>
+          </div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-header" style="background:var(--teal-light);">🔐</div>
+          <div class="insight-body">
+            <div class="insight-tag">Security</div>
+            <h3 class="insight-title">Evaluating Financial Software Security: A Due Diligence Framework</h3>
+            <p class="insight-excerpt">The questions every family office should ask before moving sensitive financial data to a cloud accounting platform — encryption, access controls, compliance certifications, and data residency.</p>
+            <div class="insight-link">Read article →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════
+     ABOUT
+══════════════════════════════════════════ -->
+<div class="page" id="page-about">
+  <section style="background:var(--navy);padding:64px 0 56px;">
+    <div class="container">
+      <span class="eyebrow eyebrow-light">Our story</span>
+      <h1 class="display-2" style="color:#fff;max-width:600px;margin-bottom:16px;">Built by people who lived the problem.</h1>
+      <p style="color:rgba(255,255,255,0.55);font-size:17px;max-width:520px;">Clarus exists because we spent years watching family offices and private investment firms struggle with software that was never designed for them.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="about-grid">
+        <div>
+          <div class="about-photo">🏛</div>
+        </div>
+        <div>
+          <span class="eyebrow">Founder's note</span>
+          <h2 style="font-family:'Playfair Display',serif;font-size:28px;color:var(--navy);margin-bottom:20px;">Why we built Clarus</h2>
+          <p class="body-md" style="margin-bottom:16px;">We managed the books for a family office with seven entities across Florida and Georgia — two operating businesses, two real estate holdings, a family trust, a charitable foundation, and a management company. The books lived in four separate QuickBooks files, a stack of Excel consolidation sheets, and a folder of PDF K-1s that needed to be retyped into TurboTax every March.</p>
+          <p class="body-md" style="margin-bottom:16px;">We looked at the enterprise alternatives. Sage Intacct quoted us $45,000 to implement. NetSuite wanted $2,800 a month before a single add-on. Neither was designed for the nuances of family office accounting — trust structures, intercompany management fees, partner distributions, equity waterfalls.</p>
+          <p class="body-md" style="margin-bottom:32px;">So we built the system we needed. Clarus is the financial operating system for organizations where complexity is the default, not the exception — and where the people managing it deserve tools that actually work.</p>
+          <div class="about-stat-row">
+            <div class="about-stat">
+              <div class="about-stat-num">13</div>
+              <div class="about-stat-label">Modules built</div>
+            </div>
+            <div class="about-stat">
+              <div class="about-stat-num">0</div>
+              <div class="about-stat-label">Implementation cost</div>
+            </div>
+            <div class="about-stat">
+              <div class="about-stat-num">1</div>
+              <div class="about-stat-label">Source of truth</div>
+            </div>
+          </div>
+          <div style="padding:24px;background:var(--off-white);border-radius:var(--radius-lg);border-left:4px solid var(--teal);">
+            <p style="font-size:15px;color:var(--text-mid);font-style:italic;line-height:1.65;">"We're not building accounting software for small businesses. We're building the financial infrastructure that complex organizations have always deserved but could never access without a $100,000 implementation budget."</p>
+            <p style="font-size:13px;color:var(--text-light);margin-top:10px;">— Clarus Founding Team</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════
+     CONTACT / DEMO
+══════════════════════════════════════════ -->
+<div class="page" id="page-contact">
+  <section style="background:var(--navy);padding:48px 0 0;">
+    <div class="container" style="max-width:560px;">
+      <span class="eyebrow eyebrow-light">Get in touch</span>
+      <h1 class="display-3" style="color:#fff;margin-bottom:12px;">Schedule a consultation</h1>
+      <p style="color:rgba(255,255,255,0.55);font-size:16px;padding-bottom:48px;">A 30-minute walkthrough of the platform, tailored to your specific entity structure and reporting needs. No sales pressure — just a demonstration.</p>
+    </div>
+  </section>
+  <section style="background:var(--off-white);padding:48px 0 80px;">
+    <div class="container" style="max-width:560px;">
+      <div class="demo-form-wrap" style="margin-top:-80px;">
+        <div id="formView">
+          <h2 class="demo-form-title">Request a Demo</h2>
+          <p class="demo-form-sub">We'll reach out within one business day to schedule a time.</p>
+          <div class="form-row">
+            <div class="form-field"><label class="form-label">First Name</label><input type="text" class="form-input" id="f-first" placeholder="John"></div>
+            <div class="form-field"><label class="form-label">Last Name</label><input type="text" class="form-input" id="f-last" placeholder="Smith"></div>
+          </div>
+          <div class="form-field"><label class="form-label">Work Email</label><input type="email" class="form-input" id="f-email" placeholder="john@family.com"></div>
+          <div class="form-field"><label class="form-label">Organization</label><input type="text" class="form-input" id="f-org" placeholder="Smith Family Office"></div>
+          <div class="form-field">
+            <label class="form-label">Organization Type</label>
+            <select class="form-select" id="f-type">
+              <option value="">Select…</option>
+              <option>Single-family office</option>
+              <option>Multi-family office</option>
+              <option>Private investment firm</option>
+              <option>Multi-entity operating company</option>
+              <option>Advisory / CPA firm</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Number of Entities</label>
+              <select class="form-select" id="f-entities">
+                <option>1</option><option>2–5</option><option>6–15</option><option>16+</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Current System</label>
+              <select class="form-select" id="f-current">
+                <option>QuickBooks</option>
+                <option>Spreadsheets</option>
+                <option>Sage Intacct</option>
+                <option>NetSuite</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-field"><label class="form-label">Anything specific you'd like to see?</label><textarea class="form-input" id="f-notes" rows="3" placeholder="e.g. Multi-entity consolidation, K-1 allocations, payroll integration…"></textarea></div>
+          <button class="form-submit" onclick="submitDemoForm()">Request Demo →</button>
+          <p class="form-privacy">No spam. No sales calls without permission. We take privacy seriously.</p>
+        </div>
+        <div class="form-success" id="formSuccess">
+          <div class="form-success-icon">✓</div>
+          <h3 class="form-success-title">Request received</h3>
+          <p class="form-success-body">Thank you. A member of our team will reach out within one business day to schedule your personalized walkthrough.</p>
+        </div>
+      </div>
+
+      <div style="margin-top:40px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;text-align:center;">
+        <div>
+          <div style="font-size:20px;margin-bottom:6px;">⏱</div>
+          <div style="font-size:13px;font-weight:500;color:var(--navy);">30 minutes</div>
+          <div style="font-size:12px;color:var(--text-light);">Typical demo length</div>
+        </div>
+        <div>
+          <div style="font-size:20px;margin-bottom:6px;">⊛</div>
+          <div style="font-size:13px;font-weight:500;color:var(--navy);">Tailored</div>
+          <div style="font-size:12px;color:var(--text-light);">To your structure</div>
+        </div>
+        <div>
+          <div style="font-size:20px;margin-bottom:6px;">◎</div>
+          <div style="font-size:13px;font-weight:500;color:var(--navy);">No commitment</div>
+          <div style="font-size:12px;color:var(--text-light);">Zero pressure</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════
+     FOOTER (shown on all pages)
+══════════════════════════════════════════ -->
+<footer class="footer" id="mainFooter">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <div style="width:28px;height:28px;background:var(--teal);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:12px;font-weight:700;color:#fff;">C</div>
+            <span class="footer-brand-name">Clarus</span>
+          </div>
+        </div>
+        <p class="footer-tagline">Financial operating system for family offices, private investment firms, and complex wealth structures.</p>
+        <div style="margin-top:20px;display:flex;gap:12px;">
+          <div style="width:32px;height:32px;background:rgba(255,255,255,0.06);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;">in</div>
+          <div style="width:32px;height:32px;background:rgba(255,255,255,0.06);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;">𝕏</div>
+        </div>
+      </div>
+      <div>
+        <div class="footer-heading">Product</div>
+        <div class="footer-links">
+          <div class="footer-link" onclick="showPage('product')">Platform Overview</div>
+          <div class="footer-link" onclick="showPage('product')">Accounting Module</div>
+          <div class="footer-link" onclick="showPage('product')">Reporting & Intelligence</div>
+          <div class="footer-link" onclick="showPage('product')">Tax Management</div>
+          <div class="footer-link" onclick="showPage('pricing')">Pricing</div>
+        </div>
+      </div>
+      <div>
+        <div class="footer-heading">Company</div>
+        <div class="footer-links">
+          <div class="footer-link" onclick="showPage('about')">About</div>
+          <div class="footer-link" onclick="showPage('who')">Who It's For</div>
+          <div class="footer-link" onclick="showPage('why')">Why Clarus</div>
+          <div class="footer-link" onclick="showPage('insights')">Insights</div>
+          <div class="footer-link" onclick="showPage('contact')">Contact</div>
+        </div>
+      </div>
+      <div>
+        <div class="footer-heading">Resources</div>
+        <div class="footer-links">
+          <div class="footer-link" onclick="showPage('security')">Security</div>
+          <div class="footer-link">Documentation</div>
+          <div class="footer-link" onclick="showPage('contact')">Request Demo</div>
+          <div class="footer-link" onclick="showPage('contact')">Support</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2025 Clarus Financial Management. All rights reserved.</div>
+      <div class="footer-legal">
+        <a>Privacy Policy</a>
+        <a>Terms of Service</a>
+        <a>Security</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ════════════════════════════════════════
+//  PAGE NAVIGATION
+// ════════════════════════════════════════
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  const page = document.getElementById('page-' + pageId);
+  if (page) { page.classList.add('active'); }
+  const navLink = document.querySelector(`[onclick="showPage('${pageId}')"]`);
+  if (navLink) navLink.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Show footer on all pages
+  document.getElementById('mainFooter').style.display = 'block';
+}
+
+// ════════════════════════════════════════
+//  DEMO FORM
+// ════════════════════════════════════════
+function submitDemoForm() {
+  const email = document.getElementById('f-email').value.trim();
+  const first  = document.getElementById('f-first').value.trim();
+  const org    = document.getElementById('f-org').value.trim();
+  if (!email || !first || !org) {
+    alert('Please fill in your name, email, and organization.');
+    return;
+  }
+  document.getElementById('formView').style.display = 'none';
+  document.getElementById('formSuccess').style.display = 'block';
+}
+
+// ════════════════════════════════════════
+//  SCROLL FADE-IN
+// ════════════════════════════════════════
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// ════════════════════════════════════════
+//  NAV SCROLL SHADOW
+// ════════════════════════════════════════
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('mainNav');
+  if (window.scrollY > 20) {
+    nav.style.boxShadow = 'var(--shadow-md)';
+  } else {
+    nav.style.boxShadow = 'none';
+  }
+});
+
+// Make scroll animations work when switching pages
+function observeNewElements() {
+  document.querySelectorAll('.fade-up:not(.observed)').forEach(el => {
+    el.classList.add('observed');
+    observer.observe(el);
+  });
+}
+</script>
+</body>
+</html>
