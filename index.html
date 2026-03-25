@@ -21257,6 +21257,10 @@ if (_b15SwitchModule) {
 
 
 // ── INIT
+async function initApp() {
+  await initAuth();
+  setTimeout(addIRPLinks, 2000);
+}
 initApp();
 </script>
 </body>
