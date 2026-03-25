@@ -86,37 +86,74 @@
     text-transform: uppercase;
     margin-top: 1px;
   }
-  .topbar-nav { display: flex; gap: 6px; }
-  .topbar-nav-btn {
-    padding: 7px 16px;
-    border-radius: var(--radius);
-    border: 1px solid transparent;
-    background: transparent;
-    color: rgba(255,255,255,0.65);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px; font-weight: 400;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .topbar-nav-btn:hover { color: var(--white); background: rgba(255,255,255,0.08); }
-  .topbar-nav-btn.active { background: var(--teal); color: #fff; font-weight: 500; }
+  
+  
+  
+  
 
   /* ── LAYOUT ── */
   .app-layout { display: flex; flex: 1; min-height: 0; align-items: flex-start; }
 
   /* ── SIDEBAR ── */
   .sidebar {
-    width: 260px;
+    width: 240px;
     background: var(--navy-mid);
     display: flex;
     flex-direction: column;
-    padding: 24px 0;
-    min-height: 100vh;
+    padding: 16px 0 24px;
+    min-height: calc(100vh - 64px);
     position: sticky;
     top: 64px;
     height: calc(100vh - 64px);
     overflow-y: auto;
+    overflow-x: hidden;
+    flex-shrink: 0;
   }
+  /* ── Batch 16 Side Navigation ── */
+  .sidenav { display:flex; flex-direction:column; gap:1px; padding:0 8px; }
+  .sidenav-item {
+    display:flex; align-items:center; gap:10px;
+    padding:9px 12px; border-radius:var(--radius);
+    background:none; border:none; color:rgba(255,255,255,0.7);
+    font-family:'DM Sans',sans-serif; font-size:13px;
+    cursor:pointer; width:100%; text-align:left;
+    transition:all 0.15s;
+  }
+  .sidenav-item:hover { background:rgba(255,255,255,0.07); color:#fff; }
+  .sidenav-item.active { background:rgba(44,166,164,0.2); color:var(--teal); font-weight:500; border-left:2px solid var(--teal); }
+  .sidenav-icon { font-size:14px; flex-shrink:0; width:18px; text-align:center; }
+  .sidenav-label { flex:1; }
+  .sidenav-group { display:flex; flex-direction:column; }
+  .sidenav-group-btn {
+    display:flex; align-items:center; gap:10px;
+    padding:9px 12px; border-radius:var(--radius);
+    background:none; border:none; color:rgba(255,255,255,0.7);
+    font-family:'DM Sans',sans-serif; font-size:13px;
+    cursor:pointer; width:100%; text-align:left;
+    transition:all 0.15s;
+  }
+  .sidenav-group-btn:hover { background:rgba(255,255,255,0.07); color:#fff; }
+  .sidenav-group-btn.open { color:#fff; }
+  .sidenav-caret { font-size:9px; opacity:0.5; transition:transform 0.2s; margin-left:auto; }
+  .sidenav-group-btn.open .sidenav-caret { transform:rotate(180deg); }
+  .sidenav-children {
+    display:none; flex-direction:column; gap:1px;
+    padding:2px 0 4px 28px;
+  }
+  .sidenav-children.open { display:flex; }
+  .sidenav-child {
+    padding:7px 12px; border-radius:var(--radius);
+    background:none; border:none; color:rgba(255,255,255,0.55);
+    font-family:'DM Sans',sans-serif; font-size:12.5px;
+    cursor:pointer; width:100%; text-align:left;
+    transition:all 0.15s;
+  }
+  .sidenav-child:hover { background:rgba(255,255,255,0.06); color:#fff; }
+  .sidenav-child.active { color:var(--teal); font-weight:500; background:rgba(44,166,164,0.1); }
+  /* Global entity select in topbar */
+  #global-entity-select option { background:var(--navy-mid); color:#fff; }
+  #global-entity-select:focus { outline:none; border-color:var(--teal); }
+
   .sidebar-section-label {
     font-size: 10px; font-weight: 500;
     letter-spacing: 0.12em; text-transform: uppercase;
@@ -463,35 +500,18 @@
   .coa-group-header { padding: 8px 16px; background: var(--navy); color: var(--gold-light); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 
   /* ── BATCH 10: DROPDOWN NAV ── */
-  .nav-group { position:relative; display:inline-flex; }
-  .nav-group-btn {
-    display:flex; align-items:center; gap:5px; padding:6px 12px;
-    background:none; border:none; color:rgba(255,255,255,0.75);
-    font-family:'DM Sans',sans-serif; font-size:13px; cursor:pointer;
-    border-radius:var(--radius); transition:all 0.15s; white-space:nowrap;
-  }
-  .nav-group-btn:hover { color:var(--white); background:rgba(255,255,255,0.08); }
-  .nav-group-btn.active { background:var(--teal); color:#fff; font-weight:500; }
-  .nav-group-btn .nav-caret { font-size:9px; opacity:0.6; transition:transform 0.15s; }
-  .nav-group-btn.open .nav-caret { transform:rotate(180deg); }
-  .nav-dropdown {
-    position:absolute; top:calc(100% + 6px); left:0;
-    background:var(--navy-mid); border:1px solid rgba(255,255,255,0.12);
-    border-radius:var(--radius-lg); min-width:190px;
-    box-shadow:0 8px 32px rgba(0,0,0,0.35); z-index:5000;
-    display:none; flex-direction:column; padding:6px 0;
-    overflow:hidden;
-  }
-  .nav-dropdown.open { display:flex; }
-  .nav-dropdown-item {
-    padding:9px 16px; font-size:13px; color:rgba(255,255,255,0.75);
-    cursor:pointer; transition:background 0.12s; border:none;
-    background:none; text-align:left; font-family:'DM Sans',sans-serif;
-    white-space:nowrap; display:flex; align-items:center; gap:8px;
-  }
-  .nav-dropdown-item:hover { background:rgba(255,255,255,0.1); color:var(--white); }
-  .nav-dropdown-item.active { color:var(--teal); font-weight:500; }
-  .nav-dropdown-divider { height:1px; background:rgba(255,255,255,0.1); margin:4px 0; }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   /* Attachment zone in modals */
   .attach-zone { border:2px dashed var(--border); border-radius:var(--radius); padding:12px 16px; background:var(--section-bg); cursor:pointer; transition:all 0.15s; display:flex; align-items:center; gap:10px; margin-top:10px; }
   .attach-zone:hover { border-color:var(--gold); background:var(--gold-pale); }
@@ -842,6 +862,10 @@
   .hub-card-icon { font-size: 28px; line-height: 1; }
   .hub-card-title { font-family: 'Inter', sans-serif; font-size: 17px; font-weight: 600; color: var(--navy); }
   .hub-card-desc { font-size: 12px; color: var(--text-light); line-height: 1.5; }
+  /* ── Batch 16 Rental Profitability KPI Cards ── */
+  .rp-kpi-card { background:var(--white);border:1px solid var(--border-light);border-top:3px solid var(--teal);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow-sm); }
+  .rp-kpi-label { font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text-light);margin-bottom:8px; }
+  .rp-kpi-value { font-size:26px;font-weight:600;color:var(--navy);font-family:'Playfair Display',serif; }
 </style>
 </head>
 <body>
@@ -887,86 +911,32 @@
       <div class="topbar-subtitle">Financial Management</div>
     </div>
   </div>
-  <nav class="topbar-nav" id="main-nav">
 
-    <!-- ENTITIES -->
-    <div class="nav-group">
-      <button class="nav-group-btn" id="nav-companies" onclick="switchModule('companies')">Entities</button>
-    </div>
-
-    <!-- ACCOUNTING dropdown -->
-    <div class="nav-group" id="navg-accounting">
-      <button class="nav-group-btn" id="navbtn-accounting" onclick="toggleNavGroup('accounting')">
-        Accounting <span class="nav-caret">▼</span>
-      </button>
-      <div class="nav-dropdown" id="navdd-accounting">
-        <button class="nav-dropdown-item" id="nav-financials" onclick="pickNav('financials')">📒 Financials &amp; GL</button>
-        <button class="nav-dropdown-item" id="nav-tax"        onclick="pickNav('tax')">🏛️ Tax Returns</button>
-        <button class="nav-dropdown-item" id="nav-budgeting"  onclick="pickNav('budgeting')">📊 Budgeting</button>
-        <div class="nav-dropdown-divider"></div>
-        <button class="nav-dropdown-item" id="nav-equity"     onclick="pickNav('equity')">📈 Equity &amp; Cap Table</button>
-        <button class="nav-dropdown-item" id="nav-debt"       onclick="pickNav('debt')">🏦 Debt &amp; Loans</button>
-      </div>
-    </div>
-
-    <!-- OPERATIONS dropdown -->
-    <div class="nav-group" id="navg-operations">
-      <button class="nav-group-btn" id="navbtn-operations" onclick="toggleNavGroup('operations')">
-        Operations <span class="nav-caret">▼</span>
-      </button>
-      <div class="nav-dropdown" id="navdd-operations">
-        <button class="nav-dropdown-item" id="nav-projects"   onclick="pickNav('projects')">📋 Projects</button>
-        <button class="nav-dropdown-item" id="nav-inventory"  onclick="pickNav('inventory')">📦 Inventory</button>
-        <button class="nav-dropdown-item" id="nav-purchasing" onclick="pickNav('purchasing')">🛒 Purchasing</button>
-        <div class="nav-dropdown-divider"></div>
-        <button class="nav-dropdown-item" id="nav-rentals" onclick="pickNav('rentals')">🏗️ Rental Scheduling</button>
-      </div>
-    </div>
-
-    <!-- PEOPLE dropdown -->
-    <div class="nav-group" id="navg-people">
-      <button class="nav-group-btn" id="navbtn-people" onclick="toggleNavGroup('people')">
-        People <span class="nav-caret">▼</span>
-      </button>
-      <div class="nav-dropdown" id="navdd-people">
-        <button class="nav-dropdown-item" id="nav-hr"         onclick="pickNav('hr')">👥 HR &amp; Benefits</button>
-        <button class="nav-dropdown-item" id="nav-crm"        onclick="pickNav('crm')">🤝 CRM</button>
-        <button class="nav-dropdown-item" id="nav-ownership"  onclick="pickNav('ownership')">🔗 Ownership</button>
-      </div>
-    </div>
-
-    <!-- INTELLIGENCE dropdown -->
-    <div class="nav-group" id="navg-intel">
-      <button class="nav-group-btn" id="navbtn-intel" onclick="toggleNavGroup('intel')">
-        Intelligence <span class="nav-caret">▼</span>
-      </button>
-      <div class="nav-dropdown" id="navdd-intel">
-        <button class="nav-dropdown-item" id="nav-reports"   onclick="pickNav('reports')">📊 Reports &amp; Automation</button>
-        <button class="nav-dropdown-item" id="nav-documents" onclick="pickNav('documents')">📁 Documents</button>
-      </div>
-    </div>
-
-    <!-- SETTINGS — standalone -->
-    <div class="nav-group">
-      <button class="nav-group-btn" id="nav-settings" onclick="switchModule('settings')">Settings</button>
-    </div>
-
-  </nav>
-  <div style="position:relative;margin-left:8px;">
-    <button id="alert-bell-btn" onclick="toggleAlertDrawer()" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.7);font-size:20px;padding:4px 8px;border-radius:6px;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'" title="Alerts">🔔</button>
-    <span id="alert-badge" class="alert-badge" style="display:none;">0</span>
+  <!-- Entity picker in topbar -->
+  <div style="display:flex;align-items:center;gap:10px;flex:1;max-width:340px;margin:0 32px;">
+    <span style="font-size:11px;color:rgba(255,255,255,0.45);white-space:nowrap;text-transform:uppercase;letter-spacing:.08em;">Entity</span>
+    <select id="global-entity-select" onchange="onGlobalEntityChange()" style="height:32px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;padding:0 10px;flex:1;cursor:pointer;">
+      <option value="">— Select entity —</option>
+    </select>
   </div>
-  <div class="topbar-user-badge" id="topbar-user-badge" onclick="toggleUserDropdown()" style="display:none;margin-left:8px;">
-    <div class="topbar-user-avatar" id="user-avatar-initials">?</div>
-    <div>
-      <div class="topbar-user-name" id="user-display-name">Loading…</div>
-      <div class="topbar-user-role" id="user-display-role">—</div>
+
+  <div style="display:flex;align-items:center;gap:6px;">
+    <div style="position:relative;margin-right:2px;">
+      <button id="alert-bell-btn" onclick="toggleAlertDrawer()" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.7);font-size:20px;padding:4px 8px;border-radius:6px;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'" title="Alerts">🔔</button>
+      <span id="alert-badge" class="alert-badge" style="display:none;">0</span>
     </div>
-    <div class="user-dropdown" id="user-dropdown">
-      <div class="user-dropdown-item" onclick="openMyProfile()">My Profile</div>
-      <div class="user-dropdown-item" onclick="openChangePassword()">Change Password</div>
-      <div class="user-dropdown-divider"></div>
-      <div class="user-dropdown-item danger" onclick="doLogout()">Sign Out</div>
+    <div class="topbar-user-badge" id="topbar-user-badge" onclick="toggleUserDropdown()" style="display:none;">
+      <div class="topbar-user-avatar" id="user-avatar-initials">?</div>
+      <div>
+        <div class="topbar-user-name" id="user-display-name">Loading…</div>
+        <div class="topbar-user-role" id="user-display-role">—</div>
+      </div>
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-item" onclick="openMyProfile()">My Profile</div>
+        <div class="user-dropdown-item" onclick="openChangePassword()">Change Password</div>
+        <div class="user-dropdown-divider"></div>
+        <div class="user-dropdown-item danger" onclick="doLogout()">Sign Out</div>
+      </div>
     </div>
   </div>
 </header>
@@ -992,17 +962,98 @@
 
   <!-- SIDEBAR -->
   <aside class="sidebar" id="companiesSidebar">
-    <button class="sidebar-btn active" id="sidebarDashBtn" onclick="showDashboard()">
-      <span>⊞</span> Dashboard
-    </button>
-    <div style="height:1px;background:rgba(255,255,255,0.08);margin:12px 0;"></div>
-    <div class="sidebar-section-label">Companies</div>
-    <div class="company-list-area" id="sidebarCompanyList">
-      <div style="padding:12px 20px 0 32px;font-size:12px;color:rgba(255,255,255,0.3);">Loading…</div>
+
+    <!-- ── NAV SECTIONS ── -->
+    <div class="sidenav">
+
+      <button class="sidenav-item" id="nav-companies" onclick="switchModule('companies')">
+        <span class="sidenav-icon">🏢</span><span class="sidenav-label">Entities</span>
+      </button>
+
+      <!-- Accounting -->
+      <div class="sidenav-group" id="sng-accounting">
+        <button class="sidenav-group-btn" onclick="toggleSideGroup('accounting')">
+          <span class="sidenav-icon">📒</span><span class="sidenav-label">Accounting</span>
+          <span class="sidenav-caret">▾</span>
+        </button>
+        <div class="sidenav-children" id="snc-accounting">
+          <button class="sidenav-child" id="nav-financials"  onclick="pickNav('financials')">Financials &amp; GL</button>
+          <button class="sidenav-child" id="nav-tax"         onclick="pickNav('tax')">Tax Returns</button>
+          <button class="sidenav-child" id="nav-budgeting"   onclick="pickNav('budgeting')">Budgeting</button>
+          <button class="sidenav-child" id="nav-equity"      onclick="pickNav('equity')">Equity &amp; Cap Table</button>
+          <button class="sidenav-child" id="nav-debt"        onclick="pickNav('debt')">Debt &amp; Loans</button>
+        </div>
+      </div>
+
+      <!-- Operations -->
+      <div class="sidenav-group" id="sng-operations">
+        <button class="sidenav-group-btn" onclick="toggleSideGroup('operations')">
+          <span class="sidenav-icon">⚙️</span><span class="sidenav-label">Operations</span>
+          <span class="sidenav-caret">▾</span>
+        </button>
+        <div class="sidenav-children" id="snc-operations">
+          <button class="sidenav-child" id="nav-projects"    onclick="pickNav('projects')">Projects</button>
+          <button class="sidenav-child" id="nav-inventory"   onclick="pickNav('inventory')">Inventory</button>
+          <button class="sidenav-child" id="nav-purchasing"  onclick="pickNav('purchasing')">Purchasing</button>
+        </div>
+      </div>
+
+      <!-- People -->
+      <div class="sidenav-group" id="sng-people">
+        <button class="sidenav-group-btn" onclick="toggleSideGroup('people')">
+          <span class="sidenav-icon">👥</span><span class="sidenav-label">People</span>
+          <span class="sidenav-caret">▾</span>
+        </button>
+        <div class="sidenav-children" id="snc-people">
+          <button class="sidenav-child" id="nav-hr"          onclick="pickNav('hr')">HR &amp; Benefits</button>
+          <button class="sidenav-child" id="nav-crm"         onclick="pickNav('crm')">CRM</button>
+          <button class="sidenav-child" id="nav-ownership"   onclick="pickNav('ownership')">Ownership</button>
+        </div>
+      </div>
+
+      <!-- Intelligence -->
+      <div class="sidenav-group" id="sng-intel">
+        <button class="sidenav-group-btn" onclick="toggleSideGroup('intel')">
+          <span class="sidenav-icon">📊</span><span class="sidenav-label">Intelligence</span>
+          <span class="sidenav-caret">▾</span>
+        </button>
+        <div class="sidenav-children" id="snc-intel">
+          <button class="sidenav-child" id="nav-reports"     onclick="pickNav('reports')">Reports &amp; Automation</button>
+          <button class="sidenav-child" id="nav-documents"   onclick="pickNav('documents')">Documents</button>
+        </div>
+      </div>
+
+      <!-- Rentals (upsell module) -->
+      <div class="sidenav-group" id="sng-rentals">
+        <button class="sidenav-group-btn" onclick="toggleSideGroup('rentals')">
+          <span class="sidenav-icon">🏗️</span><span class="sidenav-label">Rentals</span>
+          <span class="sidenav-caret">▾</span>
+        </button>
+        <div class="sidenav-children" id="snc-rentals">
+          <button class="sidenav-child" id="nav-rentals"     onclick="pickNav('rentals')">Scheduling</button>
+          <button class="sidenav-child" id="nav-rental-profit" onclick="pickNav('rental-profit')">Profitability</button>
+        </div>
+      </div>
+
+      <button class="sidenav-item" id="nav-settings" onclick="switchModule('settings')">
+        <span class="sidenav-icon">⚙</span><span class="sidenav-label">Settings</span>
+      </button>
+
+    </div><!-- /sidenav -->
+
+    <div style="height:1px;background:rgba(255,255,255,0.08);margin:8px 0;"></div>
+
+    <!-- Entity list (shown when on Entities module) -->
+    <div id="entity-list-section" style="display:none;flex:1;overflow-y:auto;min-height:0;">
+      <div class="sidebar-section-label">Companies</div>
+      <div class="company-list-area" id="sidebarCompanyList">
+        <div style="padding:12px 20px 0 32px;font-size:12px;color:rgba(255,255,255,0.3);">Loading…</div>
+      </div>
+      <button class="add-company-btn" onclick="newCompany()">
+        <span>+</span> New Company
+      </button>
     </div>
-    <button class="add-company-btn" onclick="newCompany()">
-      <span>+</span> New Company
-    </button>
+
   </aside>
 
   <!-- MAIN -->
@@ -3780,6 +3831,60 @@
     </div><!-- /view-rentals -->
 
     <!-- ═══════════════════════════════════════════
+         BATCH 16 — RENTAL PROFITABILITY MODULE
+    ═══════════════════════════════════════════ -->
+    <div id="view-rental-profit" class="panel">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Rental Profitability</div>
+          <div class="page-subtitle">Revenue · Costs · Margin · Utilization by equipment</div>
+        </div>
+        <div class="page-actions">
+          <select id="rp-entity-select" class="field-select" style="height:34px;min-width:200px;" onchange="loadRentalProfitModule()">
+            <option value="">— Select rental entity —</option>
+          </select>
+          <select id="rp-period-select" class="field-select" style="height:34px;width:160px;" onchange="renderRentalProfit()">
+            <option value="all">All Time</option>
+            <option value="ytd" selected>Year to Date</option>
+            <option value="last12">Last 12 Months</option>
+            <option value="q1">Q1</option>
+            <option value="q2">Q2</option>
+            <option value="q3">Q3</option>
+            <option value="q4">Q4</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Summary KPI bar -->
+      <div id="rp-kpi-bar" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+        <div class="rp-kpi-card" id="rp-kpi-revenue"><div class="rp-kpi-label">Total Revenue</div><div class="rp-kpi-value">—</div></div>
+        <div class="rp-kpi-card" id="rp-kpi-costs"><div class="rp-kpi-label">Total Costs</div><div class="rp-kpi-value">—</div></div>
+        <div class="rp-kpi-card" id="rp-kpi-margin"><div class="rp-kpi-label">Net Margin</div><div class="rp-kpi-value">—</div></div>
+        <div class="rp-kpi-card" id="rp-kpi-util"><div class="rp-kpi-label">Avg Utilization</div><div class="rp-kpi-value">—</div></div>
+      </div>
+
+      <!-- Per-equipment table -->
+      <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:15px;font-weight:600;color:var(--navy);">Equipment Profitability</div>
+          <div style="font-size:12px;color:var(--text-light);">Click any row to see rental history</div>
+        </div>
+        <div id="rp-table-body">
+          <div class="empty-state"><div class="empty-state-title">Select a rental entity to view profitability</div></div>
+        </div>
+      </div>
+
+      <!-- Rental history drawer -->
+      <div id="rp-history-panel" style="display:none;margin-top:20px;background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+        <div style="padding:14px 20px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:14px;font-weight:600;color:var(--navy);" id="rp-history-title">Rental History</div>
+          <button onclick="document.getElementById('rp-history-panel').style.display='none'" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:18px;">×</button>
+        </div>
+        <div id="rp-history-body"></div>
+      </div>
+    </div><!-- /view-rental-profit -->
+
+    <!-- ═══════════════════════════════════════════
          BATCH 8 — EQUITY & CAP TABLE
     ═══════════════════════════════════════════ -->
     <div id="view-equity" class="panel">
@@ -6363,8 +6468,9 @@ function renderSidebar(companies) {
 // ═══════════════════════════════════════════════════
 // ── SIDEBAR VISIBILITY ──
 function setSidebarVisible(visible) {
-  const sidebar = document.getElementById('companiesSidebar');
-  if (sidebar) sidebar.classList.toggle('sidebar-hidden', !visible);
+  const entitySection = document.getElementById('entity-list-section');
+  if (entitySection) entitySection.style.display = visible ? 'flex' : 'none';
+  if (entitySection) entitySection.style.flexDirection = 'column';
 }
 
 function showDashboard() {
@@ -6784,9 +6890,10 @@ function buildOfficerCard(data) {
 //  MODULE SWITCHING
 // ═══════════════════════════════════════════════════
 function switchModule(module) {
-  document.querySelectorAll('.topbar-nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('nav-' + module)?.classList.add('active');
-  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub','view-tax','view-projects','view-inventory','view-budgeting','view-settings','view-crm','view-documents','view-reports','view-purchasing','view-rentals','view-equity','view-debt','view-hr'].forEach(id => {
+  // Clear sidebar active states (sidenav replaced topbar-nav-btn)
+  document.querySelectorAll('.sidenav-item,.sidenav-child').forEach(b=>b.classList.remove('active'));
+  document.getElementById('nav-'+module)?.classList.add('active');
+  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub','view-tax','view-projects','view-inventory','view-budgeting','view-settings','view-crm','view-documents','view-reports','view-purchasing','view-rentals','view-rental-profit','view-equity','view-debt','view-hr'].forEach(id => {
     document.getElementById(id)?.classList.remove('active');
   });
   setSidebarVisible(module === 'companies');
@@ -6855,6 +6962,10 @@ function switchModule(module) {
     document.getElementById('view-rentals').classList.add('active');
     requestAnimationFrame(()=>{ const _sm=document.querySelector('.main');if(_sm)_sm.scrollTop=0; });
     loadRentalsModule();
+  } else if (module === 'rental-profit') {
+    document.getElementById('view-rental-profit').classList.add('active');
+    requestAnimationFrame(()=>{ const _sm=document.querySelector('.main');if(_sm)_sm.scrollTop=0; });
+    loadRentalProfitModule();
   }
 }
 
@@ -7223,8 +7334,13 @@ async function loadFinancialsModule() {
   const sel = document.getElementById('acctEntitySelect');
   sel.innerHTML = '<option value="">— Select a company —</option>' +
     (companies||[]).map(c=>`<option value="${c.id}" data-basis="${c.acct_method_gl||''}">${c.legal_name}</option>`).join('');
-  // Default to first company if available
-  if (companies && companies.length > 0) {
+  // Sync with global entity picker if one is selected
+  const globalSel = document.getElementById('global-entity-select');
+  const globalId  = globalSel?.value;
+  if (globalId && (companies||[]).find(c=>c.id===globalId)) {
+    sel.value = globalId;
+    onEntityChange();
+  } else if (companies?.length > 0) {
     sel.value = companies[0].id;
     onEntityChange();
   }
@@ -7243,6 +7359,16 @@ function onEntityChange() {
 }
 
 function showAcctView(view) {
+  // Require entity selection for transactional views
+  if (!acctCompanyId && !acctConsolidated) {
+    const transactional = ['invoices','bills','je','gl','payments-in','payments-out','bank','payroll','draws','reconcile','ic','coa'];
+    if (transactional.includes(view)) {
+      showToast('⚠ Select an entity above first', true);
+      const sel = document.getElementById('acctEntitySelect');
+      if (sel) { sel.focus(); sel.style.outline='2px solid var(--teal)'; setTimeout(()=>sel.style.outline='',2000); }
+      return;
+    }
+  }
   document.querySelectorAll('.acct-panel').forEach(p => p.style.display = 'none');
   document.querySelectorAll('.acct-sidebar-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('acct-view-' + view).style.display = '';
@@ -7960,7 +8086,19 @@ async function loadInvoices() {
     </td></tr>`).join('')+'</tbody></table>';
 }
 function openInvoiceModal() {
-  if(!acctCompanyId){showToast('⚠ Select a company first',true);return;}
+  if (!acctCompanyId) {
+    const sel = document.getElementById('acctEntitySelect');
+    if (sel && !sel.value) {
+      showToast('⚠ Select an entity in the selector above to create an invoice', true);
+      sel.focus();
+      sel.style.outline = '2px solid var(--teal)';
+      setTimeout(() => sel.style.outline = '', 2500);
+      return;
+    }
+    // Entity selected but onEntityChange not triggered yet
+    onEntityChange();
+    if (!acctCompanyId) return;
+  }
   editingInvoiceId=null;
   document.getElementById('invoiceModalTitle').textContent='New Invoice';
   document.getElementById('inv-customer').innerHTML='<option value="">— Select —</option>'+allCustomers.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
@@ -19772,23 +19910,26 @@ function addIRPLinks() {
 const MODULE_GROUP_MAP = {
   financials:'accounting', tax:'accounting', budgeting:'accounting',
   equity:'accounting', debt:'accounting',
-  projects:'operations', inventory:'operations', purchasing:'operations', rentals:'operations',
+  projects:'operations', inventory:'operations', purchasing:'operations',
   hr:'people', crm:'people', ownership:'people',
   reports:'intel', documents:'intel',
+  rentals:'rentals', 'rental-profit':'rentals',
 };
 
-function toggleNavGroup(groupId) {
-  const btn = document.getElementById('navbtn-' + groupId);
-  const dd  = document.getElementById('navdd-'  + groupId);
-  if (!btn || !dd) return;
-  const isOpen = dd.classList.contains('open');
-  // Close all dropdowns first
-  document.querySelectorAll('.nav-dropdown').forEach(d => d.classList.remove('open'));
-  document.querySelectorAll('.nav-group-btn').forEach(b => b.classList.remove('open'));
-  if (!isOpen) {
-    dd.classList.add('open');
-    btn.classList.add('open');
-  }
+function toggleNavGroup(groupId) { /* legacy stub */ }
+function toggleSideGroup(groupId) {
+  const children = document.getElementById('snc-' + groupId);
+  const btn = document.querySelector('#sng-' + groupId + ' > .sidenav-group-btn');
+  if (!children) return;
+  const isOpen = children.classList.contains('open');
+  children.classList.toggle('open', !isOpen);
+  if (btn) btn.classList.toggle('open', !isOpen);
+}
+function openSideGroup(groupId) {
+  const children = document.getElementById('snc-' + groupId);
+  const btn = document.querySelector('#sng-' + groupId + ' > .sidenav-group-btn');
+  if (children) children.classList.add('open');
+  if (btn) btn.classList.add('open');
 }
 
 // Close dropdowns when clicking outside
@@ -19809,19 +19950,21 @@ function pickNav(module) {
 // Override switchModule to highlight correct group button
 const _b10SwitchModule = switchModule;
 switchModule = function(module) {
-  // Clear all nav active states
-  document.querySelectorAll('.nav-group-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.nav-dropdown-item').forEach(b => b.classList.remove('active'));
-  // Highlight the correct item and group
+  // Clear all sidenav active states
+  document.querySelectorAll('.sidenav-item, .sidenav-child').forEach(b => b.classList.remove('active'));
+  // Mark the correct item active
   const navItem = document.getElementById('nav-' + module);
   if (navItem) navItem.classList.add('active');
-  const group = MODULE_GROUP_MAP[module];
-  if (group) {
-    document.getElementById('navbtn-' + group)?.classList.add('active');
-  } else {
-    // Standalone (Companies, Settings)
-    document.getElementById('nav-' + module)?.classList.add('active');
-  }
+  // Open the correct group
+  const sideGroupMap = {
+    financials:'accounting', tax:'accounting', budgeting:'accounting', equity:'accounting', debt:'accounting',
+    projects:'operations', inventory:'operations', purchasing:'operations',
+    hr:'people', crm:'people', ownership:'people',
+    reports:'intel', documents:'intel',
+    rentals:'rentals', 'rental-profit':'rentals',
+  };
+  const grp = sideGroupMap[module];
+  if (grp) openSideGroup(grp);
   _b10SwitchModule(module);
 };
 
@@ -21327,9 +21470,254 @@ saveInvoice = async function(status) {
 // Rentals handled directly in switchModule
 
 
-// ── INIT
+// ════════════════════════════════════════════════════
+//  BATCH 16 — GLOBAL ENTITY PICKER + RENTAL PROFIT
+// ════════════════════════════════════════════════════
+
+// ── Global entity picker ──
+async function initGlobalEntitySelect() {
+  const sel = document.getElementById('global-entity-select');
+  if (!sel) return;
+  try {
+    const { data: companies } = await sb.from('companies').select('id,legal_name').order('legal_name');
+    sel.innerHTML = '<option value="">— Select entity —</option>' +
+      (companies||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
+  } catch(e) { console.error('initGlobalEntitySelect:', e); }
+}
+
+function onGlobalEntityChange() {
+  const sel = document.getElementById('global-entity-select');
+  const id  = sel?.value;
+  if (!id) return;
+  // Sync with accounting module if open
+  const acctSel = document.getElementById('acctEntitySelect');
+  if (acctSel && document.getElementById('view-financials')?.classList.contains('active')) {
+    const opt = acctSel.querySelector(`option[value="${id}"]`);
+    if (opt) { acctSel.value = id; onEntityChange(); }
+  }
+  // Sync with rental module if open
+  const rentSel = document.getElementById('rentals-company-sel');
+  if (rentSel && document.getElementById('view-rentals')?.classList.contains('active')) {
+    const opt = rentSel.querySelector(`option[value="${id}"]`);
+    if (opt) { rentSel.value = id; loadRentals(); }
+  }
+  // Store globally for modules to use on open
+  window._globalEntityId = id;
+}
+
+// ── Rental Profitability Module ──
+let rpData = { rentals:[], items:[], companyId:null };
+
+async function loadRentalProfitModule() {
+  showLoading('Loading profitability data…');
+  try {
+    // Populate entity selector
+    const sel = document.getElementById('rp-entity-select');
+    if (sel && sel.options.length <= 1) {
+      const { data: cos } = await sb.from('companies').select('id,legal_name')
+        .order('legal_name');
+      // Prefer rental companies but fall back to all
+      let rentalCos = cos || [];
+      try {
+        const { data: rc, error } = await sb.from('companies').select('id,legal_name')
+          .eq('is_rental_company', true).order('legal_name');
+        if (!error && rc?.length) rentalCos = rc;
+      } catch(e) { /* column may not exist yet */ }
+      sel.innerHTML = '<option value="">— Select rental entity —</option>' +
+        rentalCos.map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
+      // Sync with global entity picker
+      const gid = window._globalEntityId || document.getElementById('global-entity-select')?.value;
+      if (gid && sel.querySelector(`option[value="${gid}"]`)) sel.value = gid;
+      else if (rentalCos.length) sel.value = rentalCos[0].id;
+    }
+    const companyId = document.getElementById('rp-entity-select')?.value;
+    if (!companyId) return;
+    rpData.companyId = companyId;
+
+    // Load rentals and items in parallel — defensive against missing columns
+    let rentals = [], items = [];
+    try {
+      const r = await sb.from('rentals')
+        .select('id,item_id,customer_id,start_date,end_date,rental_rate,rate_period,estimated_total,actual_total,status,rental_days,customers(name)')
+        .eq('company_id', companyId).neq('status','cancelled');
+      rentals = r.data || [];
+    } catch(e) { /* rentals table may not exist yet */ }
+    try {
+      const r = await sb.from('items').select('id,item_name,sku,rental_rate_daily,rental_rate_weekly,rental_rate_monthly,rental_rate_annual,purchase_cost')
+        .eq('company_id', companyId).eq('is_rental_item', true);
+      items = r.data || [];
+    } catch(e) {
+      const r = await sb.from('items').select('id,item_name,sku,purchase_cost')
+        .eq('company_id', companyId);
+      items = r.data || [];
+    }
+    rpData.rentals = rentals;
+    rpData.items   = items;
+    renderRentalProfit();
+  } catch(e) { console.error('loadRentalProfitModule:', e); }
+  finally { hideLoading(); }
+}
+
+function renderRentalProfit() {
+  const period = document.getElementById('rp-period-select')?.value || 'ytd';
+  const now    = new Date();
+  const yr     = now.getFullYear();
+
+  // Period filter
+  function inPeriod(dateStr) {
+    if (!dateStr) return false;
+    const d = new Date(dateStr + 'T00:00:00');
+    if (period === 'all')    return true;
+    if (period === 'ytd')    return d.getFullYear() === yr && d <= now;
+    if (period === 'last12') return d >= new Date(now.getFullYear()-1, now.getMonth(), now.getDate());
+    if (period === 'q1')     return d.getFullYear()===yr && d.getMonth()<3;
+    if (period === 'q2')     return d.getFullYear()===yr && d.getMonth()>=3 && d.getMonth()<6;
+    if (period === 'q3')     return d.getFullYear()===yr && d.getMonth()>=6 && d.getMonth()<9;
+    if (period === 'q4')     return d.getFullYear()===yr && d.getMonth()>=9;
+    return true;
+  }
+
+  const filteredRentals = rpData.rentals.filter(r => inPeriod(r.start_date));
+
+  // Aggregate by item
+  const byItem = {};
+  for (const item of rpData.items) {
+    byItem[item.id] = {
+      item, rentals:[], totalRevenue:0, totalDays:0, rentCount:0
+    };
+  }
+  for (const r of filteredRentals) {
+    if (!byItem[r.item_id]) {
+      byItem[r.item_id] = { item:{id:r.item_id,item_name:'Unknown Item',sku:'',purchase_cost:0}, rentals:[], totalRevenue:0, totalDays:0, rentCount:0 };
+    }
+    const rev = parseFloat(r.actual_total || r.estimated_total || 0);
+    const days = r.rental_days || Math.max(1, Math.round((new Date(r.end_date)-new Date(r.start_date))/(86400000))+1);
+    byItem[r.item_id].totalRevenue += rev;
+    byItem[r.item_id].totalDays    += days;
+    byItem[r.item_id].rentCount    += 1;
+    byItem[r.item_id].rentals.push(r);
+  }
+
+  const rows = Object.values(byItem).sort((a,b) => b.totalRevenue - a.totalRevenue);
+
+  // Calculate totals
+  const totalRev  = rows.reduce((s,r) => s+r.totalRevenue, 0);
+  // Estimate cost as purchase_cost × some depreciation factor (simplified)
+  // In a real system this would pull from fixed_assets / depreciation schedules
+  const totalCost = rows.reduce((s,r) => s + parseFloat(r.item.purchase_cost||0)*0.15, 0);
+  const margin    = totalRev - totalCost;
+  const marginPct = totalRev > 0 ? (margin/totalRev*100).toFixed(1) : 0;
+
+  // Total available days for utilization (items × period days)
+  const periodDays = period==='all' ? 365 : period==='ytd' ? Math.ceil((now - new Date(yr,0,1))/86400000)
+    : period==='last12' ? 365 : period==='q1'||period==='q2'||period==='q3'||period==='q4' ? 91 : 365;
+  const totalAvailDays = rpData.items.length * periodDays;
+  const totalUsedDays  = rows.reduce((s,r) => s+r.totalDays, 0);
+  const utilPct = totalAvailDays > 0 ? (totalUsedDays/totalAvailDays*100).toFixed(1) : 0;
+
+  // Update KPI cards
+  function setKpi(id, label, value, sub='') {
+    const card = document.getElementById(id);
+    if (!card) return;
+    card.querySelector('.rp-kpi-label').textContent = label;
+    card.querySelector('.rp-kpi-value').innerHTML = value + (sub ? `<span style="font-size:12px;font-weight:400;color:var(--text-light);margin-left:6px;">${sub}</span>` : '');
+  }
+  setKpi('rp-kpi-revenue', 'Total Revenue',    fmtMoney(totalRev));
+  setKpi('rp-kpi-costs',   'Est. Costs',        fmtMoney(totalCost), '(15% depr.)');
+  setKpi('rp-kpi-margin',  'Net Margin',         fmtMoney(margin), `(${marginPct}%)`);
+  setKpi('rp-kpi-util',    'Avg Utilization',    `${utilPct}%`, `${totalUsedDays} days rented`);
+
+  // Color margin card
+  const marginCard = document.getElementById('rp-kpi-margin');
+  if (marginCard) {
+    marginCard.style.borderTopColor = margin >= 0 ? 'var(--teal)' : 'var(--error)';
+    marginCard.querySelector('.rp-kpi-value').style.color = margin >= 0 ? 'var(--teal)' : 'var(--error)';
+  }
+
+  // Build table
+  if (!rows.length) {
+    document.getElementById('rp-table-body').innerHTML =
+      '<div class="empty-state"><div class="empty-state-title">No rental data for this period</div></div>';
+    return;
+  }
+
+  const statusColor = {reserved:'#2CA6A4',active:'#1E2A38',returned:'#8A97A6',invoiced:'#C2A46D'};
+
+  document.getElementById('rp-table-body').innerHTML = `
+    <table class="acct-table">
+      <thead><tr>
+        <th>Equipment</th><th>SKU</th><th style="text-align:right">Rentals</th>
+        <th style="text-align:right">Days Out</th><th style="text-align:right">Utilization</th>
+        <th style="text-align:right">Revenue</th><th style="text-align:right">Est. Cost</th>
+        <th style="text-align:right">Net Margin</th><th style="text-align:right">Margin %</th>
+      </tr></thead>
+      <tbody>
+        ${rows.map(row => {
+          const cost    = parseFloat(row.item.purchase_cost||0)*0.15;
+          const net     = row.totalRevenue - cost;
+          const pct     = row.totalRevenue > 0 ? (net/row.totalRevenue*100).toFixed(1) : 0;
+          const util    = periodDays > 0 ? (row.totalDays/periodDays*100).toFixed(1) : 0;
+          const barW    = Math.min(100, parseFloat(util));
+          const barColor= parseFloat(util)>=70?'var(--teal)':parseFloat(util)>=40?'#C2A46D':'var(--error)';
+          return `<tr style="cursor:pointer;" onclick="showRpHistory('${row.item.id}','${(row.item.item_name||'').replace(/'/g,"\\'")}')">
+            <td><strong>${row.item.item_name||'—'}</strong></td>
+            <td style="font-size:11px;font-family:monospace;color:var(--text-light);">${row.item.sku||'—'}</td>
+            <td class="amount">${row.rentCount}</td>
+            <td class="amount">${row.totalDays}</td>
+            <td style="min-width:120px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div style="flex:1;height:6px;background:var(--border-light);border-radius:3px;overflow:hidden;">
+                  <div style="width:${barW}%;height:100%;background:${barColor};border-radius:3px;transition:width .3s;"></div>
+                </div>
+                <span style="font-size:12px;color:var(--text-mid);white-space:nowrap;">${util}%</span>
+              </div>
+            </td>
+            <td class="amount">${fmtMoney(row.totalRevenue)}</td>
+            <td class="amount" style="color:var(--text-light);">${fmtMoney(cost)}</td>
+            <td class="amount" style="color:${net>=0?'var(--success)':'var(--error)'};font-weight:600;">${fmtMoney(net)}</td>
+            <td class="amount" style="color:${parseFloat(pct)>=50?'var(--teal)':parseFloat(pct)>=20?'var(--text-mid)':'var(--error)'};">${pct}%</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+function showRpHistory(itemId, itemName) {
+  const panel  = document.getElementById('rp-history-panel');
+  const title  = document.getElementById('rp-history-title');
+  const body   = document.getElementById('rp-history-body');
+  if (!panel || !body) return;
+  const rentals = rpData.rentals.filter(r => r.item_id === itemId);
+  title.textContent = `Rental History — ${itemName}`;
+  if (!rentals.length) {
+    body.innerHTML = '<div class="empty-state" style="padding:20px;"><div class="empty-state-title">No rentals for this item in period</div></div>';
+  } else {
+    const statusPillStyle = s => {
+      const c = {reserved:'#2CA6A4',active:'#1E2A38',returned:'#8A97A6',invoiced:'#C2A46D',cancelled:'#aaa'}[s]||'#aaa';
+      return `style="background:${c}22;color:${c};padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500;"`;
+    };
+    body.innerHTML = `<table class="acct-table"><thead><tr>
+      <th>Customer</th><th>Start</th><th>End</th><th style="text-align:right">Days</th>
+      <th style="text-align:right">Rate</th><th style="text-align:right">Revenue</th><th>Status</th>
+    </tr></thead><tbody>${
+      rentals.sort((a,b)=>new Date(b.start_date)-new Date(a.start_date)).map(r=>`<tr>
+        <td>${r.customers?.name||'—'}</td>
+        <td>${fmtDate(r.start_date)}</td><td>${fmtDate(r.end_date)}</td>
+        <td class="amount">${r.rental_days||'—'}</td>
+        <td class="amount" style="font-size:12px;">${fmtMoney(r.rental_rate)}/${r.rate_period||'day'}</td>
+        <td class="amount">${fmtMoney(r.actual_total||r.estimated_total)}</td>
+        <td><span ${statusPillStyle(r.status)}>${r.status}</span></td>
+      </tr>`).join('')
+    }</tbody></table>`;
+  }
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+// ── INIT: populate global entity picker and entity list section ──
 async function initApp() {
   await initAuth();
+  await initGlobalEntitySelect();
   setTimeout(addIRPLinks, 2000);
 }
 initApp();
