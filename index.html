@@ -4443,7 +4443,7 @@
       </div>
       <div style="border:1px solid var(--border-light);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;">
         <table class="je-lines-table">
-          <thead><tr><th style="width:35%;">Description</th><th style="width:80px;">Qty</th><th style="width:120px;">Unit Price</th><th style="width:120px;">Account</th><th style="width:80px;">Tax %</th><th style="width:120px;">Amount</th><th style="width:36px;"></th></tr></thead>
+          <thead><tr><th style="width:34%;">Description</th><th style="width:70px;">Qty</th><th style="width:110px;">Unit Price</th><th style="width:110px;">Account</th><th style="width:70px;">Tax %</th><th style="width:100px;">Amount</th><th id="bill-rental-th" style="width:70px;display:none;color:var(--teal);font-size:11px;">Rental</th><th style="width:32px;"></th></tr></thead>
           <tbody id="billLinesTbody"></tbody>
         </table>
         <div style="padding:8px 10px;background:var(--section-bg);border-top:1px solid var(--border-light);">
@@ -7238,6 +7238,7 @@ async function deleteRelationship(id) {
 //  ACCOUNTING MODULE
 // ═══════════════════════════════════════════════════
 let acctCompanyId   = null;
+let acctIsRentalCompany = false; // true when selected entity has is_rental_company=true
 let acctConsolidated = false;
 let acctAccounts    = [];
 let editingAccountId = null;
@@ -7356,6 +7357,18 @@ function onEntityChange() {
   if (basis) { badge.textContent = basis + ' Basis'; badge.style.display = ''; }
   else { badge.style.display = 'none'; }
   if (acctCompanyId || acctConsolidated) loadCOA();
+  // Fetch rental company flag for bill line rental checkbox
+  acctIsRentalCompany = false;
+  if (acctCompanyId) {
+    sb.from('companies').select('is_rental_company').eq('id', acctCompanyId).single()
+      .then(({ data }) => {
+        acctIsRentalCompany = !!(data?.is_rental_company);
+      }).catch(() => {
+        // Column may not exist yet — check via allCompanies cache if available
+        const cached = (typeof allCompanies !== 'undefined' ? allCompanies : []).find(c => c.id === acctCompanyId);
+        acctIsRentalCompany = !!(cached?.is_rental_company);
+      });
+  }
 }
 
 function showAcctView(view) {
@@ -8277,11 +8290,26 @@ function openBillModal() {
   document.getElementById('bill-date').value=new Date().toISOString().slice(0,10);
   document.getElementById('bill-due').value=''; document.getElementById('bill-number').value=''; document.getElementById('bill-memo').value='';
   document.getElementById('billLinesTbody').innerHTML='';
+  // Show rental column header only for rental companies
+  const rentalTh = document.getElementById('bill-rental-th');
+  if (rentalTh) rentalTh.style.display = acctIsRentalCompany ? '' : 'none';
   addBillLine();addBillLine();updateBillTotals();
   document.getElementById('billModal').classList.add('show');
 }
 function addBillLine(data=null) {
   const acctOpts=acctAccounts.filter(a=>a.account_type==='Expense'||a.account_type==='Asset').map(a=>`<option value="${a.id}" ${a.id===data?.account_id?'selected':''}>${a.account_number} — ${a.account_name}</option>`).join('');
+  // Rental checkbox: only shown for rental companies, carries item_id if editing
+  const rentalChecked = data?.is_rental_item ? 'checked' : '';
+  const rentalItemId  = data?.item_id || '';
+  const rentalCol = acctIsRentalCompany
+    ? `<td title="This purchase is rental equipment" style="white-space:nowrap;padding:4px 6px;">
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--teal);cursor:pointer;white-space:nowrap;" title="Mark as rental equipment">
+          <input type="checkbox" class="bl-rental" data-item-id="${rentalItemId}" ${rentalChecked}
+            style="accent-color:var(--teal);" onchange="onBillLineRentalToggle(this)">
+          <span>Rental</span>
+        </label>
+       </td>`
+    : '<td style="width:0;padding:0;overflow:hidden;"></td>';
   const tr=document.createElement('tr');
   tr.innerHTML=`
     <td><input type="text" class="bl-desc" placeholder="Description" value="${data?.description||''}"></td>
@@ -8290,6 +8318,7 @@ function addBillLine(data=null) {
     <td><select class="bl-acct" style="height:32px;padding:0 6px;border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;width:100%;"><option value="">—</option>${acctOpts}</select></td>
     <td><input type="text" class="bl-tax" placeholder="0%" value="${data?.tax_rate||''}" style="text-align:right;" oninput="updateBillTotals()"></td>
     <td><input type="text" class="bl-amt" value="${data?.amount?parseFloat(data.amount).toFixed(2):''}" style="text-align:right;background:var(--section-bg);" readonly></td>
+    ${rentalCol}
     <td><button onclick="this.closest('tr').remove();updateBillTotals();" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:18px;line-height:1;padding:0;">×</button></td>`;
   document.getElementById('billLinesTbody').appendChild(tr);
 }
@@ -8313,6 +8342,7 @@ async function saveBill(status) {
   const vendId=document.getElementById('bill-vendor').value,date=document.getElementById('bill-date').value;
   if(!vendId||!date){showToast('⚠ Vendor and date required',true);return;}
   const lines=[];
+  const rentalLineDescs = [];  // collect descriptions of lines marked as rental
   document.querySelectorAll('#billLinesTbody tr').forEach((tr,i)=>{
     const desc  = tr.querySelector('.bl-desc')?.value||'';
     const qty   = parseFloat(tr.querySelector('.bl-qty')?.value||1)||1;
@@ -8320,7 +8350,11 @@ async function saveBill(status) {
     const aId   = tr.querySelector('.bl-acct')?.value||null;
     const taxR  = parseFloat(tr.querySelector('.bl-tax')?.value||0)||0;
     const amt   = qty*price;
-    if(desc||amt)lines.push({description:desc,quantity:qty,unit_price:price,account_id:aId,tax_rate:taxR,amount:amt,sort_order:i});
+    const isRental = tr.querySelector('.bl-rental')?.checked || false;
+    if(desc||amt) {
+      lines.push({description:desc,quantity:qty,unit_price:price,account_id:aId,tax_rate:taxR,amount:amt,sort_order:i});
+      if(isRental && desc) rentalLineDescs.push({ desc: desc.trim(), price: price });
+    }
   });
   const sub=lines.reduce((s,l)=>s+l.amount,0),tax=lines.reduce((s,l)=>s+(l.amount*(l.tax_rate/100)),0),total=sub+tax;
   showLoading('Saving bill…');
@@ -8349,6 +8383,43 @@ async function saveBill(status) {
     await sb.from('journal_entry_lines').insert(jls);
   }
   hideLoading();closeModal('billModal');showToast('✓ Bill saved');loadBills();
+  // ── Create/update items marked as rental equipment ──
+  if (rentalLineDescs.length && acctCompanyId && acctIsRentalCompany) {
+    for (const { desc, price } of rentalLineDescs) {
+      // Check if an item with this name already exists for this company
+      const { data: existing } = await sb.from('items')
+        .select('id, item_name, is_rental_item')
+        .eq('company_id', acctCompanyId)
+        .ilike('item_name', desc)
+        .limit(1);
+      if (existing && existing.length > 0) {
+        // Update existing item to be a rental item
+        await sb.from('items').update({
+          is_rental_item: true,
+          updated_at: new Date().toISOString(),
+        }).eq('id', existing[0].id);
+        showToast('✓ "' + desc + '" marked as rental equipment');
+      } else {
+        // Create a new item record for this rental equipment
+        const newItemId = 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2,6);
+        await sb.from('items').insert({
+          id: newItemId,
+          company_id: acctCompanyId,
+          sku: 'RNT-' + Date.now().toString().slice(-5),
+          item_name: desc,
+          item_type: 'rental',
+          is_rental_item: true,
+          purchase_cost: price || 0,
+          sales_price: 0,
+          is_active: true,
+          is_taxable: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+        showToast('✓ Rental equipment added: "' + desc + '"');
+      }
+    }
+  }
   // ── BATCH 9 AUTOMATION: Trigger PO match + inventory prompts ──
   if (status === 'received') {
     setTimeout(() => triggerBillAutomation(billId, vendId, lines), 400);
@@ -21324,7 +21395,7 @@ function renderRentalsList() {
 }
 
 // ── RENTAL MODAL ──
-function openRentalModal(rentalId=null) {
+async function openRentalModal(rentalId=null) {
   editingRentalId = rentalId;
   document.getElementById('rentalModalTitle').textContent = rentalId ? 'Edit Rental' : 'New Rental';
   document.getElementById('rent-bill-btn').style.display = rentalId ? 'inline-flex' : 'none';
@@ -21339,7 +21410,43 @@ function openRentalModal(rentalId=null) {
     document.getElementById('rent-end').value     = today;
     calcRentalTotal();
   }
+  // Always refresh item dropdown to pick up items created from bills
+  await refreshRentalItemDropdown();
   document.getElementById('rentalModal').classList.add('show');
+}
+
+async function refreshRentalItemDropdown() {
+  const companyId = currentRentalsCompanyId ||
+    document.getElementById('rentals-company-sel')?.value;
+  if (!companyId) return;
+  const itemSel = document.getElementById('rent-item');
+  if (!itemSel) return;
+  let items = [];
+  try {
+    const { data, error } = await sb.from('items')
+      .select('id, item_name, sku, rental_rate_daily, rental_rate_weekly, rental_rate_monthly, rental_rate_annual')
+      .eq('company_id', companyId)
+      .eq('is_rental_item', true)
+      .eq('is_active', true)
+      .order('item_name');
+    if (error) throw error;
+    items = data || [];
+  } catch(e) {
+    // Column may not exist - fall back to all items
+    try {
+      const { data } = await sb.from('items').select('id, item_name, sku')
+        .eq('company_id', companyId).eq('is_active', true).order('item_name');
+      items = data || [];
+    } catch(e2) { /* ignore */ }
+  }
+  rentalItems = items;
+  const prev = itemSel.value;
+  itemSel.innerHTML = '<option value="">— Select equipment —</option>' +
+    items.map(i => `<option value="${i.id}" data-daily="${i.rental_rate_daily||''}" data-weekly="${i.rental_rate_weekly||''}" data-monthly="${i.rental_rate_monthly||''}" data-annual="${i.rental_rate_annual||''}">${i.item_name}${i.sku?' ('+i.sku+')':''}</option>`).join('');
+  if (prev && itemSel.querySelector(`option[value="${prev}"]`)) itemSel.value = prev;
+  if (!items.length) {
+    showToast('No rental equipment found. Add items via Inventory or mark bill lines as Rental.', true);
+  }
 }
 
 function openRentalModalForDate(dateStr) {
@@ -21731,6 +21838,15 @@ function showRpHistory(itemId, itemName) {
   }
   panel.style.display = 'block';
   panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+// ── Bill line rental toggle feedback ──
+function onBillLineRentalToggle(checkbox) {
+  const tr = checkbox.closest('tr');
+  const desc = tr?.querySelector('.bl-desc')?.value?.trim();
+  if (checkbox.checked && desc) {
+    showToast(`"${desc}" will be added to rental equipment on save`);
+  }
 }
 
 // ── INIT: populate global entity picker and entity list section ──
