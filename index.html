@@ -39,14 +39,17 @@
     --radius-lg: 10px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { height: 100%; }
   body {
     font-family: 'DM Sans', sans-serif;
     font-size: 14px;
     color: var(--text-dark);
     background: var(--cream);
+    height: 100%;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
   }
 
   /* ── TOPBAR ── */
@@ -92,7 +95,7 @@
   
 
   /* ── LAYOUT ── */
-  .app-layout { display: flex; flex: 1; min-height: 0; align-items: flex-start; }
+  .app-layout { display: flex; flex: 1; min-height: 0; align-items: stretch; overflow: hidden; }
 
   /* ── SIDEBAR ── */
   .sidebar {
@@ -101,13 +104,15 @@
     display: flex;
     flex-direction: column;
     padding: 16px 0 24px;
-    min-height: calc(100vh - 64px);
-    position: sticky;
-    top: 64px;
-    height: calc(100vh - 64px);
+    height: 100%;
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
     flex-shrink: 0;
+    position: sticky;
+    top: 64px;
+    align-self: flex-start;
+    max-height: calc(100vh - 64px);
   }
   /* ── Batch 16 Side Navigation ── */
   .sidenav { display:flex; flex-direction:column; gap:1px; padding:0 8px; }
@@ -213,7 +218,7 @@
   .add-company-btn:hover { background: var(--teal-mid); box-shadow: 0 4px 16px rgba(44,166,164,0.35); transform: translateY(-1px); }
 
   /* ── MAIN ── */
-  .main { flex: 1; padding: 32px 40px; overflow-y: auto; overflow-anchor: none; }
+  .main { flex: 1; min-height: 0; height: 0; padding: 32px 40px; overflow-y: auto; overflow-anchor: none; }
   /* Hide companies sidebar when other modules are active */
   .sidebar-hidden { display: none !important; }
   /* When sidebar hidden, panels take full width */
@@ -21983,4 +21988,3 @@ initApp();
 </script>
 </body>
 </html>
-
