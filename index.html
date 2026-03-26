@@ -236,6 +236,12 @@
     display: flex; align-items: flex-start; justify-content: space-between;
     margin-bottom: 28px; padding-bottom: 20px;
     border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--cream);
+    z-index: 10;
+    padding-top: 4px;
+    margin-top: -4px;
   }
   .page-title { font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 600; color: var(--navy); line-height: 1.2; }
   .page-subtitle { font-size: 13px; color: var(--text-light); margin-top: 4px; }
@@ -21293,6 +21299,11 @@ async function loadRentals() {
     (items || []).map(i => `<option value="${i.id}" data-daily="${i.rental_rate_daily||''}" data-weekly="${i.rental_rate_weekly||''}" data-monthly="${i.rental_rate_monthly||''}" data-annual="${i.rental_rate_annual||''}">${i.item_name}${i.sku?' ('+i.sku+')':''}</option>`).join('');
 
   toggleRentalsView();
+  // Ensure main scrolls to top after rental calendar renders
+  requestAnimationFrame(() => {
+    const m = document.querySelector('.main');
+    if (m) m.scrollTop = 0;
+  });
 }
 
 function toggleRentalsView() {
@@ -21361,6 +21372,11 @@ function renderRentalCalendar() {
     html += `<div style="min-height:80px;background:var(--section-bg);border:1px solid var(--border-light);"></div>`;
   }
   grid.innerHTML = html;
+  // Scroll main to top so page-header is always visible
+  requestAnimationFrame(() => {
+    const m = document.querySelector('.main');
+    if (m && m.scrollTop > 60) m.scrollTop = 0;
+  });
 }
 
 function shiftCalMonth(delta) {
