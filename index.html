@@ -22123,6 +22123,10 @@ function scrollMainToTop() {
             </div>
             <input type="file" id="ba-loan-docs" multiple accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleBaLoanDocs(this)">
             <div id="ba-loan-docs-list" style="margin-top:6px;font-size:12px;color:var(--text-mid);"></div>
+            <button id="ba-ocr-btn" onclick="ocrLoanDocument()" style="display:none;margin-top:8px;background:var(--teal);color:#fff;border:none;border-radius:var(--radius);padding:7px 16px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;">
+              🔍 Extract loan terms from document (AI)
+            </button>
+            <div id="ba-ocr-status" style="display:none;margin-top:8px;font-size:12px;color:var(--teal);"></div>
           </div>
         </div>
       </div>
@@ -22194,15 +22198,129 @@ function calcBillLoanPayment() {
 
 function handleBaLoanDocs(input) {
   const list = document.getElementById('ba-loan-docs-list');
-  list.innerHTML = Array.from(input.files).map(f =>
-    `<div>📎 ${f.name} (${(f.size/1024).toFixed(0)}KB)</div>`).join('');
+  const ocrBtn = document.getElementById('ba-ocr-btn');
+  const files = Array.from(input.files);
+  list.innerHTML = files.map(f =>
+    `<div style="display:flex;align-items:center;gap:6px;">📎 <span>${f.name}</span> <span style="color:var(--text-light);">(${(f.size/1024).toFixed(0)}KB)</span></div>`).join('');
+  // Show OCR button if any PDF or image uploaded
+  const hasDoc = files.some(f => /\.(pdf|jpg|jpeg|png)$/i.test(f.name));
+  if (ocrBtn) ocrBtn.style.display = hasDoc ? 'flex' : 'none';
+}
+
+async function ocrLoanDocument() {
+  const input = document.getElementById('ba-loan-docs');
+  if (!input?.files?.length) { showToast('⚠ Upload a document first', true); return; }
+
+  const file = input.files[0];
+  const btn = document.getElementById('ba-ocr-btn');
+  const status = document.getElementById('ba-ocr-status');
+  const isImage = /\.(jpg|jpeg|png)$/i.test(file.name);
+  const isPdf   = /\.pdf$/i.test(file.name);
+
+  if (!isImage && !isPdf) { showToast('⚠ Upload a PDF or image to extract terms', true); return; }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Reading document…';
+  status.style.display = 'block';
+  status.textContent = 'Sending to AI for extraction…';
+
+  try {
+    // Read file as base64
+    const base64 = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result.split(',')[1]);
+      r.onerror = () => rej(new Error('File read failed'));
+      r.readAsDataURL(file);
+    });
+
+    const mediaType = isPdf ? 'application/pdf' : (file.type || 'image/jpeg');
+
+    // Call Claude API to extract loan terms
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `You are a financial document parser. Extract loan terms from the document and return ONLY valid JSON with these exact fields (use null for any field not found):
+{
+  "lender_name": string,
+  "loan_amount": number,
+  "interest_rate_pct": number,
+  "term_months": number,
+  "origination_date": "YYYY-MM-DD",
+  "loan_type": "term_loan|mortgage|equipment|sba|line_of_credit|revolving",
+  "monthly_payment": number,
+  "maturity_date": "YYYY-MM-DD",
+  "collateral": string,
+  "notes": string
+}
+Return only the JSON object, no other text.`,
+        messages: [{
+          role: 'user',
+          content: [{
+            type: isPdf ? 'document' : 'image',
+            source: {
+              type: 'base64',
+              media_type: mediaType,
+              data: base64,
+            },
+          }, {
+            type: 'text',
+            text: 'Extract all loan terms from this document and return the JSON.',
+          }],
+        }],
+      }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error?.message || 'API error');
+
+    // Parse the response
+    const rawText = data.content?.find(c => c.type === 'text')?.text || '';
+    let extracted;
+    try {
+      extracted = JSON.parse(rawText.replace(/```json|```/g, '').trim());
+    } catch(e) {
+      throw new Error('Could not parse AI response. Try a clearer document.');
+    }
+
+    // Prefill the form fields
+    let filled = 0;
+    if (extracted.lender_name)        { document.getElementById('ba-lender').value       = extracted.lender_name;                          filled++; }
+    if (extracted.loan_amount)        { document.getElementById('ba-loan-amount').value   = extracted.loan_amount;                         filled++; }
+    if (extracted.interest_rate_pct)  { document.getElementById('ba-loan-rate').value     = extracted.interest_rate_pct;                   filled++; }
+    if (extracted.term_months)        { document.getElementById('ba-loan-term').value     = extracted.term_months;                         filled++; }
+    if (extracted.origination_date)   { document.getElementById('ba-loan-date').value     = extracted.origination_date;                    filled++; }
+    if (extracted.loan_type)          { document.getElementById('ba-loan-type').value     = extracted.loan_type;                           filled++; }
+    if (extracted.monthly_payment)    { /* calculated dynamically — skip override */  }
+    if (extracted.collateral)         { /* stored in asset name already */ }
+
+    // Recalculate monthly payment display
+    calcBillLoanPayment();
+
+    status.style.color = 'var(--teal)';
+    status.textContent = `✓ Extracted ${filled} field${filled!==1?'s':''} from document. Review and adjust as needed.`;
+
+    if (extracted.notes) {
+      showToast('AI notes: ' + extracted.notes.slice(0, 100));
+    }
+
+  } catch(e) {
+    status.style.color = 'var(--error)';
+    status.textContent = '⚠ Extraction failed: ' + e.message;
+    console.error('OCR error:', e);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🔍 Extract loan terms from document (AI)';
+  }
 }
 
 async function saveBillAssetAutomation() {
   const name = document.getElementById('ba-name').value.trim();
   const cost = parseFloat(document.getElementById('ba-cost').value||0);
   if (!name || !cost) { showToast('⚠ Asset name and cost are required', true); return; }
-  
+
   showLoading('Creating fixed asset record…');
   try {
     const assetId = 'fa-' + Date.now();
@@ -22210,10 +22328,9 @@ async function saveBillAssetAutomation() {
     const life = parseFloat(document.getElementById('ba-life').value||7);
     const salvage = parseFloat(document.getElementById('ba-salvage').value||0);
     const deprMethod = document.getElementById('ba-depr-method').value;
-    const annualDepr = deprMethod === 'Straight-Line' ? (cost - salvage) / life : (cost - salvage) / life;
-    
-    // Create fixed asset
-    const { error: assetErr } = await sb.from('fixed_assets').insert({
+
+    // Build asset record using only columns that match saveAsset() (known schema)
+    const assetRecord = {
       id: assetId,
       company_id: acctCompanyId,
       asset_name: name,
@@ -22227,39 +22344,37 @@ async function saveBillAssetAutomation() {
       accumulated_depreciation: 0,
       book_value: cost,
       status: 'active',
-      linked_bill_id: _pendingBillAsset?.billId || null,
-      notes: `Auto-created from bill. Original description: ${_pendingBillAsset?.lineDesc||name}`,
-      created_at: new Date().toISOString(),
+      notes: 'Auto-created from bill. Original description: ' + (_pendingBillAsset?.lineDesc||name),
       updated_at: new Date().toISOString(),
-    });
+    };
+
+    const { error: assetErr } = await sb.from('fixed_assets').insert(assetRecord);
     if (assetErr) throw new Error('Asset: ' + assetErr.message);
-    showToast(`✓ Fixed asset "${name}" created`);
-    
+    showToast('✓ Fixed asset "' + name + '" created');
+
     // Create loan if financed
     const isFinanced = document.getElementById('ba-financed').checked;
     if (isFinanced) {
       const loanId = 'loan-' + Date.now();
       const loanAmount = parseFloat(document.getElementById('ba-loan-amount').value||cost);
-      const loanRate = parseFloat(document.getElementById('ba-loan-rate').value||0) / 100;
-      const loanTerm = parseInt(document.getElementById('ba-loan-term').value||60);
-      const loanDate = document.getElementById('ba-loan-date').value || serviceDate;
+      const loanRate   = parseFloat(document.getElementById('ba-loan-rate').value||0) / 100;
+      const loanTerm   = parseInt(document.getElementById('ba-loan-term').value||60);
+      const loanDate   = document.getElementById('ba-loan-date').value || serviceDate;
       const r = loanRate / 12;
       const monthlyPayment = r > 0
         ? Math.round(loanAmount * r * Math.pow(1+r,loanTerm) / (Math.pow(1+r,loanTerm)-1) * 100) / 100
         : Math.round(loanAmount / loanTerm * 100) / 100;
-      
-      // Get the Note Payable GL account
-      const { data: accts } = await sb.from('accounts').select('id,account_name,account_type')
-        .eq('company_id', acctCompanyId)
-        .in('account_type', ['Liability'])
-        .ilike('account_name', '%note%payable%')
-        .limit(1);
+
+      // Find Note Payable GL account
+      const { data: accts } = await sb.from('accounts').select('id,account_name')
+        .eq('company_id', acctCompanyId).eq('account_type','Liability')
+        .ilike('account_name','%note%payable%').limit(1);
       const noteAcctId = accts?.[0]?.id || null;
-      
+
       const { error: loanErr } = await sb.from('loan_accounts').insert({
         id: loanId,
         company_id: acctCompanyId,
-        loan_name: `Loan — ${name}`,
+        loan_name: 'Loan — ' + name,
         lender_name: document.getElementById('ba-lender').value,
         loan_type: document.getElementById('ba-loan-type').value,
         original_principal: loanAmount,
@@ -22272,28 +22387,30 @@ async function saveBillAssetAutomation() {
         monthly_payment: monthlyPayment,
         gl_principal_account_id: noteAcctId,
         collateral: name,
-        notes: `Auto-created from bill. Linked asset: ${assetId}`,
+        notes: 'Auto-created from bill. Linked asset: ' + assetId,
         is_active: true,
-        created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       });
       if (loanErr) throw new Error('Loan: ' + loanErr.message);
-      
-      // Link loan to asset
-      await sb.from('fixed_assets').update({ linked_loan_id: loanId }).eq('id', assetId);
-      
+
+      // Try to link loan to asset — graceful if column doesn't exist yet
+      try {
+        await sb.from('fixed_assets').update({ linked_loan_id: loanId }).eq('id', assetId);
+      } catch(e) {
+        console.warn('linked_loan_id column not yet added — run migration SQL');
+      }
+
       // Generate amortization schedule
       if (document.getElementById('ba-gen-amort').checked) {
         await generateAmortizationSchedule(loanId, loanAmount, loanRate, loanTerm, loanDate, monthlyPayment);
       }
-      showToast(`✓ Loan created and amortization schedule generated`);
+      showToast('✓ Loan created and amortization schedule generated');
     }
-    
+
     closeModal('billAssetModal');
     _pendingBillAsset = null;
-    // Reload assets if on that view
     if (document.getElementById('acct-view-assets')?.style.display !== 'none') loadAssets();
-    
+
   } catch(e) {
     showToast('Error: ' + e.message, true);
     console.error('saveBillAssetAutomation:', e);
