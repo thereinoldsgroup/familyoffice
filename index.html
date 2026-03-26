@@ -989,6 +989,10 @@
     <!-- ── NAV SECTIONS ── -->
     <div class="sidenav">
 
+      <button class="sidenav-item" id="nav-dashboard-btn" onclick="pickNav('dashboard')">
+        <span class="sidenav-icon">⊞</span><span class="sidenav-label">Dashboard</span>
+      </button>
+
       <button class="sidenav-item" id="nav-companies" onclick="switchModule('companies')">
         <span class="sidenav-icon">🏢</span><span class="sidenav-label">Entities</span>
       </button>
@@ -6922,7 +6926,12 @@ function switchModule(module) {
   setSidebarVisible(module === 'companies');
   // Always scroll to top when switching modules
   const _m=document.querySelector('.main');if(_m)_m.scrollTop=0;else window.scrollTo(0,0);
-  if (module === 'companies') {
+  if (module === 'dashboard') {
+    setSidebarVisible(true);
+    scrollMainToTop();
+    showDashboard();
+    return;
+  } else if (module === 'companies') {
     scrollMainToTop();
     showDashboard();
   } else if (module === 'ownership') {
@@ -7409,9 +7418,15 @@ function showAcctView(view) {
   document.querySelectorAll('.acct-sidebar-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('acct-view-' + view).style.display = '';
   document.getElementById('acct-nav-' + view)?.classList.add('active');
-  if (view === 'coa') loadCOA();
-  if (view === 'je')  loadJEList();
-  if (view === 'gl')  populateGLAccountSelect();
+  if (view === 'coa')            loadCOA();
+  if (view === 'je')             loadJEList();
+  if (view === 'gl')             populateGLAccountSelect();
+  if (view === 'assets')         loadAssets();
+  if (view === 'asset-schedule') loadDepreciationSchedule();
+  if (view === 'bank')           loadBankTransactions?.();
+  if (view === 'payroll')        { loadPayrollList?.(); }
+  if (view === 'invoices')       { loadCustomers(); loadInvoices(); }
+  if (view === 'bills')          { loadVendors(); loadBills(); }
 }
 
 // ── CHART OF ACCOUNTS ──
@@ -9304,21 +9319,28 @@ async function loadAssets() {
   const {data}=await sb.from('fixed_assets').select('*').eq('company_id',acctCompanyId).order('placed_in_service_date',{ascending:false});
   const c=document.getElementById('assetsContent'); if(!c) return;
   if (!data||!data.length) { c.innerHTML=`<div class="empty-state"><div class="empty-state-title">No fixed assets yet</div></div>`; return; }
-  c.innerHTML=`<table class="acct-table"><thead><tr><th>Asset Name</th><th>Category</th><th>In Service</th><th>Cost</th><th>Method</th><th>Accum. Depr.</th><th>Book Value</th><th>Status</th><th></th></tr></thead><tbody>`+
-    data.map(a=>`<tr>
-      <td><strong>${a.asset_name}</strong>${a.asset_number?`<div style="font-size:11px;color:var(--text-light);">${a.asset_number}</div>`:''}</td>
-      <td style="color:var(--text-mid);">${a.asset_category||'—'}</td>
-      <td>${fmtDate(a.placed_in_service_date)}</td>
-      <td class="amount">${fmtMoney(a.purchase_cost)}</td>
-      <td style="color:var(--text-mid);font-size:12px;">${a.depreciation_method||'—'}</td>
-      <td class="amount negative">${fmtMoney(a.accumulated_depreciation)}</td>
-      <td class="amount">${fmtMoney(a.book_value)}</td>
-      <td>${statusPill(a.status)}</td>
-      <td>
-        <button onclick="editAsset('${a.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button>
-        ${a.status==='active'?`<button onclick="openDisposalModal('${a.id}',${a.book_value},'${a.asset_name.replace(/'/g,"\\'")}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Dispose</button>`:''}
-      </td>
-    </tr>`).join('')+'</tbody></table>';
+  c.innerHTML=`<table class="acct-table"><thead><tr><th>Asset Name</th><th>Category</th><th>In Service</th><th>Cost</th><th>Method · Life · Salvage</th><th>Accum. Depr.</th><th>Book Value</th><th>Status</th><th>Links</th><th></th></tr></thead><tbody>`+
+    data.map(a=>{
+      const loanLink = a.linked_loan_id
+        ? `<button onclick="viewAssetLoan('${a.linked_loan_id}')" style="background:none;border:none;color:var(--teal);cursor:pointer;font-size:11px;padding:0 4px 0 0;font-family:'DM Sans',sans-serif;" title="View linked loan">🏦 Loan</button>`
+        : `<button onclick="promptLinkLoan('${a.id}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:11px;padding:0 4px 0 0;font-family:'DM Sans',sans-serif;" title="Link a loan">+ Loan</button>`;
+      const taxLink = `<button onclick="viewAssetTaxContext('${a.id}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:11px;padding:0;font-family:'DM Sans',sans-serif;" title="View tax context">🏛 Tax</button>`;
+      return `<tr>
+        <td><strong>${a.asset_name}</strong>${a.asset_number?`<div style="font-size:11px;color:var(--text-light);font-family:monospace;">${a.asset_number}</div>`:''}</td>
+        <td style="color:var(--text-mid);">${a.asset_category||'—'}</td>
+        <td>${fmtDate(a.placed_in_service_date)}</td>
+        <td class="amount">${fmtMoney(a.purchase_cost)}</td>
+        <td style="color:var(--text-mid);font-size:12px;">${a.depreciation_method||'—'} · ${a.useful_life_years||'?'}yr · ${fmtMoney(a.salvage_value||0)} salvage</td>
+        <td class="amount negative">${fmtMoney(a.accumulated_depreciation)}</td>
+        <td class="amount">${fmtMoney(a.book_value)}</td>
+        <td>${statusPill(a.status)}</td>
+        <td style="white-space:nowrap;">${loanLink}${taxLink}</td>
+        <td>
+          <button onclick="editAsset('${a.id}')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Edit</button>
+          ${a.status==='active'?`<button onclick="openDisposalModal('${a.id}',${a.book_value},'${a.asset_name.replace(/'/g,"\\'")}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Dispose</button>`:''}
+        </td>
+      </tr>`;
+    }).join('')+'</tbody></table>';
 }
 
 function openAssetModal(id=null) {
@@ -17925,6 +17947,7 @@ function loadDebtSummary() {
 }
 
 async function openLoanModal(id=null) {
+  if (!debtCompanyId) { showToast('⚠ Select a company first', true); return; }
   editingLoanId=id;
   document.getElementById('loanModalTitle').textContent=id?'Edit Loan':'Add Loan';
   ['ln-name','ln-lender','ln-principal','ln-balance','ln-rate','ln-origination','ln-maturity','ln-payment','ln-collateral','ln-notes'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
@@ -22007,6 +22030,359 @@ function scrollMainToTop() {
   // Double-fire: once now, once after paint in case async content changes height
   requestAnimationFrame(() => { m.scrollTop = 0; });
 }
+</script>
+
+<!-- ══ BILL→ASSET / BILL→LOAN AUTOMATION MODALS ══ -->
+
+<!-- Step 1: Detect asset purchase, prompt to create fixed asset + link loan -->
+<div class="modal-overlay" id="billAssetModal">
+  <div class="modal" style="max-width:620px;">
+    <div class="modal-header">
+      <span class="modal-title">Fixed Asset Detected</span>
+      <button class="modal-close" onclick="closeModal('billAssetModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--teal-light);border:1px solid var(--teal);border-radius:var(--radius);padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--teal-mid);">
+        💡 This bill line appears to be a capital expenditure. Create a Fixed Asset record and optionally link a loan.
+      </div>
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label required">Asset Name</label>
+          <input type="text" class="field-input" id="ba-name" placeholder="e.g. Forklift, Pickup Truck, CNC Machine"></div>
+        <div class="field-group"><label class="field-label">Asset Number / Tag</label>
+          <input type="text" class="field-input" id="ba-number" placeholder="FA-001"></div>
+        <div class="field-group"><label class="field-label">Category</label>
+          <select class="field-select" id="ba-category">
+            <option value="Machinery & Equipment">Machinery & Equipment</option>
+            <option value="Vehicles">Vehicles</option>
+            <option value="Furniture & Fixtures">Furniture & Fixtures</option>
+            <option value="Buildings">Buildings</option>
+            <option value="Land">Land</option>
+            <option value="Leasehold Improvements">Leasehold Improvements</option>
+            <option value="Computer Equipment">Computer Equipment</option>
+            <option value="Other">Other</option>
+          </select></div>
+        <div class="field-group"><label class="field-label">Purchase Cost ($)</label>
+          <input type="text" class="field-input" id="ba-cost" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Placed in Service</label>
+          <input type="date" class="field-input" id="ba-service-date"></div>
+        <div class="field-group"><label class="field-label">Useful Life (years)</label>
+          <input type="text" class="field-input" id="ba-life" placeholder="5" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Salvage Value ($)</label>
+          <input type="text" class="field-input" id="ba-salvage" placeholder="0.00" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"></div>
+        <div class="field-group"><label class="field-label">Depreciation Method</label>
+          <select class="field-select" id="ba-depr-method">
+            <option value="Straight-Line">Straight-Line</option>
+            <option value="MACRS">MACRS</option>
+            <option value="Double Declining">Double Declining</option>
+            <option value="Units of Production">Units of Production</option>
+          </select></div>
+        <div class="field-group col-span-2">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="ba-financed" style="accent-color:var(--teal);" onchange="document.getElementById('ba-loan-section').style.display=this.checked?'block':'none'">
+            This asset was financed (note payable / loan)
+          </label>
+        </div>
+      </div>
+      <!-- Loan section — shown when financed -->
+      <div id="ba-loan-section" style="display:none;margin-top:12px;padding:14px 16px;background:var(--section-bg);border-radius:var(--radius);border:1px solid var(--border-light);">
+        <div style="font-size:13px;font-weight:500;color:var(--navy);margin-bottom:12px;">Loan / Note Payable Terms</div>
+        <div class="form-grid">
+          <div class="field-group col-span-2"><label class="field-label">Lender Name</label>
+            <input type="text" class="field-input" id="ba-lender" placeholder="Bank or financing company"></div>
+          <div class="field-group"><label class="field-label">Loan Type</label>
+            <select class="field-select" id="ba-loan-type">
+              <option value="term_loan">Term Loan</option>
+              <option value="equipment">Equipment Loan</option>
+              <option value="mortgage">Mortgage</option>
+              <option value="sba">SBA Loan</option>
+              <option value="line_of_credit">Line of Credit</option>
+            </select></div>
+          <div class="field-group"><label class="field-label">Loan Amount ($)</label>
+            <input type="text" class="field-input" id="ba-loan-amount" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcBillLoanPayment()"></div>
+          <div class="field-group"><label class="field-label">Interest Rate (%)</label>
+            <input type="text" class="field-input" id="ba-loan-rate" placeholder="6.5" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcBillLoanPayment()"></div>
+          <div class="field-group"><label class="field-label">Term (months)</label>
+            <input type="text" class="field-input" id="ba-loan-term" placeholder="60" oninput="this.value=this.value.replace(/[^0-9.]/g,'');calcBillLoanPayment()"></div>
+          <div class="field-group"><label class="field-label">Origination Date</label>
+            <input type="date" class="field-input" id="ba-loan-date"></div>
+          <div class="field-group col-span-2">
+            <div id="ba-loan-payment-preview" style="font-size:13px;color:var(--text-mid);padding:8px 12px;background:var(--white);border-radius:var(--radius);border:1px solid var(--border-light);display:none;"></div>
+          </div>
+          <div class="field-group col-span-2">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+              <input type="checkbox" id="ba-gen-amort" checked style="accent-color:var(--teal);">
+              Auto-generate full amortization schedule
+            </label>
+          </div>
+          <!-- Document upload -->
+          <div class="field-group col-span-2">
+            <label class="field-label">Loan Documents (promissory note, closing docs)</label>
+            <div class="attach-zone" onclick="document.getElementById('ba-loan-docs').click();" style="padding:10px 16px;">
+              <span class="attach-zone-icon">📎</span>
+              <div class="attach-zone-text"><strong>Upload loan documents</strong> — PDF, images accepted</div>
+            </div>
+            <input type="file" id="ba-loan-docs" multiple accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleBaLoanDocs(this)">
+            <div id="ba-loan-docs-list" style="margin-top:6px;font-size:12px;color:var(--text-mid);"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('billAssetModal')">Skip</button>
+      <button class="btn-save" onclick="saveBillAssetAutomation()">Create Asset &amp; Loan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  BILL → FIXED ASSET / LOAN AUTOMATION
+// ════════════════════════════════════════════════════════
+
+let _pendingBillAsset = null; // { billId, lineDesc, lineAmount, billDate }
+
+// Called from triggerBillAutomation after PO/inventory modals
+function checkBillForAssets(billId, lines, billDate) {
+  if (!acctCompanyId) return;
+  // Detect lines that reference asset or liability accounts
+  const assetKeywords = ['property','equipment','machinery','vehicle','truck','forklift',
+    'furniture','fixture','building','land','improvement','computer','server','software',
+    'leasehold','capital','asset','fixed','purchase'];
+  const noteKeywords = ['note payable','notes payable','long-term','short-term note',
+    'mortgage','loan payable','equipment loan','sba'];
+  
+  lines.forEach(line => {
+    const descLower = (line.description||'').toLowerCase();
+    const isAsset = assetKeywords.some(k => descLower.includes(k));
+    const hasNote = noteKeywords.some(k => descLower.includes(k));
+    
+    if (isAsset && line.amount > 500) { // Only flag items > $500 as potential capital assets
+      _pendingBillAsset = { billId, lineDesc: line.description, lineAmount: line.amount, billDate };
+      
+      // Pre-fill the modal
+      document.getElementById('ba-name').value        = line.description || '';
+      document.getElementById('ba-cost').value        = line.amount || '';
+      document.getElementById('ba-service-date').value = billDate || new Date().toISOString().slice(0,10);
+      document.getElementById('ba-life').value        = '7';
+      document.getElementById('ba-salvage').value     = '0';
+      document.getElementById('ba-financed').checked  = hasNote;
+      document.getElementById('ba-loan-section').style.display = hasNote ? 'block' : 'none';
+      if (hasNote) {
+        document.getElementById('ba-loan-amount').value = line.amount || '';
+        document.getElementById('ba-loan-date').value   = billDate || new Date().toISOString().slice(0,10);
+      }
+      
+      setTimeout(() => document.getElementById('billAssetModal').classList.add('show'), 300);
+      return; // Only prompt for first detected asset line
+    }
+  });
+}
+
+function calcBillLoanPayment() {
+  const P = parseFloat(document.getElementById('ba-loan-amount').value||0);
+  const r = parseFloat(document.getElementById('ba-loan-rate').value||0) / 100 / 12;
+  const n = parseInt(document.getElementById('ba-loan-term').value||0);
+  const preview = document.getElementById('ba-loan-payment-preview');
+  if (!P || !n) { preview.style.display='none'; return; }
+  const payment = r > 0
+    ? Math.round(P * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1) * 100) / 100
+    : Math.round(P/n * 100) / 100;
+  const totalInterest = Math.round((payment * n - P) * 100) / 100;
+  preview.style.display = 'block';
+  preview.innerHTML = `Monthly payment: <strong>${fmtMoney(payment)}</strong> &nbsp;·&nbsp; Total interest: <strong>${fmtMoney(totalInterest)}</strong> &nbsp;·&nbsp; Total paid: <strong>${fmtMoney(payment*n)}</strong>`;
+}
+
+function handleBaLoanDocs(input) {
+  const list = document.getElementById('ba-loan-docs-list');
+  list.innerHTML = Array.from(input.files).map(f =>
+    `<div>📎 ${f.name} (${(f.size/1024).toFixed(0)}KB)</div>`).join('');
+}
+
+async function saveBillAssetAutomation() {
+  const name = document.getElementById('ba-name').value.trim();
+  const cost = parseFloat(document.getElementById('ba-cost').value||0);
+  if (!name || !cost) { showToast('⚠ Asset name and cost are required', true); return; }
+  
+  showLoading('Creating fixed asset record…');
+  try {
+    const assetId = 'fa-' + Date.now();
+    const serviceDate = document.getElementById('ba-service-date').value || new Date().toISOString().slice(0,10);
+    const life = parseFloat(document.getElementById('ba-life').value||7);
+    const salvage = parseFloat(document.getElementById('ba-salvage').value||0);
+    const deprMethod = document.getElementById('ba-depr-method').value;
+    const annualDepr = deprMethod === 'Straight-Line' ? (cost - salvage) / life : (cost - salvage) / life;
+    
+    // Create fixed asset
+    const { error: assetErr } = await sb.from('fixed_assets').insert({
+      id: assetId,
+      company_id: acctCompanyId,
+      asset_name: name,
+      asset_number: document.getElementById('ba-number').value || ('FA-' + Date.now().toString().slice(-4)),
+      asset_category: document.getElementById('ba-category').value,
+      purchase_cost: cost,
+      placed_in_service_date: serviceDate,
+      useful_life_years: life,
+      salvage_value: salvage,
+      depreciation_method: deprMethod,
+      accumulated_depreciation: 0,
+      book_value: cost,
+      status: 'active',
+      linked_bill_id: _pendingBillAsset?.billId || null,
+      notes: `Auto-created from bill. Original description: ${_pendingBillAsset?.lineDesc||name}`,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+    if (assetErr) throw new Error('Asset: ' + assetErr.message);
+    showToast(`✓ Fixed asset "${name}" created`);
+    
+    // Create loan if financed
+    const isFinanced = document.getElementById('ba-financed').checked;
+    if (isFinanced) {
+      const loanId = 'loan-' + Date.now();
+      const loanAmount = parseFloat(document.getElementById('ba-loan-amount').value||cost);
+      const loanRate = parseFloat(document.getElementById('ba-loan-rate').value||0) / 100;
+      const loanTerm = parseInt(document.getElementById('ba-loan-term').value||60);
+      const loanDate = document.getElementById('ba-loan-date').value || serviceDate;
+      const r = loanRate / 12;
+      const monthlyPayment = r > 0
+        ? Math.round(loanAmount * r * Math.pow(1+r,loanTerm) / (Math.pow(1+r,loanTerm)-1) * 100) / 100
+        : Math.round(loanAmount / loanTerm * 100) / 100;
+      
+      // Get the Note Payable GL account
+      const { data: accts } = await sb.from('accounts').select('id,account_name,account_type')
+        .eq('company_id', acctCompanyId)
+        .in('account_type', ['Liability'])
+        .ilike('account_name', '%note%payable%')
+        .limit(1);
+      const noteAcctId = accts?.[0]?.id || null;
+      
+      const { error: loanErr } = await sb.from('loan_accounts').insert({
+        id: loanId,
+        company_id: acctCompanyId,
+        loan_name: `Loan — ${name}`,
+        lender_name: document.getElementById('ba-lender').value,
+        loan_type: document.getElementById('ba-loan-type').value,
+        original_principal: loanAmount,
+        current_balance: loanAmount,
+        interest_rate: loanRate,
+        rate_type: 'fixed',
+        origination_date: loanDate,
+        maturity_date: addMonths(loanDate, loanTerm),
+        payment_frequency: 'monthly',
+        monthly_payment: monthlyPayment,
+        gl_principal_account_id: noteAcctId,
+        collateral: name,
+        notes: `Auto-created from bill. Linked asset: ${assetId}`,
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
+      if (loanErr) throw new Error('Loan: ' + loanErr.message);
+      
+      // Link loan to asset
+      await sb.from('fixed_assets').update({ linked_loan_id: loanId }).eq('id', assetId);
+      
+      // Generate amortization schedule
+      if (document.getElementById('ba-gen-amort').checked) {
+        await generateAmortizationSchedule(loanId, loanAmount, loanRate, loanTerm, loanDate, monthlyPayment);
+      }
+      showToast(`✓ Loan created and amortization schedule generated`);
+    }
+    
+    closeModal('billAssetModal');
+    _pendingBillAsset = null;
+    // Reload assets if on that view
+    if (document.getElementById('acct-view-assets')?.style.display !== 'none') loadAssets();
+    
+  } catch(e) {
+    showToast('Error: ' + e.message, true);
+    console.error('saveBillAssetAutomation:', e);
+  } finally {
+    hideLoading();
+  }
+}
+
+function addMonths(dateStr, months) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setMonth(d.getMonth() + months);
+  return d.toISOString().slice(0,10);
+}
+
+async function generateAmortizationSchedule(loanId, principal, annualRate, termMonths, startDate, payment) {
+  const r = annualRate / 12;
+  let balance = principal;
+  const rows = [];
+  let d = new Date(startDate + 'T00:00:00');
+  
+  for (let i = 1; i <= termMonths && balance > 0.01; i++) {
+    d.setMonth(d.getMonth() + 1);
+    const interest = Math.round(balance * r * 100) / 100;
+    const principalPmt = Math.min(Math.round((payment - interest) * 100) / 100, balance);
+    balance = Math.round((balance - principalPmt) * 100) / 100;
+    rows.push({
+      id: `amort-${loanId}-${i}`,
+      loan_id: loanId,
+      payment_number: i,
+      payment_date: d.toISOString().slice(0,10),
+      payment_amount: payment,
+      principal_portion: principalPmt,
+      interest_portion: interest,
+      remaining_balance: balance,
+    });
+  }
+  
+  // Insert in batches of 50
+  for (let i = 0; i < rows.length; i += 50) {
+    const { error } = await sb.from('loan_payments').upsert(rows.slice(i, i+50));
+    if (error) console.error('Amort batch error:', error);
+  }
+}
+
+// ── Link / view helpers on fixed asset row ──
+async function viewAssetLoan(loanId) {
+  // Switch to Debt & Loans module and load the loan
+  pickNav('debt');
+  await new Promise(r => setTimeout(r, 700));
+  // Find the loan in the list and highlight it
+  const loanEl = document.querySelector(`[data-loan-id="${loanId}"]`);
+  if (loanEl) loanEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  else showToast('Loan ID: ' + loanId);
+}
+
+async function viewAssetTaxContext(assetId) {
+  // Show a quick toast with instructions; full integration would navigate to tax
+  showToast('Tax context: navigate to Tax Returns to view property tax parcels linked to this asset.');
+}
+
+async function promptLinkLoan(assetId) {
+  // Load existing loans and show a picker
+  const { data: loans } = await sb.from('loan_accounts')
+    .select('id, loan_name, lender_name, current_balance')
+    .eq('company_id', acctCompanyId).eq('is_active', true).order('loan_name');
+  if (!loans?.length) { showToast('No active loans found. Add a loan in Debt & Loans first.', true); return; }
+  const choice = prompt(
+    'Enter loan ID to link:\n' +
+    loans.map((l,i) => `${i+1}. ${l.loan_name} (${l.lender_name||'—'}) — ${fmtMoney(l.current_balance)}\n   ID: ${l.id}`).join('\n')
+  );
+  if (!choice) return;
+  const loan = loans.find(l => l.id === choice || l.loan_name.includes(choice));
+  if (loan) {
+    await sb.from('fixed_assets').update({ linked_loan_id: loan.id }).eq('id', assetId);
+    showToast(`✓ Linked to "${loan.loan_name}"`);
+    loadAssets();
+  } else {
+    showToast('Loan not found', true);
+  }
+}
+
+// ── Patch triggerBillAutomation to also check for fixed assets ──
+const _origTriggerBillAuto = triggerBillAutomation;
+triggerBillAutomation = async function(billId, vendorId, lines) {
+  await _origTriggerBillAuto(billId, vendorId, lines);
+  // After PO/inventory modals, check for capital assets
+  const billDate = new Date().toISOString().slice(0,10);
+  setTimeout(() => checkBillForAssets(billId, lines, billDate), 1500);
+};
 
 // ── INIT: populate global entity picker and entity list section ──
 async function initApp() {
