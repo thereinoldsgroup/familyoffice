@@ -1050,6 +1050,17 @@
         </div>
       </div>
 
+      <!-- Construction (shown when entity has industry=Construction) -->
+      <div class="sidenav-group" id="sng-construction" style="display:none;">
+        <button class="sidenav-group-btn" onclick="toggleSideGroup('construction')">
+          <span class="sidenav-icon">🏗️</span><span class="sidenav-label">Construction</span>
+          <span class="sidenav-caret">▾</span>
+        </button>
+        <div class="sidenav-children" id="snc-construction">
+          <button class="sidenav-child" id="nav-aia" onclick="pickNav('aia')">AIA G702 / G703</button>
+        </div>
+      </div>
+
       <!-- Rentals (upsell module) -->
       <div class="sidenav-group" id="sng-rentals">
         <button class="sidenav-group-btn" onclick="toggleSideGroup('rentals')">
@@ -3855,6 +3866,100 @@
     <!-- ═══════════════════════════════════════════
          BATCH 15 — RENTAL SCHEDULING
     ═══════════════════════════════════════════ -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!--  AIA G702 / G703 — CONSTRUCTION BILLING               -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="view-aia" class="panel">
+      <div class="page-header">
+        <div>
+          <div class="page-title">AIA Construction Billing</div>
+          <div class="page-subtitle">G702 Application for Payment · G703 Schedule of Values</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn-secondary" onclick="printAIA()">🖨 Print / Export</button>
+          <button class="btn-save" onclick="saveAIAApplication()">Save Application</button>
+        </div>
+      </div>
+
+      <!-- Controls row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto auto;gap:12px;align-items:end;margin-bottom:24px;padding:16px 20px;background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);">
+        <div class="field-group" style="margin:0;">
+          <label class="field-label">Entity</label>
+          <select class="field-select" id="aia-entity-sel" onchange="onAIAEntityChange()" style="height:34px;"></select>
+        </div>
+        <div class="field-group" style="margin:0;">
+          <label class="field-label">Project</label>
+          <select class="field-select" id="aia-project-sel" onchange="onAIAProjectChange()" style="height:34px;">
+            <option value="">— Select project —</option>
+          </select>
+        </div>
+        <div class="field-group" style="margin:0;">
+          <label class="field-label">Application Period</label>
+          <div style="display:flex;gap:6px;">
+            <input type="date" class="field-input" id="aia-period-from" style="height:34px;">
+            <input type="date" class="field-input" id="aia-period-to"   style="height:34px;">
+          </div>
+        </div>
+        <div class="field-group" style="margin:0;">
+          <label class="field-label">Report By</label>
+          <select class="field-select" id="aia-report-mode" style="height:34px;width:130px;" onchange="renderAIAForms()">
+            <option value="pct">% Complete</option>
+            <option value="dollar">$ Amount</option>
+          </select>
+        </div>
+        <button class="btn-save" onclick="syncAIAFromProject()" style="height:34px;white-space:nowrap;">↻ Sync from Project</button>
+      </div>
+
+      <!-- Application Number row -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;padding:14px 20px;background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);">
+        <div class="field-group" style="margin:0;"><label class="field-label">Application No.</label><input type="text" class="field-input" id="aia-app-no" style="height:32px;" placeholder="1"></div>
+        <div class="field-group" style="margin:0;"><label class="field-label">Contract Date</label><input type="date" class="field-input" id="aia-contract-date" style="height:32px;"></div>
+        <div class="field-group" style="margin:0;"><label class="field-label">Architect / Owner</label><input type="text" class="field-input" id="aia-architect" style="height:32px;" placeholder="Owner or architect name"></div>
+        <div class="field-group" style="margin:0;"><label class="field-label">Retainage %</label><input type="text" class="field-input" id="aia-retainage" style="height:32px;" value="10" oninput="this.value=this.value.replace(/[^0-9.]/g,'');renderAIAForms()"></div>
+      </div>
+
+      <!-- G703 Schedule of Values -->
+      <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:20px;">
+        <div style="padding:12px 16px;background:var(--navy);color:#fff;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:600;">AIA Document G703</div>
+            <div style="font-size:11px;opacity:0.75;">Continuation Sheet — Schedule of Values</div>
+          </div>
+          <button onclick="addAIALineItem()" style="background:var(--gold);color:var(--navy);border:none;border-radius:4px;padding:5px 14px;cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:600;">+ Add Line Item</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:900px;">
+            <thead>
+              <tr style="background:var(--section-bg);font-size:11px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:0.05em;">
+                <th style="padding:8px 10px;text-align:left;border-bottom:1px solid var(--border-light);">A<br><span style="font-weight:400;text-transform:none;font-size:10px;">Item No.</span></th>
+                <th style="padding:8px 10px;text-align:left;border-bottom:1px solid var(--border-light);">B<br><span style="font-weight:400;text-transform:none;font-size:10px;">Description of Work</span></th>
+                <th style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border-light);">C<br><span style="font-weight:400;text-transform:none;font-size:10px;">Scheduled Value</span></th>
+                <th style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border-light);">D<br><span style="font-weight:400;text-transform:none;font-size:10px;">Work Completed Previous</span></th>
+                <th style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border-light);">E<br><span style="font-weight:400;text-transform:none;font-size:10px;">Work Completed This Period</span></th>
+                <th style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border-light);">F<br><span style="font-weight:400;text-transform:none;font-size:10px;">Materials Presently Stored</span></th>
+                <th style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border-light);">G<br><span style="font-weight:400;text-transform:none;font-size:10px;">Total Completed &amp; Stored</span></th>
+                <th style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border-light);">H<br><span style="font-weight:400;text-transform:none;font-size:10px;">% (G÷C)</span></th>
+                <th style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border-light);">I<br><span style="font-weight:400;text-transform:none;font-size:10px;">Balance to Finish</span></th>
+                <th style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border-light);">J<br><span style="font-weight:400;text-transform:none;font-size:10px;">Retainage</span></th>
+                <th style="padding:4px;border-bottom:1px solid var(--border-light);"></th>
+              </tr>
+            </thead>
+            <tbody id="g703-body"></tbody>
+            <tfoot id="g703-totals" style="background:var(--section-bg);font-weight:600;font-size:12px;"></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- G702 Application for Payment -->
+      <div id="g702-panel" style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+        <div style="padding:12px 16px;background:var(--navy);color:#fff;">
+          <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:600;">AIA Document G702</div>
+          <div style="font-size:11px;opacity:0.75;">Application and Certificate for Payment</div>
+        </div>
+        <div id="g702-body" style="padding:20px 24px;"></div>
+      </div>
+    </div>
+
     <div id="view-rentals" class="panel">
       <div class="page-header">
         <div>
@@ -4478,6 +4583,24 @@
         <div class="field-group"><label class="field-label required">Due Date</label><input type="date" class="field-input" id="inv-due"></div>
         <div class="field-group"><label class="field-label">AR Account</label><select class="field-select" id="inv-ar-account"></select></div>
         <div class="field-group"><label class="field-label">Income Account</label><select class="field-select" id="inv-income-account"></select></div>
+        <div class="field-group"><label class="field-label">Ship-To / Delivery State</label>
+          <select class="field-select" id="inv-ship-state">
+            <option value="">— None / Same state —</option>
+            <option value="FL">Florida (FL)</option>
+            <option value="GA">Georgia (GA)</option>
+            <option value="AL">Alabama (AL)</option>
+            <option value="SC">South Carolina (SC)</option>
+            <option value="NC">North Carolina (NC)</option>
+            <option value="TX">Texas (TX)</option>
+            <option value="CA">California (CA)</option>
+            <option value="NY">New York (NY)</option>
+            <option value="OTHER">Other State</option>
+          </select></div>
+        <div class="field-group"><label class="field-label">Sales / Use Tax Applied?</label>
+          <select class="field-select" id="inv-use-tax">
+            <option value="no">No — may be reportable use tax</option>
+            <option value="yes">Yes — sales tax charged on invoice</option>
+          </select></div>
         <div class="field-group col-span-2"><label class="field-label">Memo</label><input type="text" class="field-input" id="inv-memo" placeholder="Invoice notes or description"></div>
       </div>
       <div style="border:1px solid var(--border-light);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;">
@@ -7068,6 +7191,11 @@ function switchModule(module) {
     document.getElementById('view-hr').classList.add('active');
     scrollMainToTop();
     loadHRModule();
+  } else if (module === 'aia') {
+    document.getElementById('view-aia').classList.add('active');
+    scrollMainToTop();
+    loadAIAModule();
+    return;
   } else if (module === 'rentals') {
     document.getElementById('view-rentals').classList.add('active');
     scrollMainToTop();
@@ -7348,7 +7476,8 @@ async function deleteRelationship(id) {
 //  ACCOUNTING MODULE
 // ═══════════════════════════════════════════════════
 let acctCompanyId   = null;
-let acctIsRentalCompany = false; // true when selected entity has is_rental_company=true
+let acctIsRentalCompany = false;
+let acctIsAccrual = false;  // set from company acct_method_gl // true when selected entity has is_rental_company=true
 let acctConsolidated = false;
 let acctAccounts    = [];
 let editingAccountId = null;
@@ -7466,6 +7595,7 @@ function onEntityChange() {
   const badge = document.getElementById('acctBasisBadge');
   if (basis) { badge.textContent = basis + ' Basis'; badge.style.display = ''; }
   else { badge.style.display = 'none'; }
+  acctIsAccrual = (basis.toLowerCase().includes('accrual'));
   if (acctCompanyId || acctConsolidated) loadCOA();
   // Fetch rental company flag for bill line rental checkbox
   acctIsRentalCompany = false;
@@ -23083,6 +23213,594 @@ Provide: (1) summary of the month, (2) key items needing attention, (3) one reco
     console.error('runMonthEndClose:', e);
   }
 }
+
+// ════════════════════════════════════════════════════════════════
+//  BATCH 18 — AIA G702/G703 · ACCRUAL JEs · INVOICE USE-TAX FEED
+// ════════════════════════════════════════════════════════════════
+
+// ─────────────────────────────────────────────────────────────────
+//  1.  AIA G702 / G703 CONSTRUCTION BILLING
+// ─────────────────────────────────────────────────────────────────
+let aiaCompanyId = null, aiaProject = null, aiaLineItems = [];
+// Each line item: { id, item_no, description, scheduled_value, prev_completed, this_period, stored, pct_override }
+
+async function loadAIAModule() {
+  // Populate entity selector — filter to construction companies
+  const { data: cos } = await sb.from('companies').select('id,legal_name,industry').order('legal_name');
+  const sel = document.getElementById('aia-entity-sel');
+  if (!sel) return;
+  const construction = (cos||[]).filter(c => (c.industry||'').toLowerCase().includes('construction'));
+  if (!construction.length) {
+    sel.innerHTML = '<option value="">No construction entities found</option>';
+    showToast('Set industry = "Construction" in company info to use AIA forms', true);
+    return;
+  }
+  sel.innerHTML = '<option value="">— Select entity —</option>' +
+    construction.map(c => `<option value="${c.id}">${c.legal_name}</option>`).join('');
+  if (!aiaCompanyId && construction.length) {
+    sel.value = construction[0].id;
+    aiaCompanyId = construction[0].id;
+    await loadAIAProjects();
+  } else if (aiaCompanyId) {
+    sel.value = aiaCompanyId;
+    await loadAIAProjects();
+  }
+}
+
+async function onAIAEntityChange() {
+  aiaCompanyId = document.getElementById('aia-entity-sel').value;
+  aiaProject = null;
+  aiaLineItems = [];
+  await loadAIAProjects();
+}
+
+async function loadAIAProjects() {
+  if (!aiaCompanyId) return;
+  const { data: projects } = await sb.from('projects')
+    .select('id,project_name,project_number,contract_value,start_date,end_date,status,description')
+    .eq('company_id', aiaCompanyId)
+    .order('project_name');
+  const sel = document.getElementById('aia-project-sel');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— Select project —</option>' +
+    (projects||[]).map(p => `<option value="${p.id}" data-value="${p.contract_value||0}" data-start="${p.start_date||''}" data-num="${p.project_number||''}">${p.project_number?p.project_number+' — ':''}${p.project_name}</option>`).join('');
+}
+
+async function onAIAProjectChange() {
+  const sel = document.getElementById('aia-project-sel');
+  const opt = sel?.options[sel.selectedIndex];
+  if (!opt?.value) return;
+  aiaProject = { id: opt.value, name: opt.text, contractValue: parseFloat(opt.dataset.value||0), startDate: opt.dataset.start, number: opt.dataset.num };
+  document.getElementById('aia-contract-date').value = aiaProject.startDate || '';
+  document.getElementById('aia-app-no').value = '1';
+  const today = new Date().toISOString().slice(0,10);
+  const firstOfMonth = today.slice(0,8)+'01';
+  document.getElementById('aia-period-from').value = firstOfMonth;
+  document.getElementById('aia-period-to').value = today;
+}
+
+async function syncAIAFromProject() {
+  if (!aiaProject?.id) { showToast('⚠ Select a project first', true); return; }
+  showLoading('Loading project data…');
+  try {
+    // Load project WBS / budget items as line items
+    const { data: tasks } = await sb.from('project_tasks')
+      .select('id,task_name,task_number,estimated_cost,actual_cost,status,completion_pct')
+      .eq('project_id', aiaProject.id)
+      .order('task_number');
+
+    const { data: budget } = await sb.from('project_budgets')
+      .select('id,category,budgeted_amount,actual_amount')
+      .eq('project_id', aiaProject.id)
+      .order('category');
+
+    // Use budget items if available, else tasks, else create a single contract line
+    let items = [];
+    if (budget?.length) {
+      items = budget.map((b,i) => ({
+        id: 'aia-'+b.id, item_no: String(i+1).padStart(2,'0'),
+        description: b.category,
+        scheduled_value: parseFloat(b.budgeted_amount||0),
+        prev_completed: 0, this_period: 0, stored: 0, pct_override: null,
+        actual: parseFloat(b.actual_amount||0),
+      }));
+    } else if (tasks?.length) {
+      items = tasks.map((t,i) => ({
+        id: 'aia-'+t.id, item_no: t.task_number || String(i+1).padStart(2,'0'),
+        description: t.task_name,
+        scheduled_value: parseFloat(t.estimated_cost||0),
+        prev_completed: 0,
+        this_period: parseFloat(t.actual_cost||0),
+        stored: 0,
+        pct_override: t.completion_pct ? parseFloat(t.completion_pct)/100 : null,
+      }));
+    } else {
+      // Single line: full contract
+      items = [{
+        id: 'aia-main', item_no: '01',
+        description: aiaProject.name,
+        scheduled_value: aiaProject.contractValue,
+        prev_completed: 0, this_period: 0, stored: 0, pct_override: null,
+      }];
+    }
+    aiaLineItems = items;
+    hideLoading();
+    renderAIAForms();
+    showToast('✓ Synced from project');
+  } catch(e) {
+    hideLoading();
+    showToast('Error: '+e.message, true);
+  }
+}
+
+function addAIALineItem() {
+  const n = aiaLineItems.length + 1;
+  aiaLineItems.push({ id:'aia-new-'+Date.now(), item_no:String(n).padStart(2,'0'), description:'', scheduled_value:0, prev_completed:0, this_period:0, stored:0, pct_override:null });
+  renderAIAForms();
+}
+
+function removeAIALine(id) {
+  aiaLineItems = aiaLineItems.filter(l => l.id !== id);
+  renderAIAForms();
+}
+
+function updateAIALine(id, field, value) {
+  const line = aiaLineItems.find(l => l.id === id);
+  if (!line) return;
+  const num = parseFloat(value) || 0;
+  if (field === 'pct_override') line.pct_override = num / 100;
+  else if (['scheduled_value','prev_completed','this_period','stored'].includes(field)) line[field] = num;
+  else line[field] = value;
+  renderAIAForms();
+}
+
+function renderAIAForms() {
+  const mode      = document.getElementById('aia-report-mode')?.value || 'pct';
+  const retPct    = (parseFloat(document.getElementById('aia-retainage')?.value||10)) / 100;
+  const fmt       = v => parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  let totalScheduled=0, totalPrev=0, totalThis=0, totalStored=0, totalCompleted=0, totalRetainage=0;
+
+  const tbody = document.getElementById('g703-body');
+  if (!tbody) return;
+
+  tbody.innerHTML = aiaLineItems.map(line => {
+    const sv    = parseFloat(line.scheduled_value||0);
+    const prev  = parseFloat(line.prev_completed||0);
+    let thisPeriod, total, pct, balance, retainage;
+
+    if (mode === 'pct') {
+      // User enters % complete; compute dollar amounts
+      const pctDone = line.pct_override !== null ? line.pct_override : (sv ? (prev + parseFloat(line.this_period||0)) / sv : 0);
+      thisPeriod = Math.max(0, sv * pctDone - prev);
+      total   = sv * pctDone + parseFloat(line.stored||0);
+      pct     = sv ? total / sv : 0;
+    } else {
+      thisPeriod = parseFloat(line.this_period||0);
+      total   = prev + thisPeriod + parseFloat(line.stored||0);
+      pct     = sv ? total / sv : 0;
+    }
+    balance   = Math.max(0, sv - total);
+    retainage = total * retPct;
+
+    totalScheduled += sv; totalPrev += prev; totalThis += thisPeriod;
+    totalStored += parseFloat(line.stored||0); totalCompleted += total; totalRetainage += retainage;
+
+    const pctDisp = (pct*100).toFixed(1);
+    const editInput = (field, val, width='80px') =>
+      `<input type="text" value="${parseFloat(val||0).toFixed(2)}" oninput="updateAIALine('${line.id}','${field}',this.value)" style="width:${width};border:1px solid var(--border-light);border-radius:3px;padding:3px 6px;font-size:11px;font-family:monospace;text-align:right;">`;
+
+    return `<tr style="border-bottom:1px solid var(--border-light);">
+      <td style="padding:6px 10px;">${editInput('item_no',line.item_no,'40px')}</td>
+      <td style="padding:6px 10px;"><input type="text" value="${line.description||''}" oninput="updateAIALine('${line.id}','description',this.value)" style="width:200px;border:1px solid var(--border-light);border-radius:3px;padding:3px 6px;font-size:12px;"></td>
+      <td style="padding:6px 10px;text-align:right;">${editInput('scheduled_value',sv,'90px')}</td>
+      <td style="padding:6px 10px;text-align:right;">${editInput('prev_completed',prev,'90px')}</td>
+      <td style="padding:6px 10px;text-align:right;">
+        ${mode==='pct'
+          ? `<input type="text" value="${((line.pct_override||0)*100).toFixed(1)}" oninput="updateAIALine('${line.id}','pct_override',this.value)" style="width:60px;border:1px solid var(--border-light);border-radius:3px;padding:3px 6px;font-size:11px;text-align:right;">%`
+          : editInput('this_period',thisPeriod,'90px')}
+      </td>
+      <td style="padding:6px 10px;text-align:right;">${editInput('stored',line.stored,'80px')}</td>
+      <td style="padding:6px 10px;text-align:right;font-family:monospace;">${fmt(total)}</td>
+      <td style="padding:6px 10px;text-align:right;font-family:monospace;">${pctDisp}%</td>
+      <td style="padding:6px 10px;text-align:right;font-family:monospace;">${fmt(balance)}</td>
+      <td style="padding:6px 10px;text-align:right;font-family:monospace;">${fmt(retainage)}</td>
+      <td style="padding:4px;"><button onclick="removeAIALine('${line.id}')" style="background:none;border:none;color:var(--error);cursor:pointer;font-size:13px;">×</button></td>
+    </tr>`;
+  }).join('');
+
+  // Totals footer
+  const tfooter = document.getElementById('g703-totals');
+  if (tfooter) tfooter.innerHTML = `
+    <tr style="border-top:2px solid var(--navy);">
+      <td colspan="2" style="padding:8px 10px;font-weight:600;">TOTALS</td>
+      <td style="padding:8px 10px;text-align:right;font-family:monospace;">${fmt(totalScheduled)}</td>
+      <td style="padding:8px 10px;text-align:right;font-family:monospace;">${fmt(totalPrev)}</td>
+      <td style="padding:8px 10px;text-align:right;font-family:monospace;">${fmt(totalThis)}</td>
+      <td style="padding:8px 10px;text-align:right;font-family:monospace;">${fmt(totalStored)}</td>
+      <td style="padding:8px 10px;text-align:right;font-family:monospace;">${fmt(totalCompleted)}</td>
+      <td style="padding:8px 10px;text-align:right;font-family:monospace;">${totalScheduled ? (totalCompleted/totalScheduled*100).toFixed(1) : '0.0'}%</td>
+      <td style="padding:8px 10px;text-align:right;font-family:monospace;">${fmt(totalScheduled-totalCompleted)}</td>
+      <td style="padding:8px 10px;text-align:right;font-family:monospace;">${fmt(totalRetainage)}</td>
+      <td></td>
+    </tr>`;
+
+  // Render G702
+  renderG702(totalScheduled, totalCompleted, totalStored, totalRetainage);
+}
+
+function renderG702(contractSum, completedStored, stored, retainage) {
+  const body = document.getElementById('g702-body');
+  if (!body) return;
+  const fmt = v => '$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+  const fmt2 = v => parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+  const projName  = aiaProject?.name || '—';
+  const projNum   = aiaProject?.number || '—';
+  const appNo     = document.getElementById('aia-app-no')?.value || '1';
+  const architect = document.getElementById('aia-architect')?.value || '—';
+  const periodTo  = document.getElementById('aia-period-to')?.value || '';
+  const retPct    = parseFloat(document.getElementById('aia-retainage')?.value||10);
+
+  const lessPrevCert = 0; // Would come from prior saved applications
+  const currentPayment = completedStored - retainage - lessPrevCert;
+  const balanceToFinish = contractSum - completedStored;
+
+  body.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <!-- Left: project info -->
+      <div>
+        <table style="width:100%;font-size:12px;border-collapse:collapse;">
+          <tr><td style="padding:4px 8px;color:var(--text-light);width:140px;">Project</td><td style="padding:4px 8px;font-weight:500;">${projName}</td></tr>
+          <tr><td style="padding:4px 8px;color:var(--text-light);">Project No.</td><td style="padding:4px 8px;">${projNum}</td></tr>
+          <tr><td style="padding:4px 8px;color:var(--text-light);">Application No.</td><td style="padding:4px 8px;font-weight:600;">${appNo}</td></tr>
+          <tr><td style="padding:4px 8px;color:var(--text-light);">Period To</td><td style="padding:4px 8px;">${fmtDate(periodTo)}</td></tr>
+          <tr><td style="padding:4px 8px;color:var(--text-light);">Architect / Owner</td><td style="padding:4px 8px;">${architect}</td></tr>
+          <tr><td style="padding:4px 8px;color:var(--text-light);">Retainage</td><td style="padding:4px 8px;">${retPct}%</td></tr>
+        </table>
+      </div>
+      <!-- Right: dollar summary -->
+      <div style="border:1px solid var(--border-light);border-radius:var(--radius);overflow:hidden;">
+        <div style="background:var(--section-bg);padding:8px 14px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--navy);">Payment Summary</div>
+        ${[
+          ['1. Original Contract Sum',                fmt(contractSum)],
+          ['2. Net Change by Change Orders',           fmt(0)],
+          ['3. Contract Sum to Date (1+2)',            fmt(contractSum)],
+          ['4. Total Completed &amp; Stored to Date',  fmt(completedStored)],
+          ['5. Retainage ('+retPct+'%)',               fmt(retainage)],
+          ['6. Total Earned Less Retainage (4-5)',     fmt(completedStored - retainage)],
+          ['7. Less Previous Certificates for Payment', fmt(lessPrevCert)],
+          ['8. Current Payment Due',                   `<strong style="color:var(--teal);font-size:14px;">${fmt(Math.max(0,currentPayment))}</strong>`],
+          ['9. Balance to Finish (3-6)',               fmt(balanceToFinish)],
+        ].map(([label,val]) => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 14px;border-bottom:1px solid var(--border-light);font-size:12px;">
+            <span style="color:var(--text-mid);">${label}</span>
+            <span style="font-family:monospace;">${val}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+    <!-- Certification note -->
+    <div style="margin-top:16px;padding:12px 16px;background:var(--gold-pale);border:1px solid var(--border);border-radius:var(--radius);font-size:11px;color:var(--text-mid);">
+      <strong style="color:var(--navy);">Contractor's Certification:</strong> The undersigned Contractor certifies that to the best of the Contractor's knowledge, information and belief the Work covered by this Application for Payment has been completed in accordance with the Contract Documents, that all amounts have been paid for Work for which previous Certificates for Payment were issued and payments received from the Owner, and that current payment shown herein is now due.
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:16px;">
+      <div style="border-top:1px solid var(--border);padding-top:8px;">
+        <div style="font-size:11px;color:var(--text-light);margin-bottom:4px;">Contractor · Signature</div>
+        <input type="text" class="field-input" id="aia-contractor-sig" placeholder="Authorized signature" style="height:32px;">
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:8px;">
+        <div style="font-size:11px;color:var(--text-light);margin-bottom:4px;">Date</div>
+        <input type="date" class="field-input" id="aia-sig-date" value="${new Date().toISOString().slice(0,10)}" style="height:32px;">
+      </div>
+    </div>`;
+}
+
+async function saveAIAApplication() {
+  if (!aiaProject?.id) { showToast('⚠ Select a project first', true); return; }
+  showLoading('Saving application…');
+  try {
+    const appId = 'aia-' + aiaProject.id + '-' + Date.now();
+    await sb.from('aia_applications').upsert({
+      id: appId,
+      company_id: aiaCompanyId,
+      project_id: aiaProject.id,
+      application_number: document.getElementById('aia-app-no')?.value || '1',
+      period_from: document.getElementById('aia-period-from')?.value || null,
+      period_to: document.getElementById('aia-period-to')?.value || null,
+      retainage_pct: parseFloat(document.getElementById('aia-retainage')?.value||10),
+      line_items: JSON.stringify(aiaLineItems),
+      updated_at: new Date().toISOString(),
+    });
+    hideLoading();
+    showToast('✓ AIA application saved');
+  } catch(e) {
+    hideLoading();
+    // Table may not exist yet — show SQL needed
+    showToast('Save failed — run migration SQL (see console)', true);
+    console.error('saveAIAApplication:', e);
+    console.info('Run: CREATE TABLE aia_applications (id text primary key, company_id text, project_id text, application_number text, period_from date, period_to date, retainage_pct numeric, line_items jsonb, updated_at timestamptz);');
+  }
+}
+
+function printAIA() {
+  const w = window.open('','_blank');
+  const g703 = document.querySelector('#g703-body')?.closest('table')?.outerHTML || '';
+  const g702 = document.getElementById('g702-body')?.innerHTML || '';
+  const proj = aiaProject?.name || '';
+  const period = document.getElementById('aia-period-to')?.value || '';
+  w.document.write(`<!DOCTYPE html><html><head><title>AIA G702/G703 — ${proj}</title>
+    <style>body{font-family:Arial,sans-serif;font-size:11px;color:#000;margin:20px;}
+    table{width:100%;border-collapse:collapse;margin-bottom:20px;}
+    th,td{border:1px solid #ccc;padding:4px 6px;}
+    th{background:#1E2A38;color:#fff;font-size:10px;}
+    h2{font-size:14px;margin:0 0 4px;} h3{font-size:12px;margin:16px 0 8px;}
+    .no-border td{border:none;padding:2px 6px;}</style></head><body>
+    <h2>AIA Document G703 — Continuation Sheet</h2>
+    <p><strong>Project:</strong> ${proj} &nbsp;|&nbsp; <strong>Period:</strong> ${period}</p>
+    ${g703}
+    <h2 style="margin-top:24px;">AIA Document G702 — Application for Payment</h2>
+    ${g702}
+    </body></html>`);
+  w.document.close();
+  w.print();
+}
+
+// Show/hide construction sidenav based on selected entity
+function checkConstructionAccess(industryValue) {
+  const grp = document.getElementById('sng-construction');
+  if (grp) grp.style.display = (industryValue||'').toLowerCase().includes('construction') ? '' : 'none';
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  2.  ACCRUAL JOURNAL ENTRY AUTOMATION
+// ─────────────────────────────────────────────────────────────────
+let _pendingAccruals = [];  // { id, date, description, amount, account_id, account_name, source_type, source_id, reviewed }
+
+// Called after saveBill / saveInvoice / payroll post when acctIsAccrual
+function queueAccrualJE(sourceType, sourceId, date, description, lines) {
+  if (!acctIsAccrual) return;
+  // Build reversing accrual for month-end
+  const monthEnd = date ? date.slice(0,8) + new Date(date.slice(0,4), date.slice(5,7), 0).getDate() : null;
+  const accrualId = 'accr-' + sourceType.slice(0,3) + '-' + sourceId.slice(-8);
+  const entry = { id: accrualId, source_type: sourceType, source_id: sourceId, entry_date: monthEnd || date, description: 'Accrual — ' + description, lines, reviewed: false, status: 'pending' };
+  // Deduplicate
+  _pendingAccruals = _pendingAccruals.filter(a => a.id !== accrualId);
+  _pendingAccruals.push(entry);
+  // Show notification
+  showAccrualReviewBanner();
+}
+
+function showAccrualReviewBanner() {
+  let banner = document.getElementById('accrual-banner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'accrual-banner';
+    banner.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:2000;background:var(--teal);color:#fff;border-radius:var(--radius-lg);padding:12px 18px;box-shadow:0 4px 20px rgba(0,0,0,0.2);cursor:pointer;font-size:13px;font-family:\'DM Sans\',sans-serif;max-width:320px;';
+    banner.onclick = () => openAccrualReviewModal();
+    document.body.appendChild(banner);
+  }
+  const n = _pendingAccruals.filter(a => !a.reviewed).length;
+  banner.innerHTML = `📋 ${n} accrual journal entr${n===1?'y':'ies'} pending review<div style="font-size:11px;opacity:0.85;margin-top:3px;">Click to review and post</div>`;
+  banner.style.display = '';
+}
+
+function openAccrualReviewModal() {
+  // Build modal HTML dynamically
+  let modal = document.getElementById('accrualReviewModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'accrualReviewModal';
+    modal.className = 'modal-overlay';
+    document.body.appendChild(modal);
+  }
+  const pending = _pendingAccruals.filter(a => !a.reviewed);
+  modal.innerHTML = `
+    <div class="modal" style="max-width:780px;">
+      <div class="modal-header">
+        <span class="modal-title">Review Accrual Journal Entries</span>
+        <button class="modal-close" onclick="closeModal('accrualReviewModal')">×</button>
+      </div>
+      <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
+        <div style="font-size:13px;color:var(--text-mid);margin-bottom:16px;">
+          Review auto-generated accrual entries. Edit any amounts, then post individually or post all.
+        </div>
+        ${pending.map(a => `
+          <div id="accrual-card-${a.id}" style="border:1px solid var(--border-light);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--navy);">${a.description}</div>
+                <div style="font-size:11px;color:var(--text-light);">Date: ${fmtDate(a.entry_date)} · Source: ${a.source_type} #${a.source_id.slice(-6)}</div>
+              </div>
+              <button onclick="postSingleAccrual('${a.id}')" style="background:var(--teal);color:#fff;border:none;border-radius:var(--radius);padding:5px 14px;cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">Post</button>
+            </div>
+            <table style="width:100%;font-size:12px;border-collapse:collapse;">
+              <thead><tr style="background:var(--section-bg);">
+                <th style="padding:5px 8px;text-align:left;font-weight:600;">Account</th>
+                <th style="padding:5px 8px;text-align:right;font-weight:600;">Debit</th>
+                <th style="padding:5px 8px;text-align:right;font-weight:600;">Credit</th>
+              </tr></thead>
+              <tbody>${a.lines.map((l,i) => `
+                <tr style="border-bottom:1px solid var(--border-light);">
+                  <td style="padding:5px 8px;">${l.account_name||l.account_id}</td>
+                  <td style="padding:5px 8px;text-align:right;"><input type="text" value="${parseFloat(l.debit||0).toFixed(2)}" oninput="updateAccrualLine('${a.id}',${i},'debit',this.value)" style="width:90px;border:1px solid var(--border-light);border-radius:3px;padding:2px 6px;text-align:right;font-family:monospace;font-size:11px;"></td>
+                  <td style="padding:5px 8px;text-align:right;"><input type="text" value="${parseFloat(l.credit||0).toFixed(2)}" oninput="updateAccrualLine('${a.id}',${i},'credit',this.value)" style="width:90px;border:1px solid var(--border-light);border-radius:3px;padding:2px 6px;text-align:right;font-family:monospace;font-size:11px;"></td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>`).join('')}
+        ${!pending.length ? '<div class="empty-state"><div class="empty-state-title">No pending accruals</div></div>' : ''}
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('accrualReviewModal')">Close</button>
+        <button class="btn-save" onclick="postAllAccruals()">Post All Accruals</button>
+      </div>
+    </div>`;
+  modal.classList.add('show');
+}
+
+function updateAccrualLine(accrualId, lineIndex, field, value) {
+  const a = _pendingAccruals.find(x => x.id === accrualId);
+  if (a?.lines[lineIndex]) a.lines[lineIndex][field] = parseFloat(value)||0;
+}
+
+async function postSingleAccrual(accrualId) {
+  const a = _pendingAccruals.find(x => x.id === accrualId);
+  if (!a) return;
+  showLoading('Posting accrual…');
+  try {
+    const { error } = await sb.from('journal_entries').upsert({
+      id: a.id, company_id: acctCompanyId, entry_date: a.entry_date,
+      description: a.description, reference_number: 'ACCR-'+a.source_id.slice(-6),
+      status: 'posted', entry_type: 'accrual', updated_at: new Date().toISOString(),
+    });
+    if (error) throw error;
+    await sb.from('journal_entry_lines').delete().eq('journal_entry_id', a.id);
+    await sb.from('journal_entry_lines').insert(
+      a.lines.map((l,i) => ({ id:`jel-${a.id}-${i}`, journal_entry_id:a.id, account_id:l.account_id, description:l.description||a.description, debit:l.debit||0, credit:l.credit||0, sort_order:i }))
+    );
+    a.reviewed = true;
+    hideLoading();
+    showToast('✓ Accrual posted');
+    document.getElementById(`accrual-card-${accrualId}`)?.remove();
+    const remaining = _pendingAccruals.filter(x => !x.reviewed).length;
+    if (!remaining) { document.getElementById('accrual-banner').style.display = 'none'; closeModal('accrualReviewModal'); }
+  } catch(e) { hideLoading(); showToast('Error: '+e.message, true); }
+}
+
+async function postAllAccruals() {
+  const pending = _pendingAccruals.filter(a => !a.reviewed);
+  if (!pending.length) { showToast('No pending accruals', true); return; }
+  for (const a of pending) await postSingleAccrual(a.id);
+  showToast('✓ All accruals posted');
+}
+
+// Hook into saveBill to queue accrual entries
+const _origSaveBill = saveBill;
+saveBill = async function(status) {
+  await _origSaveBill.call(this, status);
+  if (!acctIsAccrual || status !== 'received') return;
+  // Build accrual lines from the bill form
+  const lines = [];
+  document.querySelectorAll('#billLinesTbody tr').forEach((tr,i) => {
+    const desc  = tr.querySelector('.bl-desc')?.value||'';
+    const qty   = parseFloat(tr.querySelector('.bl-qty')?.value||1)||1;
+    const price = parseFloat(tr.querySelector('.bl-price')?.value||0)||0;
+    const aId   = tr.querySelector('.bl-acct')?.value||null;
+    if (!aId || !price) return;
+    const amt = qty * price;
+    const acctName = acctAccounts.find(a=>a.id===aId)?.account_name || aId;
+    lines.push({ account_id:aId, account_name:acctName, description:desc, debit:amt, credit:0 });
+  });
+  const apAcct = acctAccounts.find(a=>a.account_name.toLowerCase().includes('accounts payable')||a.account_name.toLowerCase().includes('accrued'));
+  if (apAcct && lines.length) {
+    const total = lines.reduce((s,l)=>s+l.debit, 0);
+    lines.push({ account_id:apAcct.id, account_name:apAcct.account_name, description:'Accrued payable', debit:0, credit:total });
+    const billDate = document.getElementById('bill-date')?.value || new Date().toISOString().slice(0,10);
+    const vendorName = document.getElementById('bill-vendor')?.options[document.getElementById('bill-vendor')?.selectedIndex]?.text || 'Vendor';
+    queueAccrualJE('bill', 'bill-'+Date.now(), billDate, vendorName, lines);
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────
+//  3.  INVOICE NON-INVENTORY USE-TAX FEED TO SALES TAX RETURN
+// ─────────────────────────────────────────────────────────────────
+
+// After saving an invoice, check if use-tax should be reported
+async function checkInvoiceUseTaxFeed(invoiceId, lines, shipState, useTaxApplied) {
+  if (useTaxApplied === 'yes') return;  // Sales tax was charged — not reportable use tax
+  if (!shipState || shipState === '') return;  // No delivery state specified
+
+  // Find lines with non-inventory items (no tax rate applied)
+  const untaxedLines = lines.filter(l => (l.tax_rate||0) === 0 && l.amount > 0);
+  if (!untaxedLines.length) return;
+
+  const untaxedTotal = untaxedLines.reduce((s,l) => s+l.amount, 0);
+  if (untaxedTotal <= 0) return;
+
+  // Store in use_tax_reportable table / show notification
+  const useTaxId = 'ut-' + invoiceId;
+  try {
+    await sb.from('use_tax_reportable').upsert({
+      id: useTaxId,
+      company_id: acctCompanyId,
+      invoice_id: invoiceId,
+      state: shipState,
+      period: new Date().toISOString().slice(0,7),
+      taxable_amount: untaxedTotal,
+      reported: false,
+      updated_at: new Date().toISOString(),
+    });
+    showToast(`ℹ️ $${untaxedTotal.toLocaleString()} in non-taxed items flagged for ${shipState} use tax reporting`);
+    // If state matches FL or GA, auto-bump the sales tax return amount
+    if (['FL','GA'].includes(shipState)) {
+      const stateLabel = shipState === 'FL' ? 'FL DR-15' : 'GA ST-3';
+      showToast(`Sales tax return ${stateLabel}: $${untaxedTotal.toLocaleString()} added to Purchases Subject to Use Tax`);
+    }
+  } catch(e) {
+    // Table may not exist — show console instruction
+    console.info('Run: CREATE TABLE use_tax_reportable (id text primary key, company_id text, invoice_id text, state text, period text, taxable_amount numeric, reported boolean default false, updated_at timestamptz);');
+    // Still notify user
+    showToast(`ℹ️ Use tax potentially owed on $${untaxedTotal.toLocaleString()} shipped to ${shipState}`);
+  }
+}
+
+// Patch saveInvoice to carry ship-to state and use-tax flag
+const _origSaveInvoice = saveInvoice;
+saveInvoice = async function(status) {
+  // Capture ship-state and use-tax BEFORE the original save clears the form
+  const shipState    = document.getElementById('inv-ship-state')?.value || '';
+  const useTaxApplied = document.getElementById('inv-use-tax')?.value || 'no';
+  // Also capture lines
+  const lines = [];
+  document.querySelectorAll('#invLinesTbody tr').forEach((tr,i) => {
+    const inp = tr.querySelectorAll('input');
+    const desc = inp[0]?.value||'';
+    const qty  = parseFloat(inp[1]?.value||1)||1;
+    const price = parseFloat(inp[2]?.value||0)||0;
+    const taxR = parseFloat(inp[3]?.value||0)||0;
+    const amt  = qty*price;
+    if (desc||amt) lines.push({ description:desc, quantity:qty, unit_price:price, tax_rate:taxR, amount:amt, sort_order:i });
+  });
+
+  await _origSaveInvoice.call(this, status);
+
+  // Post-save: save ship-state to invoice record and check use tax
+  const invId = editingInvoiceId || ('inv-' + Date.now());
+  if (shipState) {
+    try {
+      await sb.from('invoices').update({ ship_to_state: shipState, use_tax_applied: useTaxApplied === 'yes' }).eq('id', invId);
+    } catch(e) {
+      console.info('Add columns: ALTER TABLE invoices ADD COLUMN IF NOT EXISTS ship_to_state text; ADD COLUMN IF NOT EXISTS use_tax_applied boolean DEFAULT false;');
+    }
+  }
+  if (status === 'sent') {
+    await checkInvoiceUseTaxFeed(invId, lines, shipState, useTaxApplied);
+  }
+};
+
+// In syncSalesTaxReturn, also include use_tax_reportable amounts
+async function getUseTaxAmountForPeriod(state, period) {
+  try {
+    const { data } = await sb.from('use_tax_reportable')
+      .select('taxable_amount')
+      .eq('company_id', taxCompanyId)
+      .eq('state', state)
+      .eq('period', period)
+      .eq('reported', false);
+    return (data||[]).reduce((s,r) => s + parseFloat(r.taxable_amount||0), 0);
+  } catch(e) { return 0; }
+}
+
+// Check construction access whenever entity changes in global picker
+const _origOnEntityChange = onEntityChange;
+onEntityChange = function() {
+  _origOnEntityChange.call(this);
+  // Check if selected company is in construction industry
+  if (acctCompanyId) {
+    sb.from('companies').select('industry').eq('id', acctCompanyId).single()
+      .then(({ data }) => checkConstructionAccess(data?.industry || ''))
+      .catch(() => {});
+  }
+};
 
 // ── INIT ──
 async function initApp() {
