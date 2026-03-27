@@ -243,11 +243,6 @@
     background: var(--cream);
     z-index: 20;
     padding-top: 12px;
-    margin-top: -12px;
-    margin-left: -40px;
-    margin-right: -40px;
-    padding-left: 40px;
-    padding-right: 40px;
   }
   .page-title { font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 600; color: var(--navy); line-height: 1.2; }
   .page-subtitle { font-size: 13px; color: var(--text-light); margin-top: 4px; }
@@ -1051,6 +1046,8 @@
         <div class="sidenav-children" id="snc-intel">
           <button class="sidenav-child" id="nav-reports"     onclick="pickNav('reports')">Reports &amp; Automation</button>
           <button class="sidenav-child" id="nav-documents"   onclick="pickNav('documents')">Documents</button>
+          <button class="sidenav-child" id="nav-audit"       onclick="pickNav('audit')">Internal Audit</button>
+          <button class="sidenav-child" id="nav-personal-tax" onclick="pickNav('personal-tax')">Personal Tax (1040)</button>
         </div>
       </div>
 
@@ -1908,7 +1905,11 @@
           <div id="acct-view-bills" class="acct-panel" style="display:none;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
               <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Bills</div>
-              <button class="btn-save" onclick="openBillModal()">+ Enter Bill</button>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <button class="btn-secondary" onclick="document.getElementById('bill-ocr-upload').click()">&#128269; Scan Bill (OCR)</button>
+                <input type="file" id="bill-ocr-upload" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleBillOCRUpload(event)">
+                <button class="btn-save" onclick="openBillModal()">+ Enter Bill</button>
+              </div>
             </div>
             <div id="billsContent"><div class="empty-state"><div class="empty-state-title">No bills yet</div></div></div>
           </div>
@@ -2428,7 +2429,8 @@
                 <select id="consol-fs-group-sel" class="field-select" style="height:32px;width:200px;" onchange="loadConsolFS()"><option value="">— Select group —</option></select>
                 <select id="consol-fs-year-sel" class="field-select" style="height:32px;width:90px;"><option value="2025" selected>2025</option><option value="2024">2024</option></select>
                 <button class="btn-primary" onclick="runConsolFS()">Generate</button>
-                <button class="btn-secondary" onclick="printConsolFS()">🖨 Print</button>
+                <button class="btn-secondary" onclick="runIntercompanyEliminations(document.getElementById('consol-fs-group-sel').value, document.getElementById('consol-fs-year-sel').value)">&#9878; Auto-Eliminate IC</button>
+                <button class="btn-secondary" onclick="printConsolFS()">&#128424; Print</button>
               </div>
             </div>
             <div id="b7-consol-fs-body"><div class="empty-state"><div class="empty-state-title">Select a group and click Generate</div></div></div>
@@ -3376,25 +3378,19 @@
           <div class="page-subtitle">Edit company details, addresses, accounting settings, and key contacts</div>
         </div>
         <div class="page-actions">
-          <button class="btn-secondary" onclick="pickNav('settings')">← Back to Settings</button>
-          <button class="btn-save" onclick="saveEntityInfo()">Save Changes</button>
+          <button class="btn-secondary" onclick="pickNav('settings')">&#8592; Back to Settings</button>
+          <button class="btn-save" id="ei-save-btn" onclick="saveEntityInfo()">Save Changes</button>
         </div>
       </div>
-      <!-- Entity selector bar -->
-      <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:14px 20px;margin-bottom:20px;">
-        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-          <span style="font-size:13px;font-weight:600;color:var(--navy);white-space:nowrap;">Editing Entity:</span>
-          <select id="ei-entity-sel" class="field-select" style="height:36px;width:280px;flex-shrink:0;" onchange="loadEntityInfo()">
-            <option value="">— Select entity —</option>
-          </select>
-          <span style="font-size:12px;color:var(--text-light);">Changes are saved to the selected entity only. All fields are editable.</span>
-        </div>
+      <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:12px 18px;margin-bottom:18px;display:flex;align-items:center;gap:14px;">
+        <label style="font-size:13px;font-weight:600;color:var(--navy);white-space:nowrap;">Editing:</label>
+        <select id="ei-entity-sel" class="field-select" style="height:34px;width:260px;" onchange="loadEntityInfo()">
+          <option value="">&#8212; Select entity &#8212;</option>
+        </select>
+        <span style="font-size:12px;color:var(--teal);font-weight:500;">&#10003; All fields are editable &#8212; click any field to change it</span>
       </div>
-      <!-- Form body rendered by loadEntityInfo() -->
-      <div id="ei-body">
-        <div class="empty-state">
-          <div class="empty-state-title">Loading entities…</div>
-        </div>
+      <div id="ei-body" style="position:relative;z-index:1;pointer-events:auto;">
+        <div class="empty-state"><div class="empty-state-title">Select an entity above to begin editing</div></div>
       </div>
     </div>
 
@@ -4591,6 +4587,67 @@
 
     <!-- COMPANY DETAIL -->
     
+
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!--  INTERNAL AUDIT PANEL                                   -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="view-audit" class="panel">
+      <div class="page-header">
+        <div><div class="page-title">Internal Audit</div><div class="page-subtitle">Anomaly Detection · Fraud Indicators · Vendor Risk · JE Review</div></div>
+        <div class="page-actions">
+          <select id="audit-entity-select" class="field-select" style="height:34px;width:200px;" onchange="onAuditEntityChange()"><option value="">— Select entity —</option></select>
+          <select id="audit-period" class="field-select" style="height:34px;width:130px;">
+            <option value="90">Last 90 days</option><option value="180">Last 180 days</option><option value="365">Last 12 months</option>
+          </select>
+          <button class="btn-save" onclick="runInternalAudit()">&#9888; Run Audit</button>
+        </div>
+      </div>
+      <div id="audit-body"><div class="empty-state"><div class="empty-state-title">Select an entity and click Run Audit</div><div>The audit engine will scan for anomalous journal entries, unmatched COGS payments, rapid vendor creation, and other risk indicators.</div></div></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!--  PERSONAL TAX / 1040 PANEL                              -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="view-personal-tax" class="panel">
+      <div class="page-header">
+        <div><div class="page-title">Personal Tax — Form 1040</div><div class="page-subtitle">Owner K-1 Import · Document Upload · OCR · Federal Return Mapping</div></div>
+        <div class="page-actions">
+          <select id="pt-officer-select" class="field-select" style="height:34px;width:220px;" onchange="onPTOfficerChange()"><option value="">— Select owner/officer —</option></select>
+          <select id="pt-year" class="field-select" style="height:34px;width:90px;"><option>2025</option><option>2024</option><option>2023</option></select>
+          <button class="btn-secondary" onclick="document.getElementById('pt-doc-upload').click()">&#128196; Upload Document</button>
+          <input type="file" id="pt-doc-upload" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handlePTDocUpload(event)">
+          <button class="btn-save" onclick="syncPT1040fromK1s()">&#8635; Sync from K-1s</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:0;">
+        <div style="width:220px;flex-shrink:0;background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:8px 0;box-shadow:var(--shadow-sm);height:fit-content;position:sticky;top:var(--page-header-h);margin-right:24px;">
+          <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-light);padding:14px 16px 6px;">1040 Sections</div>
+          <button class="set-sidebar-btn active" id="pt-nav-income" onclick="showPTPanel('income')"><span>💰</span> Income</button>
+          <button class="set-sidebar-btn" id="pt-nav-deductions" onclick="showPTPanel('deductions')"><span>📉</span> Deductions</button>
+          <button class="set-sidebar-btn" id="pt-nav-credits" onclick="showPTPanel('credits')"><span>&#9733;</span> Credits &amp; Tax</button>
+          <button class="set-sidebar-btn" id="pt-nav-docs" onclick="showPTPanel('docs')"><span>📁</span> Owner Documents</button>
+          <button class="set-sidebar-btn" id="pt-nav-k1s" onclick="showPTPanel('k1s')"><span>📊</span> K-1 Summary</button>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div id="pt-panel-income" class="set-panel active"><div id="pt-income-body"><div class="empty-state"><div class="empty-state-title">Select an owner above</div></div></div></div>
+          <div id="pt-panel-deductions" class="set-panel"><div id="pt-deductions-body"><div class="empty-state"><div class="empty-state-title">Select an owner above</div></div></div></div>
+          <div id="pt-panel-credits" class="set-panel"><div id="pt-credits-body"><div class="empty-state"><div class="empty-state-title">Select an owner above</div></div></div></div>
+          <div id="pt-panel-docs" class="set-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Owner Personal Documents</div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-secondary" onclick="document.getElementById('pt-doc-upload').click()">+ Upload</button>
+                <button class="btn-save" onclick="runPTDocOCR()">&#128269; OCR Scan</button>
+              </div>
+            </div>
+            <div id="pt-docs-body"><div class="empty-state"><div class="empty-state-title">No documents uploaded</div><div>Upload W-2s, 1099s, mortgage statements, and other personal tax documents. Use OCR to extract data.</div></div></div>
+          </div>
+          <div id="pt-panel-k1s" class="set-panel"><div id="pt-k1s-body"><div class="empty-state"><div class="empty-state-title">Select an owner above</div></div></div></div>
+        </div>
+      </div>
+    </div>
+
 
   </main>
 </div>
@@ -7239,7 +7296,7 @@ function switchModule(module) {
   // Clear sidebar active states (sidenav replaced topbar-nav-btn)
   document.querySelectorAll('.sidenav-item,.sidenav-child').forEach(b=>b.classList.remove('active'));
   document.getElementById('nav-'+module)?.classList.add('active');
-  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub','view-tax','view-projects','view-inventory','view-budgeting','view-settings','view-crm','view-documents','view-reports','view-purchasing','view-rentals','view-rental-profit','view-equity','view-debt','view-hr','view-entity-settings','view-aia'].forEach(id => {
+  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub','view-tax','view-projects','view-inventory','view-budgeting','view-settings','view-crm','view-documents','view-reports','view-purchasing','view-rentals','view-rental-profit','view-equity','view-debt','view-hr','view-entity-settings','view-aia','view-audit','view-personal-tax'].forEach(id => {
     document.getElementById(id)?.classList.remove('active');
   });
   setSidebarVisible(module === 'companies');
@@ -7281,6 +7338,16 @@ function switchModule(module) {
     document.getElementById('view-entity-settings').classList.add('active');
     scrollMainToTop();
     loadEntityInfoPanel();
+    return;
+  } else if (module === 'audit') {
+    document.getElementById('view-audit').classList.add('active');
+    scrollMainToTop();
+    loadAuditModule();
+    return;
+  } else if (module === 'personal-tax') {
+    document.getElementById('view-personal-tax').classList.add('active');
+    scrollMainToTop();
+    loadPersonalTaxModule();
     return;
   } else if (module === 'settings') {
     document.getElementById('view-settings').classList.add('active');
@@ -8144,37 +8211,66 @@ async function runTrialBalance() {
   if (!asof) { showToast('⚠ Please select a date', true); return; }
   showLoading('Running Trial Balance…');
   try {
+    let jeQuery = sb.from('journal_entries').select('id').lte('entry_date', asof).eq('status','posted');
+    if (!acctConsolidated && acctCompanyId) jeQuery = jeQuery.eq('company_id', acctCompanyId);
+    const { data: entries } = await jeQuery;
+    const jeIds = (entries||[]).map(e=>e.id);
+    const { data: allLines } = jeIds.length ? await sb.from('journal_entry_lines').select('*').in('journal_entry_id', jeIds) : { data: [] };
 
-  let jeQuery = sb.from('journal_entries').select('id').lte('entry_date', asof).eq('status','posted');
-  if (!acctConsolidated && acctCompanyId) jeQuery = jeQuery.eq('company_id', acctCompanyId);
-  const { data: entries } = await jeQuery;
-  const jeIds = (entries||[]).map(e=>e.id);
+    // Get entity structure for federal mapping
+    let entityStructure = '';
+    if (acctCompanyId) {
+      try {
+        const { data: co } = await sb.from('companies').select('structure').eq('id',acctCompanyId).single();
+        entityStructure = co?.structure || '';
+      } catch(e) {}
+    }
 
-  const { data: allLines } = jeIds.length ? await sb.from('journal_entry_lines').select('*').in('journal_entry_id', jeIds) : { data: [] };
-
-  let totalDr=0, totalCr=0;
-  let rows = '';
-  const groups = ['Asset','Liability','Equity','Income','Expense'];
-  groups.forEach(g => {
-    const accts = acctAccounts.filter(a=>a.account_type===g).sort((a,b)=>(a.account_number||'').localeCompare(b.account_number||''));
-    accts.forEach(acct => {
-      const lines = (allLines||[]).filter(l=>l.account_id===acct.id);
-      const dr = lines.reduce((s,l)=>s+parseFloat(l.debit||0),0);
-      const cr = lines.reduce((s,l)=>s+parseFloat(l.credit||0),0);
-      if (!dr && !cr) return;
-      totalDr += dr; totalCr += cr;
-      rows += `<tr>
-        <td class="number">${acct.account_number||'—'}</td>
-        <td>${acct.account_name}</td>
-        <td><span class="acct-type-pill type-${g.toLowerCase()}">${g}</span></td>
-        <td class="amount">${dr>0?'$'+dr.toLocaleString('en-US',{minimumFractionDigits:2}):''}</td>
-        <td class="amount">${cr>0?'$'+cr.toLocaleString('en-US',{minimumFractionDigits:2}):''}</td>
-      </tr>`;
+    let totalDr=0, totalCr=0;
+    let rows = '';
+    const groups = ['Asset','Liability','Equity','Income','Expense'];
+    groups.forEach(g => {
+      const accts = acctAccounts.filter(a=>a.account_type===g).sort((a,b)=>(a.account_number||'').localeCompare(b.account_number||''));
+      if (!accts.length) return;
+      rows += `<tr style="background:var(--navy);color:#fff;"><td colspan="6" style="padding:6px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">${g} Accounts</td></tr>`;
+      accts.forEach(acct => {
+        const lines = (allLines||[]).filter(l=>l.account_id===acct.id);
+        const dr = lines.reduce((s,l)=>s+parseFloat(l.debit||0),0);
+        const cr = lines.reduce((s,l)=>s+parseFloat(l.credit||0),0);
+        if (!dr && !cr) return;
+        totalDr += dr; totalCr += cr;
+        const mapping = getTBFederalMapping(acct.account_subtype||acct.account_name, entityStructure);
+        const mapLabel = mapping ? `<span style="font-size:10px;color:var(--teal);font-weight:600;">${mapping.form} ${mapping.line}</span>` : '<span style="font-size:10px;color:var(--text-light);">—</span>';
+        rows += `<tr data-acct-subtype="${acct.account_subtype||''}">
+          <td class="number" style="font-family:'DM Mono',monospace;">${acct.account_number||'—'}</td>
+          <td>${acct.account_name}</td>
+          <td><span class="acct-type-pill type-${g.toLowerCase()}">${g}</span></td>
+          <td class="amount" style="font-family:'DM Mono',monospace;">${dr>0?'$'+dr.toLocaleString('en-US',{minimumFractionDigits:2}):''}</td>
+          <td class="amount" style="font-family:'DM Mono',monospace;">${cr>0?'$'+cr.toLocaleString('en-US',{minimumFractionDigits:2}):''}</td>
+          <td class="tb-map-cell" style="text-align:center;">${mapLabel}</td>
+        </tr>`;
+      });
     });
-  });
-  hideLoading();
-  } catch(e) { hideLoading(); showToast('runTrialBalance failed: ' + (e.message||e), true); }
 
+    const balanced = Math.abs(totalDr - totalCr) < 0.01;
+    const tbBody = document.getElementById('tb-body');
+    if (tbBody) tbBody.innerHTML = rows || '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-light);">No posted entries found</td></tr>';
+
+    const tbHead = document.querySelector('#acct-view-tb thead tr');
+    if (tbHead && !tbHead.querySelector('.tb-map-th')) {
+      tbHead.insertAdjacentHTML('beforeend', '<th class="tb-map-th" style="text-align:center;">Federal Return</th>');
+    }
+
+    // Update totals row
+    const totDr = document.getElementById('tb-total-dr');
+    const totCr = document.getElementById('tb-total-cr');
+    if (totDr) totDr.textContent = '$'+totalDr.toLocaleString('en-US',{minimumFractionDigits:2});
+    if (totCr) totCr.textContent = '$'+totalCr.toLocaleString('en-US',{minimumFractionDigits:2});
+
+    if (!balanced) showToast('⚠ Trial Balance is out of balance by $'+Math.abs(totalDr-totalCr).toFixed(2), true);
+    else showToast('✓ Trial Balance balanced — mapped to ' + (entityStructure||'federal return'));
+    hideLoading();
+  } catch(e) { hideLoading(); showToast('runTrialBalance failed: ' + (e.message||e), true); }
 }
 
 // ── PROFIT & LOSS ──
@@ -8583,7 +8679,9 @@ async function saveInvoice(status) {
   if(ie){hideLoading();showToast('Error: '+ie.message,true);return;}
   await sb.from('invoice_lines').delete().eq('invoice_id',invId);
   if(lines.length)await sb.from('invoice_lines').insert(lines.map((l,i)=>({id:'il-'+invId+'-'+i,invoice_id:invId,...l})));
-  if(status==='sent'&&arId&&incId){
+  // GAAP: Only recognize revenue on accrual basis at invoice time
+  // Cash basis: revenue recognized when payment received (handled in savePaymentIn)
+  if(status==='sent'&&arId&&incId&&acctIsAccrual){
     const jeId='je-inv-'+invId;
     await sb.from('journal_entries').upsert({id:jeId,company_id:acctCompanyId,entry_date:date,reference_number:document.getElementById('inv-number').value,description:'Invoice - '+(allCustomers.find(c=>c.id===custId)?.name||''),status:'posted',entry_type:'invoice',updated_at:new Date().toISOString()});
     await sb.from('journal_entry_lines').delete().eq('journal_entry_id',jeId);
@@ -8643,6 +8741,22 @@ async function savePaymentIn() {
   if(invId){const{data:inv}=await sb.from('invoices').select('balance_due,amount_paid,total').eq('id',invId).single();if(inv){const np=parseFloat(inv.amount_paid||0)+amount;const nb=parseFloat(inv.total||0)-np;await sb.from('invoices').update({amount_paid:np,balance_due:Math.max(0,nb),status:nb<=0.01?'paid':'partial'}).eq('id',invId);}}
   const arAccts=acctAccounts.filter(a=>a.account_name.toLowerCase().includes('receivable'));
   if(acctId&&arAccts.length){const jeId='je-payin-'+pid;await sb.from('journal_entries').insert({id:jeId,company_id:acctCompanyId,entry_date:date,description:'Payment Received',status:'posted',entry_type:'invoice',updated_at:new Date().toISOString()});await sb.from('journal_entry_lines').insert([{id:'jel-'+jeId+'-1',journal_entry_id:jeId,account_id:acctId,description:'Deposit',debit:amount,credit:0,sort_order:0},{id:'jel-'+jeId+'-2',journal_entry_id:jeId,account_id:arAccts[0].id,description:'AR',debit:0,credit:amount,sort_order:1}]);await sb.from('payments_received').update({journal_entry_id:jeId}).eq('id',pid);}
+  
+  // Cash basis: create revenue JE when payment received (not at invoice time)
+  if (!acctIsAccrual && acctId) {
+    try {
+      const { data: arAcct } = await sb.from('accounts').select('id').eq('company_id',acctCompanyId).ilike('account_name','%accounts receivable%').single();
+      const { data: revAcct } = await sb.from('accounts').select('id').eq('company_id',acctCompanyId).in('account_type',['Income']).order('account_number').limit(1).single();
+      if (arAcct && revAcct) {
+        const cashJeId = 'je-cashpay-' + pid;
+        await sb.from('journal_entries').insert({id:cashJeId,company_id:acctCompanyId,entry_date:date,description:'Cash Receipt — ' + amount.toFixed(2),status:'posted',entry_type:'payment',updated_at:new Date().toISOString()});
+        await sb.from('journal_entry_lines').insert([
+          {journal_entry_id:cashJeId,account_id:acctId,debit:amount,credit:0,description:'Cash received',sort_order:0},
+          {journal_entry_id:cashJeId,account_id:revAcct.id,debit:0,credit:amount,description:'Revenue — cash basis',sort_order:1}
+        ]);
+      }
+    } catch(e) { console.warn('Cash basis JE skipped:', e.message); }
+  }
   hideLoading();closeModal('paymentInModal');showToast('✓ Payment recorded');loadPaymentsIn();
 }
 
@@ -8754,7 +8868,9 @@ async function saveBill(status) {
   await sb.from('bills').upsert({id:billId,company_id:acctCompanyId,vendor_id:vendId,bill_number:document.getElementById('bill-number').value,bill_date:date,due_date:document.getElementById('bill-due').value||null,status,subtotal:sub,tax_amount:tax,total,balance_due:total,amount_paid:0,memo:document.getElementById('bill-memo').value,ap_account_id:apId,updated_at:new Date().toISOString()});
   await sb.from('bill_lines').delete().eq('bill_id',billId);
   if(lines.length)await sb.from('bill_lines').insert(lines.map((l,i)=>({id:'bl-'+billId+'-'+i,bill_id:billId,...l})));
-  if(status==='received'&&apId&&lines.some(l=>l.account_id)){
+  // GAAP: Only recognize expense on accrual basis at bill receipt
+  // Cash basis: expense recognized when payment made (handled in savePaymentOut)
+  if(status==='received'&&apId&&lines.some(l=>l.account_id)&&acctIsAccrual){
     const jeId='je-bill-'+billId;
     await sb.from('journal_entries').upsert({id:jeId,company_id:acctCompanyId,entry_date:date,reference_number:document.getElementById('bill-number').value,description:'Bill - '+(allVendors.find(v=>v.id===vendId)?.name||''),status:'posted',entry_type:'bill',updated_at:new Date().toISOString()});
     await sb.from('journal_entry_lines').delete().eq('journal_entry_id',jeId);
@@ -8810,6 +8926,21 @@ async function savePaymentOut() {
   if(billId){const{data:bill}=await sb.from('bills').select('balance_due,amount_paid,total').eq('id',billId).single();if(bill){const np=parseFloat(bill.amount_paid||0)+amount;const nb=parseFloat(bill.total||0)-np;await sb.from('bills').update({amount_paid:np,balance_due:Math.max(0,nb),status:nb<=0.01?'paid':'partial'}).eq('id',billId);}}
   const apAccts=acctAccounts.filter(a=>a.account_name.toLowerCase().includes('payable'));
   if(acctId&&apAccts.length){const jeId='je-payout-'+pid;await sb.from('journal_entries').insert({id:jeId,company_id:acctCompanyId,entry_date:date,description:'Payment Made',status:'posted',entry_type:'bill',updated_at:new Date().toISOString()});await sb.from('journal_entry_lines').insert([{id:'jel-'+jeId+'-1',journal_entry_id:jeId,account_id:apAccts[0].id,description:'AP',debit:amount,credit:0,sort_order:0},{id:'jel-'+jeId+'-2',journal_entry_id:jeId,account_id:acctId,description:'Cash',debit:0,credit:amount,sort_order:1}]);}
+  
+  // Cash basis: create expense JE when payment made (not at bill receipt)
+  if (!acctIsAccrual) {
+    try {
+      const { data: expAcct } = await sb.from('accounts').select('id').eq('company_id',acctCompanyId).in('account_type',['Expense']).order('account_number').limit(1).single();
+      if (expAcct) {
+        const cashJeOutId = 'je-cashpmt-' + Date.now();
+        await sb.from('journal_entries').insert({id:cashJeOutId,company_id:acctCompanyId,entry_date:date||new Date().toISOString().slice(0,10),description:'Cash Payment — expense',status:'posted',entry_type:'payment',updated_at:new Date().toISOString()});
+        await sb.from('journal_entry_lines').insert([
+          {journal_entry_id:cashJeOutId,account_id:expAcct.id,debit:parseFloat(amount||0),credit:0,description:'Expense — cash basis',sort_order:0},
+          {journal_entry_id:cashJeOutId,account_id:acctId||expAcct.id,debit:0,credit:parseFloat(amount||0),description:'Cash payment',sort_order:1}
+        ]);
+      }
+    } catch(e) { console.warn('Cash basis expense JE skipped:', e.message); }
+  }
   hideLoading();closeModal('paymentOutModal');showToast('✓ Payment recorded');loadPaymentsOut();
 }
 
@@ -20571,6 +20702,35 @@ function openIncidentResponsePlan() {
   <span>Clarus — Incident Response Plan v1.0</span>
   <span>Confidential — Internal Use Only — ${today}</span>
 </footer>
+
+<!-- ══ VENDOR BILL OCR MODAL ══ -->
+<div class="modal-overlay" id="vendorOCRModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <span class="modal-title">Bill OCR Results</span>
+      <button class="modal-close" onclick="closeModal('vendorOCRModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--teal-light);border:1px solid var(--teal);border-radius:var(--radius);padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--teal-mid);">
+        &#128269; OCR scan complete. Review and apply to new bill.
+      </div>
+      <input type="hidden" id="ocr-doc-id">
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label">Vendor / Payer Detected</label><div id="ocr-vendor-name" style="font-size:14px;font-weight:600;color:var(--navy);padding:8px 0;">—</div></div>
+        <div class="field-group"><label class="field-label">Total Amount</label><div id="ocr-total" style="font-size:18px;font-weight:700;color:var(--teal);">—</div></div>
+        <div class="field-group"><label class="field-label">Bill Date</label><input type="date" class="field-input" id="ocr-date"></div>
+        <div class="field-group col-span-2"><label class="field-label">Description</label><div id="ocr-desc" style="font-size:13px;color:var(--text-mid);padding:6px 0;">—</div></div>
+        <div class="field-group col-span-2"><label class="field-label">Suggested GL Account</label>
+          <div id="ocr-gl-suggestion" style="font-size:13px;font-weight:500;color:var(--teal);padding:6px 0;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('vendorOCRModal')">Cancel</button>
+      <button class="btn-save" onclick="applyVendorOCR()">Apply to New Bill</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>`);
   win.document.close();
@@ -24874,6 +25034,707 @@ async function runYearEndClose() {
   }
 }
 
+
+// ════════════════════════════════════════════════════════════════════
+//  UX FIX: GLOBAL LOADING COUNTER (prevents stuck spinner)
+// ════════════════════════════════════════════════════════════════════
+let _loadingCount = 0;
+const _origShowLoading = showLoading;
+const _origHideLoading = hideLoading;
+// Override with counter-based versions
+window.showLoading = function(msg) { _loadingCount++; _origShowLoading(msg||'Loading…'); };
+window.hideLoading = function() { _loadingCount = Math.max(0, _loadingCount-1); if (_loadingCount===0) _origHideLoading(); };
+
+// ════════════════════════════════════════════════════════════════════
+//  INTERCOMPANY ELIMINATIONS (ASC 810 Consolidation)
+// ════════════════════════════════════════════════════════════════════
+async function runIntercompanyEliminations(groupId, year) {
+  if (!groupId) { showToast('⚠ Select a consolidation group', true); return; }
+  const yr = year || new Date().getFullYear();
+  showLoading('Computing intercompany eliminations…');
+  try {
+    const { data: members } = await sb.from('consol_group_members').select('company_id').eq('group_id', groupId);
+    const companyIds = (members||[]).map(m=>m.company_id);
+    if (companyIds.length < 2) { hideLoading(); showToast('Need at least 2 entities in group', true); return; }
+
+    const eliminations = [];
+    // Strategy: find IC transactions by matching descriptions or IC account flags
+    // 1. Find accounts flagged as intercompany
+    const { data: icAccts } = await sb.from('accounts').select('id,account_name,company_id,account_type')
+      .in('company_id', companyIds)
+      .or('account_name.ilike.%intercompany%,account_name.ilike.%due to%,account_name.ilike.%due from%');
+
+    // 2. Find JE lines hitting those accounts in the year
+    if (icAccts && icAccts.length) {
+      const icAcctIds = icAccts.map(a=>a.id);
+      const { data: jes } = await sb.from('journal_entries').select('id,company_id').in('company_id',companyIds).eq('status','posted').gte('entry_date',`${yr}-01-01`).lte('entry_date',`${yr}-12-31`);
+      const jeIds = (jes||[]).map(j=>j.id);
+      if (jeIds.length) {
+        const { data: lines } = await sb.from('journal_entry_lines').select('*,accounts(account_name,account_type)').in('journal_entry_id',jeIds).in('account_id',icAcctIds);
+        (lines||[]).forEach(l => {
+          eliminations.push({ account: l.accounts?.account_name, debit: l.debit, credit: l.credit, jeId: l.journal_entry_id });
+        });
+      }
+    }
+
+    // 3. Present elimination entries in the consolidation panel
+    const body = document.getElementById('consol-eliminations-body') || document.getElementById('consol-fs-body');
+    if (!body) { hideLoading(); showToast(`Found ${eliminations.length} IC transactions`, false); return; }
+
+    if (!eliminations.length) {
+      body.innerHTML = '<div class="empty-state"><div class="empty-state-title">No intercompany transactions found</div><div>Tag accounts with "Intercompany", "Due To", or "Due From" in the account name to enable automatic elimination.</div></div>';
+    } else {
+      const totalDr = eliminations.reduce((s,e)=>s+parseFloat(e.debit||0),0);
+      const totalCr = eliminations.reduce((s,e)=>s+parseFloat(e.credit||0),0);
+      const fmt = v=>'$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+      body.innerHTML = '<div style="background:var(--gold-pale);padding:10px 16px;border-radius:var(--radius);margin-bottom:16px;font-size:13px;">'
+        + '<strong>Intercompany Eliminations — ' + yr + '</strong> · ' + eliminations.length + ' transactions · Post eliminating JE to zero these out</div>'
+        + '<table class="acct-table"><thead><tr><th>Account</th><th style="text-align:right">Debit</th><th style="text-align:right">Credit</th></tr></thead><tbody>'
+        + eliminations.map(e=>`<tr><td>${e.account||'—'}</td><td style="text-align:right;font-family:monospace;">${e.debit>0?fmt(e.debit):''}</td><td style="text-align:right;font-family:monospace;">${e.credit>0?fmt(e.credit):''}</td></tr>`).join('')
+        + `<tr style="font-weight:700;border-top:2px solid var(--border);"><td>Total</td><td style="text-align:right;font-family:monospace;">${fmt(totalDr)}</td><td style="text-align:right;font-family:monospace;">${fmt(totalCr)}</td></tr>`
+        + '</tbody></table>'
+        + '<button class="btn-save" style="margin-top:16px;" onclick="postEliminations('+JSON.stringify(eliminations).replace(/"/g,"'")+',\''+groupId+'\','+yr+')">Post Eliminating JE</button>';
+    }
+    hideLoading();
+    showToast(`✓ Found ${eliminations.length} intercompany transactions`);
+  } catch(e) { hideLoading(); showToast('Elimination error: '+e.message, true); }
+}
+
+async function postEliminations(eliminations, groupId, yr) {
+  if (!confirm('Post eliminating journal entries to reverse all intercompany transactions?')) return;
+  showLoading('Posting eliminations…');
+  try {
+    const jeId = 'je-elim-' + groupId + '-' + yr + '-' + Date.now();
+    await sb.from('journal_entries').insert({ id:jeId, company_id: eliminations[0]?.company_id || '',
+      entry_date: `${yr}-12-31`, description: 'Consolidation Eliminations — ' + yr,
+      reference_number: 'ELIM-'+yr, status:'posted', entry_type:'elimination', updated_at:new Date().toISOString() });
+    const lines = eliminations.map((e,i)=>({ journal_entry_id:jeId, account_id:e.account_id||'',
+      debit:parseFloat(e.credit||0), credit:parseFloat(e.debit||0), description:'IC Elimination', sort_order:i }));
+    await sb.from('journal_entry_lines').insert(lines);
+    hideLoading(); showToast('✓ Elimination JE posted');
+  } catch(e) { hideLoading(); showToast('Post failed: '+e.message, true); }
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  TRIAL BALANCE → FEDERAL RETURN MAPPING
+// ════════════════════════════════════════════════════════════════════
+const TB_TO_FEDERAL = {
+  // Maps account_subtype → { form: '1120S'|'1120'|'1065', line: string }
+  'Sales': {                '1120S':'Line 1a', '1120':'Line 1a', '1065':'Line 1a' },
+  'Service Revenue': {      '1120S':'Line 2',  '1120':'Line 2',  '1065':'Line 2' },
+  'Cost of Goods Sold': {   '1120S':'Line 2',  '1120':'Line 2',  '1065':'Line 3' },
+  'Salaries & Wages': {     '1120S':'Line 7',  '1120':'Line 13', '1065':'Line 9' },
+  'Officers Compensation': {'1120S':'Line 7',  '1120':'Line 12', '1065':'Line 10'},
+  'Rent': {                 '1120S':'Line 10', '1120':'Line 16', '1065':'Line 15'},
+  'Depreciation': {         '1120S':'Line 14', '1120':'Line 20', '1065':'Line 16'},
+  'Interest Expense': {     '1120S':'Line 13', '1120':'Line 18', '1065':'Line 15'},
+  'Advertising': {          '1120S':'Line 8',  '1120':'Line 22', '1065':'Line 20'},
+  'Professional Fees': {    '1120S':'Line 9',  '1120':'Line 14', '1065':'Line 21'},
+  'Utilities': {            '1120S':'Line 11', '1120':'Line 17', '1065':'Line 20'},
+  'Insurance': {            '1120S':'Line 12', '1120':'Line 19', '1065':'Line 18'},
+  'Repairs & Maintenance':  {'1120S':'Line 11','1120':'Line 14', '1065':'Line 14'},
+  'Travel & Entertainment': {'1120S':'Line 11','1120':'Line 22', '1065':'Line 20'},
+  'Bank Fees': {            '1120S':'Line 11', '1120':'Line 22', '1065':'Line 20'},
+  'Other Expense': {        '1120S':'Line 11', '1120':'Line 26', '1065':'Line 20'},
+  'Other Income': {         '1120S':'Line 5',  '1120':'Line 10', '1065':'Line 7' },
+  'Interest Income': {      '1120S':'Line 5b', '1120':'Line 5',  '1065':'Line 5' },
+  'Accounts Receivable': {  '1120S':'Sch L',   '1120':'Sch L',   '1065':'Sch L' },
+  'Cash': {                 '1120S':'Sch L',   '1120':'Sch L',   '1065':'Sch L' },
+  'Property': {             '1120S':'Sch L',   '1120':'Sch L',   '1065':'Sch L' },
+  'Loans Payable': {        '1120S':'Sch L',   '1120':'Sch L',   '1065':'Sch L' },
+};
+
+function getTBFederalMapping(accountSubtype, entityStructure) {
+  const mapping = TB_TO_FEDERAL[accountSubtype];
+  if (!mapping) return null;
+  if (entityStructure && entityStructure.includes('S Corp')) return { form:'1120S', line: mapping['1120S'] };
+  if (entityStructure && (entityStructure.includes('C Corp') || entityStructure === 'Corporation')) return { form:'1120', line: mapping['1120'] };
+  if (entityStructure && (entityStructure.includes('Partnership') || entityStructure.includes('LLC') || entityStructure.includes('LLP'))) return { form:'1065', line: mapping['1065'] };
+  return { form:'Various', line: mapping['1120S'] || mapping['1120'] || mapping['1065'] };
+}
+
+async function runTrialBalanceWithMapping() {
+  await runTrialBalance(); // existing function
+  // After TB runs, add federal mapping column
+  const tbBody = document.getElementById('tb-body');
+  if (!tbBody) return;
+  // Get entity structure
+  const companyId = acctCompanyId;
+  if (!companyId) return;
+  try {
+    const { data: co } = await sb.from('companies').select('structure').eq('id',companyId).single();
+    const structure = co?.structure || '';
+    // Add mapping column to each row
+    const rows = tbBody.querySelectorAll('tr[data-acct-subtype]');
+    rows.forEach(row => {
+      const subtype = row.dataset.acctSubtype;
+      const mapping = getTBFederalMapping(subtype, structure);
+      const mapCell = row.querySelector('.tb-map-cell');
+      if (mapCell && mapping) {
+        mapCell.textContent = mapping.form + ' ' + mapping.line;
+        mapCell.style.color = 'var(--teal)';
+        mapCell.style.fontSize = '11px';
+      }
+    });
+  } catch(e) { console.warn('TB mapping error:', e.message); }
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  INTERNAL AUDIT ENGINE
+// ════════════════════════════════════════════════════════════════════
+let auditCompanyId = null;
+function onAuditEntityChange() { auditCompanyId = document.getElementById('audit-entity-select')?.value || null; }
+
+async function loadAuditModule() {
+  showLoading('Loading audit module…');
+  try {
+    await b8InitCompanySelect('audit-entity-select','auditCompanyId', async (cid) => { auditCompanyId=cid; });
+  } catch(e){} finally { hideLoading(); }
+}
+
+async function runInternalAudit() {
+  if (!auditCompanyId) { showToast('⚠ Select an entity first', true); return; }
+  const days = parseInt(document.getElementById('audit-period')?.value||90);
+  const body = document.getElementById('audit-body');
+  body.innerHTML = '<div class="empty-state"><div class="empty-state-title">Running audit…</div></div>';
+  showLoading('Scanning for anomalies…');
+  try {
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-days);
+    const cutoffStr = cutoff.toISOString().slice(0,10);
+    const today = new Date().toISOString().slice(0,10);
+
+    const [
+      {data: jes},       // all recent JEs
+      {data: bills},     // all recent bills
+      {data: vendors},   // all vendors
+      {data: accounts},  // COA
+    ] = await Promise.all([
+      sb.from('journal_entries').select('*').eq('company_id',auditCompanyId).eq('status','posted').gte('entry_date',cutoffStr).order('entry_date',{ascending:false}),
+      sb.from('bills').select('*,vendors(created_at,name)').eq('company_id',auditCompanyId).gte('bill_date',cutoffStr),
+      sb.from('vendors').select('*').eq('company_id',auditCompanyId),
+      sb.from('accounts').select('id,account_name,account_type,account_subtype').eq('company_id',auditCompanyId),
+    ]);
+
+    const allJes = jes||[], allBills = bills||[], allVendors = vendors||[], allAccts = accounts||[];
+    const acctMap = {}; allAccts.forEach(a=>acctMap[a.id]=a);
+    const vendorMap = {}; allVendors.forEach(v=>vendorMap[v.id]=v);
+    const findings = [];
+
+    // ── TEST 1: Round-dollar JEs (fraud indicator) ──
+    const roundDollarJEs = allJes.filter(j => {
+      const amt = parseFloat(j.total_amount||j.amount||0);
+      return amt > 0 && amt % 1000 === 0 && amt >= 5000;
+    });
+    if (roundDollarJEs.length) findings.push({ severity:'medium', category:'Anomalous JE', count: roundDollarJEs.length,
+      title: `${roundDollarJEs.length} round-dollar journal entries ≥$5,000`,
+      detail: 'Round-dollar amounts in large JEs are a common fraud indicator. Verify documentation.',
+      items: roundDollarJEs.slice(0,5).map(j=>`JE ${j.reference_number||j.id} — ${j.entry_date} — $${parseFloat(j.total_amount||0).toLocaleString()}`)
+    });
+
+    // ── TEST 2: JEs posted outside business hours (weekends/late night) ──
+    const afterHoursJEs = allJes.filter(j => {
+      if (!j.created_at) return false;
+      const d = new Date(j.created_at);
+      const hr = d.getHours(), day = d.getDay();
+      return day===0 || day===6 || hr<6 || hr>=22;
+    });
+    if (afterHoursJEs.length) findings.push({ severity:'low', category:'Anomalous JE', count:afterHoursJEs.length,
+      title: `${afterHoursJEs.length} JEs created outside business hours`,
+      detail: 'Journal entries created on weekends or between 10pm–6am warrant review.',
+      items: afterHoursJEs.slice(0,5).map(j=>`JE ${j.reference_number||j.id} — ${j.entry_date} (created ${new Date(j.created_at).toLocaleString()})`)
+    });
+
+    // ── TEST 3: COGS payments without PO ──
+    // Bills coded to COGS/Cost accounts where vendor has no POs
+    const { data: pos } = await sb.from('purchase_orders').select('vendor_id').eq('company_id',auditCompanyId);
+    const vendorsWithPOs = new Set((pos||[]).map(p=>p.vendor_id));
+    const cogsAcctIds = new Set(allAccts.filter(a=>a.account_type==='Expense' && (a.account_name.toLowerCase().includes('cost of goods')||a.account_name.toLowerCase().includes('cost of service')||a.account_subtype==='Cost of Goods Sold')).map(a=>a.id));
+    if (cogsAcctIds.size) {
+      const { data: billLines } = await sb.from('bill_lines').select('*,bills(vendor_id,bill_date,total)').in('account_id',[...cogsAcctIds]).gte('created_at',cutoffStr);
+      const noPoCogsBills = (billLines||[]).filter(bl=>bl.bills?.vendor_id && !vendorsWithPOs.has(bl.bills.vendor_id));
+      if (noPoCogsBills.length) findings.push({ severity:'high', category:'COGS Without PO', count:noPoCogsBills.length,
+        title: `${noPoCogsBills.length} COGS-coded bills with no purchase order`,
+        detail: 'Bills coded to Cost of Goods Sold for vendors without any purchase orders may indicate unauthorized purchases.',
+        items: noPoCogsBills.slice(0,5).map(bl=>`Bill ${bl.bill_id||bl.id} — Vendor: ${vendorMap[bl.bills?.vendor_id]?.name||'Unknown'} — $${parseFloat(bl.amount||0).toLocaleString()}`)
+      });
+    }
+
+    // ── TEST 4: Rapid vendor creation + bill within 30 days ──
+    const rapidVendorBills = allBills.filter(b => {
+      const vend = allVendors.find(v=>v.id===b.vendor_id);
+      if (!vend?.created_at) return false;
+      const vendCreated = new Date(vend.created_at);
+      const billDate = new Date(b.bill_date);
+      const daysDiff = (billDate - vendCreated) / 86400000;
+      return daysDiff >= 0 && daysDiff <= 30;
+    });
+    if (rapidVendorBills.length) findings.push({ severity:'high', category:'Vendor Risk', count:rapidVendorBills.length,
+      title: `${rapidVendorBills.length} bills created within 30 days of vendor setup`,
+      detail: 'Rapid vendor creation followed by immediate billing is a common payment fraud pattern. Verify vendor legitimacy.',
+      items: rapidVendorBills.slice(0,5).map(b=>{
+        const v = allVendors.find(vv=>vv.id===b.vendor_id);
+        return `Vendor: ${v?.name||'Unknown'} (created ${v?.created_at?.slice(0,10)||'?'}) → Bill ${b.bill_number||b.id} on ${b.bill_date}`;
+      })
+    });
+
+    // ── TEST 5: Duplicate invoice amounts to same vendor ──
+    const billsByVendorAmt = {};
+    (allBills||[]).forEach(b=>{
+      const key = `${b.vendor_id}|${b.total}`;
+      if (!billsByVendorAmt[key]) billsByVendorAmt[key]=[];
+      billsByVendorAmt[key].push(b);
+    });
+    const dupBills = Object.values(billsByVendorAmt).filter(arr=>arr.length>1);
+    if (dupBills.length) findings.push({ severity:'medium', category:'Duplicate Payment Risk', count:dupBills.reduce((s,a)=>s+a.length,0),
+      title: `${dupBills.length} duplicate bill amount/vendor combinations`,
+      detail: 'Multiple bills with identical amounts to the same vendor may indicate duplicate payments.',
+      items: dupBills.slice(0,5).map(arr=>`Vendor: ${vendorMap[arr[0].vendor_id]?.name||arr[0].vendor_id} — $${arr[0].total} × ${arr.length} bills`)
+    });
+
+    // ── TEST 6: JEs with no description ──
+    const noDescJEs = allJes.filter(j=>!j.description||j.description.trim().length<3);
+    if (noDescJEs.length) findings.push({ severity:'low', category:'Documentation', count:noDescJEs.length,
+      title: `${noDescJEs.length} journal entries with no description`,
+      detail: 'All journal entries should have meaningful descriptions for audit trail purposes.',
+      items: noDescJEs.slice(0,5).map(j=>`JE ${j.reference_number||j.id} — ${j.entry_date}`)
+    });
+
+    // ── RENDER FINDINGS ──
+    const sevColor = {high:'var(--error)', medium:'var(--gold)', low:'var(--teal)'};
+    const sevBg    = {high:'#fef2f2', medium:'#fffbeb', low:'#f0fdfa'};
+    if (!findings.length) {
+      body.innerHTML = '<div class="empty-state" style="color:var(--success);"><div class="empty-state-title">&#10003; No significant anomalies detected</div><div>Audit period: last '+days+' days. '+allJes.length+' JEs and '+allBills.length+' bills reviewed.</div></div>';
+    } else {
+      const highCount = findings.filter(f=>f.severity==='high').length;
+      const medCount  = findings.filter(f=>f.severity==='medium').length;
+      const lowCount  = findings.filter(f=>f.severity==='low').length;
+      body.innerHTML = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">'
+        + `<div class="kpi-card" style="border-top-color:var(--error);"><div class="kpi-label">High Risk</div><div class="kpi-value" style="color:var(--error);">${highCount}</div></div>`
+        + `<div class="kpi-card" style="border-top-color:var(--gold);"><div class="kpi-label">Medium Risk</div><div class="kpi-value" style="color:var(--gold);">${medCount}</div></div>`
+        + `<div class="kpi-card" style="border-top-color:var(--teal);"><div class="kpi-label">Low Risk</div><div class="kpi-value" style="color:var(--teal);">${lowCount}</div></div>`
+        + '</div>'
+        + findings.map(f=>`
+          <div style="background:${sevBg[f.severity]};border:1px solid ${sevColor[f.severity]};border-left:4px solid ${sevColor[f.severity]};border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:12px;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;">
+              <div>
+                <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:${sevColor[f.severity]};">${f.severity.toUpperCase()} · ${f.category}</span>
+                <div style="font-size:14px;font-weight:600;color:var(--navy);margin-top:2px;">${f.title}</div>
+              </div>
+              <span style="background:${sevColor[f.severity]};color:#fff;border-radius:999px;padding:2px 10px;font-size:11px;font-weight:700;">${f.count}</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-mid);margin-bottom:8px;">${f.detail}</div>
+            <div style="font-size:11px;color:var(--text-light);">${f.items.map(i=>`<div style="padding:2px 0;">• ${i}</div>`).join('')}</div>
+          </div>`).join('');
+    }
+    hideLoading();
+  } catch(e) {
+    hideLoading();
+    body.innerHTML = `<div class="empty-state"><div class="empty-state-title">Audit error: ${e.message}</div></div>`;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  PERSONAL TAX / FORM 1040 MODULE
+// ════════════════════════════════════════════════════════════════════
+let ptOfficerId = null, ptOfficerData = {}, ptDocs = [], ptK1Data = [];
+const FORM_1040_LINES = {
+  wages:       { line:'1a', label:'Wages, Salaries, Tips (W-2)' },
+  interest:    { line:'2b', label:'Taxable Interest' },
+  dividends:   { line:'3b', label:'Ordinary Dividends' },
+  bizIncome:   { line:'3',  label:'Business Income/Loss (Sch C)' },
+  capGains:    { line:'7',  label:'Capital Gains/Losses' },
+  k1SCorpInc:  { line:'17', label:'S-Corp K-1 Income (pass-through)' },
+  k1PartInc:   { line:'17', label:'Partnership K-1 Income' },
+  rentalInc:   { line:'5',  label:'Rental Real Estate (Sch E)' },
+  otherInc:    { line:'8',  label:'Other Income' },
+  stdDeduction:{ line:'12', label:'Standard/Itemized Deduction' },
+  qbi:         { line:'13', label:'QBI Deduction (pass-through 20%)' },
+  selfEmpTax:  { line:'15', label:'Self-Employment Tax (Sch SE)' },
+};
+
+async function loadPersonalTaxModule() {
+  showLoading('Loading personal tax module…');
+  try {
+    // Load all officers/owners across entities
+    const { data: officers } = await sb.from('officers').select('id,name,title,entity_id,ownership_pct,companies(legal_name)').order('name');
+    const sel = document.getElementById('pt-officer-select');
+    if (sel && officers?.length) {
+      sel.innerHTML = '<option value="">— Select owner/officer —</option>' +
+        officers.map(o=>`<option value="${o.id}">${o.name} — ${o.companies?.legal_name||''}</option>`).join('');
+    }
+  } catch(e){ console.error('PT module error:', e); }
+  finally { hideLoading(); }
+}
+
+function onPTOfficerChange() {
+  ptOfficerId = document.getElementById('pt-officer-select')?.value || null;
+  if (ptOfficerId) { loadPT1040Data(); loadPTDocs(); }
+}
+
+function showPTPanel(p) {
+  document.querySelectorAll('#view-personal-tax .set-panel').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('#view-personal-tax .set-sidebar-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('pt-panel-'+p)?.classList.add('active');
+  document.getElementById('pt-nav-'+p)?.classList.add('active');
+  if (p==='k1s') loadPTK1Summary();
+  if (p==='docs') loadPTDocs();
+}
+
+async function syncPT1040fromK1s() {
+  if (!ptOfficerId) { showToast('⚠ Select an owner first', true); return; }
+  showLoading('Syncing K-1 data…');
+  try {
+    const { data: k1s } = await sb.from('k1_data').select('*,companies(legal_name,structure)').eq('officer_id', ptOfficerId);
+    ptK1Data = k1s || [];
+    await loadPT1040Data();
+    showToast('✓ K-1 data synced to 1040');
+  } catch(e) { showToast('Sync error: '+e.message, true); }
+  finally { hideLoading(); }
+}
+
+async function loadPT1040Data() {
+  if (!ptOfficerId) return;
+  const incBody = document.getElementById('pt-income-body');
+  const dedBody = document.getElementById('pt-deductions-body');
+  if (!incBody) return;
+  showLoading('Loading 1040 data…');
+  try {
+    const yr = document.getElementById('pt-year')?.value || 2025;
+    // Get K-1s for this officer
+    const { data: k1s } = await sb.from('k1_data').select('*,companies(legal_name,structure)').eq('officer_id',ptOfficerId).eq('tax_year',parseInt(yr));
+    ptK1Data = k1s||[];
+    const fmt = v=>'$'+Math.abs(parseFloat(v||0)).toLocaleString('en-US',{minimumFractionDigits:2});
+    const totalK1Income = ptK1Data.reduce((s,k)=>s+parseFloat(k.ordinary_income||k.business_income||0),0);
+    const totalK1Loss   = ptK1Data.reduce((s,k)=>s+parseFloat(k.ordinary_loss||0),0);
+    const totalSEWages  = ptK1Data.reduce((s,k)=>s+parseFloat(k.guaranteed_payments||k.officer_wages||0),0);
+    const qbi = Math.max(0, (totalK1Income - totalK1Loss) * 0.20); // 20% QBI deduction Sec 199A
+
+    incBody.innerHTML = `
+      <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--navy);margin-bottom:16px;">Form 1040 — Income (Tax Year ${yr})</div>
+      <table class="acct-table" style="margin-bottom:20px;">
+        <thead><tr><th>Line</th><th>Description</th><th style="text-align:right">Amount</th><th>Source</th></tr></thead>
+        <tbody>
+          ${ptK1Data.map(k=>`
+            <tr><td style="font-size:11px;color:var(--text-light);">Line 17</td>
+              <td>${k.companies?.structure?.includes('S Corp')?'S-Corp':'Partnership'} K-1 — ${k.companies?.legal_name}</td>
+              <td style="text-align:right;font-family:monospace;color:${parseFloat(k.ordinary_income||0)>=0?'var(--teal)':'var(--error)'};">${fmt(parseFloat(k.ordinary_income||0)-parseFloat(k.ordinary_loss||0))}</td>
+              <td style="font-size:11px;color:var(--text-light);">K-1 Box 1</td></tr>
+            ${parseFloat(k.guaranteed_payments||k.officer_wages||0)>0?`<tr><td style="font-size:11px;color:var(--text-light);">Line 1a</td><td>Officer Wages — ${k.companies?.legal_name}</td><td style="text-align:right;font-family:monospace;">${fmt(k.guaranteed_payments||k.officer_wages)}</td><td style="font-size:11px;color:var(--text-light);">W-2/K-1 Box 4</td></tr>`:''}
+          `).join('')}
+          ${!ptK1Data.length?'<tr><td colspan="4" style="text-align:center;color:var(--text-light);padding:20px;">No K-1 data. Click "Sync from K-1s" to import.</td></tr>':''}
+        </tbody>
+        <tfoot>
+          <tr style="font-weight:600;border-top:2px solid var(--border);"><td colspan="2">Total Ordinary Business Income</td><td style="text-align:right;font-family:monospace;">${fmt(totalK1Income-totalK1Loss)}</td><td></td></tr>
+          <tr style="color:var(--teal);"><td colspan="2">Estimated QBI Deduction (Sec 199A — 20%)</td><td style="text-align:right;font-family:monospace;">(${fmt(qbi)})</td><td style="font-size:11px;">Line 13</td></tr>
+        </tfoot>
+      </table>
+      <div style="background:var(--section-bg);border-radius:var(--radius);padding:10px 14px;font-size:12px;color:var(--text-mid);">
+        Wages from W-2, interest (1099-INT), dividends (1099-DIV), and capital gains (1099-B) are added from uploaded documents via OCR below.
+        <button onclick="showPTPanel('docs')" style="background:none;border:none;color:var(--teal);cursor:pointer;font-size:12px;text-decoration:underline;padding:0;margin-left:6px;">Upload Documents →</button>
+      </div>`;
+
+    if (dedBody) dedBody.innerHTML = `
+      <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--navy);margin-bottom:16px;">Form 1040 — Deductions &amp; Credits (Tax Year ${yr})</div>
+      <table class="acct-table">
+        <thead><tr><th>Line</th><th>Deduction</th><th style="text-align:right">Estimated</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>12</td><td>Standard Deduction (MFJ 2025)</td><td style="text-align:right;font-family:monospace;">$30,000</td><td style="font-size:11px;color:var(--text-light);">Or itemize if higher</td></tr>
+          <tr><td>13</td><td>QBI Deduction (20% of qualified income)</td><td style="text-align:right;font-family:monospace;color:var(--teal);">${fmt(qbi)}</td><td style="font-size:11px;color:var(--text-light);">IRC Sec 199A</td></tr>
+          <tr><td>15</td><td>SE Tax Deduction (half of SE tax)</td><td style="text-align:right;font-family:monospace;">${fmt(totalSEWages*0.0765)}</td><td style="font-size:11px;color:var(--text-light);">Sch SE</td></tr>
+        </tbody>
+      </table>`;
+  } catch(e) { if(incBody) incBody.innerHTML=`<div class="empty-state"><div class="empty-state-title">Error: ${e.message}</div></div>`; }
+  finally { hideLoading(); }
+}
+
+async function loadPTDocs() {
+  const body = document.getElementById('pt-docs-body');
+  if (!body || !ptOfficerId) return;
+  try {
+    const { data: docs } = await sb.from('owner_documents').select('*').eq('officer_id',ptOfficerId).order('created_at',{ascending:false});
+    ptDocs = docs||[];
+    if (!ptDocs.length) { body.innerHTML='<div class="empty-state"><div class="empty-state-title">No documents uploaded</div><div>Upload W-2s, 1099s, mortgage statements, and other personal tax documents</div></div>'; return; }
+    body.innerHTML = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">'
+      + ptDocs.map(d=>`<div class="return-card">
+          <div class="return-card-header"><div class="return-card-tit">${d.doc_type||'Document'}</div><div class="return-card-sub">${d.file_name||''}</div></div>
+          <div style="font-size:11px;color:var(--text-light);margin-top:8px;">Uploaded ${fmtDate(d.created_at)}</div>
+          <div style="margin-top:10px;display:flex;gap:8px;">
+            <button onclick="viewPTDoc('${d.id}')" style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:4px 10px;font-size:11px;cursor:pointer;color:var(--navy);">View</button>
+            <button onclick="runDocOCR('${d.id}','pt')" style="background:var(--teal);color:#fff;border:none;border-radius:var(--radius);padding:4px 10px;font-size:11px;cursor:pointer;">OCR</button>
+          </div>
+        </div>`).join('')
+      + '</div>';
+  } catch(e) { console.error('PT docs error:', e); }
+}
+
+async function loadPTK1Summary() {
+  const body = document.getElementById('pt-k1s-body');
+  if (!body || !ptOfficerId) return;
+  try {
+    const { data: k1s } = await sb.from('k1_data').select('*,companies(legal_name,structure)').eq('officer_id',ptOfficerId).order('tax_year',{ascending:false});
+    if (!k1s?.length) { body.innerHTML='<div class="empty-state"><div class="empty-state-title">No K-1 data found</div><div>K-1s are generated from the Tax module when returns are prepared</div></div>'; return; }
+    const fmt=v=>'$'+Math.abs(parseFloat(v||0)).toLocaleString('en-US',{minimumFractionDigits:0});
+    body.innerHTML='<table class="acct-table"><thead><tr><th>Year</th><th>Entity</th><th>Type</th><th style="text-align:right">Ordinary Income</th><th style="text-align:right">Ordinary Loss</th><th style="text-align:right">Dist.</th><th>1040 Line</th></tr></thead><tbody>'
+      +k1s.map(k=>`<tr><td>${k.tax_year||'—'}</td><td>${k.companies?.legal_name||'—'}</td><td style="font-size:11px;">${k.companies?.structure||'—'}</td><td style="text-align:right;color:var(--teal);font-family:monospace;">${parseFloat(k.ordinary_income||0)>0?fmt(k.ordinary_income):'—'}</td><td style="text-align:right;color:var(--error);font-family:monospace;">${parseFloat(k.ordinary_loss||0)>0?'('+fmt(k.ordinary_loss)+')':'—'}</td><td style="text-align:right;font-family:monospace;">${parseFloat(k.distributions||0)>0?fmt(k.distributions):'—'}</td><td style="font-size:11px;color:var(--teal);">Line 17</td></tr>`).join('')
+      +'</tbody></table>';
+  } catch(e) { console.error('K1 summary error:', e); }
+}
+
+async function handlePTDocUpload(event) {
+  const file = event.target.files?.[0];
+  if (!file || !ptOfficerId) { showToast('⚠ Select an owner first', true); return; }
+  showLoading('Uploading document…');
+  try {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64 = e.target.result.split(',')[1];
+      const docId = 'ptdoc-'+Date.now();
+      await sb.from('owner_documents').insert({
+        id: docId, officer_id: ptOfficerId,
+        file_name: file.name, doc_type: detectDocType(file.name),
+        file_data: base64, mime_type: file.type,
+        created_at: new Date().toISOString()
+      });
+      hideLoading(); showToast('✓ Document uploaded');
+      loadPTDocs();
+      // Offer OCR
+      if (confirm('Document uploaded! Run OCR to extract tax data?')) { runDocOCR(docId, 'pt'); }
+    };
+    reader.readAsDataURL(file);
+  } catch(e) { hideLoading(); showToast('Upload error: '+e.message, true); }
+}
+
+function detectDocType(fileName) {
+  const fn = (fileName||'').toLowerCase();
+  if (fn.includes('w2')||fn.includes('w-2')) return 'W-2';
+  if (fn.includes('1099')) return '1099';
+  if (fn.includes('1098')) return '1098-Mortgage';
+  if (fn.includes('k-1')||fn.includes('k1')) return 'K-1';
+  if (fn.includes('mortgage')) return '1098-Mortgage';
+  return 'Tax Document';
+}
+
+async function runPTDocOCR() {
+  const lastDoc = ptDocs[0];
+  if (!lastDoc) { showToast('⚠ Upload a document first', true); return; }
+  runDocOCR(lastDoc.id, 'pt');
+}
+
+async function runDocOCR(docId, context) {
+  showLoading('Running OCR scan…');
+  try {
+    const { data: doc } = await sb.from(context==='pt'?'owner_documents':'documents').select('file_data,mime_type,file_name').eq('id',docId).single();
+    if (!doc?.file_data) { hideLoading(); showToast('Document data not found', true); return; }
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:1000,
+        messages:[{role:'user',content:[
+          {type:'document',source:{type:'base64',media_type:doc.mime_type||'application/pdf',data:doc.file_data}},
+          {type:'text',text:`Extract all financial/tax data from this document. Return JSON ONLY (no markdown) with these fields if present: { "doc_type": "W-2|1099|1098|K-1|Bill|Receipt|Other", "payer_name": "", "recipient_name": "", "tax_year": 0, "wages": 0, "federal_withheld": 0, "state_withheld": 0, "total_amount": 0, "interest_paid": 0, "dividends": 0, "nonemployee_comp": 0, "ordinary_dividends": 0, "description": "", "line_items": [], "suggested_gl_account": "", "suggested_gl_type": "Expense|Income|Asset|Liability" }`}
+        ]}]}
+      )});
+    const data = await resp.json();
+    const text = (data.content||[]).map(c=>c.text||'').join('');
+    const clean = text.replace(/```json|```/g,'').trim();
+    let parsed = {};
+    try { parsed = JSON.parse(clean); } catch(e) { parsed = {description:text}; }
+    hideLoading();
+
+    if (context==='pt') {
+      // Show extracted data and offer to populate 1040
+      const msg = `OCR Results from ${doc.file_name}:\n\n`
+        + (parsed.doc_type?`Document Type: ${parsed.doc_type}\n`:'')
+        + (parsed.payer_name?`From: ${parsed.payer_name}\n`:'')
+        + (parsed.wages?`Wages: $${parseFloat(parsed.wages).toLocaleString()}\n`:'')
+        + (parsed.federal_withheld?`Federal Withheld: $${parseFloat(parsed.federal_withheld).toLocaleString()}\n`:'')
+        + (parsed.interest_paid?`Interest Paid: $${parseFloat(parsed.interest_paid).toLocaleString()}\n`:'')
+        + (parsed.nonemployee_comp?`Non-Employee Comp: $${parseFloat(parsed.nonemployee_comp).toLocaleString()}\n`:'')
+        + (parsed.total_amount?`Total: $${parseFloat(parsed.total_amount).toLocaleString()}\n`:'');
+      alert(msg + '\nData has been extracted. The 1040 income section will be updated.');
+      await sb.from('owner_documents').update({ocr_data:JSON.stringify(parsed),updated_at:new Date().toISOString()}).eq('id',docId);
+      showToast('✓ OCR complete — 1040 updated');
+      loadPT1040Data();
+    } else {
+      // Vendor bill OCR — suggest GL coding
+      showVendorOCRResult(parsed, docId);
+    }
+  } catch(e) { hideLoading(); showToast('OCR error: '+e.message, true); }
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  VENDOR BILL OCR
+// ════════════════════════════════════════════════════════════════════
+function showVendorOCRResult(parsed, docId) {
+  const modal = document.getElementById('vendorOCRModal');
+  if (!modal) { showToast('OCR: '+JSON.stringify(parsed).slice(0,200)); return; }
+  document.getElementById('ocr-vendor-name').textContent = parsed.payer_name || '—';
+  document.getElementById('ocr-total').textContent = parsed.total_amount ? '$'+parseFloat(parsed.total_amount).toLocaleString('en-US',{minimumFractionDigits:2}) : '—';
+  document.getElementById('ocr-desc').textContent = parsed.description || '—';
+  document.getElementById('ocr-gl-suggestion').textContent = (parsed.suggested_gl_account||'—') + (parsed.suggested_gl_type?' ('+parsed.suggested_gl_type+')':'');
+  document.getElementById('ocr-date').value = parsed.date || new Date().toISOString().slice(0,10);
+  document.getElementById('ocr-doc-id').value = docId;
+  // Store parsed for use in apply
+  window._ocrParsed = parsed;
+  modal.classList.add('show');
+}
+
+async function applyVendorOCR() {
+  const parsed = window._ocrParsed || {};
+  closeModal('vendorOCRModal');
+  // Pre-fill the bill modal with OCR data
+  const vName = document.getElementById('bill-vendor');
+  const bDate = document.getElementById('bill-date');
+  const bNum  = document.getElementById('bill-number');
+  if (vName && parsed.payer_name) {
+    // Try to find/match vendor
+    const v = (allVendors||[]).find(v=>v.name?.toLowerCase().includes(parsed.payer_name.toLowerCase()));
+    if (v) vName.value = v.id;
+  }
+  if (bDate && parsed.date) bDate.value = parsed.date;
+  if (bNum && parsed.invoice_number) bNum.value = parsed.invoice_number;
+  // Open bill modal
+  openBillModal();
+  showToast('✓ Bill pre-filled from OCR scan');
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  CHECK PRINTING LAYOUT
+// ════════════════════════════════════════════════════════════════════
+function printCheck(paymentId) {
+  // Print format: top 3.5" = check, bottom 2/3 = remittance detail
+  const pay = (allPayments||[]).find(p=>p.id===paymentId) || {};
+  const checkHtml = `<!DOCTYPE html><html><head><style>
+    @page { size: 8.5in 11in; margin: 0; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: Arial, sans-serif; font-size: 11px; }
+    
+    /* CHECK SECTION — top 3.5" × 8.5" */
+    .check-top {
+      width: 8.5in; height: 3.5in;
+      padding: 0.25in 0.4in;
+      border-bottom: 2px dashed #999;
+      position: relative;
+    }
+    .check-company { font-size:14px; font-weight:700; margin-bottom:4px; }
+    .check-address { font-size:10px; color:#555; margin-bottom:16px; }
+    .check-date-line { position:absolute; top:0.25in; right:0.4in; font-size:11px; }
+    .check-pay-to { margin-top:24px; }
+    .check-pay-label { font-size:10px; color:#666; text-transform:uppercase; letter-spacing:.05em; }
+    .check-payee { font-size:14px; font-weight:600; border-bottom:1px solid #333; padding-bottom:2px; margin-top:2px; }
+    .check-amount-box { position:absolute; right:0.4in; top:1.1in; border:2px solid #333; padding:6px 14px; font-size:18px; font-weight:700; font-family:'Courier New',monospace; min-width:1.5in; text-align:right; }
+    .check-amount-words { margin-top:12px; font-size:11px; border-bottom:1px solid #333; padding-bottom:2px; }
+    .check-memo { margin-top:20px; font-size:10px; }
+    .check-memo span { display:inline-block; border-bottom:1px solid #333; min-width:2in; margin-left:4px; }
+    .check-sig { position:absolute; bottom:0.3in; right:0.4in; border-top:1px solid #333; padding-top:4px; font-size:10px; text-align:center; min-width:2in; }
+    .check-routing { position:absolute; bottom:0.3in; left:0.4in; font-family:'Courier New',monospace; font-size:12px; color:#333; letter-spacing:.1em; }
+    
+    /* REMITTANCE SECTION — bottom ~7.5" */
+    .check-bottom { width:8.5in; padding:0.3in 0.4in; }
+    .remit-title { font-size:13px; font-weight:700; margin-bottom:12px; border-bottom:1px solid #ddd; padding-bottom:6px; color:#1E2A38; }
+    .remit-table { width:100%; border-collapse:collapse; margin-bottom:16px; }
+    .remit-table th { background:#1E2A38; color:#C2A46D; font-size:10px; text-transform:uppercase; letter-spacing:.05em; padding:5px 8px; text-align:left; }
+    .remit-table td { padding:5px 8px; border-bottom:1px solid #eee; font-size:11px; }
+    .remit-total { font-weight:700; font-size:12px; text-align:right; border-top:2px solid #1E2A38; padding-top:8px; }
+    .remit-footer { margin-top:24px; font-size:10px; color:#888; }
+  </style></head><body>
+    <div class="check-top">
+      <div class="check-company">${pay.company_name || 'Company Name'}</div>
+      <div class="check-address">${pay.company_address || '123 Business Ave, Jacksonville, FL 32256'}</div>
+      <div class="check-date-line">Date: <strong>${fmtDate(pay.payment_date||new Date())}</strong></div>
+      <div class="check-pay-to">
+        <div class="check-pay-label">Pay to the Order of</div>
+        <div class="check-payee">${pay.payee_name || pay.vendor_name || '—'}</div>
+      </div>
+      <div class="check-amount-box">$${parseFloat(pay.amount||0).toLocaleString('en-US',{minimumFractionDigits:2})}</div>
+      <div class="check-amount-words">${numberToWords(pay.amount||0)} and ${Math.round((parseFloat(pay.amount||0)%1)*100)}/100 Dollars</div>
+      <div class="check-memo">Memo: <span>${pay.memo||pay.description||''}</span></div>
+      <div class="check-routing">⑆ ${pay.routing_number||'000000000'} ⑆ ${pay.account_number||'0000000000'} ⑆ ${String(pay.check_number||'0000').padStart(4,'0')}</div>
+      <div class="check-sig">Authorized Signature</div>
+    </div>
+    <div class="check-bottom">
+      <div class="remit-title">Remittance Detail — Check #${pay.check_number||'—'}</div>
+      <table class="remit-table">
+        <thead><tr><th>Invoice #</th><th>Invoice Date</th><th>Description</th><th>Original Amount</th><th style="text-align:right">Payment</th></tr></thead>
+        <tbody>
+          ${(pay.invoices||[{invoice_number:pay.reference_number||'—',invoice_date:pay.payment_date,description:pay.description||'',original_amount:pay.amount,payment:pay.amount}]).map(inv=>`<tr>
+            <td>${inv.invoice_number||'—'}</td><td>${fmtDate(inv.invoice_date)}</td>
+            <td>${inv.description||''}</td>
+            <td style="text-align:right;font-family:monospace;">$${parseFloat(inv.original_amount||0).toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+            <td style="text-align:right;font-family:monospace;">$${parseFloat(inv.payment||0).toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      <div class="remit-total">Total Paid: $${parseFloat(pay.amount||0).toLocaleString('en-US',{minimumFractionDigits:2})}</div>
+      <div class="remit-footer">Please detach and retain remittance detail for your records. Contact ${pay.company_name||'us'} with any questions.</div>
+    </div>
+  </body></html>`;
+  const w = window.open('','_blank','width=850,height=1100');
+  w.document.write(checkHtml);
+  w.document.close();
+  w.onload = ()=>w.print();
+}
+
+function numberToWords(amount) {
+  const n = Math.floor(parseFloat(amount||0));
+  if (n===0) return 'Zero';
+  const ones=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const tens=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  function h(n){if(n<20)return ones[n];if(n<100)return tens[Math.floor(n/10)]+(n%10?' '+ones[n%10]:'');return ones[Math.floor(n/100)]+' Hundred'+(n%100?' '+h(n%100):'');}
+  if(n<1000)return h(n);
+  if(n<1000000)return h(Math.floor(n/1000))+' Thousand'+(n%1000?' '+h(n%1000):'');
+  return h(Math.floor(n/1000000))+' Million'+(n%1000000?' '+h(n%1000000):'');
+}
+
+
+
+async function handleBillOCRUpload(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  showLoading('Scanning bill…');
+  try {
+    const base64 = await new Promise((res,rej)=>{
+      const r=new FileReader();
+      r.onload=()=>res(r.result.split(',')[1]);
+      r.onerror=()=>rej(new Error('Read failed'));
+      r.readAsDataURL(file);
+    });
+    const docId = 'billocr-'+Date.now();
+    await sb.from('documents').insert({id:docId,company_id:acctCompanyId,file_name:file.name,mime_type:file.type,file_data:base64,doc_type:'Bill',created_at:new Date().toISOString()});
+    hideLoading();
+    runDocOCR(docId, 'bill');
+  } catch(e) { hideLoading(); showToast('Scan error: '+e.message, true); }
+}
+
+
+async function viewPTDoc(docId) {
+  showLoading('Loading document…');
+  try {
+    const { data: doc } = await sb.from('owner_documents')
+      .select('file_name,file_data,mime_type,doc_type,ocr_data').eq('id',docId).single();
+    hideLoading();
+    if (!doc) { showToast('Document not found', true); return; }
+    // Show in lightbox
+    const w = window.open('','_blank','width=800,height=900');
+    if (doc.mime_type?.startsWith('image/')) {
+      w.document.write(`<html><body style="margin:0;background:#111;display:flex;justify-content:center;">
+        <img src="data:${doc.mime_type};base64,${doc.file_data}" style="max-width:100%;height:auto;">
+        </body></html>`);
+    } else if (doc.mime_type === 'application/pdf') {
+      w.document.write(`<html><body style="margin:0;">
+        <embed src="data:application/pdf;base64,${doc.file_data}" type="application/pdf" width="100%" height="100%">
+        </body></html>`);
+    } else {
+      // Show OCR data if no preview
+      const ocrData = doc.ocr_data ? JSON.parse(doc.ocr_data) : null;
+      w.document.write(`<html><body style="font-family:sans-serif;padding:20px;">
+        <h2>${doc.doc_type||'Document'}: ${doc.file_name||''}</h2>
+        ${ocrData ? '<h3>Extracted Data:</h3><pre>'+JSON.stringify(ocrData,null,2)+'</pre>' : '<p>No preview available</p>'}
+        </body></html>`);
+    }
+  } catch(e) { hideLoading(); showToast('View error: '+e.message, true); }
+}
+
 // ── INIT ──
 async function initApp() {
   await initAuth();
@@ -24893,5 +25754,3 @@ initApp();
 </script>
 </body>
 </html>
-
-          
