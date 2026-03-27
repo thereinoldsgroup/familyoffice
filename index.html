@@ -242,8 +242,12 @@
     top: 0;
     background: var(--cream);
     z-index: 20;
-    padding-top: 8px;
-    margin-top: -8px;
+    padding-top: 12px;
+    margin-top: -12px;
+    margin-left: -40px;
+    margin-right: -40px;
+    padding-left: 40px;
+    padding-right: 40px;
   }
   .page-title { font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 600; color: var(--navy); line-height: 1.2; }
   .page-subtitle { font-size: 13px; color: var(--text-light); margin-top: 4px; }
@@ -6879,6 +6883,7 @@ function clearForm() {
 // ═══════════════════════════════════════════════════
 async function editCompany(id) {
   showLoading('Loading record…');
+  try {
   currentCompanyId = id;
   isNewRecord = false;
 
@@ -6886,14 +6891,8 @@ async function editCompany(id) {
   const { data: officers, error: oe } = await sb.from('officers').select('*').eq('company_id', id).order('created_at');
 
   hideLoading();
-  if (ce) { showToast('Failed to load company', true); return; }
+  } catch(e) { hideLoading(); showToast('editCompany failed: ' + (e.message||e), true); }
 
-  populateForm(c, officers || []);
-  document.getElementById('deleteBtn').style.display = '';
-  showDetail();
-
-  // Highlight in sidebar
-  document.querySelectorAll('.company-list-item').forEach(el => el.classList.remove('active'));
 }
 
 function populateForm(c, officers) {
@@ -6952,6 +6951,7 @@ async function saveRecord() {
   const btn = document.getElementById('saveBtn');
   btn.disabled = true;
   showLoading('Saving record…');
+  try {
 
   const statesEl = document.getElementById('f-statesOfBusiness');
   const states = Array.from(statesEl.selectedOptions).map(o => o.value);
@@ -7037,11 +7037,8 @@ async function saveRecord() {
   }
 
   hideLoading();
-  btn.disabled = false;
-  isNewRecord = false;
-  document.getElementById('deleteBtn').style.display = '';
-  showToast('✓ ' + legalName + ' saved successfully');
-  loadDashboard();
+  } catch(e) { hideLoading(); showToast('saveRecord failed: ' + (e.message||e), true); }
+
 }
 
 // ═══════════════════════════════════════════════════
@@ -7537,6 +7534,7 @@ async function saveOwnership() {
   const pct       = document.getElementById('own-pct').value;
   if (!ownedCo || !(ownerInd || ownerEnt) || !pct) { showToast('⚠ Please fill in all required fields', true); return; }
   showLoading('Saving…');
+  try {
   const { error } = await sb.from('ownership').insert({
     id: 'own-' + Date.now(),
     owner_type: ownerType,
@@ -7548,11 +7546,8 @@ async function saveOwnership() {
     notes: document.getElementById('own-notes').value,
   });
   hideLoading();
-  if (error) { showToast('Save failed: ' + error.message, true); return; }
-  closeModal('ownershipModal');
-  showToast('✓ Ownership record saved');
-  await renderOwnershipList();
-  renderOwnershipTree();
+  } catch(e) { hideLoading(); showToast('saveOwnership failed: ' + (e.message||e), true); }
+
 }
 
 async function saveRelationship() {
@@ -7887,6 +7882,7 @@ async function saveAccount() {
   if (!name || !type) { showToast('⚠ Account name and type are required', true); return; }
   if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
   showLoading('Saving…');
+  try {
   const record = {
     id:              editingAccountId || ('acct-' + Date.now()),
     company_id:      acctCompanyId,
@@ -7901,10 +7897,8 @@ async function saveAccount() {
   };
   const { error } = await sb.from('accounts').upsert(record);
   hideLoading();
-  if (error) { showToast('Error: ' + error.message, true); return; }
-  closeModal('accountModal');
-  showToast('✓ Account saved');
-  loadCOA();
+  } catch(e) { hideLoading(); showToast('saveAccount failed: ' + (e.message||e), true); }
+
 }
 
 async function deleteAccount(id) {
@@ -7968,19 +7962,12 @@ function openJEModal() {
 async function editJE(id) {
   if (!acctCompanyId) return;
   showLoading('Loading entry…');
+  try {
   const { data: entry } = await sb.from('journal_entries').select('*').eq('id', id).single();
   const { data: lines  } = await sb.from('journal_entry_lines').select('*').eq('journal_entry_id', id).order('sort_order');
   hideLoading();
-  editingJEId = id;
-  document.getElementById('jeModalTitle').textContent = 'Edit Journal Entry';
-  document.getElementById('je-date').value = entry.entry_date;
-  document.getElementById('je-ref').value  = entry.reference_number || '';
-  document.getElementById('je-desc').value = entry.description || '';
-  const tbody = document.getElementById('jeLinesTbody');
-  tbody.innerHTML = '';
-  (lines||[]).forEach(l => addJELine(l));
-  updateJETotals();
-  document.getElementById('jeModal').classList.add('show');
+  } catch(e) { hideLoading(); showToast('editJE failed: ' + (e.message||e), true); }
+
 }
 
 function addJELine(data=null) {
@@ -8061,6 +8048,7 @@ async function saveJE(status) {
   }
 
   showLoading('Saving journal entry…');
+  try {
   const jeId = editingJEId || ('je-' + Date.now());
   const { error: jeErr } = await sb.from('journal_entries').upsert({
     id: jeId, company_id: acctCompanyId,
@@ -8074,10 +8062,8 @@ async function saveJE(status) {
   const lineRows = lines.map((l,i) => ({ id:'jel-'+jeId+'-'+i, journal_entry_id: jeId, ...l }));
   const { error: lErr } = await sb.from('journal_entry_lines').insert(lineRows);
   hideLoading();
-  if (lErr) { showToast('Lines error: ' + lErr.message, true); return; }
-  closeModal('jeModal');
-  showToast('✓ Journal entry ' + (status==='posted'?'posted':'saved as draft'));
-  loadJEList();
+  } catch(e) { hideLoading(); showToast('saveJE failed: ' + (e.message||e), true); }
+
 }
 
 async function voidJE(id) {
@@ -8100,6 +8086,7 @@ async function runGeneralLedger() {
   const acctId  = document.getElementById('gl-account').value;
   if (!from||!to) { showToast('⚠ Please select a date range', true); return; }
   showLoading('Running General Ledger…');
+  try {
 
   let jeQuery = sb.from('journal_entries').select('id,entry_date,reference_number,description,status')
     .gte('entry_date', from).lte('entry_date', to).eq('status','posted');
@@ -8147,7 +8134,8 @@ async function runGeneralLedger() {
       </div></div>`;
   });
   hideLoading();
-  document.getElementById('glContent').innerHTML = html || `<div class="empty-state"><div class="empty-state-title">No activity found</div></div>`;
+  } catch(e) { hideLoading(); showToast('runGeneralLedger failed: ' + (e.message||e), true); }
+
 }
 
 // ── TRIAL BALANCE ──
@@ -8155,6 +8143,7 @@ async function runTrialBalance() {
   const asof = document.getElementById('tb-asof').value;
   if (!asof) { showToast('⚠ Please select a date', true); return; }
   showLoading('Running Trial Balance…');
+  try {
 
   let jeQuery = sb.from('journal_entries').select('id').lte('entry_date', asof).eq('status','posted');
   if (!acctConsolidated && acctCompanyId) jeQuery = jeQuery.eq('company_id', acctCompanyId);
@@ -8184,19 +8173,8 @@ async function runTrialBalance() {
     });
   });
   hideLoading();
-  const balanced = Math.abs(totalDr-totalCr) < 0.01;
-  document.getElementById('tbContent').innerHTML = `
-    <div class="report-header"><div class="report-title">Trial Balance</div><div class="report-subtitle">As of ${asof} · ${balanced?'✓ Balanced':'⚠ Out of Balance'}</div></div>
-    <div class="report-body">
-      <table class="acct-table"><thead><tr><th>Number</th><th>Account Name</th><th>Type</th><th style="text-align:right;">Debit</th><th style="text-align:right;">Credit</th></tr></thead>
-      <tbody>${rows}
-        <tr style="background:var(--gold-pale);font-weight:600;">
-          <td colspan="3" style="text-align:right;font-size:13px;color:var(--navy);">TOTALS</td>
-          <td class="amount" style="font-weight:600;color:${balanced?'var(--navy)':'var(--error)'};">$${totalDr.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
-          <td class="amount" style="font-weight:600;color:${balanced?'var(--navy)':'var(--error)'};">$${totalCr.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
-        </tr>
-      </tbody></table>
-    </div>`;
+  } catch(e) { hideLoading(); showToast('runTrialBalance failed: ' + (e.message||e), true); }
+
 }
 
 // ── PROFIT & LOSS ──
@@ -8205,6 +8183,7 @@ async function runPL() {
   const to   = document.getElementById('pl-dateTo').value;
   if (!from||!to) { showToast('⚠ Select a date range', true); return; }
   showLoading('Running Profit & Loss…');
+  try {
 
   let jeQuery = sb.from('journal_entries').select('id').gte('entry_date',from).lte('entry_date',to).eq('status','posted');
   if (!acctConsolidated && acctCompanyId) jeQuery = jeQuery.eq('company_id', acctCompanyId);
@@ -8247,7 +8226,8 @@ async function runPL() {
   html += `<div class="report-subtotal-row"><span>Total Expenses</span>${fmt(totalOpx)}</div>`;
   html += `<div class="report-total-row"><span>Net Income</span>${fmt(netIncome)}</div></div>`;
   hideLoading();
-  document.getElementById('plContent').innerHTML = html;
+  } catch(e) { hideLoading(); showToast('runPL failed: ' + (e.message||e), true); }
+
 }
 
 // ── BALANCE SHEET ──
@@ -8255,6 +8235,7 @@ async function runBalanceSheet() {
   const asof = document.getElementById('bs-asof').value;
   if (!asof) { showToast('⚠ Select a date', true); return; }
   showLoading('Running Balance Sheet…');
+  try {
 
   let jeQuery = sb.from('journal_entries').select('id').lte('entry_date',asof).eq('status','posted');
   if (!acctConsolidated && acctCompanyId) jeQuery = jeQuery.eq('company_id', acctCompanyId);
@@ -8334,7 +8315,8 @@ async function runBalanceSheet() {
   html += `<div class="report-total-row" style="border-top:3px solid var(--navy);"><span>Total Liabilities + Equity</span>${fmt(totalL+totalEqWithNI)}</div>`;
   html += '</div>';
   hideLoading();
-  document.getElementById('bsContent').innerHTML = html;
+  } catch(e) { hideLoading(); showToast('runBalanceSheet failed: ' + (e.message||e), true); }
+
 }
 
 // ═══════════════════════════════════════════════════
@@ -8453,6 +8435,7 @@ async function saveCustomer() {
   const name=document.getElementById('cust-name').value.trim();
   if (!name) { showToast('⚠ Name required',true); return; }
   showLoading('Saving…');
+  try {
   const isTaxExempt=document.getElementById('cust-tax-exempt').checked;
   const {error}=await sb.from('customers').upsert({
     id:editingCustomerId||('cust-'+Date.now()),
@@ -8472,8 +8455,9 @@ async function saveCustomer() {
     w9_file_name:custW9FileName||null,
     w9_file_url:custW9FileUrl||null,
   });
-  hideLoading(); if(error){showToast('Error: '+error.message,true);return;}
-  closeModal('customerModal'); showToast('✓ Customer saved'); loadCustomers();
+  hideLoading();
+  } catch(e) { hideLoading(); showToast('saveCustomer failed: ' + (e.message||e), true); }
+
 }
 
 // VENDORS
@@ -8499,8 +8483,11 @@ async function saveVendor() {
   const name=document.getElementById('vend-name').value.trim();
   if(!name){showToast('⚠ Name required',true);return;}
   showLoading('Saving…');
+  try {
   const{error}=await sb.from('vendors').upsert({id:editingVendorId||('vend-'+Date.now()),company_id:acctCompanyId,name,email:document.getElementById('vend-email').value,phone:document.getElementById('vend-phone').value,payment_terms:document.getElementById('vend-terms').value,addr1:document.getElementById('vend-addr1').value,city:document.getElementById('vend-city').value,state:document.getElementById('vend-state').value,zip:document.getElementById('vend-zip').value,country:document.getElementById('vend-country').value,is_active:true});
-  hideLoading();if(error){showToast('Error: '+error.message,true);return;}closeModal('vendorModal');showToast('✓ Vendor saved');loadVendors();
+  hideLoading();
+  } catch(e) { hideLoading(); showToast('saveVendor failed: ' + (e.message||e), true); }
+
 }
 
 // INVOICES
@@ -8589,6 +8576,7 @@ async function saveInvoice(status) {
   document.querySelectorAll('#invLinesTbody tr').forEach((tr,i)=>{const inp=tr.querySelectorAll('input');const desc=inp[0]?.value||'';const qty=parseFloat(inp[1]?.value||1)||1;const price=parseFloat(inp[2]?.value||0)||0;const taxR=parseFloat(inp[3]?.value||0)||0;const amt=qty*price;if(desc||amt)lines.push({description:desc,quantity:qty,unit_price:price,tax_rate:taxR,amount:amt,sort_order:i});});
   const sub=lines.reduce((s,l)=>s+l.amount,0),tax=lines.reduce((s,l)=>s+(l.amount*(l.tax_rate/100)),0),total=sub+tax;
   showLoading('Saving invoice…');
+  try {
   const invId=editingInvoiceId||('inv-'+Date.now());
   const arId=document.getElementById('inv-ar-account').value||null,incId=document.getElementById('inv-income-account').value||null;
   const{error:ie}=await sb.from('invoices').upsert({id:invId,company_id:acctCompanyId,customer_id:custId,invoice_number:document.getElementById('inv-number').value,invoice_date:date,due_date:document.getElementById('inv-due').value||null,status,subtotal:sub,tax_amount:tax,total,balance_due:total,amount_paid:0,memo:document.getElementById('inv-memo').value,ar_account_id:arId,income_account_id:incId,updated_at:new Date().toISOString()});
@@ -8618,7 +8606,9 @@ async function saveInvoice(status) {
     await sb.from('journal_entry_lines').insert(invJlLines);
     await sb.from('invoices').update({journal_entry_id:jeId}).eq('id',invId);
   }
-  hideLoading();closeModal('invoiceModal');showToast('✓ Invoice saved');loadInvoices();
+  hideLoading();
+  } catch(e) { hideLoading(); showToast('saveInvoice failed: ' + (e.message||e), true); }
+
 }
 async function voidInvoice(id){if(!confirm('Void this invoice?'))return;await sb.from('invoices').update({status:'void'}).eq('id',id);showToast('Invoice voided');loadInvoices();}
 
@@ -8758,6 +8748,7 @@ async function saveBill(status) {
   });
   const sub=lines.reduce((s,l)=>s+l.amount,0),tax=lines.reduce((s,l)=>s+(l.amount*(l.tax_rate/100)),0),total=sub+tax;
   showLoading('Saving bill…');
+  try {
   const billId=editingBillId||('bill-'+Date.now());
   const apId=document.getElementById('bill-ap-account').value||null;
   await sb.from('bills').upsert({id:billId,company_id:acctCompanyId,vendor_id:vendId,bill_number:document.getElementById('bill-number').value,bill_date:date,due_date:document.getElementById('bill-due').value||null,status,subtotal:sub,tax_amount:tax,total,balance_due:total,amount_paid:0,memo:document.getElementById('bill-memo').value,ap_account_id:apId,updated_at:new Date().toISOString()});
@@ -8782,48 +8773,9 @@ async function saveBill(status) {
     if(apId) jls.push({id:'jel-'+jeId+'-ap',journal_entry_id:jeId,account_id:apId,description:'Accounts Payable',debit:0,credit:Math.round(total*100)/100,sort_order:99});
     await sb.from('journal_entry_lines').insert(jls);
   }
-  hideLoading();closeModal('billModal');showToast('✓ Bill saved');loadBills();
-  // ── Create/update items marked as rental equipment ──
-  if (rentalLineDescs.length && acctCompanyId && acctIsRentalCompany) {
-    for (const { desc, price } of rentalLineDescs) {
-      // Check if an item with this name already exists for this company
-      const { data: existing } = await sb.from('items')
-        .select('id, item_name, is_rental_item')
-        .eq('company_id', acctCompanyId)
-        .ilike('item_name', desc)
-        .limit(1);
-      if (existing && existing.length > 0) {
-        // Update existing item to be a rental item
-        await sb.from('items').update({
-          is_rental_item: true,
-          updated_at: new Date().toISOString(),
-        }).eq('id', existing[0].id);
-        showToast('✓ "' + desc + '" marked as rental equipment');
-      } else {
-        // Create a new item record for this rental equipment
-        const newItemId = 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2,6);
-        await sb.from('items').insert({
-          id: newItemId,
-          company_id: acctCompanyId,
-          sku: 'RNT-' + Date.now().toString().slice(-5),
-          item_name: desc,
-          item_type: 'rental',
-          is_rental_item: true,
-          purchase_cost: price || 0,
-          sales_price: 0,
-          is_active: true,
-          is_taxable: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        });
-        showToast('✓ Rental equipment added: "' + desc + '"');
-      }
-    }
-  }
-  // ── BATCH 9 AUTOMATION: Trigger PO match + inventory prompts ──
-  if (status === 'received') {
-    setTimeout(() => triggerBillAutomation(billId, vendId, lines), 400);
-  }
+  hideLoading();
+  } catch(e) { hideLoading(); showToast('saveBill failed: ' + (e.message||e), true); }
+
 }
 async function voidBill(id){if(!confirm('Void this bill?'))return;await sb.from('bills').update({status:'void'}).eq('id',id);showToast('Bill voided');loadBills();}
 
@@ -14571,6 +14523,21 @@ async function loadBudgetBuilder() {
   showLoading('Loading budget…');
   const { data: lines } = await sb.from('budget_lines').select('*').eq('budget_id',budgetId).order('sort_order');
   const { data: accts } = await sb.from('accounts').select('id,account_number,account_name,account_type,account_subtype').eq('company_id',budCompanyId).eq('is_active',true).order('account_number');
+
+  // Pull YTD actuals from posted JEs
+  const { data: jes } = await sb.from('journal_entries').select('id').eq('company_id',budCompanyId).eq('status','posted').gte('entry_date',`${budFiscalYear}-01-01`).lte('entry_date',`${budFiscalYear}-12-31`);
+  const jeIds = (jes||[]).map(j=>j.id);
+  const actualsByAcct = {};
+  if (jeIds.length) {
+    const { data: jel } = await sb.from('journal_entry_lines').select('account_id,debit,credit,journal_entries(entry_date)').in('journal_entry_id',jeIds);
+    (jel||[]).forEach(l => {
+      if (!actualsByAcct[l.account_id]) actualsByAcct[l.account_id] = {ytd:0, byMonth:{}};
+      const net = parseFloat(l.credit||0) - parseFloat(l.debit||0);
+      actualsByAcct[l.account_id].ytd += net;
+      const mo = l.journal_entries?.entry_date?.slice(5,7);
+      if (mo) actualsByAcct[l.account_id].byMonth[mo] = (actualsByAcct[l.account_id].byMonth[mo]||0) + net;
+    });
+  }
   hideLoading();
 
   const acctMap = {}; (accts||[]).forEach(a=>acctMap[a.id]=a);
@@ -14583,20 +14550,34 @@ async function loadBudgetBuilder() {
     <div style="background:var(--gold-pale);padding:10px 16px;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:16px;font-size:13px;color:var(--text-mid);">
       <strong style="color:var(--navy);">${budget?.budget_name||'Budget'}</strong> · ${budget?.fiscal_year} · ${budget?.budget_type} · Scenario: ${budget?.scenario?.replace(/_/g,' ')||'base'}
     </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+      ${(()=>{
+        const totalBudget = (lines||[]).reduce((s,l)=>s+MONTH_KEYS.reduce((ms,m)=>ms+parseFloat(l[m]||0),0),0);
+        const totalActual = Object.values(actualsByAcct).reduce((s,a)=>s+a.ytd,0);
+        const variance = totalActual - totalBudget;
+        const fmt = v=>'$'+Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:0});
+        return `<div class="kpi-card"><div class="kpi-label">Annual Budget</div><div class="kpi-value" style="font-size:20px;">${fmt(totalBudget)}</div></div>
+          <div class="kpi-card"><div class="kpi-label">YTD Actuals</div><div class="kpi-value" style="font-size:20px;color:var(--teal);">${fmt(totalActual)}</div></div>
+          <div class="kpi-card" style="border-top-color:${variance>=0?'var(--success)':'var(--error)'}"><div class="kpi-label">Variance (Actual - Budget)</div><div class="kpi-value" style="font-size:20px;color:${variance>=0?'var(--success)':'var(--error)'};">${variance>=0?'':'-'}${fmt(variance)}</div></div>`;
+      })()}
+    </div>
     <div class="bud-grid">
       <table class="bud-table" id="bud-builder-table">
         <thead><tr>
           <th>Account</th>
           ${MONTHS.map(m=>`<th>${m}</th>`).join('')}
-          <th>Annual</th><th style="width:40px;"></th>
+          <th>Annual Budget</th><th>YTD Actual</th><th>Variance</th><th style="width:40px;"></th>
         </tr></thead>
         <tbody id="bud-lines-tbody">
-          ${(lines||[]).map((l,i) => renderBudgetLineRow(l, i, acctOpts, acctMap)).join('')}
+          ${(lines||[]).map((l,i) => renderBudgetLineRow(l, i, acctOpts, acctMap, actualsByAcct)).join('')}
         </tbody>
         <tfoot><tr class="total-row" id="bud-total-row">
           <td>Total</td>
           ${MONTH_KEYS.map(m=>`<td id="bud-tot-${m}">—</td>`).join('')}
-          <td id="bud-tot-annual" style="font-weight:700;">—</td><td></td>
+          <td id="bud-tot-annual" style="font-weight:700;">—</td>
+          <td id="bud-tot-actual" style="font-weight:700;color:var(--teal);">—</td>
+          <td id="bud-tot-variance" style="font-weight:700;">—</td>
+          <td></td>
         </tr></tfoot>
       </table>
     </div>`;
@@ -14604,9 +14585,16 @@ async function loadBudgetBuilder() {
   recalcBudgetTotals();
 }
 
-function renderBudgetLineRow(l, i, acctOpts, acctMap) {
+function renderBudgetLineRow(l, i, acctOpts, acctMap, actualsByAcct) {
+  actualsByAcct = actualsByAcct || {};
   const acct = l.account_id ? acctMap[l.account_id] : null;
   const acctLabel = acct ? `${acct.account_number} — ${acct.account_name}` : (l.account_name||'');
+  const annualBudget = MONTH_KEYS.reduce((s,m)=>s+parseFloat(l[m]||0),0);
+  const actualData = actualsByAcct[l.account_id] || {ytd:0};
+  const ytdActual = Math.abs(actualData.ytd||0);
+  const variance = ytdActual - annualBudget;
+  const varColor = variance >= 0 ? 'var(--success)' : 'var(--error)';
+  const fmt0 = v => parseFloat(v||0).toFixed(0);
   return `<tr id="bud-line-${i}">
     <td style="min-width:220px;">
       <select class="bud-cell" style="width:200px;height:26px;padding:0 4px;" onchange="updateBudLineAcct(${i},this)">
@@ -14617,8 +14605,10 @@ function renderBudgetLineRow(l, i, acctOpts, acctMap) {
       <input type="hidden" class="bl-account-name" value="${l.account_name||''}">
       <input type="hidden" class="bl-id" value="${l.id||''}">
     </td>
-    ${MONTH_KEYS.map(m=>`<td><input type="text" class="bud-cell bl-${m}" value="${parseFloat(l[m]||0).toFixed(0)}" oninput="recalcBudgetTotals()"></td>`).join('')}
-    <td class="bl-annual" style="font-weight:500;">${MONTH_KEYS.reduce((s,m)=>s+parseFloat(l[m]||0),0).toFixed(0)}</td>
+    ${MONTH_KEYS.map(m=>`<td><input type="text" class="bud-cell bl-${m}" value="${fmt0(l[m])}" oninput="recalcBudgetTotals()"></td>`).join('')}
+    <td class="bl-annual" style="font-weight:500;">${fmt0(annualBudget)}</td>
+    <td style="font-size:12px;color:var(--teal);font-family:'DM Mono',monospace;">${ytdActual > 0 ? fmt0(ytdActual) : '—'}</td>
+    <td style="font-size:12px;color:${varColor};font-family:'DM Mono',monospace;">${ytdActual > 0 ? (variance>=0?'+':'')+fmt0(variance) : '—'}</td>
     <td><button onclick="removeBudgetLine(${i})" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:16px;line-height:1;">×</button></td>
   </tr>`;
 }
@@ -17488,6 +17478,74 @@ async function saveMaintenance() {
 // ════════════════════════════════
 //  CONSOLIDATION
 // ════════════════════════════════
+
+async function loadConsolFS() {
+  const groupId = document.getElementById('consol-fs-group-sel')?.value;
+  const year    = document.getElementById('consol-fs-year-sel')?.value || new Date().getFullYear();
+  const body    = document.getElementById('consol-fs-body');
+  if (!body) return;
+  if (!groupId) { body.innerHTML = '<div class="empty-state"><div class="empty-state-title">Select a consolidation group</div></div>'; return; }
+  showLoading('Building consolidated statements…');
+  try {
+    // Get all companies in this group
+    const { data: members } = await sb.from('consol_group_members').select('company_id, companies(legal_name)').eq('group_id', groupId);
+    const companyIds = (members||[]).map(m=>m.company_id);
+    if (!companyIds.length) { body.innerHTML = '<div class="empty-state"><div class="empty-state-title">No entities in this group</div></div>'; hideLoading(); return; }
+
+    // Pull all posted JE lines for these companies in the year
+    const { data: jes } = await sb.from('journal_entries').select('id').in('company_id', companyIds).eq('status','posted').gte('entry_date',`${year}-01-01`).lte('entry_date',`${year}-12-31`);
+    const jeIds = (jes||[]).map(j=>j.id);
+    let lines = [];
+    if (jeIds.length) {
+      const { data: jel } = await sb.from('journal_entry_lines').select('debit,credit,accounts(account_type,account_name)').in('journal_entry_id', jeIds);
+      lines = jel||[];
+    }
+    const fmt = v => '$'+Math.abs(parseFloat(v||0)).toLocaleString('en-US',{minimumFractionDigits:0});
+    const sum = (type, sign) => lines.filter(l=>l.accounts?.account_type===type).reduce((s,l)=> s + (sign>0 ? (l.credit-l.debit) : (l.debit-l.credit)), 0);
+    const rev = sum('Income',1); const exp = sum('Expense',1); const net = rev-exp;
+    const assets = sum('Asset',-1); const liab = sum('Liability',1); const eq = sum('Equity',1);
+
+    body.innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div class="return-card"><div class="return-card-header"><div class="return-card-tit">Consolidated P&L — ${year}</div></div>
+        <table class="acct-table"><tbody>
+          <tr><td>Total Revenue</td><td style="text-align:right;color:var(--teal);">${fmt(rev)}</td></tr>
+          <tr><td>Total Expenses</td><td style="text-align:right;color:var(--error);">(${fmt(exp)})</td></tr>
+          <tr style="font-weight:600;border-top:2px solid var(--border);"><td>Net Income</td><td style="text-align:right;color:${net>=0?'var(--success)':'var(--error)'};">${fmt(net)}</td></tr>
+        </tbody></table></div>
+      <div class="return-card"><div class="return-card-header"><div class="return-card-tit">Consolidated Balance Sheet — ${year}</div></div>
+        <table class="acct-table"><tbody>
+          <tr><td>Total Assets</td><td style="text-align:right;color:var(--navy);">${fmt(assets)}</td></tr>
+          <tr><td>Total Liabilities</td><td style="text-align:right;color:var(--error);">${fmt(liab)}</td></tr>
+          <tr><td>Total Equity</td><td style="text-align:right;color:var(--teal);">${fmt(eq)}</td></tr>
+        </tbody></table></div></div>
+      <div style="margin-top:12px;font-size:12px;color:var(--text-light);padding:8px 12px;background:var(--section-bg);border-radius:var(--radius);">
+        ${companyIds.length} entities consolidated · ${jeIds.length} posted journal entries included · Intercompany eliminations not yet applied
+      </div>`;
+  } catch(e) {
+    body.innerHTML = `<div class="empty-state"><div class="empty-state-title">Error: ${e.message}</div></div>`;
+  }
+  hideLoading();
+}
+
+function onRuleTriggerChange() {
+  const trigger = document.getElementById('rule-trigger')?.value;
+  // Show/hide threshold field based on trigger type
+  const threshDiv = document.getElementById('rule-threshold-row');
+  const acctDiv   = document.getElementById('rule-account-row');
+  if (threshDiv) threshDiv.style.display = ['balance_below','budget_exceeded','inventory_low'].includes(trigger) ? '' : 'none';
+  if (acctDiv)   acctDiv.style.display   = trigger === 'balance_below' ? '' : 'none';
+}
+
+function updateBudLineAcct(rowIndex, selectEl) {
+  // Update the hidden account_id field in a budget line row
+  const rows = document.querySelectorAll('#bud-lines-body tr');
+  if (rows[rowIndex]) {
+    const hiddenAcct = rows[rowIndex].querySelector('.bl-account-id');
+    if (hiddenAcct) hiddenAcct.value = selectEl.value;
+    // Trigger recalc if needed
+    if (typeof recalcBudgetLine === 'function') recalcBudgetLine(rowIndex);
+  }
+}
 
 async function loadConsolGroups() {
   const c=document.getElementById('b7-consol-body'); if(!c) return;
@@ -24719,6 +24777,103 @@ async function confirmPlanSelect() {
   loadPlanBilling();
 }
 
+
+// ════════════════════════════════════════════════════════
+//  YEAR-END CLOSE — GAAP Closing Entries
+// ════════════════════════════════════════════════════════
+async function runYearEndClose() {
+  if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
+  const year = prompt('Close fiscal year (enter year, e.g. 2025):', new Date().getFullYear() - 1);
+  if (!year || isNaN(parseInt(year))) return;
+  const yr = parseInt(year);
+
+  if (!confirm(
+    `Run year-end closing entries for ${yr}?\n\n` +
+    `This will:\n` +
+    `• Zero out all Income and Expense accounts\n` +
+    `• Post net income/loss to Retained Earnings\n\n` +
+    `This cannot be undone. Proceed?`
+  )) return;
+
+  showLoading('Running year-end close…');
+  try {
+    // Pull all posted JE lines for the year
+    const { data: jes } = await sb.from('journal_entries').select('id')
+      .eq('company_id', acctCompanyId).eq('status','posted')
+      .gte('entry_date', `${yr}-01-01`).lte('entry_date', `${yr}-12-31`);
+    const jeIds = (jes||[]).map(j=>j.id);
+    if (!jeIds.length) { hideLoading(); showToast('No posted entries found for ' + yr, true); return; }
+
+    const { data: allLines } = await sb.from('journal_entry_lines')
+      .select('account_id, debit, credit, accounts(account_type,account_name,account_number)')
+      .in('journal_entry_id', jeIds);
+
+    // Aggregate by account
+    const byAcct = {};
+    (allLines||[]).forEach(l => {
+      if (!byAcct[l.account_id]) byAcct[l.account_id] = { acct: l.accounts, net: 0 };
+      byAcct[l.account_id].net += parseFloat(l.credit||0) - parseFloat(l.debit||0);
+    });
+
+    // Only close Income and Expense accounts
+    const closeLines = Object.entries(byAcct).filter(([,v]) =>
+      v.acct?.account_type === 'Income' || v.acct?.account_type === 'Expense'
+    );
+    if (!closeLines.length) { hideLoading(); showToast('No income/expense accounts to close', true); return; }
+
+    // Find or create Retained Earnings account
+    const { data: reAcct } = await sb.from('accounts')
+      .select('id').eq('company_id', acctCompanyId)
+      .ilike('account_name', '%retained earnings%').single();
+    if (!reAcct) { hideLoading(); showToast('⚠ No "Retained Earnings" account found in Chart of Accounts. Please add one first.', true); return; }
+
+    // Build closing JE lines — reverse each income/expense balance
+    const jeLines = [];
+    let netIncome = 0;
+    closeLines.forEach(([acctId, {acct, net}]) => {
+      // To close: reverse the balance (debit income accounts, credit expense accounts)
+      if (acct.account_type === 'Income') {
+        jeLines.push({ account_id: acctId, debit: Math.max(0, net), credit: Math.max(0, -net), description: `Close ${acct.account_name}` });
+        netIncome += net; // income net is credit > debit = positive
+      } else { // Expense
+        jeLines.push({ account_id: acctId, debit: Math.max(0, -net), credit: Math.max(0, net), description: `Close ${acct.account_name}` });
+        netIncome += net; // expense net is debit > credit = negative
+      }
+    });
+
+    // Plug to Retained Earnings
+    if (netIncome >= 0) {
+      jeLines.push({ account_id: reAcct.id, debit: 0, credit: netIncome, description: 'Net income to Retained Earnings' });
+    } else {
+      jeLines.push({ account_id: reAcct.id, debit: Math.abs(netIncome), credit: 0, description: 'Net loss to Retained Earnings' });
+    }
+
+    // Post the closing JE
+    const jeId = 'je-close-' + yr + '-' + Date.now();
+    const { error: jeErr } = await sb.from('journal_entries').insert({
+      id: jeId, company_id: acctCompanyId,
+      entry_date: `${yr}-12-31`,
+      description: `Year-End Closing Entries — Fiscal Year ${yr}`,
+      reference_number: `CLOSE-${yr}`,
+      status: 'posted', entry_type: 'closing',
+      updated_at: new Date().toISOString()
+    });
+    if (jeErr) throw jeErr;
+
+    await sb.from('journal_entry_lines').insert(
+      jeLines.map((l,i) => ({ ...l, journal_entry_id: jeId, sort_order: i }))
+    );
+
+    hideLoading();
+    const fmt = v => '$' + Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:0});
+    showToast(`✓ Year-end close complete — ${closeLines.length} accounts closed. Net ${netIncome>=0?'income':'loss'}: ${fmt(netIncome)} posted to Retained Earnings.`);
+    loadJEList();
+  } catch(e) {
+    hideLoading();
+    showToast('Close failed: ' + e.message, true);
+  }
+}
+
 // ── INIT ──
 async function initApp() {
   await initAuth();
@@ -24738,3 +24893,5 @@ initApp();
 </script>
 </body>
 </html>
+
+          
