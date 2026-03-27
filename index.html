@@ -15627,45 +15627,89 @@ async function submitForApproval(workflowType, companyId, recordType, recordId, 
 }
 
 // ── PLAN & BILLING ──
-async function loadPlanBilling() {
-  const c = document.getElementById('set-plan-body'); if (!c) return;
-  const { data: plans } = await sb.from('subscription_plans').select('*').eq('is_active',true).order('plan_level');
-  const { data: sub }   = await sb.from('subscriptions').select('*, subscription_plans(plan_name,plan_level)').eq('status','active').limit(1).maybeSingle();
-  const currentPlanId   = sub?.plan_id || 'plan-advanced'; // default for demo
+function loadPlanBilling() {
+  const c = document.getElementById('set-plan-body');
+  if (!c) return;
 
-  const featureMap = {
-    'plan-basic':    ['Companies & Officers','Financial Statements','Tax Returns','Up to 3 users','1 entity'],
-    'plan-pro':      ['Everything in Basic','Project Management','Inventory Module','Up to 10 users','5 entities'],
-    'plan-advanced': ['Everything in Pro','Budgeting & Forecasting','Advanced Reporting','Automation','25 users · 15 entities'],
-    'plan-enterprise':['Everything in Advanced','Unlimited users & entities','Custom integrations','Dedicated support','Custom pricing'],
-  };
+  var plans = [
+    {
+      id: 'core', name: 'Core', price: 149, users: 3, entities: 1,
+      color: '#95a5a6',
+      features: ['All Base Accounting Modules','Financial Statements & GL','Tax Returns (Corporate + Sales Tax)','Bank Reconciliation','Fixed Assets & Depreciation','Debt & Loans','Equity & Cap Table','HR & Benefits (up to 3 employees)','Up to 3 users · 1 entity'],
+      addons: []
+    },
+    {
+      id: 'professional', name: 'Professional', price: 349, users: 10, entities: 5,
+      color: '#2CA6A4',
+      features: ['Everything in Core','Budgeting & Cash Flow Forecasting','CRM & Deal Tracking','Document Management','Automation Rules & Alerts','AI Transaction Matching','Month-End Close Assistant','Up to 10 users · 5 entities'],
+      addons: ['Project Management (+$49/mo)','Inventory Management (+$49/mo)','Rental Scheduling (+$79/mo)','AIA G702/G703 Billing (+$49/mo)','Payroll Processing (+$99/mo)']
+    },
+    {
+      id: 'enterprise', name: 'Enterprise', price: 749, users: -1, entities: -1,
+      color: '#C2A46D',
+      features: ['Everything in Professional','Unlimited Users & Entities','Consolidated Financial Reporting','Intercompany Transactions','AI Variance Narratives','Board Pack PDF','Advanced Role-Based Permissions','Dedicated Account Manager'],
+      addons: ['All add-on modules included','Custom integrations available','Priority support SLA']
+    },
+    {
+      id: 'accounting_firm', name: 'Accounting Firm', price: 1299, users: -1, entities: 10,
+      color: '#1E2A38',
+      features: ['Everything in Enterprise','Up to 10 Client Entities','Client Portal Access','Multi-Entity Consolidated View','Batch Tax Return Processing','White-Label Ready','Firm-Wide User Management','Compliance & Audit Trail'],
+      addons: ['Additional client entities: +$99/mo each','Payroll bureau add-on: +$199/mo']
+    }
+  ];
 
-  const planColors = { 'plan-basic':'#95a5a6', 'plan-pro':'#2980b9', 'plan-advanced':'#b8965a', 'plan-enterprise':'#8e44ad' };
+  var currentPlan = 'professional'; // default shown as active
 
-  c.innerHTML = `
-    <div style="background:var(--gold-pale);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;">
-      <div>
-        <div style="font-size:13px;font-weight:600;color:var(--navy);">Current Plan: ${sub?.subscription_plans?.plan_name||'Advanced'}</div>
-        <div style="font-size:12px;color:var(--text-mid);">This is the Clarus Financial Management System — all modules active.</div>
-      </div>
-      <span class="status-pill status-active">Active</span>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
-    ${(plans||[]).map(plan => {
-      const isCurrent = plan.id === currentPlanId;
-      const features = featureMap[plan.id]||[];
-      return `<div class="plan-card ${isCurrent?'current-plan':''}" style="border-top:4px solid ${planColors[plan.id]||'#ccc'};">
-        <div class="plan-name">${plan.plan_name}</div>
-        ${isCurrent?'<div style="font-size:11px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Current Plan</div>':''}
-        <div class="plan-price">${plan.price_monthly>0?'$'+plan.price_monthly+'/mo':'Custom'}</div>
-        <div style="font-size:11px;color:var(--text-light);margin-bottom:14px;">${plan.max_users===-1?'Unlimited':plan.max_users} users · ${plan.max_entities===-1?'Unlimited':plan.max_entities} entities</div>
-        <div style="border-top:1px solid var(--border-light);padding-top:12px;">
-          ${features.map(f=>`<div class="plan-feature">${f}</div>`).join('')}
-        </div>
-        ${!isCurrent?`<button onclick="showToast('Contact support to change your plan')" style="width:100%;margin-top:14px;padding:8px;background:var(--navy);color:var(--gold-light);border:none;border-radius:var(--radius);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;">Select Plan</button>`:''}
-      </div>`;
-    }).join('')}
-    </div>`;
+  var cards = plans.map(function(plan) {
+    var isCurrent = plan.id === currentPlan;
+    var userStr = plan.users === -1 ? 'Unlimited' : plan.users;
+    var entStr  = plan.entities === -1 ? 'Unlimited' : plan.entities;
+
+    var featureList = plan.features.map(function(f) {
+      return '<div style="display:flex;align-items:flex-start;gap:8px;padding:4px 0;font-size:12px;color:var(--text-mid);">'
+        + '<span style="color:var(--teal);flex-shrink:0;margin-top:1px;">&#10003;</span><span>' + f + '</span></div>';
+    }).join('');
+
+    var addonList = '';
+    if (plan.addons.length) {
+      addonList = '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light);">'
+        + '<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-light);margin-bottom:6px;">Add-On Modules</div>'
+        + plan.addons.map(function(a) {
+            return '<div style="font-size:11px;color:var(--text-mid);padding:2px 0;">&#x2295; ' + a + '</div>';
+          }).join('')
+        + '</div>';
+    }
+
+    var btnHtml = isCurrent
+      ? '<div style="width:100%;margin-top:16px;padding:8px;background:var(--gold-pale);border:1px solid var(--gold);border-radius:var(--radius);text-align:center;font-size:12px;font-weight:600;color:var(--gold);">Current Plan</div>'
+      : '<button onclick="showToast(\'Contact us at support@clarushq.com to change your plan\')" style="width:100%;margin-top:16px;padding:8px;background:var(--navy);color:var(--gold-light);border:none;border-radius:var(--radius);cursor:pointer;font-size:13px;font-family:\'DM Sans\',sans-serif;">Select Plan</button>';
+
+    return '<div style="border:1px solid var(--border-light);border-top:4px solid ' + plan.color + ';border-radius:var(--radius-lg);padding:20px;background:var(--white)' + (isCurrent ? ';box-shadow:0 0 0 2px ' + plan.color + '44;' : '') + '">'
+      + '<div style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:4px;">' + plan.name + '</div>'
+      + (isCurrent ? '<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--gold);margin-bottom:8px;">Your Current Plan</div>' : '<div style="height:20px;"></div>')
+      + '<div style="font-size:28px;font-weight:700;color:' + plan.color + ';line-height:1;">'
+        + (plan.price === 0 ? 'Custom' : '$' + plan.price)
+        + '<span style="font-size:13px;color:var(--text-light);font-weight:400;">/mo</span></div>'
+      + '<div style="font-size:11px;color:var(--text-light);margin-bottom:14px;margin-top:2px;">'
+        + userStr + ' users &nbsp;&middot;&nbsp; ' + entStr + ' ' + (plan.entities === 1 ? 'entity' : 'entities')
+        + '</div>'
+      + '<div style="border-top:1px solid var(--border-light);padding-top:12px;">' + featureList + '</div>'
+      + addonList
+      + btnHtml
+      + '</div>';
+  }).join('');
+
+  c.innerHTML = '<div style="background:var(--gold-pale);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;">'
+    + '<div><div style="font-size:13px;font-weight:600;color:var(--navy);">Current Plan: Professional &nbsp;&middot;&nbsp; $349/mo</div>'
+    + '<div style="font-size:12px;color:var(--text-mid);margin-top:2px;">Clarus Financial Management &mdash; all modules active. Billed monthly.</div></div>'
+    + '<span class="status-pill status-active">Active</span>'
+    + '</div>'
+    + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">' + cards + '</div>'
+    + '<div style="margin-top:24px;padding:14px 18px;background:var(--section-bg);border-radius:var(--radius-lg);font-size:12px;color:var(--text-mid);">'
+    + '<strong style="color:var(--navy);">Add-on modules</strong> are available on Professional and above. '
+    + 'Enterprise includes all add-ons. Annual billing saves 2 months (16% discount). '
+    + 'Contact <a href="mailto:support@clarushq.com" style="color:var(--teal);">support@clarushq.com</a> to upgrade, downgrade, or add modules.'
+    + '</div>';
 }
 
 // ── ACTIVITY LOG ──
@@ -24037,90 +24081,104 @@ async function loadEntityInfo() {
     body.innerHTML = '<div class="empty-state"><div class="empty-state-title">Select an entity to edit</div></div>';
     return;
   }
-  body.innerHTML = '<div class="empty-state"><div class="empty-state-title">Loading…</div></div>';
+  body.innerHTML = '<div class="empty-state"><div class="empty-state-title">Loading\u2026</div></div>';
+
   const { data: c, error } = await sb.from('companies').select('*').eq('id', id).single();
   if (error || !c) {
-    body.innerHTML = '<div class="empty-state"><div class="empty-state-title">Could not load entity: ' + (error?.message||'unknown error') + '</div></div>';
+    body.innerHTML = '<div class="empty-state"><div class="empty-state-title">Could not load: ' + (error?.message || 'unknown error') + '</div></div>';
     return;
   }
 
-  const row = (label, id, val, type='text', placeholder='') =>
-    `<div class="field-group">
-      <label class="field-label">${label}</label>
-      <input type="${type}" class="field-input" id="${id}" value="${(val||'').toString().replace(/"/g,'&quot;')}" placeholder="${placeholder}">
-    </div>`;
+  // Helper: safe field value
+  const v = (val) => (val || '').toString().replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 
-  const sel = (label, id, opts, curVal) =>
-    `<div class="field-group">
-      <label class="field-label">${label}</label>
-      <select class="field-select" id="${id}">
-        ${opts.map(o => {
-          const v = typeof o === 'object' ? o.v : o;
-          const t = typeof o === 'object' ? o.t : o;
-          return `<option value="${v}" ${curVal===v?'selected':''}>${t}</option>`;
-        }).join('')}
-      </select>
-    </div>`;
+  // Helper: text input row
+  function fldRow(label, fid, val, type, placeholder) {
+    type = type || 'text'; placeholder = placeholder || '';
+    return '<div class="field-group">'
+      + '<label class="field-label">' + label + '</label>'
+      + '<input type="' + type + '" class="field-input" id="' + fid + '" value="' + v(val) + '" placeholder="' + placeholder + '">'
+      + '</div>';
+  }
 
-  body.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;padding-bottom:32px;">
+  // Helper: text input row spanning 2 columns
+  function fldRow2(label, fid, val, type, placeholder) {
+    type = type || 'text'; placeholder = placeholder || '';
+    return '<div class="field-group col-span-2">'
+      + '<label class="field-label">' + label + '</label>'
+      + '<input type="' + type + '" class="field-input" id="' + fid + '" value="' + v(val) + '" placeholder="' + placeholder + '">'
+      + '</div>';
+  }
 
-      <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px 24px;">
-        <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:14px;border-bottom:1px solid var(--border-light);padding-bottom:8px;">Basic Information</div>
-        <div class="form-grid">
-          ${row('Legal Name *','ei-legal-name', c.legal_name)}
-          ${row('DBA / Trade Name','ei-dba', c.dba)}
-          ${row('FEIN / Tax ID','ei-fein', c.fein, 'text', 'XX-XXXXXXX')}
-          ${sel('Entity Structure','ei-structure',
-            ['LLC','S Corp','C Corp','Partnership','Sole Proprietor','Non-Profit','LP','LLP'],
-            c.structure)}
-          ${sel('Industry','ei-industry-type',
-            [{v:'',t:'— Select —'},'Construction','Real Estate','Finance & Investment',
-             'Transportation','Retail','Professional Services','Healthcare',
-             'Technology','Manufacturing','Hospitality','Agriculture','Other'],
-            c.industry_type||c.industry||'')}
-          ${row('NAICS Code','ei-naics', c.naics, 'text', '236220')}
-        </div>
-      </div>
+  // Helper: select row
+  function selRow(label, fid, opts, curVal) {
+    var options = opts.map(function(o) {
+      var oval = typeof o === 'object' ? o.v : o;
+      var otxt = typeof o === 'object' ? o.t : o;
+      return '<option value="' + oval + '"' + (curVal === oval ? ' selected' : '') + '>' + otxt + '</option>';
+    }).join('');
+    return '<div class="field-group">'
+      + '<label class="field-label">' + label + '</label>'
+      + '<select class="field-select" id="' + fid + '">' + options + '</select>'
+      + '</div>';
+  }
 
-      <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px 24px;">
-        <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:14px;border-bottom:1px solid var(--border-light);padding-bottom:8px;">Primary Address</div>
-        <div class="form-grid">
-          <div class="field-group col-span-2">${row('Street Address','ei-addr1', c.prim_addr1).replace('<div class="field-group">','').replace('</div>','')}</div>
-          <div class="field-group col-span-2">${row('Address Line 2','ei-addr2', c.prim_addr2).replace('<div class="field-group">','').replace('</div>','')}</div>
-          ${row('City','ei-city', c.prim_city)}
-          ${row('State','ei-state', c.prim_state, 'text', 'FL')}
-          ${row('ZIP Code','ei-zip', c.prim_zip)}
-          ${row('Country','ei-country', c.prim_country||'USA')}
-        </div>
-      </div>
+  function card(title, content) {
+    return '<div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px 24px;">'
+      + '<div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:14px;border-bottom:1px solid var(--border-light);padding-bottom:8px;">' + title + '</div>'
+      + '<div class="form-grid">' + content + '</div>'
+      + '</div>';
+  }
 
-      <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px 24px;">
-        <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:14px;border-bottom:1px solid var(--border-light);padding-bottom:8px;">Accounting Settings</div>
-        <div class="form-grid">
-          ${sel('GL Accounting Method','ei-acct-gl',['Accrual','Cash','Modified Cash'], c.acct_method_gl||'Accrual')}
-          ${sel('Tax Accounting Method','ei-acct-tax',['Accrual','Cash','Modified Cash'], c.acct_method_tax||'Accrual')}
-          ${sel('Fiscal Year End Month','ei-fiscal-month',
-            ['January','February','March','April','May','June',
-             'July','August','September','October','November','December'],
-            c.acct_year_end_month||'December')}
-          ${sel('Rental Company?','ei-is-rental',
-            [{v:'false',t:'No'},{v:'true',t:'Yes'}],
-            c.is_rental_company?'true':'false')}
-        </div>
-      </div>
+  var isRental = c.is_rental_company ? 'true' : 'false';
+  var structOpts = ['LLC','S Corp','C Corp','Partnership','Sole Proprietor','Non-Profit','LP','LLP'];
+  var industOpts = [
+    {v:'',t:'— Select —'},{v:'Construction',t:'Construction'},{v:'Real Estate',t:'Real Estate'},
+    {v:'Finance & Investment',t:'Finance & Investment'},{v:'Transportation',t:'Transportation'},
+    {v:'Retail',t:'Retail'},{v:'Professional Services',t:'Professional Services'},
+    {v:'Healthcare',t:'Healthcare'},{v:'Technology',t:'Technology'},
+    {v:'Manufacturing',t:'Manufacturing'},{v:'Hospitality',t:'Hospitality'},
+    {v:'Agriculture',t:'Agriculture'},{v:'Other',t:'Other'}
+  ];
+  var acctOpts = ['Accrual','Cash','Modified Cash'];
+  var monthOpts = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var rentalOpts = [{v:'false',t:'No'},{v:'true',t:'Yes'}];
 
-      <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px 24px;">
-        <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:14px;border-bottom:1px solid var(--border-light);padding-bottom:8px;">Key Contact</div>
-        <div class="form-grid">
-          <div class="field-group col-span-2">${row('Contact Name','ei-contact-name', c.contact_name).replace('<div class="field-group">','').replace('</div>','')}</div>
-          ${row('Title','ei-contact-title', c.contact_title)}
-          ${row('Phone','ei-contact-phone', c.contact_phone, 'tel')}
-          <div class="field-group col-span-2">${row('Email','ei-contact-email', c.contact_email, 'email').replace('<div class="field-group">','').replace('</div>','')}</div>
-        </div>
-      </div>
+  var basicCard = card('Basic Information',
+    fldRow('Legal Name', 'ei-legal-name', c.legal_name)
+    + fldRow('DBA / Trade Name', 'ei-dba', c.dba)
+    + fldRow('FEIN / Tax ID', 'ei-fein', c.fein, 'text', 'XX-XXXXXXX')
+    + selRow('Entity Structure', 'ei-structure', structOpts, c.structure)
+    + selRow('Industry', 'ei-industry-type', industOpts, c.industry_type || c.industry || '')
+    + fldRow('NAICS Code', 'ei-naics', c.naics, 'text', '236220')
+  );
 
-    </div>`;
+  var addrCard = card('Primary Address',
+    fldRow2('Street Address', 'ei-addr1', c.prim_addr1)
+    + fldRow2('Address Line 2', 'ei-addr2', c.prim_addr2)
+    + fldRow('City', 'ei-city', c.prim_city)
+    + fldRow('State', 'ei-state', c.prim_state, 'text', 'FL')
+    + fldRow('ZIP Code', 'ei-zip', c.prim_zip)
+    + fldRow('Country', 'ei-country', c.prim_country || 'USA')
+  );
+
+  var acctCard = card('Accounting Settings',
+    selRow('GL Method', 'ei-acct-gl', acctOpts, c.acct_method_gl || 'Accrual')
+    + selRow('Tax Method', 'ei-acct-tax', acctOpts, c.acct_method_tax || 'Accrual')
+    + selRow('Fiscal Year End', 'ei-fiscal-month', monthOpts, c.acct_year_end_month || 'December')
+    + selRow('Rental Company?', 'ei-is-rental', rentalOpts, isRental)
+  );
+
+  var contactCard = card('Key Contact',
+    fldRow2('Contact Name', 'ei-contact-name', c.contact_name)
+    + fldRow('Title', 'ei-contact-title', c.contact_title)
+    + fldRow('Phone', 'ei-contact-phone', c.contact_phone, 'tel')
+    + fldRow2('Email', 'ei-contact-email', c.contact_email, 'email')
+  );
+
+  body.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;padding-bottom:40px;">'
+    + basicCard + addrCard + acctCard + contactCard
+    + '</div>';
 }
 
 async function saveEntityInfo() {
