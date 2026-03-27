@@ -671,7 +671,7 @@
   .set-sidebar-btn.active { color:var(--navy); font-weight:500; background:var(--gold-pale); border-left-color:var(--gold); }
   .set-content { flex:1; padding-left:28px; min-width:0; }
   .set-panel { display:none; }
-  .set-panel.active { display:block; }
+  .set-panel.active { display:block; overflow-y:auto; }
   /* User cards */
   .user-card { background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:16px 18px; display:flex; align-items:center; gap:14px; box-shadow:var(--shadow-sm); transition:box-shadow 0.15s; }
   .user-card:hover { box-shadow:var(--shadow-md); }
@@ -4192,8 +4192,30 @@
         </div>
         <div class="b8-content">
           <div id="eq-panel-summary"   class="b8-panel active"><div id="eq-summary-body"><div class="empty-state"><div class="empty-state-title">Select a company</div></div></div></div>
-          <div id="eq-panel-classes"   class="b8-panel"><div id="eq-classes-body"><div class="empty-state"><div class="empty-state-title">No share classes</div></div></div></div>
-          <div id="eq-panel-holders"   class="b8-panel"><div id="eq-holders-body"><div class="empty-state"><div class="empty-state-title">No shareholders</div></div></div></div>
+          <div id="eq-panel-classes" class="b8-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Share Classes</div>
+              <button class="btn-save" onclick="openEquityClassModal()">+ Add Share Class</button>
+            </div>
+            <div id="eq-classes-body"><div class="empty-state"><div class="empty-state-title">No share classes yet</div><div>Add common stock, preferred stock, or other share classes</div></div></div>
+          </div>
+          <div id="eq-panel-holders" class="b8-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Cap Table</div>
+              <button class="btn-save" onclick="openCapTableEntryModal()">+ Add Entry</button>
+            </div>
+            <div id="eq-holders-body"><div class="empty-state"><div class="empty-state-title">No shareholders</div></div>
+
+          <div id="eq-panel-txns" class="b8-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Equity Events &amp; Transactions</div>
+              <button class="btn-save" onclick="openCapTableEntryModal()">+ Record Event</button>
+            </div>
+            <div style="font-size:13px;color:var(--text-mid);margin-bottom:16px;padding:10px 14px;background:var(--section-bg);border-radius:var(--radius);">
+              Equity transactions from JEs and bank feeds that affect equity accounts are shown here. Changes automatically update the Cap Table.
+            </div>
+            <div id="eq-transactions-body"><div class="empty-state"><div class="empty-state-title">No equity transactions recorded</div></div></div>
+          </div></div></div>
           <div id="eq-panel-txns"      class="b8-panel"><div id="eq-txns-body"><div class="empty-state"><div class="empty-state-title">No transactions</div></div></div></div>
           <div id="eq-panel-vesting"   class="b8-panel"><div id="eq-vesting-body"><div class="empty-state"><div class="empty-state-title">No vesting schedules</div></div></div></div>
           <div id="eq-panel-waterfall" class="b8-panel"><div id="eq-waterfall-body"><div class="empty-state"><div class="empty-state-title">Enter a liquidation value to model the waterfall</div></div>
@@ -4267,7 +4289,12 @@
           <button class="b8-sidebar-btn"         id="hr-nav-headcount" onclick="showHRPanel('headcount')"> <span>👥</span> Headcount</button>
         </div>
         <div class="b8-content">
-          <div id="hr-panel-dashboard"  class="b8-panel active"><div id="hr-dashboard-body"><div class="empty-state"><div class="empty-state-title">Select a company</div></div></div></div>
+          <div id="hr-panel-dashboard"  class="b8-panel active">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">HR Dashboard</div>
+              <button class="btn-save" onclick="openEmployeeModal()">+ Add Employee</button>
+            </div>
+            <div id="hr-dashboard-body"><div class="empty-state"><div class="empty-state-title">Select a company</div></div></div></div>
           <div id="hr-panel-benefits"   class="b8-panel">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
               <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Benefit Plans</div>
@@ -7982,6 +8009,32 @@ async function saveJE(status) {
   if (lines.length < 2) { showToast('⚠ At least 2 lines required', true); return; }
   if (status === 'posted' && Math.abs(dr-cr) > 0.01) { showToast('⚠ Entry is out of balance — debits must equal credits', true); return; }
 
+  // Check if any lines affect equity accounts — prompt for cap table update
+  if (status === 'posted') {
+    const equityLines = lines.filter(l => {
+      const acct = acctAccounts.find(a => a.id === l.account_id);
+      return acct?.account_type === 'Equity';
+    });
+    if (equityLines.length) {
+      const netEquity = equityLines.reduce((s,l) => s + (l.credit - l.debit), 0);
+      const acctNames = equityLines.map(l => acctAccounts.find(a=>a.id===l.account_id)?.account_name||l.account_id).join(', ');
+      window._pendingEquityJELines = equityLines;
+      window._pendingEquityAmount  = netEquity;
+      // Show toast and offer cap table update after save
+      setTimeout(() => {
+        if (confirm(
+          `This JE affects equity account(s): ${acctNames}\n` +
+          `Net equity change: ${netEquity >= 0 ? '+' : ''}$${Math.abs(netEquity).toLocaleString('en-US',{minimumFractionDigits:2})}\n\n` +
+          `Open Equity & Cap Table to record this transaction?`
+        )) {
+          window._pendingEquityJELines = null;
+          pickNav('equity');
+          setTimeout(() => showEQPanel('txns'), 400);
+        }
+      }, 800);
+    }
+  }
+
   showLoading('Saving journal entry…');
   const jeId = editingJEId || ('je-' + Date.now());
   const { error: jeErr } = await sb.from('journal_entries').upsert({
@@ -11293,16 +11346,10 @@ async function syncReturnFromFinancials(formType) {
     if (sel) { sel.focus(); sel.style.outline='2px solid var(--teal)'; setTimeout(()=>sel.style.outline='',2000); }
     return;
   }
-  // Load financial data if not yet populated for this year
-  if (!taxFinancialData.totalIncome && !taxFinancialData.totalExpense) {
-    showLoading('Loading financial data…');
-    await loadTaxEntityData();
-    hideLoading();
-  }
-  if (!taxFinancialData.totalIncome && !taxFinancialData.totalExpense) {
-    showToast('⚠ No posted journal entries found for ' + taxYear + '. Enter and post transactions first.', true);
-    return;
-  }
+  // Always reload financial data to ensure it's fresh
+  showLoading('Loading financial data…');
+  await loadTaxEntityData();
+  hideLoading();
   const fd = taxFinancialData;
   if (formType === '1120s') render1120S(fd);
   if (formType === '1120')  render1120(fd);
@@ -12043,22 +12090,28 @@ async function onPMEntityChange() {
 }
 
 async function loadPMData() {
-  // Load projects for company
-  let q = sb.from('projects').select('*').order('created_at',{ascending:false});
-  if (pmCompanyId) q = q.eq('company_id', pmCompanyId);
-  const { data: projects } = await q;
-  pmProjects = projects || [];
+  try {
+    // Load projects for company
+    let q = sb.from('projects').select('*').order('created_at',{ascending:false});
+    if (pmCompanyId) q = q.eq('company_id', pmCompanyId);
+    const { data: projects, error: projErr } = await q;
+    if (projErr) throw projErr;
+    pmProjects = projects || [];
 
-  // Load employees
-  let eq = sb.from('employees').select('id,first_name,last_name,job_title').eq('status','active').order('last_name');
-  if (pmCompanyId) eq = eq.eq('company_id', pmCompanyId);
-  const { data: emps } = await eq;
-  pmEmployees = emps || [];
+    // Load employees
+    let eq = sb.from('employees').select('id,first_name,last_name,job_title').eq('status','active').order('last_name');
+    if (pmCompanyId) eq = eq.eq('company_id', pmCompanyId);
+    const { data: emps } = await eq;
+    pmEmployees = emps || [];
 
-  renderPMProjectSidebar();
-  populateProjectDropdowns();
-  showPMPanel('dashboard');
-  loadPMDashboard();
+    renderPMProjectSidebar();
+    populateProjectDropdowns();
+    showPMPanel('dashboard');
+    loadPMDashboard();
+  } catch(e) {
+    console.error('loadPMData error:', e);
+    showToast('Error loading projects: ' + (e.message||e), true);
+  }
 }
 
 function renderPMProjectSidebar() {
@@ -17579,6 +17632,12 @@ function showDebtPanel(p) {
   if (p==='loans')     loadLoans();
   if (p==='payments')  loadLoanPayments();
   if (p==='covenant')  loadDebtSummary();
+  if (p==='schedule') {
+    // Auto-select first loan if none selected
+    const sel = document.getElementById('debt-amort-loan-sel');
+    if (sel && !sel.value && loanList.length) sel.value = loanList[0].id;
+    loadAmortizationSchedule();
+  }
 }
 function showHRPanel(p) {
   const _m=document.querySelector('.main');if(_m)_m.scrollTop=0;else window.scrollTo(0,0);
@@ -18366,6 +18425,7 @@ async function loadBenefitPlans() {
 }
 
 async function openBenefitPlanModal(id=null) {
+  if (!hrCompanyId) { showToast('⚠ Select a company first', true); return; }
   editingBPId=id;
   document.getElementById('bpModalTitle').textContent=id?'Edit Benefit Plan':'Add Benefit Plan';
   ['bp-name','bp-carrier','bp-plan-number','bp-effective','bp-renewal','bp-emp-prem','bp-er-prem','bp-notes'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
@@ -23892,12 +23952,17 @@ onEntityChange = function() {
 //  1. ENTITY INFO (CLIENT ADMIN) — editable company information
 // ─────────────────────────────────────────────────────────────────
 async function loadEntityInfoPanel() {
-  const { data: cos } = await sb.from('companies').select('id,legal_name').order('legal_name');
+  const { data: cos, error } = await sb.from('companies').select('id,legal_name').order('legal_name');
   const sel = document.getElementById('ei-entity-sel');
   if (!sel) return;
+  if (error) { showToast('Error loading entities: ' + error.message, true); return; }
+  const list = cos || [];
   sel.innerHTML = '<option value="">— Select entity to edit —</option>' +
-    (cos||[]).map(c => `<option value="${c.id}">${c.legal_name}</option>`).join('');
-  if (cos?.length) { sel.value = cos[0].id; loadEntityInfo(); }
+    list.map(c => `<option value="${c.id}">${c.legal_name}</option>`).join('');
+  if (list.length) {
+    sel.value = list[0].id;
+    await loadEntityInfo();
+  }
 }
 
 async function loadEntityInfo() {
@@ -24313,6 +24378,37 @@ function addBankFeedButton() {
   }
 }
 
+
+async function loadEQTransactions() {
+  const c = document.getElementById('eq-transactions-body');
+  if (!c) return;
+  if (!eqCompanyId) { c.innerHTML='<div class="empty-state"><div class="empty-state-title">Select a company</div></div>'; return; }
+  c.innerHTML='<div class="empty-state"><div class="empty-state-title">Loading…</div></div>';
+  try {
+    // Load JEs that touch equity accounts
+    const { data: accts } = await sb.from('accounts').select('id,account_name,account_type')
+      .eq('company_id', eqCompanyId).eq('account_type','Equity');
+    const acctIds = (accts||[]).map(a=>a.id);
+    if (!acctIds.length) { c.innerHTML='<div class="empty-state"><div class="empty-state-title">No equity accounts found in Chart of Accounts</div></div>'; return; }
+    const { data: lines } = await sb.from('journal_entry_lines')
+      .select('*, journal_entries(entry_date,description,reference_number,status), accounts(account_name)')
+      .in('account_id', acctIds)
+      .order('created_at', {ascending:false}).limit(50);
+    if (!lines?.length) { c.innerHTML='<div class="empty-state"><div class="empty-state-title">No equity transactions found</div><div>Post journal entries that include equity accounts to see them here</div></div>'; return; }
+    const fmt = v => '$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
+    c.innerHTML = '<table class="acct-table"><thead><tr><th>Date</th><th>Description</th><th>Account</th><th style="text-align:right">Debit</th><th style="text-align:right">Credit</th><th>JE Ref</th></tr></thead><tbody>' +
+      lines.map(l => `<tr>
+        <td>${fmtDate(l.journal_entries?.entry_date)}</td>
+        <td>${l.journal_entries?.description||l.description||'—'}</td>
+        <td style="color:var(--teal);font-size:12px;">${l.accounts?.account_name||'—'}</td>
+        <td style="text-align:right;font-family:monospace;">${l.debit>0?fmt(l.debit):''}</td>
+        <td style="text-align:right;font-family:monospace;color:var(--teal);">${l.credit>0?fmt(l.credit):''}</td>
+        <td style="font-size:11px;color:var(--text-light);">${l.journal_entries?.reference_number||'—'}</td>
+      </tr>`).join('') + '</tbody></table>';
+  } catch(e) {
+    c.innerHTML = `<div class="empty-state"><div class="empty-state-title">Error: ${e.message}</div></div>`;
+  }
+}
 // ── INIT ──
 async function initApp() {
   await initAuth();
