@@ -3372,24 +3372,22 @@
     <!--  ENTITY SETTINGS — standalone full-page editor         -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <div id="view-entity-settings" class="panel">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Entity Information</div>
-          <div class="page-subtitle">Edit company details, addresses, accounting settings, and key contacts</div>
+      <!-- Self-contained sticky control bar - no page-header class, explicit positioning -->
+      <div style="position:sticky;top:0;z-index:25;background:var(--navy);padding:12px 32px;margin:-32px -40px 24px -40px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+        <div style="display:flex;align-items:center;gap:16px;flex:1;min-width:0;">
+          <button onclick="pickNav('settings')" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:6px 14px;border-radius:var(--radius);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;white-space:nowrap;">&#8592; Settings</button>
+          <div>
+            <div style="color:var(--gold-light);font-size:16px;font-weight:600;font-family:'Playfair Display',serif;">Entity Information</div>
+            <div style="color:rgba(255,255,255,0.6);font-size:11px;">Edit details for the selected entity</div>
+          </div>
+          <select id="ei-entity-sel" onchange="loadEntityInfo()" style="height:34px;padding:0 10px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);color:#fff;border-radius:var(--radius);font-size:13px;font-family:'DM Sans',sans-serif;min-width:220px;cursor:pointer;">
+            <option value="" style="background:var(--navy);">&#8212; Select entity &#8212;</option>
+          </select>
         </div>
-        <div class="page-actions">
-          <button class="btn-secondary" onclick="pickNav('settings')">&#8592; Back to Settings</button>
-          <button class="btn-save" id="ei-save-btn" onclick="saveEntityInfo()">Save Changes</button>
-        </div>
+        <button id="ei-save-btn" onclick="saveEntityInfo()" style="background:var(--gold);color:var(--navy);border:none;padding:8px 22px;border-radius:var(--radius);font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0;">&#10003; Save Changes</button>
       </div>
-      <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:12px 18px;margin-bottom:18px;display:flex;align-items:center;gap:14px;">
-        <label style="font-size:13px;font-weight:600;color:var(--navy);white-space:nowrap;">Editing:</label>
-        <select id="ei-entity-sel" class="field-select" style="height:34px;width:260px;" onchange="loadEntityInfo()">
-          <option value="">&#8212; Select entity &#8212;</option>
-        </select>
-        <span style="font-size:12px;color:var(--teal);font-weight:500;">&#10003; All fields are editable &#8212; click any field to change it</span>
-      </div>
-      <div id="ei-body" style="position:relative;z-index:1;pointer-events:auto;">
+      <!-- Form body -->
+      <div id="ei-body" style="pointer-events:auto;">
         <div class="empty-state"><div class="empty-state-title">Select an entity above to begin editing</div></div>
       </div>
     </div>
@@ -24433,34 +24431,47 @@ async function saveEntityInfo() {
   if (!legalName.trim()) { showToast('⚠ Legal Name is required', true); document.getElementById('ei-legal-name')?.focus(); return; }
   showLoading('Saving…');
   try {
-  const { error } = await sb.from('companies').update({
-    legal_name:          legalName,
-    dba:                 g('ei-dba') || null,
-    fein:                g('ei-fein') || null,
-    structure:           g('ei-structure') || null,
-    industry_type:       g('ei-industry-type') || null,
-    acct_method_gl:      g('ei-acct-gl') || null,
-    acct_method_tax:     g('ei-acct-tax') || null,
-    acct_year_end_month: g('ei-fiscal-month') || null,
-    is_rental_company:   document.getElementById('ei-is-rental')?.value === 'true',
-    prim_addr1:          g('ei-addr1') || null,
-    prim_addr2:          g('ei-addr2') || null,
-    prim_city:           g('ei-city') || null,
-    prim_state:          g('ei-state') || null,
-    prim_zip:            g('ei-zip') || null,
-    prim_country:        g('ei-country') || null,
-    contact_name:        g('ei-contact-name') || null,
-    contact_title:       g('ei-contact-title') || null,
-    contact_phone:       g('ei-contact-phone') || null,
-    contact_email:       g('ei-contact-email') || null,
-    naics:               g('ei-naics') || null,
-    updated_at:          new Date().toISOString(),
-  }).eq('id', id);
-  hideLoading();
-  if (error) { showToast('Save failed: ' + error.message, true); return; }
-  showToast('✓ Entity information saved');
-  checkConstructionAccess(document.getElementById('ei-industry-type')?.value || '');
-  } catch(e) { hideLoading(); showToast('Save error: ' + e.message, true); }
+    // Use upsert with onConflict:'id' — works regardless of RLS UPDATE vs INSERT policy
+    const payload = {
+      id,
+      legal_name:          legalName,
+      dba:                 g('ei-dba') || null,
+      fein:                g('ei-fein') || null,
+      structure:           g('ei-structure') || null,
+      industry_type:       g('ei-industry-type') || null,
+      acct_method_gl:      g('ei-acct-gl') || null,
+      acct_method_tax:     g('ei-acct-tax') || null,
+      acct_year_end_month: g('ei-fiscal-month') || null,
+      is_rental_company:   document.getElementById('ei-is-rental')?.value === 'true',
+      prim_addr1:          g('ei-addr1') || null,
+      prim_addr2:          g('ei-addr2') || null,
+      prim_city:           g('ei-city') || null,
+      prim_state:          g('ei-state') || null,
+      prim_zip:            g('ei-zip') || null,
+      prim_country:        g('ei-country') || null,
+      contact_name:        g('ei-contact-name') || null,
+      contact_title:       g('ei-contact-title') || null,
+      contact_phone:       g('ei-contact-phone') || null,
+      contact_email:       g('ei-contact-email') || null,
+      naics:               g('ei-naics') || null,
+      updated_at:          new Date().toISOString(),
+    };
+    const { error } = await sb.from('companies').upsert(payload, { onConflict: 'id' });
+    hideLoading();
+    if (error) {
+      console.error('Entity save error:', error);
+      showToast('Save failed: ' + (error.message || error.code || JSON.stringify(error)), true);
+      return;
+    }
+    showToast('✓ Entity information saved');
+    checkConstructionAccess(document.getElementById('ei-industry-type')?.value || '');
+    // Refresh global entity selector to pick up name changes
+    if (typeof initGlobalEntitySelect === 'function') initGlobalEntitySelect();
+  } catch(e) {
+    hideLoading();
+    console.error('Entity save exception:', e);
+    showToast('Save error: ' + e.message, true);
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────
