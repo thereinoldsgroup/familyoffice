@@ -7242,7 +7242,7 @@ function switchModule(module) {
   // Clear sidebar active states (sidenav replaced topbar-nav-btn)
   document.querySelectorAll('.sidenav-item,.sidenav-child').forEach(b=>b.classList.remove('active'));
   document.getElementById('nav-'+module)?.classList.add('active');
-  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub','view-tax','view-projects','view-inventory','view-budgeting','view-settings','view-crm','view-documents','view-reports','view-purchasing','view-rentals','view-rental-profit','view-equity','view-debt','view-hr'].forEach(id => {
+  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub','view-tax','view-projects','view-inventory','view-budgeting','view-settings','view-crm','view-documents','view-reports','view-purchasing','view-rentals','view-rental-profit','view-equity','view-debt','view-hr','view-entity-settings','view-aia'].forEach(id => {
     document.getElementById(id)?.classList.remove('active');
   });
   setSidebarVisible(module === 'companies');
@@ -24211,9 +24211,12 @@ async function saveEntityInfo() {
   const id = document.getElementById('ei-entity-sel')?.value;
   if (!id) { showToast('⚠ Select an entity first', true); return; }
   const g = eid => document.getElementById(eid)?.value || '';
+  const legalName = g('ei-legal-name');
+  if (!legalName.trim()) { showToast('⚠ Legal Name is required', true); document.getElementById('ei-legal-name')?.focus(); return; }
   showLoading('Saving…');
+  try {
   const { error } = await sb.from('companies').update({
-    legal_name:          g('ei-legal-name'),
+    legal_name:          legalName,
     dba:                 g('ei-dba') || null,
     fein:                g('ei-fein') || null,
     structure:           g('ei-structure') || null,
@@ -24239,6 +24242,7 @@ async function saveEntityInfo() {
   if (error) { showToast('Save failed: ' + error.message, true); return; }
   showToast('✓ Entity information saved');
   checkConstructionAccess(document.getElementById('ei-industry-type')?.value || '');
+  } catch(e) { hideLoading(); showToast('Save error: ' + e.message, true); }
 }
 
 // ─────────────────────────────────────────────────────────────────
