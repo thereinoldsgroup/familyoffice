@@ -671,7 +671,7 @@
   .set-sidebar-btn.active { color:var(--navy); font-weight:500; background:var(--gold-pale); border-left-color:var(--gold); }
   .set-content { flex:1; padding-left:28px; min-width:0; }
   .set-panel { display:none; }
-  .set-panel.active { display:block; overflow-y:auto; }
+  .set-panel.active { display:block; }
   /* User cards */
   .user-card { background:var(--white); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:16px 18px; display:flex; align-items:center; gap:14px; box-shadow:var(--shadow-sm); transition:box-shadow 0.15s; }
   .user-card:hover { box-shadow:var(--shadow-md); }
@@ -3462,16 +3462,19 @@
 
           <!-- ENTITY INFO (CLIENT ADMIN) -->
           <div id="set-panel-company-info" class="set-panel">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Entity Information</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div>
+                <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Entity Information</div>
+                <div style="margin-top:8px;display:flex;align-items:center;gap:10px;">
+                  <span style="font-size:13px;color:var(--text-mid);">Editing:</span>
+                  <select id="ei-entity-sel" class="field-select" style="height:34px;width:260px;" onchange="loadEntityInfo()">
+                    <option value="">— Select entity —</option>
+                  </select>
+                </div>
+              </div>
               <button class="btn-save" onclick="saveEntityInfo()">Save Changes</button>
             </div>
-            <div style="margin-bottom:16px;">
-              <select id="ei-entity-sel" class="field-select" style="height:34px;width:260px;" onchange="loadEntityInfo()">
-                <option value="">— Select entity to edit —</option>
-              </select>
-            </div>
-            <div id="ei-body"><div class="empty-state"><div class="empty-state-title">Select an entity above</div></div></div>
+            <div id="ei-body"><div class="empty-state"><div class="empty-state-title">Loading entities…</div></div></div>
           </div>
 
           <!-- PAYMENT METHOD -->
@@ -16134,9 +16137,11 @@ function showRptPanel(panelId) {
   document.querySelectorAll('.rpt-sidebar-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('rpt-panel-'+panelId)?.classList.add('active');
   document.getElementById('rpt-nav-'+panelId)?.classList.add('active');
-  if (panelId==='saved')  loadSavedReports();
-  if (panelId==='rules')  loadAutomationRules();
-  if (panelId==='alerts') loadAlerts();
+  if (panelId==='saved')   loadSavedReports();
+  if (panelId==='rules')   loadAutomationRules();
+  if (panelId==='alerts')  loadAlerts();
+  if (panelId==='board')   loadBoardPack?.();
+  if (panelId==='builder') {} // user clicks Run Report button manually
 }
 
 // ── REPORT BUILDER ──
@@ -16306,6 +16311,65 @@ function printCustomReport() {
   <body><button onclick="window.print()" style="padding:7px 16px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:16px;">🖨 Print</button>
   <h2>${name}</h2><p>Generated: ${new Date().toLocaleString()}</p>${content}</body></html>`);
   win.document.close();
+}
+
+async function loadBoardPack() {
+  if (!rptCompanyId) { showToast('⚠ Select a company first', true); return; }
+  const c = document.getElementById('rpt-board-body');
+  if (!c) return;
+  showLoading('Building board pack…');
+  try {
+    // Pull key financial data for board pack
+    const now = new Date();
+    const yearStart = `${now.getFullYear()}-01-01`;
+    const today = now.toISOString().slice(0,10);
+    const { data: jes } = await sb.from('journal_entries').select('id')
+      .eq('company_id', rptCompanyId).eq('status','posted')
+      .gte('entry_date', yearStart).lte('entry_date', today);
+    const jeIds = (jes||[]).map(e=>e.id);
+    let rev=0, exp=0;
+    if (jeIds.length) {
+      const { data: lines } = await sb.from('journal_entry_lines')
+        .select('debit,credit,accounts(account_type)').in('journal_entry_id', jeIds);
+      for (const l of lines||[]) {
+        if (l.accounts?.account_type==='Income')  rev += (l.credit - l.debit);
+        if (l.accounts?.account_type==='Expense') exp += (l.debit - l.credit);
+      }
+    }
+    const net = rev - exp;
+    const fmt = v => '$'+Math.abs(parseFloat(v||0)).toLocaleString('en-US',{minimumFractionDigits:0});
+    const { data: openInv } = await sb.from('invoices').select('balance_due').eq('company_id',rptCompanyId).eq('status','sent');
+    const { data: openBill } = await sb.from('bills').select('balance_due').eq('company_id',rptCompanyId).eq('status','received');
+    const arTotal = (openInv||[]).reduce((s,i)=>s+parseFloat(i.balance_due||0),0);
+    const apTotal = (openBill||[]).reduce((s,b)=>s+parseFloat(b.balance_due||0),0);
+
+    c.innerHTML = `
+      <div style="padding:20px;background:var(--navy);color:#fff;border-radius:var(--radius-lg);margin-bottom:16px;">
+        <div style="font-family:'Playfair Display',serif;font-size:22px;margin-bottom:4px;">Board Report</div>
+        <div style="font-size:12px;opacity:0.7;">YTD through ${today} · Generated ${today}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+        ${[['YTD Revenue',fmt(rev),'var(--teal)'],['YTD Expenses',fmt(exp),'var(--error)'],
+           ['Net Income',fmt(net), net>=0?'var(--success)':'var(--error)'],
+           ['A/R Outstanding',fmt(arTotal),'var(--gold)']
+          ].map(([l,v,c])=>`<div class="kpi-card" style="border-top-color:${c};">
+            <div class="kpi-label">${l}</div>
+            <div class="kpi-value" style="color:${c};font-size:20px;">${v}</div>
+          </div>`).join('')}
+      </div>
+      <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px 20px;">
+        <div style="font-weight:600;margin-bottom:12px;color:var(--navy);">Accounts Payable Outstanding</div>
+        <div style="font-size:24px;font-weight:600;color:var(--error);">${fmt(apTotal)}</div>
+        <div style="font-size:12px;color:var(--text-light);margin-top:4px;">${(openBill||[]).length} open bill${(openBill||[]).length!==1?'s':''}</div>
+      </div>
+      <div style="margin-top:16px;padding:12px 16px;background:var(--section-bg);border-radius:var(--radius);font-size:12px;color:var(--text-light);">
+        For a full board PDF with charts, use the Print button above. Full board pack with ratio analysis requires the Enterprise plan.
+      </div>`;
+    hideLoading();
+  } catch(e) {
+    hideLoading();
+    c.innerHTML = `<div class="empty-state"><div class="empty-state-title">Error: ${e.message}</div></div>`;
+  }
 }
 
 async function loadSavedReports() {
@@ -23968,102 +24032,94 @@ async function loadEntityInfoPanel() {
 async function loadEntityInfo() {
   const id = document.getElementById('ei-entity-sel')?.value;
   const body = document.getElementById('ei-body');
-  if (!id || !body) { if(body) body.innerHTML='<div class="empty-state"><div class="empty-state-title">Select an entity</div></div>'; return; }
-
-  showLoading('Loading entity info…');
+  if (!body) return;
+  if (!id) {
+    body.innerHTML = '<div class="empty-state"><div class="empty-state-title">Select an entity to edit</div></div>';
+    return;
+  }
+  body.innerHTML = '<div class="empty-state"><div class="empty-state-title">Loading…</div></div>';
   const { data: c, error } = await sb.from('companies').select('*').eq('id', id).single();
-  hideLoading();
-  if (error || !c) { body.innerHTML='<div class="empty-state"><div class="empty-state-title">Could not load entity</div></div>'; return; }
+  if (error || !c) {
+    body.innerHTML = '<div class="empty-state"><div class="empty-state-title">Could not load entity: ' + (error?.message||'unknown error') + '</div></div>';
+    return;
+  }
+
+  const row = (label, id, val, type='text', placeholder='') =>
+    `<div class="field-group">
+      <label class="field-label">${label}</label>
+      <input type="${type}" class="field-input" id="${id}" value="${(val||'').toString().replace(/"/g,'&quot;')}" placeholder="${placeholder}">
+    </div>`;
+
+  const sel = (label, id, opts, curVal) =>
+    `<div class="field-group">
+      <label class="field-label">${label}</label>
+      <select class="field-select" id="${id}">
+        ${opts.map(o => {
+          const v = typeof o === 'object' ? o.v : o;
+          const t = typeof o === 'object' ? o.t : o;
+          return `<option value="${v}" ${curVal===v?'selected':''}>${t}</option>`;
+        }).join('')}
+      </select>
+    </div>`;
 
   body.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-      <!-- Basic Info -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;padding-bottom:32px;">
+
       <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px 24px;">
-        <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:16px;">Basic Information</div>
+        <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:14px;border-bottom:1px solid var(--border-light);padding-bottom:8px;">Basic Information</div>
         <div class="form-grid">
-          <div class="field-group col-span-2"><label class="field-label required">Legal Name</label>
-            <input type="text" class="field-input" id="ei-legal-name" value="${c.legal_name||''}"></div>
-          <div class="field-group"><label class="field-label">DBA / Trade Name</label>
-            <input type="text" class="field-input" id="ei-dba" value="${c.dba_name||''}"></div>
-          <div class="field-group"><label class="field-label">EIN / Tax ID</label>
-            <input type="text" class="field-input" id="ei-ein" value="${c.ein||''}" placeholder="XX-XXXXXXX"></div>
-          <div class="field-group"><label class="field-label">Entity Structure</label>
-            <select class="field-select" id="ei-structure">
-              ${['LLC','S Corp','C Corp','Partnership','Sole Proprietor','Non-Profit','LP','LLP'].map(s=>`<option ${c.structure===s?'selected':''}>${s}</option>`).join('')}
-            </select></div>
-          <div class="field-group"><label class="field-label">Industry</label>
-            <select class="field-select" id="ei-industry">
-              ${['','Real Estate','Finance & Investment','Construction','Transportation','Retail','Professional Services','Healthcare','Technology','Manufacturing','Hospitality','Agriculture','Other'].map(s=>`<option value="${s}" ${c.industry===s?'selected':''}>${s||'— Select —'}</option>`).join('')}
-            </select></div>
-          <div class="field-group"><label class="field-label">State of Formation</label>
-            <input type="text" class="field-input" id="ei-state" value="${c.state_of_formation||''}" placeholder="FL"></div>
-          <div class="field-group"><label class="field-label">Date Formed</label>
-            <input type="date" class="field-input" id="ei-formed" value="${c.date_formed||''}"></div>
-          <div class="field-group"><label class="field-label">Fiscal Year End</label>
-            <select class="field-select" id="ei-fiscal-year">
-              ${['December','January','February','March','April','May','June','July','August','September','October','November'].map(m=>`<option ${(c.fiscal_year_end_month===m||(!c.fiscal_year_end_month&&m==='December'))?'selected':''}>${m}</option>`).join('')}
-            </select></div>
+          ${row('Legal Name *','ei-legal-name', c.legal_name)}
+          ${row('DBA / Trade Name','ei-dba', c.dba)}
+          ${row('FEIN / Tax ID','ei-fein', c.fein, 'text', 'XX-XXXXXXX')}
+          ${sel('Entity Structure','ei-structure',
+            ['LLC','S Corp','C Corp','Partnership','Sole Proprietor','Non-Profit','LP','LLP'],
+            c.structure)}
+          ${sel('Industry','ei-industry-type',
+            [{v:'',t:'— Select —'},'Construction','Real Estate','Finance & Investment',
+             'Transportation','Retail','Professional Services','Healthcare',
+             'Technology','Manufacturing','Hospitality','Agriculture','Other'],
+            c.industry_type||c.industry||'')}
+          ${row('NAICS Code','ei-naics', c.naics, 'text', '236220')}
         </div>
       </div>
-      <!-- Address & Contact -->
+
       <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px 24px;">
-        <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:16px;">Address &amp; Contact</div>
+        <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:14px;border-bottom:1px solid var(--border-light);padding-bottom:8px;">Primary Address</div>
         <div class="form-grid">
-          <div class="field-group col-span-2"><label class="field-label">Street Address</label>
-            <input type="text" class="field-input" id="ei-addr1" value="${c.address_line1||''}"></div>
-          <div class="field-group col-span-2"><label class="field-label">Address Line 2</label>
-            <input type="text" class="field-input" id="ei-addr2" value="${c.address_line2||''}"></div>
-          <div class="field-group"><label class="field-label">City</label>
-            <input type="text" class="field-input" id="ei-city" value="${c.city||''}"></div>
-          <div class="field-group"><label class="field-label">State</label>
-            <input type="text" class="field-input" id="ei-state2" value="${c.state||''}" placeholder="FL"></div>
-          <div class="field-group"><label class="field-label">ZIP Code</label>
-            <input type="text" class="field-input" id="ei-zip" value="${c.zip||''}"></div>
-          <div class="field-group"><label class="field-label">Phone</label>
-            <input type="text" class="field-input" id="ei-phone" value="${c.phone||''}"></div>
-          <div class="field-group col-span-2"><label class="field-label">Email</label>
-            <input type="email" class="field-input" id="ei-email" value="${c.email||''}"></div>
-          <div class="field-group col-span-2"><label class="field-label">Website</label>
-            <input type="url" class="field-input" id="ei-website" value="${c.website||''}" placeholder="https://"></div>
+          <div class="field-group col-span-2">${row('Street Address','ei-addr1', c.prim_addr1).replace('<div class="field-group">','').replace('</div>','')}</div>
+          <div class="field-group col-span-2">${row('Address Line 2','ei-addr2', c.prim_addr2).replace('<div class="field-group">','').replace('</div>','')}</div>
+          ${row('City','ei-city', c.prim_city)}
+          ${row('State','ei-state', c.prim_state, 'text', 'FL')}
+          ${row('ZIP Code','ei-zip', c.prim_zip)}
+          ${row('Country','ei-country', c.prim_country||'USA')}
         </div>
       </div>
-      <!-- Accounting Settings -->
+
       <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px 24px;">
-        <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:16px;">Accounting Settings</div>
+        <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:14px;border-bottom:1px solid var(--border-light);padding-bottom:8px;">Accounting Settings</div>
         <div class="form-grid">
-          <div class="field-group"><label class="field-label">GL Accounting Method</label>
-            <select class="field-select" id="ei-acct-gl">
-              ${['Accrual','Cash','Modified Cash'].map(m=>`<option ${c.acct_method_gl===m?'selected':''}>${m}</option>`).join('')}
-            </select></div>
-          <div class="field-group"><label class="field-label">Tax Accounting Method</label>
-            <select class="field-select" id="ei-acct-tax">
-              ${['Accrual','Cash','Modified Cash'].map(m=>`<option ${c.acct_method_tax===m?'selected':''}>${m}</option>`).join('')}
-            </select></div>
-          <div class="field-group"><label class="field-label">SUTA State</label>
-            <input type="text" class="field-input" id="ei-suta" value="${c.suta_state||''}" placeholder="FL"></div>
-          <div class="field-group"><label class="field-label">Is Rental Company?</label>
-            <select class="field-select" id="ei-is-rental">
-              <option value="false" ${!c.is_rental_company?'selected':''}>No</option>
-              <option value="true"  ${c.is_rental_company?'selected':''}>Yes</option>
-            </select></div>
+          ${sel('GL Accounting Method','ei-acct-gl',['Accrual','Cash','Modified Cash'], c.acct_method_gl||'Accrual')}
+          ${sel('Tax Accounting Method','ei-acct-tax',['Accrual','Cash','Modified Cash'], c.acct_method_tax||'Accrual')}
+          ${sel('Fiscal Year End Month','ei-fiscal-month',
+            ['January','February','March','April','May','June',
+             'July','August','September','October','November','December'],
+            c.acct_year_end_month||'December')}
+          ${sel('Rental Company?','ei-is-rental',
+            [{v:'false',t:'No'},{v:'true',t:'Yes'}],
+            c.is_rental_company?'true':'false')}
         </div>
       </div>
-      <!-- Key Personnel -->
+
       <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px 24px;">
-        <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:16px;">Key Personnel &amp; Contact</div>
+        <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:14px;border-bottom:1px solid var(--border-light);padding-bottom:8px;">Key Contact</div>
         <div class="form-grid">
-          <div class="field-group col-span-2"><label class="field-label">Primary Contact Name</label>
-            <input type="text" class="field-input" id="ei-contact-name" value="${c.contact_name||''}"></div>
-          <div class="field-group"><label class="field-label">Contact Title</label>
-            <input type="text" class="field-input" id="ei-contact-title" value="${c.contact_title||''}"></div>
-          <div class="field-group"><label class="field-label">Contact Phone</label>
-            <input type="text" class="field-input" id="ei-contact-phone" value="${c.contact_phone||''}"></div>
-          <div class="field-group col-span-2"><label class="field-label">Contact Email</label>
-            <input type="email" class="field-input" id="ei-contact-email" value="${c.contact_email||''}"></div>
-          <div class="field-group col-span-2"><label class="field-label">Notes</label>
-            <input type="text" class="field-input" id="ei-notes" value="${c.notes||''}"></div>
+          <div class="field-group col-span-2">${row('Contact Name','ei-contact-name', c.contact_name).replace('<div class="field-group">','').replace('</div>','')}</div>
+          ${row('Title','ei-contact-title', c.contact_title)}
+          ${row('Phone','ei-contact-phone', c.contact_phone, 'tel')}
+          <div class="field-group col-span-2">${row('Email','ei-contact-email', c.contact_email, 'email').replace('<div class="field-group">','').replace('</div>','')}</div>
         </div>
       </div>
+
     </div>`;
 }
 
@@ -24073,38 +24129,33 @@ async function saveEntityInfo() {
   const g = eid => document.getElementById(eid)?.value || '';
   showLoading('Saving…');
   const { error } = await sb.from('companies').update({
-    legal_name:           g('ei-legal-name'),
-    dba_name:             g('ei-dba') || null,
-    ein:                  g('ei-ein') || null,
-    structure:            g('ei-structure'),
-    industry:             g('ei-industry') || null,
-    state_of_formation:   g('ei-state') || null,
-    date_formed:          g('ei-formed') || null,
-    fiscal_year_end_month: g('ei-fiscal-year'),
-    address_line1:        g('ei-addr1') || null,
-    address_line2:        g('ei-addr2') || null,
-    city:                 g('ei-city') || null,
-    state:                g('ei-state2') || null,
-    zip:                  g('ei-zip') || null,
-    phone:                g('ei-phone') || null,
-    email:                g('ei-email') || null,
-    website:              g('ei-website') || null,
-    acct_method_gl:       g('ei-acct-gl'),
-    acct_method_tax:      g('ei-acct-tax'),
-    suta_state:           g('ei-suta') || null,
-    is_rental_company:    document.getElementById('ei-is-rental')?.value === 'true',
-    contact_name:         g('ei-contact-name') || null,
-    contact_title:        g('ei-contact-title') || null,
-    contact_phone:        g('ei-contact-phone') || null,
-    contact_email:        g('ei-contact-email') || null,
-    notes:                g('ei-notes') || null,
-    updated_at:           new Date().toISOString(),
+    legal_name:          g('ei-legal-name'),
+    dba:                 g('ei-dba') || null,
+    fein:                g('ei-fein') || null,
+    structure:           g('ei-structure') || null,
+    industry_type:       g('ei-industry-type') || null,
+    acct_method_gl:      g('ei-acct-gl') || null,
+    acct_method_tax:     g('ei-acct-tax') || null,
+    acct_year_end_month: g('ei-fiscal-month') || null,
+    is_rental_company:   document.getElementById('ei-is-rental')?.value === 'true',
+    prim_addr1:          g('ei-addr1') || null,
+    prim_addr2:          g('ei-addr2') || null,
+    prim_city:           g('ei-city') || null,
+    prim_state:          g('ei-state') || null,
+    prim_zip:            g('ei-zip') || null,
+    prim_country:        g('ei-country') || null,
+    contact_name:        g('ei-contact-name') || null,
+    contact_title:       g('ei-contact-title') || null,
+    contact_phone:       g('ei-contact-phone') || null,
+    contact_email:       g('ei-contact-email') || null,
+    naics:               g('ei-naics') || null,
+    products_services:   g('ei-products') || null,
+    updated_at:          new Date().toISOString(),
   }).eq('id', id);
   hideLoading();
-  if (error) { showToast('Error: ' + error.message, true); return; }
+  if (error) { showToast('Save failed: ' + error.message, true); return; }
   showToast('✓ Entity information saved');
-  // Check construction flag
-  checkConstructionAccess(document.getElementById('ei-industry')?.value || '');
+  checkConstructionAccess(document.getElementById('ei-industry-type')?.value || '');
 }
 
 // ─────────────────────────────────────────────────────────────────
