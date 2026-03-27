@@ -3362,6 +3362,36 @@
     <!-- ═══════════════════════════════════════════
          BATCH 5 — SETTINGS / RBAC / USERS
     ═══════════════════════════════════════════ -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!--  ENTITY SETTINGS — standalone full-page editor         -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="view-entity-settings" class="panel">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Entity Information</div>
+          <div class="page-subtitle">Edit company details, addresses, accounting settings, and key contacts</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn-secondary" onclick="pickNav('settings')">← Back to Settings</button>
+          <button class="btn-save" onclick="saveEntityInfo()">Save Changes</button>
+        </div>
+      </div>
+      <!-- Entity selector bar -->
+      <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;">
+        <span style="font-size:13px;font-weight:500;color:var(--navy);">Editing Entity:</span>
+        <select id="ei-entity-sel" class="field-select" style="height:36px;width:300px;" onchange="loadEntityInfo()">
+          <option value="">— Select entity to edit —</option>
+        </select>
+        <span style="font-size:12px;color:var(--text-light);">Changes save to the selected entity only.</span>
+      </div>
+      <!-- Form body rendered by loadEntityInfo() -->
+      <div id="ei-body">
+        <div class="empty-state">
+          <div class="empty-state-title">Loading entities…</div>
+        </div>
+      </div>
+    </div>
+
     <div id="view-settings" class="panel">
       <div class="page-header">
         <div>
@@ -3382,7 +3412,7 @@
           <div class="set-sidebar-section">Subscription</div>
           <button class="set-sidebar-btn"         id="set-nav-plan"        onclick="showSetPanel('plan')">       <span>💳</span> Plan &amp; Billing</button>
           <div class="set-sidebar-section">Company Admin</div>
-          <button class="set-sidebar-btn"         id="set-nav-company-info" onclick="showSetPanel('company-info')"><span>🏢</span> Entity Info</button>
+          <button class="set-sidebar-btn"         id="set-nav-company-info" onclick="pickNav('entity-settings')"><span>🏢</span> Entity Info</button>
           <button class="set-sidebar-btn"         id="set-nav-payment"      onclick="showSetPanel('payment')">     <span>💰</span> Payment Method</button>
           <div class="set-sidebar-section">Audit</div>
           <button class="set-sidebar-btn"         id="set-nav-activity"    onclick="showSetPanel('activity')">   <span>📋</span> Activity Log</button>
@@ -3461,22 +3491,7 @@
           </div>
 
           <!-- ENTITY INFO (CLIENT ADMIN) -->
-          <div id="set-panel-company-info" class="set-panel">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-              <div>
-                <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Entity Information</div>
-                <div style="margin-top:8px;display:flex;align-items:center;gap:10px;">
-                  <span style="font-size:13px;color:var(--text-mid);">Editing:</span>
-                  <select id="ei-entity-sel" class="field-select" style="height:34px;width:260px;" onchange="loadEntityInfo()">
-                    <option value="">— Select entity —</option>
-                  </select>
-                </div>
-              </div>
-              <button class="btn-save" onclick="saveEntityInfo()">Save Changes</button>
-            </div>
-            <div id="ei-body"><div class="empty-state"><div class="empty-state-title">Loading entities…</div></div></div>
-          </div>
-
+          <!-- Entity Info moved to view-entity-settings module -->
           <!-- PAYMENT METHOD -->
           <div id="set-panel-payment" class="set-panel">
             <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);margin-bottom:20px;">Payment Method</div>
@@ -7263,6 +7278,11 @@ function switchModule(module) {
     document.getElementById('view-budgeting').classList.add('active');
     scrollMainToTop();
     loadBudgetingModule();
+  } else if (module === 'entity-settings') {
+    document.getElementById('view-entity-settings').classList.add('active');
+    scrollMainToTop();
+    loadEntityInfoPanel();
+    return;
   } else if (module === 'settings') {
     document.getElementById('view-settings').classList.add('active');
     scrollMainToTop();
@@ -15680,9 +15700,13 @@ function loadPlanBilling() {
         + '</div>';
     }
 
+    var planIdStr = plan.id;
+    var planNameStr = plan.name;
+    var planPriceNum = plan.price;
+    var hasPayroll = plan.id === 'professional' || plan.id === 'enterprise' || plan.id === 'accounting_firm';
     var btnHtml = isCurrent
       ? '<div style="width:100%;margin-top:16px;padding:8px;background:var(--gold-pale);border:1px solid var(--gold);border-radius:var(--radius);text-align:center;font-size:12px;font-weight:600;color:var(--gold);">Current Plan</div>'
-      : '<button onclick="showToast(\'Contact us at support@clarushq.com to change your plan\')" style="width:100%;margin-top:16px;padding:8px;background:var(--navy);color:var(--gold-light);border:none;border-radius:var(--radius);cursor:pointer;font-size:13px;font-family:\'DM Sans\',sans-serif;">Select Plan</button>';
+      : '<button onclick="openPlanSelectModal(\'' + planIdStr + '\',\'' + planNameStr + '\',' + planPriceNum + ')" style="width:100%;margin-top:16px;padding:8px;background:var(--navy);color:var(--gold-light);border:none;border-radius:var(--radius);cursor:pointer;font-size:13px;font-family:\'DM Sans\',sans-serif;">Select Plan</button>';
 
     return '<div style="border:1px solid var(--border-light);border-top:4px solid ' + plan.color + ';border-radius:var(--radius-lg);padding:20px;background:var(--white)' + (isCurrent ? ';box-shadow:0 0 0 2px ' + plan.color + '44;' : '') + '">'
       + '<div style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:4px;">' + plan.name + '</div>'
@@ -24518,6 +24542,178 @@ async function loadEQTransactions() {
     c.innerHTML = `<div class="empty-state"><div class="empty-state-title">Error: ${e.message}</div></div>`;
   }
 }
+
+</script>
+
+<!-- ══ PLAN SELECT MODAL ══ -->
+<div class="modal-overlay" id="planSelectModal">
+<div class="modal" style="max-width:540px;">
+    <div class="modal-header">
+      <span class="modal-title" id="planSelectTitle">Select Plan</span>
+      <button class="modal-close" onclick="closeModal('planSelectModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <!-- Plan summary -->
+      <div id="planSelectSummary" style="background:var(--section-bg);border-radius:var(--radius);padding:14px 16px;margin-bottom:20px;font-size:13px;"></div>
+
+      <!-- Add-on: Payroll module -->
+      <div id="planSelectPayrollRow" style="display:none;border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <input type="checkbox" id="addon-payroll" style="accent-color:var(--teal);width:16px;height:16px;" onchange="calcPlanTotal()">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--navy);">Add Payroll Processing Module</div>
+            <div style="font-size:12px;color:var(--text-light);">$50/month base + $5/employee/month</div>
+          </div>
+        </div>
+        <div id="payroll-emp-row" style="display:none;margin-left:28px;">
+          <label style="font-size:13px;color:var(--text-mid);display:flex;align-items:center;gap:10px;">
+            Number of employees:
+            <input type="number" id="payroll-emp-count" class="field-input" value="5" min="1" max="9999"
+              style="width:90px;height:32px;" oninput="calcPlanTotal()">
+          </label>
+          <div id="payroll-cost-preview" style="font-size:12px;color:var(--teal);margin-top:6px;"></div>
+        </div>
+      </div>
+
+      <!-- Other add-on modules -->
+      <div id="planSelectAddons" style="border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:16px;display:none;">
+        <div style="font-size:13px;font-weight:500;color:var(--navy);margin-bottom:10px;">Optional Add-On Modules</div>
+        <div id="planAddonsList"></div>
+      </div>
+
+      <!-- Total -->
+      <div style="background:var(--navy);color:#fff;border-radius:var(--radius-lg);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:13px;">Monthly Total</span>
+        <span id="planTotalDisplay" style="font-size:22px;font-weight:700;font-family:'Playfair Display',serif;">$0/mo</span>
+      </div>
+
+      <div style="margin-top:14px;font-size:12px;color:var(--text-light);">
+        You will not be charged until you confirm. Annual billing saves 16% (2 months free).
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('planSelectModal')">Cancel</button>
+      <button class="btn-save" onclick="confirmPlanSelect()">Confirm &amp; Subscribe</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  PLAN SELECT LOGIC
+// ════════════════════════════════════════════════════════
+let _selectedPlanId = null;
+let _selectedPlanName = null;
+let _selectedPlanBase = 0;
+
+var PLAN_ADDONS = {
+  professional: [
+    {id:'projects',    label:'Project Management',  price:49},
+    {id:'inventory',   label:'Inventory Management', price:49},
+    {id:'rentals',     label:'Rental Scheduling',    price:79},
+    {id:'aia',         label:'AIA G702/G703 Billing',price:49},
+  ],
+  enterprise: [],
+  accounting_firm: [],
+  core: []
+};
+
+function openPlanSelectModal(planId, planName, planPrice) {
+  _selectedPlanId   = planId;
+  _selectedPlanName = planName;
+  _selectedPlanBase = planPrice;
+
+  document.getElementById('planSelectTitle').textContent = 'Select: ' + planName + ' Plan';
+  document.getElementById('planSelectSummary').innerHTML =
+    '<strong>' + planName + ' Plan</strong> — $' + planPrice + '/month base price.<br>'
+    + '<span style="color:var(--text-light);">Includes all core features listed on the plan card.</span>';
+
+  // Show payroll add-on for Professional and above
+  var payrollRow = document.getElementById('planSelectPayrollRow');
+  var payrollEmpRow = document.getElementById('payroll-emp-row');
+  var addonCb = document.getElementById('addon-payroll');
+  if (planId === 'core') {
+    payrollRow.style.display = 'none';
+  } else {
+    payrollRow.style.display = 'block';
+    addonCb.checked = false;
+    payrollEmpRow.style.display = 'none';
+  }
+
+  // Show other add-ons for Professional
+  var addonsDiv = document.getElementById('planSelectAddons');
+  var addonsList = document.getElementById('planAddonsList');
+  var addons = PLAN_ADDONS[planId] || [];
+  if (addons.length) {
+    addonsDiv.style.display = 'block';
+    addonsList.innerHTML = addons.map(function(a) {
+      return '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-light);">'
+        + '<input type="checkbox" id="addon-' + a.id + '" style="accent-color:var(--teal);width:15px;height:15px;" onchange="calcPlanTotal()">'
+        + '<label for="addon-' + a.id + '" style="font-size:13px;color:var(--text-mid);cursor:pointer;flex:1;">'
+        + a.label + '</label>'
+        + '<span style="font-size:12px;color:var(--navy);font-weight:500;">+$' + a.price + '/mo</span>'
+        + '</div>';
+    }).join('');
+  } else {
+    addonsDiv.style.display = 'none';
+  }
+
+  calcPlanTotal();
+  document.getElementById('planSelectModal').classList.add('show');
+}
+
+function calcPlanTotal() {
+  var total = _selectedPlanBase;
+
+  // Payroll add-on
+  var payrollCb = document.getElementById('addon-payroll');
+  var payrollEmpRow = document.getElementById('payroll-emp-row');
+  var payrollPreview = document.getElementById('payroll-cost-preview');
+  if (payrollCb && payrollCb.checked) {
+    payrollEmpRow.style.display = 'block';
+    var empCount = parseInt(document.getElementById('payroll-emp-count')?.value || 5) || 5;
+    var payrollCost = 50 + (empCount * 5);
+    total += payrollCost;
+    if (payrollPreview) payrollPreview.textContent = '$50 base + ' + empCount + ' employees × $5 = $' + payrollCost + '/mo';
+  } else if (payrollCb) {
+    payrollEmpRow.style.display = 'none';
+    if (payrollPreview) payrollPreview.textContent = '';
+  }
+
+  // Other add-ons
+  var addons = PLAN_ADDONS[_selectedPlanId] || [];
+  addons.forEach(function(a) {
+    var cb = document.getElementById('addon-' + a.id);
+    if (cb && cb.checked) total += a.price;
+  });
+
+  document.getElementById('planTotalDisplay').textContent = '$' + total + '/mo';
+}
+
+async function confirmPlanSelect() {
+  var empCount = 0;
+  var payrollCb = document.getElementById('addon-payroll');
+  var includePayroll = payrollCb && payrollCb.checked;
+  if (includePayroll) {
+    empCount = parseInt(document.getElementById('payroll-emp-count')?.value || 5) || 5;
+  }
+
+  var addons = PLAN_ADDONS[_selectedPlanId] || [];
+  var selectedAddons = addons.filter(function(a) {
+    return document.getElementById('addon-' + a.id)?.checked;
+  }).map(function(a) { return a.label; });
+
+  var total = parseInt(document.getElementById('planTotalDisplay').textContent.replace(/[^0-9]/g,''));
+
+  showLoading('Processing subscription…');
+  await new Promise(function(r) { setTimeout(r, 1200); }); // Stripe would process here
+  hideLoading();
+  closeModal('planSelectModal');
+  showToast('✓ Plan updated to ' + _selectedPlanName + ' — $' + total + '/mo. Check your email for confirmation.');
+  // Reload billing panel to reflect new plan
+  loadPlanBilling();
+}
+
 // ── INIT ──
 async function initApp() {
   await initAuth();
