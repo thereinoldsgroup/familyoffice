@@ -3377,12 +3377,14 @@
         </div>
       </div>
       <!-- Entity selector bar -->
-      <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;">
-        <span style="font-size:13px;font-weight:500;color:var(--navy);">Editing Entity:</span>
-        <select id="ei-entity-sel" class="field-select" style="height:36px;width:300px;" onchange="loadEntityInfo()">
-          <option value="">— Select entity to edit —</option>
-        </select>
-        <span style="font-size:12px;color:var(--text-light);">Changes save to the selected entity only.</span>
+      <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:14px 20px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <span style="font-size:13px;font-weight:600;color:var(--navy);white-space:nowrap;">Editing Entity:</span>
+          <select id="ei-entity-sel" class="field-select" style="height:36px;width:280px;flex-shrink:0;" onchange="loadEntityInfo()">
+            <option value="">— Select entity —</option>
+          </select>
+          <span style="font-size:12px;color:var(--text-light);">Changes are saved to the selected entity only. All fields are editable.</span>
+        </div>
       </div>
       <!-- Form body rendered by loadEntityInfo() -->
       <div id="ei-body">
@@ -15703,10 +15705,9 @@ function loadPlanBilling() {
     var planIdStr = plan.id;
     var planNameStr = plan.name;
     var planPriceNum = plan.price;
-    var hasPayroll = plan.id === 'professional' || plan.id === 'enterprise' || plan.id === 'accounting_firm';
     var btnHtml = isCurrent
       ? '<div style="width:100%;margin-top:16px;padding:8px;background:var(--gold-pale);border:1px solid var(--gold);border-radius:var(--radius);text-align:center;font-size:12px;font-weight:600;color:var(--gold);">Current Plan</div>'
-      : '<button onclick="openPlanSelectModal(\'' + planIdStr + '\',\'' + planNameStr + '\',' + planPriceNum + ')" style="width:100%;margin-top:16px;padding:8px;background:var(--navy);color:var(--gold-light);border:none;border-radius:var(--radius);cursor:pointer;font-size:13px;font-family:\'DM Sans\',sans-serif;">Select Plan</button>';
+      : '<button data-plan-id="' + planIdStr + '" data-plan-name="' + planNameStr + '" data-plan-price="' + planPriceNum + '" onclick="var el=this;openPlanSelectModal(el.dataset.planId,el.dataset.planName,parseInt(el.dataset.planPrice))" style="width:100%;margin-top:16px;padding:8px;background:var(--navy);color:var(--gold-light);border:none;border-radius:var(--radius);cursor:pointer;font-size:13px;font-family:\'DM Sans\',sans-serif;">Select Plan</button>';
 
     return '<div style="border:1px solid var(--border-light);border-top:4px solid ' + plan.color + ';border-radius:var(--radius-lg);padding:20px;background:var(--white)' + (isCurrent ? ';box-shadow:0 0 0 2px ' + plan.color + '44;' : '') + '">'
       + '<div style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:4px;">' + plan.name + '</div>'
@@ -24169,7 +24170,7 @@ async function loadEntityInfo() {
   var rentalOpts = [{v:'false',t:'No'},{v:'true',t:'Yes'}];
 
   var basicCard = card('Basic Information',
-    fldRow('Legal Name', 'ei-legal-name', c.legal_name)
+    fldRow2('Legal Name *', 'ei-legal-name', c.legal_name)
     + fldRow('DBA / Trade Name', 'ei-dba', c.dba)
     + fldRow('FEIN / Tax ID', 'ei-fein', c.fein, 'text', 'XX-XXXXXXX')
     + selRow('Entity Structure', 'ei-structure', structOpts, c.structure)
@@ -24200,7 +24201,8 @@ async function loadEntityInfo() {
     + fldRow2('Email', 'ei-contact-email', c.contact_email, 'email')
   );
 
-  body.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;padding-bottom:40px;">'
+  body.innerHTML = '<div style="background:var(--teal-light);border:1px solid var(--teal);border-radius:var(--radius);padding:10px 16px;margin-bottom:16px;font-size:13px;color:var(--teal-mid);">✏️ All fields below are editable. Make changes and click <strong>Save Changes</strong> above.</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;padding-bottom:40px;">'
     + basicCard + addrCard + acctCard + contactCard
     + '</div>';
 }
@@ -24231,7 +24233,6 @@ async function saveEntityInfo() {
     contact_phone:       g('ei-contact-phone') || null,
     contact_email:       g('ei-contact-email') || null,
     naics:               g('ei-naics') || null,
-    products_services:   g('ei-products') || null,
     updated_at:          new Date().toISOString(),
   }).eq('id', id);
   hideLoading();
