@@ -111,7 +111,7 @@
 
   /* ── SIDEBAR ── */
   .sidebar {
-    width: 240px;
+    width: 200px;
     background: var(--navy-mid);
     display: flex;
     flex-direction: column;
@@ -120,6 +120,9 @@
     overflow-y: auto;
     overflow-x: hidden;
     flex-shrink: 0;
+    transition: width 0.22s cubic-bezier(0.4,0,0.2,1);
+    overflow: hidden;
+    position: relative;
   }
   /* ── Batch 16 Side Navigation ── */
   .sidenav { display:flex; flex-direction:column; gap:1px; padding:0 8px; }
@@ -162,6 +165,95 @@
   }
   .sidenav-child:hover { background:rgba(255,255,255,0.06); color:#fff; }
   .sidenav-child.active { color:var(--teal); font-weight:500; background:rgba(44,166,164,0.1); }
+  /* ── OPTION 4: COLLAPSIBLE SIDEBAR ── */
+  .sidebar.nav-collapsed {
+    width: 54px;
+  }
+  .sidebar.nav-collapsed .sidenav-label,
+  .sidebar.nav-collapsed .sidenav-caret,
+  .sidebar.nav-collapsed .sidenav-children,
+  .sidebar.nav-collapsed .sidenav-children.open {
+    display: none !important;
+  }
+  .sidebar.nav-collapsed .sidenav-group-btn,
+  .sidebar.nav-collapsed .sidenav-item {
+    padding: 9px 0;
+    justify-content: center;
+  }
+  .sidebar.nav-collapsed .sidenav-icon {
+    width: 54px;
+    text-align: center;
+    font-size: 16px;
+  }
+  .sidebar.nav-collapsed .sidenav {
+    padding: 0;
+  }
+  /* Tooltip on hover when collapsed */
+  .sidebar.nav-collapsed .sidenav-item,
+  .sidebar.nav-collapsed .sidenav-group-btn {
+    position: relative;
+  }
+  .sidebar.nav-collapsed .sidenav-item::after,
+  .sidebar.nav-collapsed .sidenav-group-btn::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 58px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--navy);
+    color: var(--gold-light);
+    padding: 5px 10px;
+    border-radius: var(--radius);
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 999;
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: opacity 0.15s;
+  }
+  .sidebar.nav-collapsed .sidenav-item:hover::after,
+  .sidebar.nav-collapsed .sidenav-group-btn:hover::after {
+    opacity: 1;
+  }
+  /* Toggle button */
+  #nav-collapse-btn {
+    position: fixed;
+    top: 80px;
+    left: 188px;
+    width: 24px;
+    height: 24px;
+    background: var(--navy-mid);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 50%;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    z-index: 200;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: left 0.22s cubic-bezier(0.4,0,0.2,1), background 0.15s;
+    padding: 0;
+    line-height: 1;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  #nav-collapse-btn:hover {
+    background: var(--teal);
+    color: #fff;
+    border-color: var(--teal);
+  }
+  #nav-collapse-btn.is-collapsed {
+    left: 42px;
+  }
+  /* Adjust entity-settings control bar on collapse */
+  .sidebar.nav-collapsed ~ main .ei-control-bar {
+    margin-left: -56px;
+    padding-left: 56px;
+  }
+
   /* Global entity select in topbar */
   #global-entity-select option { background:var(--navy-mid); color:#fff; }
   #global-entity-select:focus { outline:none; border-color:var(--teal); }
@@ -225,11 +317,11 @@
   .add-company-btn:hover { background: var(--teal-mid); box-shadow: 0 4px 16px rgba(44,166,164,0.35); transform: translateY(-1px); }
 
   /* ── MAIN ── */
-  .main { flex: 1; height: 100%; overflow-y: auto; overflow-x: hidden; padding: 32px 40px; overflow-anchor: none; }
+  .main { flex: 1; height: 100%; overflow-y: auto; overflow-x: hidden; padding: 32px 40px 32px 56px; overflow-anchor: none; }
   /* Hide companies sidebar when other modules are active */
   .sidebar-hidden { display: none !important; }
   /* When sidebar hidden, panels take full width */
-  .sidebar-hidden ~ .main { padding-left: 40px; }
+  .sidebar-hidden ~ 
   /* Tax layout */
   .tax-layout { display:flex; gap:0; }
   /* Ownership and Financials panels also use full width */
@@ -988,17 +1080,17 @@
     <!-- ── NAV SECTIONS ── -->
     <div class="sidenav">
 
-      <button class="sidenav-item" id="nav-dashboard-btn" onclick="pickNav('dashboard')" style="background:rgba(200,164,109,0.15);border-left:3px solid var(--gold);margin-bottom:4px;">
+      <button class="sidenav-item" id="nav-dashboard-btn" onclick="pickNav('dashboard')" data-tooltip="Dashboard" style="background:rgba(200,164,109,0.15);border-left:3px solid var(--gold);margin-bottom:4px;">
         <span class="sidenav-icon">🏠</span><span class="sidenav-label" style="font-weight:600;">Dashboard</span>
       </button>
 
-      <button class="sidenav-item" id="nav-companies" onclick="switchModule('companies')">
+      <button class="sidenav-item" id="nav-companies" onclick="switchModule('companies')" data-tooltip="Entities">
         <span class="sidenav-icon">🏢</span><span class="sidenav-label">Entities</span>
       </button>
 
       <!-- Accounting -->
       <div class="sidenav-group" id="sng-accounting">
-        <button class="sidenav-group-btn" onclick="toggleSideGroup('accounting')">
+        <button class="sidenav-group-btn" onclick="toggleSideGroup('accounting')" data-tooltip="Accounting">
           <span class="sidenav-icon">📒</span><span class="sidenav-label">Accounting</span>
           <span class="sidenav-caret">▾</span>
         </button>
@@ -1013,7 +1105,7 @@
 
       <!-- Operations -->
       <div class="sidenav-group" id="sng-operations">
-        <button class="sidenav-group-btn" onclick="toggleSideGroup('operations')">
+        <button class="sidenav-group-btn" onclick="toggleSideGroup('operations')" data-tooltip="Operations">
           <span class="sidenav-icon">⚙️</span><span class="sidenav-label">Operations</span>
           <span class="sidenav-caret">▾</span>
         </button>
@@ -1026,7 +1118,7 @@
 
       <!-- People -->
       <div class="sidenav-group" id="sng-people">
-        <button class="sidenav-group-btn" onclick="toggleSideGroup('people')">
+        <button class="sidenav-group-btn" onclick="toggleSideGroup('people')" data-tooltip="People">
           <span class="sidenav-icon">👥</span><span class="sidenav-label">People</span>
           <span class="sidenav-caret">▾</span>
         </button>
@@ -1039,7 +1131,7 @@
 
       <!-- Intelligence -->
       <div class="sidenav-group" id="sng-intel">
-        <button class="sidenav-group-btn" onclick="toggleSideGroup('intel')">
+        <button class="sidenav-group-btn" onclick="toggleSideGroup('intel')" data-tooltip="Intelligence">
           <span class="sidenav-icon">📊</span><span class="sidenav-label">Intelligence</span>
           <span class="sidenav-caret">▾</span>
         </button>
@@ -1054,7 +1146,7 @@
 
       <!-- Construction (shown when entity has industry=Construction) -->
       <div class="sidenav-group" id="sng-construction" style="display:none;">
-        <button class="sidenav-group-btn" onclick="toggleSideGroup('construction')">
+        <button class="sidenav-group-btn" onclick="toggleSideGroup('construction')" data-tooltip="Construction">
           <span class="sidenav-icon">🏗️</span><span class="sidenav-label">Construction</span>
           <span class="sidenav-caret">▾</span>
         </button>
@@ -1065,7 +1157,7 @@
 
       <!-- Rentals (upsell module) -->
       <div class="sidenav-group" id="sng-rentals">
-        <button class="sidenav-group-btn" onclick="toggleSideGroup('rentals')">
+        <button class="sidenav-group-btn" onclick="toggleSideGroup('rentals')" data-tooltip="Rentals">
           <span class="sidenav-icon">🏗️</span><span class="sidenav-label">Rentals</span>
           <span class="sidenav-caret">▾</span>
         </button>
@@ -1095,6 +1187,9 @@
     </div>
 
   </aside>
+
+  <!-- Nav collapse toggle button -->
+  <button id="nav-collapse-btn" onclick="toggleSideNav()" title="Collapse navigation" aria-label="Toggle navigation">&#9664;</button>
 
   <!-- MAIN -->
   <main class="main">
@@ -26768,7 +26863,36 @@ async function initApp() {
     } catch(e) {}
   }, 1500);
 }
+// ── SIDEBAR COLLAPSE (Option 4) ──
+function toggleSideNav() {
+  const sidebar = document.querySelector('.sidebar');
+  const btn     = document.getElementById('nav-collapse-btn');
+  if (!sidebar || !btn) return;
+  const isCollapsed = sidebar.classList.toggle('nav-collapsed');
+  btn.innerHTML     = isCollapsed ? '&#9654;' : '&#9664;';
+  btn.title         = isCollapsed ? 'Expand navigation' : 'Collapse navigation';
+  btn.classList.toggle('is-collapsed', isCollapsed);
+  localStorage.setItem('clarus_nav_collapsed', isCollapsed ? '1' : '0');
+}
+
+function restoreSideNavState() {
+  if (localStorage.getItem('clarus_nav_collapsed') === '1') {
+    const sidebar = document.querySelector('.sidebar');
+    const btn     = document.getElementById('nav-collapse-btn');
+    if (sidebar) sidebar.classList.add('nav-collapsed');
+    if (btn) {
+      btn.innerHTML = '&#9654;';
+      btn.title     = 'Expand navigation';
+      btn.classList.add('is-collapsed');
+    }
+  }
+}
+
 initApp();
+// Restore collapsed state after DOM is ready
+document.addEventListener('DOMContentLoaded', restoreSideNavState);
+// Also run immediately in case DOMContentLoaded already fired
+restoreSideNavState();
 </script>
 </body>
 </html>
