@@ -248,13 +248,7 @@
   #nav-collapse-btn.is-collapsed {
     left: 54px;
   }
-  /* Adjust entity-settings control bar on collapse */
-  .sidebar.nav-collapsed ~ main .ei-control-bar {
-    margin-left: -56px;
-    padding-left: 56px;
-  }
-
-  /* Global entity select in topbar */
+  /* Adjust entity-settings control ba  /* Global entity select in topbar */
   #global-entity-select option { background:var(--navy-mid); color:#fff; }
   #global-entity-select:focus { outline:none; border-color:var(--teal); }
 
@@ -453,21 +447,7 @@
   /* ── PANELS ── */
   .panel { display: none !important; overflow-anchor: none; }
   .panel.active { display: block !important; overflow-anchor: none; }
-  /* Entity-settings uses flex column layout — override block for this panel only */
-  #view-entity-settings.active { display: flex !important; flex-direction: column; height: 100%; padding: 0; }
-  #view-entity-settings .ei-scroll-area { flex: 1; overflow-y: auto; min-height: 0; padding: 28px 32px 60px; }
-  #view-entity-settings input,
-  #view-entity-settings select,
-  #view-entity-settings textarea {
-    pointer-events: auto !important;
-    user-select: auto !important;
-    -webkit-user-select: auto !important;
-    cursor: text;
-    position: relative;
-    z-index: 1;
-  }
-  #view-entity-settings select { cursor: pointer; }
-  #view-entity-settings .ei-control-bar { flex-shrink: 0; }
+
   /* Ensure hidden panels take zero space in all contexts */
   .main { position: relative; }
 
@@ -3483,24 +3463,50 @@
     <!--  ENTITY SETTINGS — standalone full-page editor         -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <div id="view-entity-settings" class="panel">
-      <!-- CONTROL BAR: normal flow, flex-shrink:0, no stacking context -->
-      <div class="ei-control-bar" style="background:var(--navy);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,0.2);">
-        <div style="display:flex;align-items:center;gap:16px;min-width:0;flex:1;">
-          <button onclick="pickNav('settings')" style="flex-shrink:0;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;">
-            &#8592; Settings
-          </button>
-          <div style="flex-shrink:0;">
-            <div style="color:var(--gold-light);font-size:16px;font-weight:600;font-family:'Playfair Display',serif;line-height:1.2;">Entity Information</div>
-            <div style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:1px;">Select an entity, edit fields, then save</div>
-          </div>
-          <select id="ei-entity-sel" onchange="loadEntityInfo()" style="flex:1;max-width:280px;height:36px;padding:0 12px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.08);color:#fff;border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;outline:none;">
-            <option value="" style="background:#1E2A38;">&#8212; Select entity &#8212;</option>
-          </select>
+
+      <!-- PAGE HEADER — identical structure to Accounting panel -->
+      <div class="page-header">
+        <div>
+          <div class="page-title">Entity Information</div>
+          <div class="page-subtitle">Business Details &middot; Address &middot; Accounting Settings &middot; Key Contact</div>
         </div>
-        <button id="ei-save-btn" onclick="saveEntityInfo()" style="flex-shrink:0;background:#C2A46D;color:#1E2A38;border:none;padding:9px 24px;border-radius:6px;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;letter-spacing:0.01em;">
-          &#10003; Save Changes
-        </button>
+        <div class="page-actions">
+          <button class="btn-secondary" onclick="pickNav('settings')">&#8592; Back to Settings</button>
+          <button class="btn-save" id="ei-save-btn" onclick="saveEntityInfo()">Save Changes</button>
+        </div>
       </div>
+
+      <!-- ENTITY SELECTOR BAR — identical structure to Accounting panel -->
+      <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:12px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;">
+        <span style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-light);white-space:nowrap;">Active Entity</span>
+        <select id="ei-entity-sel" class="field-select" style="flex:1;max-width:400px;" onchange="loadEntityInfo()">
+          <option value="">&#8212; Select a company &#8212;</option>
+        </select>
+      </div>
+
+      <!-- ACCT-LAYOUT — same flex structure as Accounting panel -->
+      <div class="acct-layout">
+
+        <!-- LEFT NAV SIDEBAR — same acct-sidebar classes -->
+        <div class="acct-sidebar">
+          <div class="acct-sidebar-section">Entity Info</div>
+          <button class="acct-sidebar-btn active" id="ei-nav-basic"   onclick="showEISection('basic')">  <span class="acct-icon">&#127970;</span> Basic Information</button>
+          <button class="acct-sidebar-btn"         id="ei-nav-address" onclick="showEISection('address')"><span class="acct-icon">&#128205;</span> Address</button>
+          <button class="acct-sidebar-btn"         id="ei-nav-acct"    onclick="showEISection('acct')">   <span class="acct-icon">&#128203;</span> Accounting Settings</button>
+          <button class="acct-sidebar-btn"         id="ei-nav-contact" onclick="showEISection('contact')"><span class="acct-icon">&#128100;</span> Key Contact</button>
+        </div>
+
+        <!-- RIGHT CONTENT — same acct-content class -->
+        <div class="acct-content">
+          <div id="ei-body">
+            <div class="empty-state">
+              <div class="empty-state-title">Select an entity above to begin editing</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /acct-layout -->
+    </div>
       <!-- FORM AREA: independently scrollable, full remaining height -->
       <div class="ei-scroll-area">
         <div id="ei-body">
@@ -24530,7 +24536,7 @@ async function loadEntityInfo() {
   const body = document.getElementById('ei-body');
   if (!body) return;
   if (!id) {
-    body.innerHTML = '<div class="empty-state"><div class="empty-state-title">Select an entity to edit</div></div>';
+    body.innerHTML = '<div class="empty-state"><div class="empty-state-title">Select an entity above to begin editing</div></div>';
     return;
   }
   body.innerHTML = '<div class="empty-state"><div class="empty-state-title">Loading\u2026</div></div>';
@@ -24541,29 +24547,30 @@ async function loadEntityInfo() {
     return;
   }
 
-  // Helper: safe field value
+  // Store loaded data for section switching
+  window._eiData = c;
+
+  // Render the active section
+  const activeSec = window._eiActiveSection || 'basic';
+  renderEISection(activeSec, c);
+}
+
+function renderEISection(section, c) {
+  const body = document.getElementById('ei-body');
+  if (!body || !c) return;
+
+  // Safe value helper
   const v = (val) => (val || '').toString().replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 
-  // Helper: text input row
-  function fldRow(label, fid, val, type, placeholder) {
+  function fld(label, fid, val, type, placeholder, span2) {
     type = type || 'text'; placeholder = placeholder || '';
-    return '<div class="field-group" style="min-width:0;">'
+    return '<div class="field-group' + (span2 ? ' col-span-2' : '') + '">'
       + '<label class="field-label">' + label + '</label>'
       + '<input type="' + type + '" class="field-input" id="' + fid + '" value="' + v(val) + '" placeholder="' + placeholder + '">'
       + '</div>';
   }
 
-  // Helper: text input row spanning 2 columns
-  function fldRow2(label, fid, val, type, placeholder) {
-    type = type || 'text'; placeholder = placeholder || '';
-    return '<div class="field-group col-span-2" style="min-width:0;">'
-      + '<label class="field-label">' + label + '</label>'
-      + '<input type="' + type + '" class="field-input" id="' + fid + '" value="' + v(val) + '" placeholder="' + placeholder + '">'
-      + '</div>';
-  }
-
-  // Helper: select row
-  function selRow(label, fid, opts, curVal) {
+  function sel(label, fid, opts, curVal) {
     var options = opts.map(function(o) {
       var oval = typeof o === 'object' ? o.v : o;
       var otxt = typeof o === 'object' ? o.t : o;
@@ -24575,14 +24582,6 @@ async function loadEntityInfo() {
       + '</div>';
   }
 
-  function card(title, content) {
-    return '<div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px 20px;min-width:0;overflow:hidden;">'
-      + '<div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:12px;border-bottom:1px solid var(--border-light);padding-bottom:7px;">' + title + '</div>'
-      + '<div class="form-grid">' + content + '</div>'
-      + '</div>';
-  }
-
-  var isRental = c.is_rental_company ? 'true' : 'false';
   var structOpts = ['LLC','S Corp','C Corp','Partnership','Sole Proprietor','Non-Profit','LP','LLP'];
   var industOpts = [
     {v:'',t:'— Select —'},{v:'Construction',t:'Construction'},{v:'Real Estate',t:'Real Estate'},
@@ -24595,44 +24594,62 @@ async function loadEntityInfo() {
   var acctOpts = ['Accrual','Cash','Modified Cash'];
   var monthOpts = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   var rentalOpts = [{v:'false',t:'No'},{v:'true',t:'Yes'}];
+  var isRental = c.is_rental_company ? 'true' : 'false';
 
-  var basicCard = card('Basic Information',
-    fldRow2('Legal Name *', 'ei-legal-name', c.legal_name)
-    + fldRow('DBA / Trade Name', 'ei-dba', c.dba)
-    + fldRow('FEIN / Tax ID', 'ei-fein', c.fein, 'text', 'XX-XXXXXXX')
-    + selRow('Entity Structure', 'ei-structure', structOpts, c.structure)
-    + selRow('Industry', 'ei-industry-type', industOpts, c.industry_type || c.industry || '')
-    + fldRow('NAICS Code', 'ei-naics', c.naics, 'text', '236220')
-  );
+  var html = '';
+  if (section === 'basic') {
+    html = '<div class="page-title" style="font-size:18px;margin-bottom:18px;">Basic Information</div>'
+      + '<div class="form-grid">'
+      + fld('Legal Name *',    'ei-legal-name', c.legal_name, 'text', '', true)
+      + fld('DBA / Trade Name','ei-dba',        c.dba)
+      + fld('FEIN / Tax ID',   'ei-fein',       c.fein, 'text', 'XX-XXXXXXX')
+      + sel('Entity Structure','ei-structure',  structOpts, c.structure)
+      + sel('Industry',        'ei-industry-type', industOpts, c.industry_type || c.industry || '')
+      + fld('NAICS Code',      'ei-naics',      c.naics, 'text', '236220')
+      + '</div>';
+  } else if (section === 'address') {
+    html = '<div class="page-title" style="font-size:18px;margin-bottom:18px;">Primary Address</div>'
+      + '<div class="form-grid">'
+      + fld('Street Address',  'ei-addr1',    c.prim_addr1, 'text', '', true)
+      + fld('Address Line 2',  'ei-addr2',    c.prim_addr2, 'text', '', true)
+      + fld('City',            'ei-city',     c.prim_city)
+      + fld('State',           'ei-state',    c.prim_state, 'text', 'FL')
+      + fld('ZIP Code',        'ei-zip',      c.prim_zip)
+      + fld('Country',         'ei-country',  c.prim_country || 'United States')
+      + '</div>';
+  } else if (section === 'acct') {
+    html = '<div class="page-title" style="font-size:18px;margin-bottom:18px;">Accounting Settings</div>'
+      + '<div class="form-grid">'
+      + sel('GL Method',        'ei-acct-gl',      acctOpts,   c.acct_method_gl  || 'Accrual')
+      + sel('Tax Method',       'ei-acct-tax',     acctOpts,   c.acct_method_tax || 'Accrual')
+      + sel('Fiscal Year End',  'ei-fiscal-month', monthOpts,  c.acct_year_end_month || 'December')
+      + sel('Rental Company?',  'ei-is-rental',    rentalOpts, isRental)
+      + '</div>';
+  } else if (section === 'contact') {
+    html = '<div class="page-title" style="font-size:18px;margin-bottom:18px;">Key Contact</div>'
+      + '<div class="form-grid">'
+      + fld('Contact Name', 'ei-contact-name',  c.contact_name, 'text', '', true)
+      + fld('Title',        'ei-contact-title', c.contact_title)
+      + fld('Phone',        'ei-contact-phone', c.contact_phone, 'tel')
+      + fld('Email',        'ei-contact-email', c.contact_email, 'email', '', true)
+      + '</div>';
+  }
 
-  var addrCard = card('Primary Address',
-    fldRow2('Street Address', 'ei-addr1', c.prim_addr1)
-    + fldRow2('Address Line 2', 'ei-addr2', c.prim_addr2)
-    + fldRow('City', 'ei-city', c.prim_city)
-    + fldRow('State', 'ei-state', c.prim_state, 'text', 'FL')
-    + fldRow('ZIP Code', 'ei-zip', c.prim_zip)
-    + fldRow('Country', 'ei-country', c.prim_country || 'USA')
-  );
-
-  var acctCard = card('Accounting Settings',
-    selRow('GL Method', 'ei-acct-gl', acctOpts, c.acct_method_gl || 'Accrual')
-    + selRow('Tax Method', 'ei-acct-tax', acctOpts, c.acct_method_tax || 'Accrual')
-    + selRow('Fiscal Year End', 'ei-fiscal-month', monthOpts, c.acct_year_end_month || 'December')
-    + selRow('Rental Company?', 'ei-is-rental', rentalOpts, isRental)
-  );
-
-  var contactCard = card('Key Contact',
-    fldRow2('Contact Name', 'ei-contact-name', c.contact_name)
-    + fldRow('Title', 'ei-contact-title', c.contact_title)
-    + fldRow('Phone', 'ei-contact-phone', c.contact_phone, 'tel')
-    + fldRow2('Email', 'ei-contact-email', c.contact_email, 'email')
-  );
-
-  body.innerHTML = '<div style="background:var(--teal-light);border:1px solid var(--teal);border-radius:var(--radius);padding:10px 16px;margin-bottom:16px;font-size:13px;color:var(--teal-mid);">&#9998; All fields below are editable &#8212; click any field, make changes, then click <strong>Save Changes</strong> above.</div>'
-    + '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;padding-bottom:40px;max-width:1100px;">'
-    + basicCard + addrCard + acctCard + contactCard
-    + '</div>';
+  body.innerHTML = html;
 }
+
+function showEISection(section) {
+  window._eiActiveSection = section;
+  // Update sidebar nav active state
+  ['basic','address','acct','contact'].forEach(function(s) {
+    var btn = document.getElementById('ei-nav-' + s);
+    if (btn) btn.classList.toggle('active', s === section);
+  });
+  // Re-render with stored data
+  if (window._eiData) renderEISection(section, window._eiData);
+}
+
+
 
 async function saveEntityInfo() {
   const id = document.getElementById('ei-entity-sel')?.value;
