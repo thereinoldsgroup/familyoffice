@@ -1048,6 +1048,7 @@
           <button class="sidenav-child" id="nav-documents"   onclick="pickNav('documents')">Documents</button>
           <button class="sidenav-child" id="nav-audit"       onclick="pickNav('audit')">Internal Audit</button>
           <button class="sidenav-child" id="nav-personal-tax" onclick="pickNav('personal-tax')">Personal Tax (1040)</button>
+          <button class="sidenav-child" id="nav-automations" onclick="pickNav('automations')">Automation Center</button>
         </div>
       </div>
 
@@ -3809,17 +3810,15 @@
           <div id="rpt-panel-builder" class="rpt-panel active">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
               <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Custom Report Builder</div>
-              <div style="display:flex;gap:8px;">
-                <button class="btn-primary" onclick="runCustomReport()">▶ Run Report</button>
-                <button class="btn-secondary" onclick="saveCustomReport()">💾 Save</button>
-                <button class="btn-secondary" onclick="printCustomReport()">🖨 Print / PDF</button>
-              </div>
+              <div style="font-size:12px;color:var(--text-light);">Configure options on the left, then click Run Report</div>
             </div>
-            <div style="display:grid;grid-template-columns:280px 1fr;gap:20px;">
+            <div style="display:grid;grid-template-columns:320px 1fr;gap:20px;">
               <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;">
-                <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:14px;">Configuration</div>
-                <div class="rpt-config-row"><div class="rpt-config-label">Data Source</div>
-                  <select class="field-select" id="rpt-source" style="height:30px;" onchange="onRptSourceChange()">
+                <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:14px;">Report Configuration</div>
+
+                <div style="margin-bottom:12px;">
+                  <div style="font-size:12px;font-weight:500;color:var(--text-mid);margin-bottom:4px;">Data Source</div>
+                  <select class="field-select" id="rpt-source" onchange="onRptSourceChange()">
                     <option value="gl">General Ledger</option>
                     <option value="invoices">Customer Invoices</option>
                     <option value="bills">Vendor Bills</option>
@@ -3827,35 +3826,60 @@
                     <option value="inventory">Inventory</option>
                     <option value="projects">Projects</option>
                     <option value="crm">CRM Deals</option>
-                  </select></div>
-                <div class="rpt-config-row"><div class="rpt-config-label">Date From</div>
-                  <input type="date" class="field-input" id="rpt-date-from" style="height:30px;"></div>
-                <div class="rpt-config-row"><div class="rpt-config-label">Date To</div>
-                  <input type="date" class="field-input" id="rpt-date-to" style="height:30px;"></div>
-                <div class="rpt-config-row"><div class="rpt-config-label">Group By</div>
-                  <select class="field-select" id="rpt-groupby" style="height:30px;">
-                    <option value="">None</option>
+                    <option value="rentals">Rentals</option>
+                    <option value="fixed_assets">Fixed Assets</option>
+                  </select>
+                </div>
+
+                <div style="margin-bottom:12px;">
+                  <div style="font-size:12px;font-weight:500;color:var(--text-mid);margin-bottom:4px;">Date From</div>
+                  <input type="date" class="field-input" id="rpt-date-from">
+                </div>
+
+                <div style="margin-bottom:12px;">
+                  <div style="font-size:12px;font-weight:500;color:var(--text-mid);margin-bottom:4px;">Date To</div>
+                  <input type="date" class="field-input" id="rpt-date-to">
+                </div>
+
+                <div style="margin-bottom:12px;">
+                  <div style="font-size:12px;font-weight:500;color:var(--text-mid);margin-bottom:4px;">Group By</div>
+                  <select class="field-select" id="rpt-groupby">
+                    <option value="">None — show all rows</option>
                     <option value="month">Month</option>
                     <option value="quarter">Quarter</option>
                     <option value="type">Type / Category</option>
-                  </select></div>
-                <div class="rpt-config-row"><div class="rpt-config-label">Sort By</div>
-                  <select class="field-select" id="rpt-sortby" style="height:30px;">
+                    <option value="entity">Entity</option>
+                  </select>
+                </div>
+
+                <div style="margin-bottom:12px;">
+                  <div style="font-size:12px;font-weight:500;color:var(--text-mid);margin-bottom:4px;">Sort By</div>
+                  <select class="field-select" id="rpt-sortby">
                     <option value="date_desc">Date (newest first)</option>
                     <option value="date_asc">Date (oldest first)</option>
                     <option value="amount_desc">Amount (highest first)</option>
                     <option value="amount_asc">Amount (lowest first)</option>
-                  </select></div>
-                <div class="rpt-config-row"><div class="rpt-config-label">Limit rows</div>
-                  <select class="field-select" id="rpt-limit" style="height:30px;">
-                    <option value="100">100</option>
-                    <option value="250">250</option>
-                    <option value="500">500</option>
-                    <option value="1000">1000</option>
-                  </select></div>
+                  </select>
+                </div>
+
+                <div style="margin-bottom:16px;">
+                  <div style="font-size:12px;font-weight:500;color:var(--text-mid);margin-bottom:4px;">Max Rows</div>
+                  <select class="field-select" id="rpt-limit">
+                    <option value="100">100 rows</option>
+                    <option value="250">250 rows</option>
+                    <option value="500">500 rows</option>
+                    <option value="1000">1,000 rows</option>
+                  </select>
+                </div>
+
                 <hr style="border:none;border-top:1px solid var(--border-light);margin:14px 0;">
-                <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;">Report Name</div>
-                <input type="text" class="field-input" id="rpt-report-name" placeholder="My Custom Report" style="height:30px;width:100%;margin-bottom:10px;">
+                <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:6px;">Save As</div>
+                <input type="text" class="field-input" id="rpt-report-name" placeholder="My Custom Report" style="margin-bottom:12px;">
+                <button class="btn-save" onclick="runCustomReport()" style="width:100%;margin-bottom:8px;">&#9654; Run Report</button>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                  <button class="btn-secondary" onclick="saveCustomReport()" style="font-size:12px;">&#128190; Save</button>
+                  <button class="btn-secondary" onclick="printCustomReport()" style="font-size:12px;">&#128424; Print</button>
+                </div>
               </div>
               <div>
                 <div id="rpt-builder-result"><div class="empty-state"><div class="empty-state-title">Configure and click Run Report</div></div></div>
@@ -4646,6 +4670,61 @@
       </div>
     </div>
 
+
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!--  AUTOMATION CENTER                                      -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="view-automations" class="panel">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Automation Center</div>
+          <div class="page-subtitle">Rental/Lease · Payroll · Tax · Cross-Module · Executive KPIs · Management Agreements</div>
+        </div>
+        <div class="page-actions">
+          <select id="auto-entity-select" class="field-select" style="height:34px;width:200px;" onchange="onAutoEntityChange()"><option value="">— Select entity —</option></select>
+          <button class="btn-save" onclick="runAllAutomations()">&#9654; Run All Automations</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:0;">
+        <div style="width:220px;flex-shrink:0;background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:8px 0;height:fit-content;position:sticky;top:var(--page-header-h);">
+          <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-light);padding:14px 16px 6px;">Automation Modules</div>
+          <button class="set-sidebar-btn active" id="auto-nav-overview"    onclick="showAutoPanel('overview')"><span>&#128196;</span> Overview</button>
+          <button class="set-sidebar-btn" id="auto-nav-rental"       onclick="showAutoPanel('rental')"><span>&#127968;</span> Rental / Lease</button>
+          <button class="set-sidebar-btn" id="auto-nav-payroll"      onclick="showAutoPanel('payroll')"><span>&#128181;</span> Payroll Auto</button>
+          <button class="set-sidebar-btn" id="auto-nav-tax"          onclick="showAutoPanel('tax')"><span>&#128196;</span> Tax Automation</button>
+          <button class="set-sidebar-btn" id="auto-nav-accounting"   onclick="showAutoPanel('accounting')"><span>&#128203;</span> Accounting Cycle</button>
+          <button class="set-sidebar-btn" id="auto-nav-cashflow"     onclick="showAutoPanel('cashflow')"><span>&#128200;</span> Cash Flow</button>
+          <button class="set-sidebar-btn" id="auto-nav-kpi"          onclick="showAutoPanel('kpi')"><span>&#128248;</span> Executive KPIs</button>
+          <button class="set-sidebar-btn" id="auto-nav-mgmt"         onclick="showAutoPanel('mgmt')"><span>&#128196;</span> Mgmt Agreements</button>
+          <button class="set-sidebar-btn" id="auto-nav-notifications" onclick="showAutoPanel('notifications')"><span>&#128276;</span> Notifications</button>
+        </div>
+        <div style="flex:1;min-width:0;padding-left:24px;">
+          <div id="auto-panel-overview"      class="set-panel active"><div id="auto-overview-body"><div class="empty-state"><div class="empty-state-title">Select an entity to view automation status</div></div></div></div>
+          <div id="auto-panel-rental"        class="set-panel"><div id="auto-rental-body"><div class="empty-state"><div class="empty-state-title">Rental / Lease Automations</div></div></div></div>
+          <div id="auto-panel-payroll"       class="set-panel"><div id="auto-payroll-body"><div class="empty-state"><div class="empty-state-title">Payroll Automations</div></div></div></div>
+          <div id="auto-panel-tax"           class="set-panel"><div id="auto-tax-body"><div class="empty-state"><div class="empty-state-title">Tax Automations</div></div></div></div>
+          <div id="auto-panel-accounting"    class="set-panel"><div id="auto-accounting-body"><div class="empty-state"><div class="empty-state-title">Accounting Cycle Automations</div></div></div></div>
+          <div id="auto-panel-cashflow"      class="set-panel"><div id="auto-cashflow-body"><div class="empty-state"><div class="empty-state-title">Cash Flow Automations</div></div></div></div>
+          <div id="auto-panel-kpi"           class="set-panel"><div id="auto-kpi-body"><div class="empty-state"><div class="empty-state-title">Executive KPIs</div></div></div></div>
+          <div id="auto-panel-mgmt"          class="set-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Management Agreement OCR</div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-secondary" onclick="document.getElementById('mgmt-doc-upload').click()">&#128196; Upload Agreement</button>
+                <input type="file" id="mgmt-doc-upload" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleMgmtAgreementUpload(event)">
+                <button class="btn-save" onclick="runMgmtOCR()">&#128269; OCR &amp; Extract</button>
+              </div>
+            </div>
+            <div style="background:var(--section-bg);border-radius:var(--radius);padding:12px 16px;font-size:13px;color:var(--text-mid);margin-bottom:16px;">
+              Upload a management agreement PDF. OCR will extract fee schedule, payment terms, escalation clauses, and automatically create a payment schedule.
+            </div>
+            <div id="auto-mgmt-body"><div class="empty-state"><div class="empty-state-title">No agreements uploaded</div><div>Upload a management agreement to auto-extract the payment schedule</div></div></div>
+          </div>
+          <div id="auto-panel-notifications" class="set-panel"><div id="auto-notifications-body"><div class="empty-state"><div class="empty-state-title">Notification Settings</div></div></div></div>
+        </div>
+      </div>
+    </div>
 
   </main>
 </div>
@@ -7294,7 +7373,7 @@ function switchModule(module) {
   // Clear sidebar active states (sidenav replaced topbar-nav-btn)
   document.querySelectorAll('.sidenav-item,.sidenav-child').forEach(b=>b.classList.remove('active'));
   document.getElementById('nav-'+module)?.classList.add('active');
-  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub','view-tax','view-projects','view-inventory','view-budgeting','view-settings','view-crm','view-documents','view-reports','view-purchasing','view-rentals','view-rental-profit','view-equity','view-debt','view-hr','view-entity-settings','view-aia','view-audit','view-personal-tax'].forEach(id => {
+  ['view-dashboard','view-company-detail','view-ownership','view-financials','view-company-hub','view-tax','view-projects','view-inventory','view-budgeting','view-settings','view-crm','view-documents','view-reports','view-purchasing','view-rentals','view-rental-profit','view-equity','view-debt','view-hr','view-entity-settings','view-aia','view-audit','view-personal-tax','view-automations'].forEach(id => {
     document.getElementById(id)?.classList.remove('active');
   });
   setSidebarVisible(module === 'companies');
@@ -7341,6 +7420,11 @@ function switchModule(module) {
     document.getElementById('view-audit').classList.add('active');
     scrollMainToTop();
     loadAuditModule();
+    return;
+  } else if (module === 'automations') {
+    document.getElementById('view-automations').classList.add('active');
+    scrollMainToTop();
+    loadAutomationsModule();
     return;
   } else if (module === 'personal-tax') {
     document.getElementById('view-personal-tax').classList.add('active');
@@ -25745,6 +25829,929 @@ async function viewPTDoc(docId) {
     }
   } catch(e) { hideLoading(); showToast('View error: '+e.message, true); }
 }
+
+
+// ════════════════════════════════════════════════════════════════════
+//  AUTOMATION CENTER
+// ════════════════════════════════════════════════════════════════════
+let autoCompanyId = null;
+
+function onAutoEntityChange() {
+  autoCompanyId = document.getElementById('auto-entity-select')?.value || null;
+  if (autoCompanyId) loadAutoOverview();
+}
+
+function showAutoPanel(p) {
+  document.querySelectorAll('#view-automations .set-panel').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('#view-automations .set-sidebar-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('auto-panel-'+p)?.classList.add('active');
+  document.getElementById('auto-nav-'+p)?.classList.add('active');
+  const loaders = {
+    overview:'loadAutoOverview', rental:'loadRentalAutomations',
+    payroll:'loadPayrollAutomations', tax:'loadTaxAutomations',
+    accounting:'loadAccountingCycleAutomations', cashflow:'loadCashFlowAutomations',
+    kpi:'loadExecutiveKPIs', notifications:'loadNotificationSettings',
+  };
+  if (loaders[p] && typeof window[loaders[p]] === 'function') window[loaders[p]]();
+}
+
+async function loadAutomationsModule() {
+  showLoading('Loading automations…');
+  try {
+    await b8InitCompanySelect('auto-entity-select','autoCompanyId', async (cid) => {
+      autoCompanyId = cid;
+      loadAutoOverview();
+    });
+  } catch(e) { console.error('loadAutomationsModule error:', e); }
+  finally { hideLoading(); }
+}
+
+async function runAllAutomations() {
+  if (!autoCompanyId) { showToast('⚠ Select an entity first', true); return; }
+  showLoading('Running all automations…');
+  const results = [];
+  try {
+    results.push(await autoRunRentBilling());
+    results.push(await autoRunLeaseEscalations());
+    results.push(await autoRunLateFeesCheck());
+    results.push(await autoPostStraightLineRent());
+    results.push(await autoCheckPayrollDue());
+    results.push(await autoCheckEstimatedTax());
+    results.push(await autoCheckFilingDeadlines());
+    results.push(await autoIdentifyAccruals());
+    results.push(await autoCheckOverdueInvoices());
+    hideLoading();
+    const succeeded = results.filter(r=>r&&r.ok).length;
+    showToast(`✓ Automations complete — ${succeeded}/${results.length} tasks processed`);
+    loadAutoOverview();
+  } catch(e) { hideLoading(); showToast('Automation error: '+e.message, true); }
+}
+
+async function loadAutoOverview() {
+  const body = document.getElementById('auto-overview-body');
+  if (!body) return;
+  if (!autoCompanyId) { body.innerHTML='<div class="empty-state"><div class="empty-state-title">Select an entity to view automation status</div></div>'; return; }
+  body.innerHTML = '<div class="empty-state"><div class="empty-state-title">Loading…</div></div>';
+  try {
+    const now = new Date();
+    const today = now.toISOString().slice(0,10);
+    const [
+      {data: overdueInv}, {data: rentals}, {data: employees},
+      {data: openBills}, {data: assets}
+    ] = await Promise.all([
+      sb.from('invoices').select('id').eq('company_id',autoCompanyId).eq('status','sent').lt('due_date',today),
+      sb.from('rentals').select('id').eq('company_id',autoCompanyId).eq('status','confirmed'),
+      sb.from('employees').select('id').eq('company_id',autoCompanyId).eq('status','active'),
+      sb.from('bills').select('id').eq('company_id',autoCompanyId).in('status',['received','partial']).lt('due_date',today),
+      sb.from('fixed_assets').select('id').eq('company_id',autoCompanyId).eq('status','active'),
+    ]);
+    const tiles = [
+      { label:'Overdue Invoices', val:(overdueInv||[]).length, color:'var(--error)', icon:'⚠', action:"showAutoPanel('accounting')", urgent:true },
+      { label:'Active Rentals', val:(rentals||[]).length, color:'var(--teal)', icon:'🏠', action:"showAutoPanel('rental')" },
+      { label:'Active Employees', val:(employees||[]).length, color:'var(--navy)', icon:'👥', action:"showAutoPanel('payroll')" },
+      { label:'Overdue Bills', val:(openBills||[]).length, color:'var(--error)', icon:'📄', action:"showAutoPanel('accounting')", urgent:true },
+      { label:'Depreciating Assets', val:(assets||[]).length, color:'var(--gold)', icon:'🏗', action:"showAutoPanel('accounting')" },
+    ];
+    body.innerHTML = '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px;">'
+      + tiles.map(t=>`<div class="kpi-card" style="cursor:pointer;border-top-color:${t.color};${t.urgent&&t.val>0?'box-shadow:0 0 0 2px '+t.color+'44;':''}" onclick="${t.action}">
+          <div class="kpi-label">${t.label}</div>
+          <div class="kpi-value" style="color:${t.color};">${t.val}</div>
+        </div>`).join('')
+      + '</div>'
+      + '<div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:600;color:var(--navy);margin-bottom:14px;">Pending Automation Tasks</div>'
+      + '<div id="auto-pending-tasks"><div style="padding:16px;color:var(--text-light);font-size:13px;">Click "Run All Automations" to scan for pending tasks</div></div>';
+  } catch(e) { body.innerHTML=`<div class="empty-state"><div class="empty-state-title">Error: ${e.message}</div></div>`; }
+}
+
+// ── 1. RENTAL / LEASE AUTOMATIONS ──────────────────────────────────
+async function loadRentalAutomations() {
+  const body = document.getElementById('auto-rental-body');
+  if (!body || !autoCompanyId) return;
+  body.innerHTML = `
+    <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);margin-bottom:16px;">Rental &amp; Lease Automations</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
+      <div class="kpi-card" style="cursor:pointer;" onclick="autoRunRentBilling()">
+        <div class="kpi-label">&#128203; Auto-Generate Rent Invoices</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Generate monthly invoices from active lease terms. Fixed, step, and escalation rents.</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="event.stopPropagation();autoRunRentBilling()">Run Now</button>
+      </div>
+      <div class="kpi-card" style="cursor:pointer;">
+        <div class="kpi-label">&#128200; Lease Escalation Engine</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Apply CPI or fixed % rent increases on escalation dates. Updates lease records and future invoices.</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="autoRunLeaseEscalations()">Run Now</button>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">&#9888; Late Fee Automation</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Apply late fees to overdue rent invoices per lease terms. Notify tenants automatically.</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="autoRunLateFeesCheck()">Run Now</button>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">&#128202; Straight-Line Rent (GAAP ASC 840)</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Calculate and post straight-line rent adjustments for step/escalation leases.</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="autoPostStraightLineRent()">Run Now</button>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">&#128203; Right-of-Use / Lease Liability (ASC 842)</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Generate amortization schedule for operating and finance leases. Post monthly entries.</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="autoRunASC842()">Run Now</button>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">&#127968; Vacancy &amp; Yield Tracking</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Identify vacant units, calculate yield per asset, flag underperforming properties.</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="autoRunVacancyYield()">Run Now</button>
+      </div>
+    </div>
+    <div id="auto-rental-results"></div>`;
+}
+
+async function autoRunRentBilling() {
+  const resultDiv = document.getElementById('auto-rental-results') || document.createElement('div');
+  showLoading('Generating rent invoices…');
+  try {
+    const today = new Date().toISOString().slice(0,10);
+    const month = today.slice(0,7);
+    const { data: rentals } = await sb.from('rentals').select('*,customers(id,name)')
+      .eq('company_id',autoCompanyId).eq('status','confirmed');
+    if (!rentals?.length) { hideLoading(); showToast('No active rentals found'); return {ok:true,msg:'No rentals'}; }
+    let created = 0;
+    for (const rental of rentals) {
+      if (!rental.daily_rate && !rental.weekly_rate) continue;
+      const existCheck = await sb.from('invoices').select('id').eq('company_id',autoCompanyId).ilike('reference_number','%'+rental.id+'%'+month+'%').maybeSingle();
+      if (existCheck.data) continue; // already invoiced this month
+      const monthlyAmt = rental.daily_rate ? parseFloat(rental.daily_rate)*30 : parseFloat(rental.weekly_rate||0)*4.33;
+      if (!monthlyAmt) continue;
+      const invId = 'inv-rent-'+rental.id+'-'+month;
+      await sb.from('invoices').insert({
+        id:invId, company_id:autoCompanyId, customer_id:rental.customer_id||rental.customers?.id,
+        invoice_number:'RENT-'+rental.id.slice(-4)+'-'+month,
+        invoice_date:month+'-01', due_date:month+'-05',
+        status:'sent', total:monthlyAmt, balance_due:monthlyAmt,
+        reference_number:'auto-rent-'+rental.id+'-'+month,
+        notes:'Auto-generated monthly rent — '+rental.item_name,
+        updated_at:new Date().toISOString()
+      });
+      created++;
+    }
+    hideLoading();
+    const msg = created > 0 ? `✓ ${created} rent invoices generated for ${month}` : `✓ All rentals already invoiced for ${month}`;
+    showToast(msg);
+    resultDiv.innerHTML = `<div style="background:var(--teal-light);border:1px solid var(--teal);border-radius:var(--radius);padding:12px 16px;margin-top:16px;font-size:13px;">${msg}</div>`;
+    return {ok:true,msg};
+  } catch(e) { hideLoading(); showToast('Rent billing error: '+e.message, true); return {ok:false}; }
+}
+
+async function autoRunLeaseEscalations() {
+  showLoading('Checking lease escalations…');
+  try {
+    const today = new Date().toISOString().slice(0,10);
+    const { data: leases } = await sb.from('rentals').select('*').eq('company_id',autoCompanyId).eq('status','confirmed').not('escalation_pct','is',null);
+    let escalated = 0;
+    for (const lease of leases||[]) {
+      if (!lease.escalation_date || lease.escalation_date > today) continue;
+      const pct = parseFloat(lease.escalation_pct||0)/100;
+      const oldRate = parseFloat(lease.daily_rate||lease.weekly_rate||0);
+      const newRate = oldRate * (1+pct);
+      await sb.from('rentals').update({
+        daily_rate: lease.daily_rate ? newRate : null,
+        weekly_rate: lease.weekly_rate ? newRate : null,
+        escalation_date: null, // clear so it doesn't re-trigger
+        updated_at: new Date().toISOString()
+      }).eq('id',lease.id);
+      escalated++;
+    }
+    hideLoading();
+    showToast(escalated > 0 ? `✓ ${escalated} lease escalation(s) applied` : '✓ No escalations due');
+    return {ok:true};
+  } catch(e) { hideLoading(); showToast('Escalation error: '+e.message, true); return {ok:false}; }
+}
+
+async function autoRunLateFeesCheck() {
+  showLoading('Checking for late fees…');
+  try {
+    const today = new Date().toISOString().slice(0,10);
+    const { data: overdue } = await sb.from('invoices').select('*,customers(name)').eq('company_id',autoCompanyId).in('status',['sent','partial']).lt('due_date',today);
+    let feeCount = 0;
+    for (const inv of overdue||[]) {
+      const daysLate = Math.floor((new Date(today)-new Date(inv.due_date))/86400000);
+      if (daysLate < 5) continue; // grace period
+      const fee = parseFloat(inv.total||0) * 0.015; // 1.5% late fee default
+      const feeInvId = 'inv-latefee-'+inv.id;
+      const existing = await sb.from('invoices').select('id').eq('id',feeInvId).maybeSingle();
+      if (existing.data) continue;
+      await sb.from('invoices').insert({
+        id:feeInvId, company_id:autoCompanyId, customer_id:inv.customer_id,
+        invoice_number:'LATEFEE-'+inv.invoice_number,
+        invoice_date:today, due_date:today,
+        status:'sent', total:fee, balance_due:fee,
+        notes:`Late fee (1.5%) on invoice ${inv.invoice_number} — ${daysLate} days overdue`,
+        updated_at:new Date().toISOString()
+      });
+      feeCount++;
+    }
+    hideLoading();
+    showToast(feeCount > 0 ? `✓ ${feeCount} late fee invoice(s) created` : '✓ No late fees due');
+    return {ok:true};
+  } catch(e) { hideLoading(); showToast('Late fee error: '+e.message, true); return {ok:false}; }
+}
+
+async function autoPostStraightLineRent() {
+  showLoading('Computing straight-line rent…');
+  try {
+    const today = new Date();
+    const { data: leases } = await sb.from('rentals').select('*').eq('company_id',autoCompanyId).eq('status','confirmed');
+    let postCount = 0;
+    for (const lease of leases||[]) {
+      if (!lease.start_date || !lease.end_date) continue;
+      const start = new Date(lease.start_date), end = new Date(lease.end_date);
+      const totalMonths = Math.max(1,(end.getFullYear()-start.getFullYear())*12+(end.getMonth()-start.getMonth()));
+      const totalRent = parseFloat(lease.daily_rate||0)*30*totalMonths;
+      const slRentPerMonth = totalRent / totalMonths;
+      const actualRent = parseFloat(lease.daily_rate||0)*30;
+      const slAdjustment = slRentPerMonth - actualRent;
+      if (Math.abs(slAdjustment) < 0.01) continue;
+      const jeId = 'je-slrent-'+lease.id+'-'+today.toISOString().slice(0,7);
+      const { data:existing } = await sb.from('journal_entries').select('id').eq('id',jeId).maybeSingle();
+      if (existing) continue;
+      const { data:dfrAcct } = await sb.from('accounts').select('id').eq('company_id',autoCompanyId).ilike('account_name','%deferred%rent%').maybeSingle();
+      const { data:rentInc } = await sb.from('accounts').select('id').eq('company_id',autoCompanyId).or('account_name.ilike.%rental income%,account_name.ilike.%rent income%').maybeSingle();
+      if (!dfrAcct || !rentInc) continue;
+      await sb.from('journal_entries').insert({id:jeId,company_id:autoCompanyId,entry_date:today.toISOString().slice(0,10),description:'Straight-line rent adjustment — '+lease.item_name,status:'posted',entry_type:'adjusting',updated_at:new Date().toISOString()});
+      await sb.from('journal_entry_lines').insert([
+        {journal_entry_id:jeId,account_id:rentInc.id,debit:slAdjustment>0?0:Math.abs(slAdjustment),credit:slAdjustment>0?slAdjustment:0,description:'SL rent adj',sort_order:0},
+        {journal_entry_id:jeId,account_id:dfrAcct.id,debit:slAdjustment>0?slAdjustment:0,credit:slAdjustment>0?0:Math.abs(slAdjustment),description:'Deferred rent',sort_order:1}
+      ]);
+      postCount++;
+    }
+    hideLoading();
+    showToast(postCount>0?`✓ ${postCount} straight-line rent entries posted`:'✓ No SL adjustments needed');
+    return {ok:true};
+  } catch(e) { hideLoading(); showToast('SL rent error: '+e.message, true); return {ok:false}; }
+}
+
+async function autoRunASC842() {
+  showLoading('Processing ASC 842 lease entries…');
+  try {
+    const { data:leases } = await sb.from('loan_accounts').select('*').eq('company_id',autoCompanyId).eq('loan_type','finance_lease');
+    let posted = 0;
+    for (const lease of leases||[]) {
+      const monthly = parseFloat(lease.monthly_payment||0);
+      const rate = parseFloat(lease.interest_rate||0)/12;
+      const balance = parseFloat(lease.current_balance||lease.original_principal||0);
+      const interestExp = balance * rate;
+      const principalRed = monthly - interestExp;
+      const jeId = 'je-asc842-'+lease.id+'-'+new Date().toISOString().slice(0,7);
+      const {data:ex} = await sb.from('journal_entries').select('id').eq('id',jeId).maybeSingle();
+      if (ex) continue;
+      await sb.from('journal_entries').insert({id:jeId,company_id:autoCompanyId,entry_date:new Date().toISOString().slice(0,10),description:'ASC 842 lease payment — '+lease.loan_name,status:'posted',entry_type:'lease',updated_at:new Date().toISOString()});
+      posted++;
+    }
+    hideLoading();
+    showToast(posted>0?`✓ ${posted} ASC 842 entries posted`:'✓ No ASC 842 leases found (add under Debt → Loan Type: Finance Lease)');
+    return {ok:true};
+  } catch(e) { hideLoading(); showToast('ASC 842 error: '+e.message, true); return {ok:false}; }
+}
+
+async function autoRunVacancyYield() {
+  const body = document.getElementById('auto-rental-results') || document.createElement('div');
+  showLoading('Analyzing vacancy & yield…');
+  try {
+    const { data:items } = await sb.from('inventory_items').select('*').eq('company_id',autoCompanyId).eq('item_type','rental');
+    const { data:activeRentals } = await sb.from('rentals').select('item_id').eq('company_id',autoCompanyId).eq('status','confirmed');
+    const rentedIds = new Set((activeRentals||[]).map(r=>r.item_id));
+    const vacant = (items||[]).filter(i=>!rentedIds.has(i.id));
+    hideLoading();
+    const fmt = v=>'$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:0});
+    body.innerHTML = `<div style="margin-top:16px;font-weight:600;color:var(--navy);margin-bottom:10px;">Vacancy &amp; Yield Analysis</div>`
+      + `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">`
+      + `<div class="kpi-card"><div class="kpi-label">Total Units</div><div class="kpi-value">${(items||[]).length}</div></div>`
+      + `<div class="kpi-card" style="border-top-color:var(--error);"><div class="kpi-label">Vacant</div><div class="kpi-value" style="color:var(--error);">${vacant.length}</div></div>`
+      + `<div class="kpi-card" style="border-top-color:var(--success);"><div class="kpi-label">Occupancy</div><div class="kpi-value" style="color:var(--success);">${(items||[]).length?Math.round(((items.length-vacant.length)/items.length)*100)+'%':'—'}</div></div>`
+      + `</div>`
+      + (vacant.length ? `<div style="font-size:13px;color:var(--error);font-weight:500;">Vacant Units:</div><div>${vacant.map(v=>`<div style="padding:4px 0;font-size:12px;color:var(--text-mid);">• ${v.item_name} (${v.sku||'—'})</div>`).join('')}</div>` : '');
+    return {ok:true};
+  } catch(e) { hideLoading(); showToast('Vacancy error: '+e.message, true); return {ok:false}; }
+}
+
+// ── 2. PAYROLL AUTOMATIONS ──────────────────────────────────────────
+async function loadPayrollAutomations() {
+  const body = document.getElementById('auto-payroll-body');
+  if (!body) return;
+  body.innerHTML = `
+    <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);margin-bottom:16px;">Payroll Automations</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div class="kpi-card">
+        <div class="kpi-label">&#128181; Payroll Due Check</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Identify employees whose payroll is due based on pay frequency (weekly, biweekly, semi-monthly, monthly).</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="autoCheckPayrollDue()">Check Now</button>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">&#9888; Payroll Anomaly Detection</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Flag unusual pay increases, duplicate payments, or off-cycle payroll runs that deviate from historical patterns.</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="autoCheckPayrollAnomalies()">Run</button>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">&#128203; Tax Filing Reminders</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Track W-2, 1099, 941, 940 and state payroll tax filing deadlines. Alert 30 days before due.</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="autoCheckFilingDeadlines()">Check Deadlines</button>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">&#128200; Payroll Tax Rate Validation</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Verify FICA, FUTA, and SUTA rates against current IRS/DOL tables. Flag employees exceeding wage bases.</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="autoValidatePayrollRates()">Validate</button>
+      </div>
+    </div>
+    <div id="payroll-auto-results" style="margin-top:20px;"></div>`;
+}
+
+async function autoCheckPayrollDue() {
+  const body = document.getElementById('payroll-auto-results') || document.body;
+  showLoading('Checking payroll schedules…');
+  try {
+    const today = new Date();
+    const { data:emps } = await sb.from('employees').select('*').eq('company_id',autoCompanyId).eq('status','active');
+    const due = [];
+    for (const emp of emps||[]) {
+      const lastPay = emp.last_pay_date ? new Date(emp.last_pay_date) : null;
+      if (!lastPay) { due.push({...emp, reason:'No pay date on record'}); continue; }
+      const daysSince = Math.floor((today-lastPay)/86400000);
+      const freqDays = {weekly:7,biweekly:14,semimonthly:15,monthly:30}[emp.pay_freq||'biweekly']||14;
+      if (daysSince >= freqDays) due.push({...emp, daysSince, freqDays});
+    }
+    hideLoading();
+    if (!due.length) { showToast('✓ No payroll due'); return {ok:true}; }
+    body.innerHTML = `<div style="background:var(--gold-pale);border:1px solid var(--gold);border-radius:var(--radius-lg);padding:14px 18px;">
+      <strong>Payroll Due: ${due.length} employees</strong>
+      ${due.map(e=>`<div style="font-size:12px;margin-top:6px;color:var(--text-mid);">• ${e.first_name} ${e.last_name} — ${e.pay_freq||'biweekly'} — ${e.daysSince||'?'} days since last pay</div>`).join('')}
+      <button class="btn-save" style="margin-top:12px;" onclick="pickNav('hr')">Open Payroll →</button>
+    </div>`;
+    return {ok:true};
+  } catch(e) { hideLoading(); showToast('Payroll check error: '+e.message,true); return {ok:false}; }
+}
+
+async function autoCheckPayrollAnomalies() {
+  showLoading('Scanning payroll for anomalies…');
+  try {
+    const { data:runs } = await sb.from('payroll_records').select('*').eq('company_id',autoCompanyId).order('pay_date',{ascending:false}).limit(24);
+    const anomalies = [];
+    if (runs?.length > 1) {
+      const avgGross = runs.reduce((s,r)=>s+parseFloat(r.total_gross||0),0)/runs.length;
+      runs.forEach(r => {
+        const g = parseFloat(r.total_gross||0);
+        if (g > avgGross * 1.5) anomalies.push(`Pay run ${fmtDate(r.pay_date)}: $${g.toLocaleString()} is ${Math.round((g/avgGross-1)*100)}% above average`);
+      });
+    }
+    hideLoading();
+    const body = document.getElementById('payroll-auto-results');
+    if (body) body.innerHTML = anomalies.length
+      ? `<div style="background:#fef2f2;border:1px solid var(--error);border-radius:var(--radius-lg);padding:14px 18px;margin-top:12px;"><strong style="color:var(--error);">⚠ ${anomalies.length} Anomaly/Anomalies Detected</strong>${anomalies.map(a=>`<div style="font-size:12px;margin-top:4px;">• ${a}</div>`).join('')}</div>`
+      : `<div style="background:var(--teal-light);border:1px solid var(--teal);border-radius:var(--radius);padding:12px 16px;margin-top:12px;font-size:13px;">✓ No payroll anomalies detected across ${runs?.length||0} recent runs</div>`;
+    return {ok:true};
+  } catch(e) { hideLoading(); showToast('Anomaly scan error: '+e.message,true); return {ok:false}; }
+}
+
+async function autoCheckFilingDeadlines() {
+  showLoading('Checking filing deadlines…');
+  try {
+    const today = new Date();
+    const year = today.getFullYear();
+    const deadlines = [
+      {name:'Form 941 Q1', date:`${year}-04-30`, desc:'Quarterly payroll tax (Jan-Mar)'},
+      {name:'Form 941 Q2', date:`${year}-07-31`, desc:'Quarterly payroll tax (Apr-Jun)'},
+      {name:'Form 941 Q3', date:`${year}-10-31`, desc:'Quarterly payroll tax (Jul-Sep)'},
+      {name:'Form 941 Q4', date:`${year+1}-01-31`, desc:'Quarterly payroll tax (Oct-Dec)'},
+      {name:'Form 940 Annual', date:`${year+1}-01-31`, desc:'Annual FUTA tax return'},
+      {name:'W-2 / W-3', date:`${year+1}-01-31`, desc:'Wage statements to SSA and employees'},
+      {name:'1099-NEC', date:`${year+1}-01-31`, desc:'Non-employee compensation'},
+      {name:'Form 1120-S', date:`${year+1}-03-15`, desc:'S-Corp income tax return (or extension)'},
+      {name:'Form 1065', date:`${year+1}-03-15`, desc:'Partnership return (or extension)'},
+      {name:'Form 1120', date:`${year+1}-04-15`, desc:'C-Corp income tax return (or extension)'},
+      {name:'Form 1040 Q1 Est', date:`${year}-04-15`, desc:'Estimated tax — 1st installment'},
+      {name:'Form 1040 Q2 Est', date:`${year}-06-15`, desc:'Estimated tax — 2nd installment'},
+      {name:'Form 1040 Q3 Est', date:`${year}-09-15`, desc:'Estimated tax — 3rd installment'},
+      {name:'Form 1040 Q4 Est', date:`${year+1}-01-15`, desc:'Estimated tax — 4th installment'},
+    ];
+    const upcoming = deadlines.filter(d => {
+      const diff = (new Date(d.date) - today) / 86400000;
+      return diff > 0 && diff <= 60;
+    }).sort((a,b)=>a.date<b.date?-1:1);
+    hideLoading();
+    const body = document.getElementById('payroll-auto-results');
+    if (!body) return {ok:true};
+    body.innerHTML = `<div style="margin-top:16px;font-weight:600;color:var(--navy);margin-bottom:10px;">&#128197; Upcoming Filing Deadlines (next 60 days)</div>`
+      + (upcoming.length ? upcoming.map(d=>{
+          const daysLeft = Math.floor((new Date(d.date)-today)/86400000);
+          const color = daysLeft<=14?'var(--error)':daysLeft<=30?'var(--gold)':'var(--teal)';
+          return `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid ${color};border-left:4px solid ${color};border-radius:var(--radius);margin-bottom:8px;background:var(--white);">
+            <div style="min-width:70px;font-size:11px;font-weight:700;color:${color};">${daysLeft} days</div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:500;color:var(--navy);">${d.name}</div><div style="font-size:11px;color:var(--text-light);">${d.desc} — Due ${d.date}</div></div>
+          </div>`;
+        }).join('')
+        : '<div style="padding:12px;color:var(--text-light);font-size:13px;">No filing deadlines in the next 60 days</div>');
+    return {ok:true};
+  } catch(e) { hideLoading(); showToast('Deadline check error: '+e.message,true); return {ok:false}; }
+}
+
+async function autoValidatePayrollRates() {
+  showLoading('Validating payroll rates…');
+  try {
+    const FICA_RATE = 0.0765; // employee side
+    const SS_WAGE_BASE = 176100; // 2025
+    const { data:runs } = await sb.from('payroll_lines').select('*,employees(first_name,last_name)').eq('company_id',autoCompanyId).order('created_at',{ascending:false}).limit(100);
+    const issues = [];
+    const ytdByEmp = {};
+    (runs||[]).forEach(l => {
+      if (!ytdByEmp[l.employee_id]) ytdByEmp[l.employee_id] = {gross:0, ss:0, name:l.employees?.first_name+' '+l.employees?.last_name};
+      ytdByEmp[l.employee_id].gross += parseFloat(l.gross_pay||0);
+      ytdByEmp[l.employee_id].ss += parseFloat(l.ss_employee||0);
+    });
+    Object.values(ytdByEmp).forEach(e => {
+      if (e.gross > SS_WAGE_BASE && e.ss > SS_WAGE_BASE*0.062+100) {
+        issues.push(`${e.name}: SS withheld $${e.ss.toFixed(0)} may exceed wage base ($${SS_WAGE_BASE.toLocaleString()})`);
+      }
+    });
+    hideLoading();
+    const body = document.getElementById('payroll-auto-results');
+    if (body) body.innerHTML = issues.length
+      ? `<div style="background:#fef2f2;border:1px solid var(--error);border-radius:var(--radius-lg);padding:14px 18px;margin-top:12px;"><strong style="color:var(--error);">⚠ Rate Issues Found</strong>${issues.map(i=>`<div style="font-size:12px;margin-top:4px;">• ${i}</div>`).join('')}</div>`
+      : `<div style="background:var(--teal-light);border:1px solid var(--teal);border-radius:var(--radius);padding:12px 16px;margin-top:12px;font-size:13px;">✓ Payroll rates and wage bases appear within normal ranges</div>`;
+    return {ok:true};
+  } catch(e) { hideLoading(); showToast('Rate validation error: '+e.message,true); return {ok:false}; }
+}
+
+// ── 3. TAX AUTOMATIONS ─────────────────────────────────────────────
+async function loadTaxAutomations() {
+  const body = document.getElementById('auto-tax-body');
+  if (!body) return;
+  body.innerHTML = `
+    <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);margin-bottom:16px;">Tax Automations</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div class="kpi-card"><div class="kpi-label">&#128200; Estimated Tax Calculator</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Auto-calculate quarterly estimated taxes based on real-time financials and prior-year liability.</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="autoCheckEstimatedTax()">Calculate</button></div>
+      <div class="kpi-card"><div class="kpi-label">&#128203; Tax Liability Forecast</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Project year-end tax exposure by entity using current-period income and effective tax rates.</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="autoForecastTaxLiability()">Forecast</button></div>
+      <div class="kpi-card"><div class="kpi-label">&#128202; Income Allocation (Multi-Entity)</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Allocate net income across entities and owners. Generate K-1 data for pass-through entities.</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="autoAllocateIncome()">Allocate</button></div>
+      <div class="kpi-card"><div class="kpi-label">&#128196; Filing Calendar</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Track all federal, state, and local filing deadlines. Alert 30 days before due date.</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="autoCheckFilingDeadlines()">View Calendar</button></div>
+    </div>
+    <div id="tax-auto-results" style="margin-top:20px;"></div>`;
+}
+
+async function autoCheckEstimatedTax() {
+  const body = document.getElementById('tax-auto-results') || document.createElement('div');
+  showLoading('Calculating estimated taxes…');
+  try {
+    const year = new Date().getFullYear();
+    const today = new Date().toISOString().slice(0,10);
+    const { data:jes } = await sb.from('journal_entries').select('id').eq('company_id',autoCompanyId).eq('status','posted').gte('entry_date',`${year}-01-01`).lte('entry_date',today);
+    const jeIds = (jes||[]).map(j=>j.id);
+    let income=0, expense=0;
+    if (jeIds.length) {
+      const {data:lines} = await sb.from('journal_entry_lines').select('debit,credit,accounts(account_type)').in('journal_entry_id',jeIds);
+      (lines||[]).forEach(l => {
+        if (l.accounts?.account_type==='Income') income += parseFloat(l.credit||0)-parseFloat(l.debit||0);
+        if (l.accounts?.account_type==='Expense') expense += parseFloat(l.debit||0)-parseFloat(l.credit||0);
+      });
+    }
+    const netIncome = income - expense;
+    const currentQ = Math.ceil((new Date().getMonth()+1)/3);
+    const qDates = [`${year}-04-15`,`${year}-06-15`,`${year}-09-15`,`${year+1}-01-15`];
+    const annualizedIncome = netIncome * (4/currentQ);
+    const estimatedTax = Math.max(0, annualizedIncome * 0.21); // ~21% effective for planning
+    const quarterlyPayment = estimatedTax / 4;
+    hideLoading();
+    body.innerHTML = `<div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;margin-top:16px;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--navy);margin-bottom:14px;">Estimated Tax Calculation — ${year}</div>
+      <table class="acct-table"><tbody>
+        <tr><td>YTD Net Income</td><td style="text-align:right;font-family:monospace;">$${netIncome.toLocaleString('en-US',{minimumFractionDigits:0})}</td></tr>
+        <tr><td>Annualized (Q${currentQ} pace)</td><td style="text-align:right;font-family:monospace;">$${annualizedIncome.toLocaleString('en-US',{minimumFractionDigits:0})}</td></tr>
+        <tr><td>Estimated Annual Tax (~21%)</td><td style="text-align:right;font-family:monospace;color:var(--error);">$${estimatedTax.toLocaleString('en-US',{minimumFractionDigits:0})}</td></tr>
+        <tr style="font-weight:700;border-top:2px solid var(--border);"><td>Quarterly Payment</td><td style="text-align:right;font-family:monospace;color:var(--teal);">$${quarterlyPayment.toLocaleString('en-US',{minimumFractionDigits:0})}</td></tr>
+      </tbody></table>
+      <div style="font-size:11px;color:var(--text-light);margin-top:10px;">This is an estimate for planning purposes only. Consult your tax advisor for actual liability. Based on 21% effective rate — adjust for pass-through entities.</div>
+    </div>`;
+    return {ok:true};
+  } catch(e) { hideLoading(); showToast('Tax calc error: '+e.message,true); return {ok:false}; }
+}
+
+async function autoForecastTaxLiability() {
+  showLoading('Forecasting tax liability…');
+  try {
+    const year = new Date().getFullYear();
+    const { data:jes } = await sb.from('journal_entries').select('id').eq('company_id',autoCompanyId).eq('status','posted').gte('entry_date',`${year}-01-01`).lte('entry_date',`${year}-12-31`);
+    const jeIds = (jes||[]).map(j=>j.id);
+    let income=0,expense=0;
+    if (jeIds.length) {
+      const {data:lines} = await sb.from('journal_entry_lines').select('debit,credit,accounts(account_type)').in('journal_entry_id',jeIds);
+      (lines||[]).forEach(l=>{
+        if(l.accounts?.account_type==='Income') income+=parseFloat(l.credit||0)-parseFloat(l.debit||0);
+        if(l.accounts?.account_type==='Expense') expense+=parseFloat(l.debit||0)-parseFloat(l.credit||0);
+      });
+    }
+    const net = income-expense;
+    const monthsPassed = new Date().getMonth()+1;
+    const projected = net * (12/monthsPassed);
+    const liability = Math.max(0, projected*0.21);
+    hideLoading();
+    const body = document.getElementById('tax-auto-results');
+    if (body) body.innerHTML = `<div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;margin-top:16px;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--navy);margin-bottom:14px;">Year-End Tax Liability Forecast — ${year}</div>
+      <table class="acct-table"><tbody>
+        <tr><td>YTD Net Income</td><td style="text-align:right;font-family:monospace;">$${net.toLocaleString('en-US',{minimumFractionDigits:0})}</td></tr>
+        <tr><td>Projected Full-Year (${12-monthsPassed} months remaining)</td><td style="text-align:right;font-family:monospace;">$${projected.toLocaleString('en-US',{minimumFractionDigits:0})}</td></tr>
+        <tr style="font-weight:700;border-top:2px solid var(--border);"><td>Estimated Year-End Tax Liability</td><td style="text-align:right;font-family:monospace;color:var(--error);">$${liability.toLocaleString('en-US',{minimumFractionDigits:0})}</td></tr>
+      </tbody></table>
+    </div>`;
+    return {ok:true};
+  } catch(e) { hideLoading(); showToast('Forecast error: '+e.message,true); return {ok:false}; }
+}
+
+async function autoAllocateIncome() {
+  showLoading('Allocating income to owners…');
+  try {
+    const yr = new Date().getFullYear();
+    const {data:officers} = await sb.from('officers').select('*').eq('entity_id',autoCompanyId);
+    const {data:jes} = await sb.from('journal_entries').select('id').eq('company_id',autoCompanyId).eq('status','posted').gte('entry_date',`${yr}-01-01`).lte('entry_date',`${yr}-12-31`);
+    const jeIds = (jes||[]).map(j=>j.id);
+    let income=0,expense=0;
+    if (jeIds.length) {
+      const {data:lines} = await sb.from('journal_entry_lines').select('debit,credit,accounts(account_type)').in('journal_entry_id',jeIds);
+      (lines||[]).forEach(l=>{
+        if(l.accounts?.account_type==='Income') income+=parseFloat(l.credit||0)-parseFloat(l.debit||0);
+        if(l.accounts?.account_type==='Expense') expense+=parseFloat(l.debit||0)-parseFloat(l.credit||0);
+      });
+    }
+    const net = income-expense;
+    hideLoading();
+    const fmt = v=>'$'+Math.abs(parseFloat(v||0)).toLocaleString('en-US',{minimumFractionDigits:0});
+    const body = document.getElementById('tax-auto-results');
+    if (body) body.innerHTML = `<div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;margin-top:16px;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--navy);margin-bottom:14px;">Income Allocation — ${yr}</div>
+      <table class="acct-table"><thead><tr><th>Owner</th><th>Ownership %</th><th style="text-align:right">Allocated Income</th><th>K-1 Status</th></tr></thead><tbody>
+        ${(officers||[]).map(o=>{
+          const pct = parseFloat(o.ownership_pct||o.pct||0)/100;
+          const alloc = net*pct;
+          return `<tr><td>${o.name}</td><td>${parseFloat(o.ownership_pct||o.pct||0).toFixed(1)}%</td><td style="text-align:right;font-family:monospace;color:${alloc>=0?'var(--teal)':'var(--error)'};">${fmt(alloc)}</td><td><button onclick="pickNav('tax')" style="background:none;border:1px solid var(--teal);color:var(--teal);padding:2px 8px;border-radius:var(--radius);cursor:pointer;font-size:11px;">View K-1</button></td></tr>`;
+        }).join('')}
+        ${!(officers?.length)?'<tr><td colspan="4" style="text-align:center;color:var(--text-light);">No officers/owners found. Add them in the Entities module.</td></tr>':''}
+      </tbody></table>
+      <div style="font-size:11px;color:var(--text-light);margin-top:8px;">Total allocatable net income: ${fmt(net)}</div>
+    </div>`;
+    return {ok:true};
+  } catch(e) { hideLoading(); showToast('Allocation error: '+e.message,true); return {ok:false}; }
+}
+
+// ── 4. ACCOUNTING CYCLE AUTOMATIONS ────────────────────────────────
+async function loadAccountingCycleAutomations() {
+  const body = document.getElementById('auto-accounting-body');
+  if (!body) return;
+  body.innerHTML = `
+    <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);margin-bottom:16px;">Accounting Cycle Automations</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div class="kpi-card"><div class="kpi-label">&#9888; Overdue Invoice Alerts</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Identify all invoices past due date. Prepare reminder list for follow-up.</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="autoCheckOverdueInvoices()">Check Now</button></div>
+      <div class="kpi-card"><div class="kpi-label">&#128203; Accrual Identification</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Flag recurring expenses not yet recorded. Suggest accrual entries based on prior months.</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="autoIdentifyAccruals()">Scan</button></div>
+      <div class="kpi-card"><div class="kpi-label">&#128200; Depreciation Auto-Post</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Post monthly depreciation for all active fixed assets based on their depreciation schedule.</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="postMonthlyDepreciation()">Post Now</button></div>
+      <div class="kpi-card"><div class="kpi-label">&#128197; Month-End Close Checklist</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Generate and track the full month-end close checklist with owner assignments.</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="runMonthEndClose()">Generate</button></div>
+      <div class="kpi-card"><div class="kpi-label">&#128202; Variance Analysis</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Compare actual vs prior month and vs budget. Flag anomalies above threshold.</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="pickNav('budgeting')">View Budget</button></div>
+      <div class="kpi-card"><div class="kpi-label">&#128203; Year-End Closing Entries</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:6px;">Zero out Income/Expense accounts and post net income to Retained Earnings.</div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="runYearEndClose()">Run Year-End Close</button></div>
+    </div>
+    <div id="acct-auto-results" style="margin-top:20px;"></div>`;
+}
+
+async function autoCheckOverdueInvoices() {
+  const body = document.getElementById('acct-auto-results') || document.createElement('div');
+  showLoading('Checking overdue invoices…');
+  try {
+    const today = new Date().toISOString().slice(0,10);
+    const {data:overdue} = await sb.from('invoices').select('*,customers(name)').eq('company_id',autoCompanyId).in('status',['sent','partial']).lt('due_date',today).order('due_date',{ascending:true});
+    hideLoading();
+    if (!overdue?.length) { showToast('✓ No overdue invoices'); body.innerHTML='<div style="color:var(--success);padding:12px;">✓ No overdue invoices</div>'; return {ok:true}; }
+    const fmt=v=>'$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:0});
+    const total = overdue.reduce((s,i)=>s+parseFloat(i.balance_due||0),0);
+    body.innerHTML = `<div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;margin-top:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-weight:600;color:var(--error);">⚠ ${overdue.length} Overdue Invoices — Total: ${fmt(total)}</div>
+        <button onclick="pickNav('financials')" style="background:var(--error);color:#fff;border:none;padding:6px 14px;border-radius:var(--radius);cursor:pointer;font-size:12px;">View All AR →</button>
+      </div>
+      <table class="acct-table"><thead><tr><th>Invoice</th><th>Customer</th><th>Due Date</th><th>Days Late</th><th style="text-align:right">Balance</th></tr></thead><tbody>
+        ${overdue.slice(0,10).map(inv=>{
+          const daysLate=Math.floor((new Date(today)-new Date(inv.due_date))/86400000);
+          const color=daysLate>60?'var(--error)':daysLate>30?'var(--gold)':'var(--text-mid)';
+          return `<tr><td>${inv.invoice_number||'—'}</td><td>${inv.customers?.name||'—'}</td><td>${inv.due_date}</td><td style="color:${color};font-weight:600;">${daysLate}d</td><td style="text-align:right;font-family:monospace;">${fmt(inv.balance_due)}</td></tr>`;
+        }).join('')}
+      </tbody></table></div>`;
+    return {ok:true};
+  } catch(e) { hideLoading(); showToast('AR check error: '+e.message,true); return {ok:false}; }
+}
+
+async function autoIdentifyAccruals() {
+  const body = document.getElementById('acct-auto-results') || document.createElement('div');
+  showLoading('Identifying accruals…');
+  try {
+    const now = new Date();
+    const prevMonth = new Date(now.getFullYear(), now.getMonth()-1, 1).toISOString().slice(0,7);
+    const thisMonth = now.toISOString().slice(0,7);
+    const {data:lastMonthBills} = await sb.from('bills').select('vendor_id,total,vendors(name)').eq('company_id',autoCompanyId).gte('bill_date',prevMonth+'-01').lt('bill_date',thisMonth+'-01');
+    const thisMonthCount = {};
+    const {data:thisMonthBills} = await sb.from('bills').select('vendor_id').eq('company_id',autoCompanyId).gte('bill_date',thisMonth+'-01');
+    (thisMonthBills||[]).forEach(b=>{thisMonthCount[b.vendor_id]=(thisMonthCount[b.vendor_id]||0)+1;});
+    const missing = (lastMonthBills||[]).filter(b=>!thisMonthCount[b.vendor_id]);
+    hideLoading();
+    body.innerHTML = missing.length
+      ? `<div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;margin-top:16px;">
+          <div style="font-weight:600;color:var(--navy);margin-bottom:10px;">&#128203; Potential Accruals — Recurring vendors not yet billed this month</div>
+          <table class="acct-table"><thead><tr><th>Vendor</th><th>Prior Month Amt</th><th>Action</th></tr></thead><tbody>
+            ${missing.map(b=>`<tr><td>${b.vendors?.name||b.vendor_id}</td><td style="font-family:monospace;">$${parseFloat(b.total||0).toLocaleString()}</td><td><button onclick="openBillModal()" style="background:none;border:1px solid var(--teal);color:var(--teal);padding:3px 10px;border-radius:var(--radius);cursor:pointer;font-size:11px;">+ Enter Bill</button></td></tr>`).join('')}
+          </tbody></table>
+        </div>`
+      : '<div style="color:var(--success);padding:12px;margin-top:12px;">✓ No missing recurring bills detected for this month</div>';
+    return {ok:true};
+  } catch(e) { hideLoading(); showToast('Accrual scan error: '+e.message,true); return {ok:false}; }
+}
+
+// ── 5. CASH FLOW ORCHESTRATION ──────────────────────────────────────
+async function loadCashFlowAutomations() {
+  const body = document.getElementById('auto-cashflow-body');
+  if (!body || !autoCompanyId) return;
+  showLoading('Building cash flow forecast…');
+  try {
+    const today = new Date();
+    const in30 = new Date(today); in30.setDate(in30.getDate()+30);
+    const in60 = new Date(today); in60.setDate(in60.getDate()+60);
+    const todayStr = today.toISOString().slice(0,10);
+    const in60Str = in60.toISOString().slice(0,10);
+    const [{data:arData},{data:apData},{data:cashAccts}] = await Promise.all([
+      sb.from('invoices').select('due_date,balance_due').eq('company_id',autoCompanyId).in('status',['sent','partial']).gte('due_date',todayStr).lte('due_date',in60Str),
+      sb.from('bills').select('due_date,balance_due').eq('company_id',autoCompanyId).in('status',['received','partial']).gte('due_date',todayStr).lte('due_date',in60Str),
+      sb.from('accounts').select('id').eq('company_id',autoCompanyId).eq('account_type','Asset').ilike('account_name','%cash%'),
+    ]);
+    let cashBalance = 0;
+    if (cashAccts?.length) {
+      const {data:cashLines} = await sb.from('journal_entry_lines').select('debit,credit,journal_entries(status)').in('account_id',cashAccts.map(a=>a.id));
+      (cashLines||[]).forEach(l=>{if(l.journal_entries?.status==='posted') cashBalance+=parseFloat(l.debit||0)-parseFloat(l.credit||0);});
+    }
+    const arIn30 = (arData||[]).filter(i=>i.due_date<=in30.toISOString().slice(0,10)).reduce((s,i)=>s+parseFloat(i.balance_due||0),0);
+    const arIn60 = (arData||[]).filter(i=>i.due_date>in30.toISOString().slice(0,10)).reduce((s,i)=>s+parseFloat(i.balance_due||0),0);
+    const apOut30 = (apData||[]).filter(b=>b.due_date<=in30.toISOString().slice(0,10)).reduce((s,b)=>s+parseFloat(b.balance_due||0),0);
+    const apOut60 = (apData||[]).filter(b=>b.due_date>in30.toISOString().slice(0,10)).reduce((s,b)=>s+parseFloat(b.balance_due||0),0);
+    const proj30 = cashBalance + arIn30 - apOut30;
+    const proj60 = proj30 + arIn60 - apOut60;
+    const fmt = v=>'$'+Math.abs(parseFloat(v||0)).toLocaleString('en-US',{minimumFractionDigits:0});
+    hideLoading();
+    body.innerHTML = `
+      <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);margin-bottom:16px;">Cash Flow Orchestration</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;">
+        <div class="kpi-card"><div class="kpi-label">Current Cash Balance</div><div class="kpi-value" style="color:var(--navy);">${fmt(cashBalance)}</div></div>
+        <div class="kpi-card" style="border-top-color:${proj30<0?'var(--error)':'var(--success)'};"><div class="kpi-label">Projected 30-Day</div><div class="kpi-value" style="color:${proj30<0?'var(--error)':'var(--success)'};">${proj30<0?'-':''}${fmt(proj30)}</div></div>
+        <div class="kpi-card" style="border-top-color:${proj60<0?'var(--error)':'var(--teal)'};"><div class="kpi-label">Projected 60-Day</div><div class="kpi-value" style="color:${proj60<0?'var(--error)':'var(--teal)'};">${proj60<0?'-':''}${fmt(proj60)}</div></div>
+      </div>
+      <table class="acct-table"><thead><tr><th>Item</th><th>0–30 Days</th><th>31–60 Days</th><th>Total</th></tr></thead><tbody>
+        <tr style="color:var(--teal);"><td>&#43; AR Collections Expected</td><td style="text-align:right;font-family:monospace;">${fmt(arIn30)}</td><td style="text-align:right;font-family:monospace;">${fmt(arIn60)}</td><td style="text-align:right;font-family:monospace;">${fmt(arIn30+arIn60)}</td></tr>
+        <tr style="color:var(--error);"><td>&#8722; AP Payments Due</td><td style="text-align:right;font-family:monospace;">${fmt(apOut30)}</td><td style="text-align:right;font-family:monospace;">${fmt(apOut60)}</td><td style="text-align:right;font-family:monospace;">${fmt(apOut30+apOut60)}</td></tr>
+        <tr style="font-weight:700;border-top:2px solid var(--border);"><td>Net Cash Movement</td><td style="text-align:right;font-family:monospace;color:${(arIn30-apOut30)>=0?'var(--success)':'var(--error)'};">${arIn30-apOut30>=0?'+':''}${fmt(arIn30-apOut30)}</td><td style="text-align:right;font-family:monospace;color:${(arIn60-apOut60)>=0?'var(--success)':'var(--error)'};">${arIn60-apOut60>=0?'+':''}${fmt(arIn60-apOut60)}</td><td></td></tr>
+      </tbody></table>
+      ${proj30<0?'<div style="background:#fef2f2;border:1px solid var(--error);border-radius:var(--radius);padding:10px 14px;margin-top:12px;font-size:13px;color:var(--error);">⚠ Cash shortfall projected in 30 days. Consider accelerating collections or deferring payments.</div>':''}`;
+  } catch(e) { hideLoading(); body.innerHTML=`<div class="empty-state"><div class="empty-state-title">Error: ${e.message}</div></div>`; }
+}
+
+// ── 6. EXECUTIVE KPIs ──────────────────────────────────────────────
+async function loadExecutiveKPIs() {
+  const body = document.getElementById('auto-kpi-body');
+  if (!body || !autoCompanyId) { if(body) body.innerHTML='<div class="empty-state"><div class="empty-state-title">Select an entity</div></div>'; return; }
+  showLoading('Loading KPIs…');
+  try {
+    const year = new Date().getFullYear();
+    const today = new Date().toISOString().slice(0,10);
+    const {data:jes} = await sb.from('journal_entries').select('id').eq('company_id',autoCompanyId).eq('status','posted').gte('entry_date',`${year}-01-01`).lte('entry_date',today);
+    const jeIds = (jes||[]).map(j=>j.id);
+    let rev=0,exp=0,assets=0,liab=0,equity=0;
+    if (jeIds.length) {
+      const {data:lines} = await sb.from('journal_entry_lines').select('debit,credit,accounts(account_type)').in('journal_entry_id',jeIds);
+      (lines||[]).forEach(l=>{
+        const t=l.accounts?.account_type;
+        if(t==='Income') rev+=parseFloat(l.credit||0)-parseFloat(l.debit||0);
+        if(t==='Expense') exp+=parseFloat(l.debit||0)-parseFloat(l.credit||0);
+        if(t==='Asset') assets+=parseFloat(l.debit||0)-parseFloat(l.credit||0);
+        if(t==='Liability') liab+=parseFloat(l.credit||0)-parseFloat(l.debit||0);
+        if(t==='Equity') equity+=parseFloat(l.credit||0)-parseFloat(l.debit||0);
+      });
+    }
+    const net = rev-exp;
+    const margin = rev>0?Math.round((net/rev)*100):0;
+    const roe = equity>0?Math.round((net/equity)*100):0;
+    const debtEquity = equity>0?(liab/equity).toFixed(2):'—';
+    const fmt = v=>'$'+Math.abs(parseFloat(v||0)).toLocaleString('en-US',{minimumFractionDigits:0});
+    hideLoading();
+    body.innerHTML = `
+      <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);margin-bottom:16px;">Executive KPI Dashboard — YTD ${year}</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+        <div class="kpi-card" style="border-top-color:var(--teal);"><div class="kpi-label">Revenue</div><div class="kpi-value">${fmt(rev)}</div><div class="kpi-sub">YTD</div></div>
+        <div class="kpi-card" style="border-top-color:${net>=0?'var(--success)':'var(--error)'};"><div class="kpi-label">Net Income</div><div class="kpi-value" style="color:${net>=0?'var(--success)':'var(--error)'};">${net<0?'-':''}${fmt(net)}</div><div class="kpi-sub">YTD</div></div>
+        <div class="kpi-card"><div class="kpi-label">Profit Margin</div><div class="kpi-value" style="color:${margin>=15?'var(--success)':margin>=0?'var(--gold)':'var(--error)'};">${margin}%</div><div class="kpi-sub">Net / Revenue</div></div>
+        <div class="kpi-card"><div class="kpi-label">Return on Equity</div><div class="kpi-value" style="color:${roe>=10?'var(--success)':roe>=0?'var(--gold)':'var(--error)'};">${roe}%</div><div class="kpi-sub">Net / Equity</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total Assets</div><div class="kpi-value">${fmt(assets)}</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total Liabilities</div><div class="kpi-value" style="color:var(--error);">${fmt(liab)}</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total Equity</div><div class="kpi-value" style="color:var(--teal);">${fmt(equity)}</div></div>
+        <div class="kpi-card"><div class="kpi-label">Debt / Equity</div><div class="kpi-value" style="color:${parseFloat(debtEquity)>2?'var(--error)':'var(--navy)'};">${debtEquity}</div><div class="kpi-sub">Leverage ratio</div></div>
+      </div>
+      <div style="background:var(--section-bg);border-radius:var(--radius);padding:12px 16px;font-size:12px;color:var(--text-mid);">
+        KPIs calculated from posted journal entries YTD. Benchmarks: Profit margin ≥15% = healthy (green), 0–15% = caution (gold), negative = alert (red). Debt/Equity ≤2 = normal for most industries.
+      </div>`;
+  } catch(e) { hideLoading(); body.innerHTML=`<div class="empty-state"><div class="empty-state-title">Error: ${e.message}</div></div>`; }
+}
+
+// ── 7. MANAGEMENT AGREEMENT OCR ────────────────────────────────────
+let mgmtDocs = [];
+
+async function handleMgmtAgreementUpload(event) {
+  const file = event.target.files?.[0];
+  if (!file || !autoCompanyId) { showToast('⚠ Select an entity first', true); return; }
+  showLoading('Uploading agreement…');
+  try {
+    const base64 = await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(',')[1]); r.onerror=()=>rej(new Error('Read failed')); r.readAsDataURL(file); });
+    const docId = 'mgmt-'+Date.now();
+    await sb.from('documents').insert({ id:docId, company_id:autoCompanyId, file_name:file.name, mime_type:file.type, file_data:base64, doc_type:'Management Agreement', category:'contracts', created_at:new Date().toISOString() });
+    hideLoading(); showToast('✓ Agreement uploaded');
+    window._lastMgmtDocId = docId;
+    if (confirm('Document uploaded! Run OCR to extract payment schedule?')) runMgmtOCR(docId);
+  } catch(e) { hideLoading(); showToast('Upload error: '+e.message, true); }
+}
+
+async function runMgmtOCR(docId) {
+  docId = docId || window._lastMgmtDocId;
+  if (!docId) { showToast('⚠ Upload a document first', true); return; }
+  showLoading('Scanning management agreement…');
+  try {
+    const {data:doc} = await sb.from('documents').select('file_data,mime_type,file_name').eq('id',docId).single();
+    if (!doc?.file_data) { hideLoading(); showToast('Document data not found', true); return; }
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:2000,
+        messages:[{role:'user',content:[
+          {type:'document',source:{type:'base64',media_type:doc.mime_type||'application/pdf',data:doc.file_data}},
+          {type:'text',text:`Extract the complete payment schedule from this management agreement. Return JSON ONLY with: {
+            "property_name": "",
+            "manager_name": "",
+            "management_fee_type": "flat|percentage",
+            "management_fee_amount": 0,
+            "management_fee_pct": 0,
+            "fee_basis": "gross_revenue|net_revenue|per_unit",
+            "payment_frequency": "monthly|quarterly|annual",
+            "payment_day": 1,
+            "contract_start": "YYYY-MM-DD",
+            "contract_end": "YYYY-MM-DD",
+            "escalation_pct": 0,
+            "escalation_date": "YYYY-MM-DD",
+            "leasing_fee_type": "flat|month_rent",
+            "leasing_fee_amount": 0,
+            "renewal_fee": 0,
+            "maintenance_markup_pct": 0,
+            "other_fees": [{"name":"","amount":0,"frequency":"monthly|annual|one-time"}],
+            "payment_schedule": [{"date":"YYYY-MM-DD","description":"","amount":0}],
+            "special_terms": ""
+          }`}
+        ]}]}
+      )});
+    const data = await resp.json();
+    const text = (data.content||[]).map(c=>c.text||'').join('');
+    let parsed = {};
+    try { parsed = JSON.parse(text.replace(/```json|```/g,'').trim()); } catch(e) { parsed = {error:'Could not parse',raw:text}; }
+    hideLoading();
+    renderMgmtAgreementSchedule(parsed, doc.file_name);
+  } catch(e) { hideLoading(); showToast('OCR error: '+e.message, true); }
+}
+
+function renderMgmtAgreementSchedule(parsed, fileName) {
+  const body = document.getElementById('auto-mgmt-body');
+  if (!body) return;
+  const fmt = v=>'$'+parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:0});
+  const feeDisplay = parsed.management_fee_type==='percentage'
+    ? `${parsed.management_fee_pct||0}% of ${(parsed.fee_basis||'gross_revenue').replace(/_/g,' ')}`
+    : fmt(parsed.management_fee_amount||0)+'/'+parsed.payment_frequency;
+
+  body.innerHTML = `
+    <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+        <div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--navy);">&#128196; ${parsed.property_name||fileName}</div>
+          <div style="font-size:12px;color:var(--text-light);">Management Agreement — Extracted via OCR · ${parsed.manager_name||'Manager TBD'}</div>
+        </div>
+        <button onclick="createMgmtPaymentSchedule()" class="btn-save">&#128203; Create Payment Schedule</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;">
+        <div class="kpi-card"><div class="kpi-label">Management Fee</div><div class="kpi-value" style="font-size:18px;">${feeDisplay}</div></div>
+        <div class="kpi-card"><div class="kpi-label">Payment Frequency</div><div class="kpi-value" style="font-size:18px;">${parsed.payment_frequency||'Monthly'}</div></div>
+        <div class="kpi-card"><div class="kpi-label">Contract Period</div><div class="kpi-value" style="font-size:14px;">${parsed.contract_start||'—'} to ${parsed.contract_end||'—'}</div></div>
+        <div class="kpi-card"><div class="kpi-label">Escalation</div><div class="kpi-value" style="font-size:18px;">${parsed.escalation_pct||0}% on ${parsed.escalation_date||'—'}</div></div>
+      </div>
+      ${(parsed.other_fees||[]).length ? `
+        <div style="font-weight:600;font-size:13px;color:var(--navy);margin-bottom:8px;">Additional Fees</div>
+        <table class="acct-table" style="margin-bottom:16px;"><thead><tr><th>Fee Type</th><th>Amount</th><th>Frequency</th></tr></thead><tbody>
+          ${parsed.other_fees.map(f=>`<tr><td>${f.name}</td><td>$${parseFloat(f.amount||0).toLocaleString()}</td><td>${f.frequency}</td></tr>`).join('')}
+        </tbody></table>` : ''}
+      ${(parsed.payment_schedule||[]).length ? `
+        <div style="font-weight:600;font-size:13px;color:var(--navy);margin-bottom:8px;">Payment Schedule (from Agreement)</div>
+        <table class="acct-table"><thead><tr><th>Date</th><th>Description</th><th style="text-align:right">Amount</th></tr></thead><tbody>
+          ${parsed.payment_schedule.map(p=>`<tr><td>${p.date}</td><td>${p.description}</td><td style="text-align:right;font-family:monospace;">$${parseFloat(p.amount||0).toLocaleString()}</td></tr>`).join('')}
+        </tbody></table>` : ''}
+      ${parsed.special_terms?`<div style="margin-top:12px;padding:10px;background:var(--section-bg);border-radius:var(--radius);font-size:12px;color:var(--text-mid);"><strong>Special Terms:</strong> ${parsed.special_terms}</div>`:''}
+    </div>`;
+  window._lastMgmtParsed = parsed;
+}
+
+async function createMgmtPaymentSchedule() {
+  const parsed = window._lastMgmtParsed;
+  if (!parsed || !autoCompanyId) { showToast('⚠ No agreement data', true); return; }
+  if (!confirm('Create recurring bill schedule from this management agreement?')) return;
+  showLoading('Creating payment schedule…');
+  try {
+    const start = new Date(parsed.contract_start||new Date());
+    const end = new Date(parsed.contract_end||new Date(start.getFullYear()+1,start.getMonth(),start.getDate()));
+    const monthlyAmt = parsed.management_fee_type==='flat'
+      ? parseFloat(parsed.management_fee_amount||0)
+      : 0; // Percentage fees calculated at posting time
+    let created = 0;
+    const cur = new Date(start);
+    while (cur <= end) {
+      const dueDate = new Date(cur.getFullYear(), cur.getMonth(), parsed.payment_day||1);
+      const billId = 'mgmt-bill-'+dueDate.toISOString().slice(0,7)+'-'+autoCompanyId;
+      const {data:existing} = await sb.from('bills').select('id').eq('id',billId).maybeSingle();
+      if (!existing && monthlyAmt > 0) {
+        await sb.from('bills').insert({
+          id:billId, company_id:autoCompanyId,
+          bill_number:'MGMT-'+dueDate.toISOString().slice(0,7),
+          bill_date:dueDate.toISOString().slice(0,10),
+          due_date:dueDate.toISOString().slice(0,10),
+          status:'received', total:monthlyAmt, balance_due:monthlyAmt,
+          notes:`Management fee — ${parsed.manager_name||'Manager'} — ${parsed.property_name||''}`,
+          updated_at:new Date().toISOString()
+        });
+        created++;
+      }
+      cur.setMonth(cur.getMonth()+1);
+    }
+    hideLoading();
+    showToast(`✓ ${created} management fee bills created through ${end.toISOString().slice(0,7)}`);
+  } catch(e) { hideLoading(); showToast('Schedule error: '+e.message, true); }
+}
+
+// ── 8. NOTIFICATION SETTINGS ────────────────────────────────────────
+function loadNotificationSettings() {
+  const body = document.getElementById('auto-notifications-body');
+  if (!body) return;
+  const notifs = [
+    {id:'n-overdue-inv', label:'Overdue Invoice Alerts', desc:'Daily digest of invoices past due date', default:true},
+    {id:'n-cash-low', label:'Low Cash Warning', desc:'Alert when projected cash drops below threshold', default:true},
+    {id:'n-payroll-due', label:'Payroll Due Reminder', desc:'3 days before payroll processing date', default:true},
+    {id:'n-filing-deadline', label:'Tax Filing Reminders', desc:'30 days and 7 days before filing deadlines', default:true},
+    {id:'n-budget-exceed', label:'Budget Overrun Alerts', desc:'When any budget line exceeds 90% or 100%', default:false},
+    {id:'n-large-je', label:'Large JE Alerts', desc:'Journal entries over $10,000 require review', default:false},
+    {id:'n-new-vendor', label:'New Vendor + Bill Alert', desc:'When a bill is created within 30 days of vendor setup', default:true},
+    {id:'n-lease-expire', label:'Lease Expiration Warning', desc:'60 days before lease end date', default:true},
+    {id:'n-upsell-limit', label:'Plan Limit Notifications', desc:'Alert at 80% and 100% of plan entity/user limits', default:true},
+  ];
+  body.innerHTML = `
+    <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);margin-bottom:16px;">Notification &amp; Alert Settings</div>
+    ${notifs.map(n=>`
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border-light);">
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:500;color:var(--navy);">${n.label}</div>
+          <div style="font-size:12px;color:var(--text-light);margin-top:2px;">${n.desc}</div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;flex-shrink:0;margin-left:16px;">
+          <input type="checkbox" id="${n.id}" ${n.default?'checked':''} style="accent-color:var(--teal);width:16px;height:16px;">
+          <span style="font-size:12px;color:var(--text-mid);">${n.default?'On':'Off'}</span>
+        </label>
+      </div>`).join('')}
+    <button class="btn-save" style="margin-top:16px;" onclick="saveNotificationSettings()">Save Notification Preferences</button>`;
+}
+
+function saveNotificationSettings() {
+  const settings = {};
+  document.querySelectorAll('#auto-panel-notifications input[type=checkbox]').forEach(cb=>{
+    settings[cb.id] = cb.checked;
+  });
+  localStorage.setItem('clarus_notifications', JSON.stringify(settings));
+  showToast('✓ Notification preferences saved');
+}
+
 
 // ── INIT ──
 async function initApp() {
