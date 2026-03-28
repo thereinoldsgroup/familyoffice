@@ -2574,8 +2574,6 @@
 
         <!-- Tax Content -->
         <div class="tax-content">
-          <!-- DEBUG: Test if clicks register in tax-content -->
-          <button onclick="alert('CLICK WORKS — tax-content is clickable')" style="background:red;color:white;padding:10px 20px;font-size:16px;font-weight:bold;border:none;border-radius:6px;cursor:pointer;margin-bottom:8px;">⚡ TEST CLICK — If you see an alert, clicks work here</button>
           <!-- Compact module header -->
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);">
             <div style="display:flex;align-items:baseline;gap:12px;">
@@ -2716,10 +2714,10 @@
               <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Duval County FL — Tangible Personal Property Return</div>
               <div style="font-size:12px;color:var(--text-light);">DR-405 · Due April 1 · Flows from Fixed Assets</div></div>
               <div style="display:flex;gap:8px;">
-                <button class="btn-secondary" onclick="try{openPropTaxUpload('duval_fl')}catch(e){alert('Upload error: '+e.message);console.error(e)}">&#128196; Upload Docs</button>
-                <button class="btn-secondary" onclick="try{syncPropertyTax('duval_fl')}catch(e){alert('Sync error: '+e.message);console.error(e)}">&#8635; Sync from Fixed Assets</button>
-                <button class="btn-save" onclick="try{savePropertyTax('duval_fl')}catch(e){alert('Save error: '+e.message);console.error(e)}">Save</button>
-                <button class="btn-primary" onclick="try{printPropertyTax('duval_fl')}catch(e){alert('Print error: '+e.message);console.error(e)}">&#128424; Print</button>
+                <button class="btn-secondary" onclick="openPropTaxUpload('duval_fl')">&#128196; Upload Docs</button>
+                <button class="btn-secondary" onclick="syncPropertyTax('duval_fl')">&#8635; Sync from Fixed Assets</button>
+                <button class="btn-save" onclick="savePropertyTax('duval_fl')">Save</button>
+                <button class="btn-primary" onclick="printPropertyTax('duval_fl')">&#128424; Print</button>
               </div>
             </div>
             <div id="prop-duval-docs" style="display:none;margin-bottom:16px;"></div>
@@ -2730,10 +2728,10 @@
               <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Nassau County FL — Tangible Personal Property Return</div>
               <div style="font-size:12px;color:var(--text-light);">DR-405 · Due April 1 · Flows from Fixed Assets</div></div>
               <div style="display:flex;gap:8px;">
-                <button class="btn-secondary" onclick="try{openPropTaxUpload('nassau_fl')}catch(e){alert('Upload error: '+e.message);console.error(e)}">&#128196; Upload Docs</button>
-                <button class="btn-secondary" onclick="try{syncPropertyTax('nassau_fl')}catch(e){alert('Sync error: '+e.message);console.error(e)}">&#8635; Sync from Fixed Assets</button>
-                <button class="btn-save" onclick="try{savePropertyTax('nassau_fl')}catch(e){alert('Save error: '+e.message);console.error(e)}">Save</button>
-                <button class="btn-primary" onclick="try{printPropertyTax('nassau_fl')}catch(e){alert('Print error: '+e.message);console.error(e)}">&#128424; Print</button>
+                <button class="btn-secondary" onclick="openPropTaxUpload('nassau_fl')">&#128196; Upload Docs</button>
+                <button class="btn-secondary" onclick="syncPropertyTax('nassau_fl')">&#8635; Sync from Fixed Assets</button>
+                <button class="btn-save" onclick="savePropertyTax('nassau_fl')">Save</button>
+                <button class="btn-primary" onclick="printPropertyTax('nassau_fl')">&#128424; Print</button>
               </div>
             </div>
             <div id="prop-nassau-docs" style="display:none;margin-bottom:16px;"></div>
@@ -26914,28 +26912,35 @@ const PROP_TAX_JURISDICTION_LABELS = {
 function openPropTaxUpload(jurisdiction) {
   _propTaxStagedFiles = [];
   _propTaxActiveJurisdiction = jurisdiction;
-  document.getElementById('propTaxUploadTitle').textContent =
-    'Upload Documents — ' + (PROP_TAX_JURISDICTION_LABELS[jurisdiction] || jurisdiction);
-  document.getElementById('propTaxUploadJurisdiction').value = jurisdiction;
-  document.getElementById('propTaxFileList').innerHTML = '';
-  document.getElementById('propTaxDocNotes').value = '';
-  document.getElementById('propTaxDropZone').style.borderColor = 'var(--border)';
+  const titleEl = document.getElementById('propTaxUploadTitle');
+  if (titleEl) titleEl.textContent = 'Upload Documents — ' + (PROP_TAX_JURISDICTION_LABELS[jurisdiction] || jurisdiction);
+  const jurInput = document.getElementById('propTaxUploadJurisdiction');
+  if (jurInput) jurInput.value = jurisdiction;
+  const fileList = document.getElementById('propTaxFileList');
+  if (fileList) fileList.innerHTML = '';
+  const notesEl = document.getElementById('propTaxDocNotes');
+  if (notesEl) notesEl.value = '';
+  const dropZone = document.getElementById('propTaxDropZone');
+  if (dropZone) dropZone.style.borderColor = 'var(--border)';
   // Load existing docs for this jurisdiction
   loadPropTaxDocList(jurisdiction);
-  document.getElementById('propTaxUploadModal').classList.add('show');
+  const modal = document.getElementById('propTaxUploadModal');
+  if (modal) modal.classList.add('show');
+  else showToast('⚠ Upload modal not found — please reload the page', true);
 }
 
 async function loadPropTaxDocList(jurisdiction) {
   const _ptCid = window._globalEntityId || document.getElementById('global-entity-select')?.value || acctCompanyId;
-  if (!_ptCid) return;
+  if (!_ptCid) { renderPropTaxDocList([], false); return; }
   try {
-    const { data: docs } = await sb.from('property_tax_docs')
+    const { data: docs, error } = await sb.from('property_tax_docs')
       .select('*')
       .eq('company_id', _ptCid)
       .eq('jurisdiction', jurisdiction)
       .order('created_at', { ascending: false });
+    if (error) { console.warn('loadPropTaxDocList:', error.message); }
     renderPropTaxDocList(docs || [], false);
-  } catch(e) { console.warn('loadPropTaxDocList:', e.message); }
+  } catch(e) { console.warn('loadPropTaxDocList:', e.message); renderPropTaxDocList([], false); }
 }
 
 function renderPropTaxDocList(docs, includeStaged) {
