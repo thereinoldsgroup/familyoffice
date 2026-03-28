@@ -6890,6 +6890,96 @@
 
 <div class="save-toast" id="saveToast"></div>
 
+
+<!-- ══ VENDOR BILL OCR MODAL ══ -->
+<div class="modal-overlay" id="vendorOCRModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <span class="modal-title">Bill OCR Results</span>
+      <button class="modal-close" onclick="closeModal('vendorOCRModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--teal-light);border:1px solid var(--teal);border-radius:var(--radius);padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--teal-mid);">
+        &#128269; OCR scan complete. Review and apply to new bill.
+      </div>
+      <input type="hidden" id="ocr-doc-id">
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label">Vendor / Payer Detected</label><div id="ocr-vendor-name" style="font-size:14px;font-weight:600;color:var(--navy);padding:8px 0;">—</div></div>
+        <div class="field-group"><label class="field-label">Total Amount</label><div id="ocr-total" style="font-size:18px;font-weight:700;color:var(--teal);">—</div></div>
+        <div class="field-group"><label class="field-label">Bill Date</label><input type="date" class="field-input" id="ocr-date"></div>
+        <div class="field-group col-span-2"><label class="field-label">Description</label><div id="ocr-desc" style="font-size:13px;color:var(--text-mid);padding:6px 0;">—</div></div>
+        <div class="field-group col-span-2"><label class="field-label">Suggested GL Account</label>
+          <div id="ocr-gl-suggestion" style="font-size:13px;font-weight:500;color:var(--teal);padding:6px 0;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('vendorOCRModal')">Cancel</button>
+      <button class="btn-save" onclick="applyVendorOCR()">Apply to New Bill</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PROPERTY TAX DOCUMENT UPLOAD MODAL ══ -->
+<div class="modal-overlay" id="propTaxUploadModal">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-header">
+      <span class="modal-title" id="propTaxUploadTitle">Upload Property Tax Documents</span>
+      <button class="modal-close" onclick="closeModal('propTaxUploadModal')">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--section-bg);border-radius:var(--radius);padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--text-mid);">
+        Upload appraisal notices, prior-year returns, assessment letters, exemption certificates, or any supporting documents. OCR will extract values and pre-fill the return.
+      </div>
+      <input type="hidden" id="propTaxUploadJurisdiction">
+      <!-- Drop zone -->
+      <div id="propTaxDropZone" style="border:2px dashed var(--border);border-radius:var(--radius-lg);padding:32px;text-align:center;cursor:pointer;transition:border-color 0.2s;margin-bottom:16px;"
+           onclick="document.getElementById('propTaxFileInput').click()"
+           ondragover="event.preventDefault();this.style.borderColor='var(--teal)'"
+           ondragleave="this.style.borderColor='var(--border)'"
+           ondrop="handlePropTaxDrop(event)">
+        <div style="font-size:32px;margin-bottom:8px;">&#128196;</div>
+        <div style="font-size:14px;font-weight:500;color:var(--navy);margin-bottom:4px;">Click to browse or drag files here</div>
+        <div style="font-size:12px;color:var(--text-light);">Accepts PDF, JPG, PNG — appraisal notices, prior returns, assessment letters</div>
+      </div>
+      <input type="file" id="propTaxFileInput" accept=".pdf,.jpg,.jpeg,.png" multiple style="display:none;" onchange="handlePropTaxFileSelect(event)">
+      <!-- Doc type selector -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div>
+          <label class="field-label">Document Type</label>
+          <select class="field-select" id="propTaxDocType">
+            <option value="appraisal_notice">Appraisal Notice</option>
+            <option value="prior_return">Prior Year Return</option>
+            <option value="assessment_letter">Assessment / Tax Bill</option>
+            <option value="exemption_cert">Exemption Certificate</option>
+            <option value="appeal_document">Appeal Document</option>
+            <option value="payment_receipt">Payment Receipt</option>
+            <option value="other">Other Supporting Doc</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Tax Year</label>
+          <select class="field-select" id="propTaxDocYear">
+            <option value="2025">2025</option><option value="2024">2024</option>
+            <option value="2023">2023</option><option value="2022">2022</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="field-label">Notes (optional)</label>
+        <input type="text" class="field-input" id="propTaxDocNotes" placeholder="e.g. Received from county appraiser 3/15/2025">
+      </div>
+      <!-- Uploaded files list -->
+      <div id="propTaxFileList" style="margin-top:16px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('propTaxUploadModal')">Cancel</button>
+      <button class="btn-secondary" onclick="runPropTaxOCR()">&#128269; OCR &amp; Extract</button>
+      <button class="btn-save" onclick="savePropTaxDocs()">&#10003; Attach to Return</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ═══════════════════════════════════════════════════
 //  SUPABASE CONFIG
@@ -20858,94 +20948,6 @@ function openIncidentResponsePlan() {
   <span>Confidential — Internal Use Only — ${today}</span>
 </footer>
 
-<!-- ══ VENDOR BILL OCR MODAL ══ -->
-<div class="modal-overlay" id="vendorOCRModal">
-  <div class="modal" style="max-width:520px;">
-    <div class="modal-header">
-      <span class="modal-title">Bill OCR Results</span>
-      <button class="modal-close" onclick="closeModal('vendorOCRModal')">×</button>
-    </div>
-    <div class="modal-body">
-      <div style="background:var(--teal-light);border:1px solid var(--teal);border-radius:var(--radius);padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--teal-mid);">
-        &#128269; OCR scan complete. Review and apply to new bill.
-      </div>
-      <input type="hidden" id="ocr-doc-id">
-      <div class="form-grid">
-        <div class="field-group col-span-2"><label class="field-label">Vendor / Payer Detected</label><div id="ocr-vendor-name" style="font-size:14px;font-weight:600;color:var(--navy);padding:8px 0;">—</div></div>
-        <div class="field-group"><label class="field-label">Total Amount</label><div id="ocr-total" style="font-size:18px;font-weight:700;color:var(--teal);">—</div></div>
-        <div class="field-group"><label class="field-label">Bill Date</label><input type="date" class="field-input" id="ocr-date"></div>
-        <div class="field-group col-span-2"><label class="field-label">Description</label><div id="ocr-desc" style="font-size:13px;color:var(--text-mid);padding:6px 0;">—</div></div>
-        <div class="field-group col-span-2"><label class="field-label">Suggested GL Account</label>
-          <div id="ocr-gl-suggestion" style="font-size:13px;font-weight:500;color:var(--teal);padding:6px 0;"></div>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-secondary" onclick="closeModal('vendorOCRModal')">Cancel</button>
-      <button class="btn-save" onclick="applyVendorOCR()">Apply to New Bill</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══ PROPERTY TAX DOCUMENT UPLOAD MODAL ══ -->
-<div class="modal-overlay" id="propTaxUploadModal">
-  <div class="modal" style="max-width:600px;">
-    <div class="modal-header">
-      <span class="modal-title" id="propTaxUploadTitle">Upload Property Tax Documents</span>
-      <button class="modal-close" onclick="closeModal('propTaxUploadModal')">&#215;</button>
-    </div>
-    <div class="modal-body">
-      <div style="background:var(--section-bg);border-radius:var(--radius);padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--text-mid);">
-        Upload appraisal notices, prior-year returns, assessment letters, exemption certificates, or any supporting documents. OCR will extract values and pre-fill the return.
-      </div>
-      <input type="hidden" id="propTaxUploadJurisdiction">
-      <!-- Drop zone -->
-      <div id="propTaxDropZone" style="border:2px dashed var(--border);border-radius:var(--radius-lg);padding:32px;text-align:center;cursor:pointer;transition:border-color 0.2s;margin-bottom:16px;"
-           onclick="document.getElementById('propTaxFileInput').click()"
-           ondragover="event.preventDefault();this.style.borderColor='var(--teal)'"
-           ondragleave="this.style.borderColor='var(--border)'"
-           ondrop="handlePropTaxDrop(event)">
-        <div style="font-size:32px;margin-bottom:8px;">&#128196;</div>
-        <div style="font-size:14px;font-weight:500;color:var(--navy);margin-bottom:4px;">Click to browse or drag files here</div>
-        <div style="font-size:12px;color:var(--text-light);">Accepts PDF, JPG, PNG — appraisal notices, prior returns, assessment letters</div>
-      </div>
-      <input type="file" id="propTaxFileInput" accept=".pdf,.jpg,.jpeg,.png" multiple style="display:none;" onchange="handlePropTaxFileSelect(event)">
-      <!-- Doc type selector -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-        <div>
-          <label class="field-label">Document Type</label>
-          <select class="field-select" id="propTaxDocType">
-            <option value="appraisal_notice">Appraisal Notice</option>
-            <option value="prior_return">Prior Year Return</option>
-            <option value="assessment_letter">Assessment / Tax Bill</option>
-            <option value="exemption_cert">Exemption Certificate</option>
-            <option value="appeal_document">Appeal Document</option>
-            <option value="payment_receipt">Payment Receipt</option>
-            <option value="other">Other Supporting Doc</option>
-          </select>
-        </div>
-        <div>
-          <label class="field-label">Tax Year</label>
-          <select class="field-select" id="propTaxDocYear">
-            <option value="2025">2025</option><option value="2024">2024</option>
-            <option value="2023">2023</option><option value="2022">2022</option>
-          </select>
-        </div>
-      </div>
-      <div>
-        <label class="field-label">Notes (optional)</label>
-        <input type="text" class="field-input" id="propTaxDocNotes" placeholder="e.g. Received from county appraiser 3/15/2025">
-      </div>
-      <!-- Uploaded files list -->
-      <div id="propTaxFileList" style="margin-top:16px;"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-secondary" onclick="closeModal('propTaxUploadModal')">Cancel</button>
-      <button class="btn-secondary" onclick="runPropTaxOCR()">&#128269; OCR &amp; Extract</button>
-      <button class="btn-save" onclick="savePropTaxDocs()">&#10003; Attach to Return</button>
-    </div>
-  </div>
-</div>
 
 </body>
 </html>`);
