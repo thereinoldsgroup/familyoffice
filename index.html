@@ -2372,7 +2372,7 @@
             </div>
           </div>
 
-          </div>
+          
 
           <!-- ═══ BANKING 2.0 ═══ -->
 
@@ -2713,11 +2713,13 @@
               <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Duval County FL — Tangible Personal Property Return</div>
               <div style="font-size:12px;color:var(--text-light);">DR-405 · Due April 1 · Flows from Fixed Assets</div></div>
               <div style="display:flex;gap:8px;">
-                <button class="btn-secondary" onclick="syncPropertyTax('duval_fl')">↻ Sync from Fixed Assets</button>
+                <button class="btn-secondary" onclick="openPropTaxUpload('duval_fl')">&#128196; Upload Docs</button>
+                <button class="btn-secondary" onclick="syncPropertyTax('duval_fl')">&#8635; Sync from Fixed Assets</button>
                 <button class="btn-save" onclick="savePropertyTax('duval_fl')">Save</button>
-                <button class="btn-primary" onclick="printPropertyTax('duval_fl')">🖨 Print</button>
+                <button class="btn-primary" onclick="printPropertyTax('duval_fl')">&#128424; Print</button>
               </div>
             </div>
+            <div id="prop-duval-docs" style="display:none;margin-bottom:16px;"></div>
             <div id="prop-duval-body"><div class="empty-state"><div class="empty-state-title">Select a company and click "Sync from Fixed Assets"</div></div></div>
           </div>
           <div id="tax-panel-nassau" class="tax-panel">
@@ -2725,11 +2727,13 @@
               <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Nassau County FL — Tangible Personal Property Return</div>
               <div style="font-size:12px;color:var(--text-light);">DR-405 · Due April 1 · Flows from Fixed Assets</div></div>
               <div style="display:flex;gap:8px;">
-                <button class="btn-secondary" onclick="syncPropertyTax('nassau_fl')">↻ Sync from Fixed Assets</button>
+                <button class="btn-secondary" onclick="openPropTaxUpload('nassau_fl')">&#128196; Upload Docs</button>
+                <button class="btn-secondary" onclick="syncPropertyTax('nassau_fl')">&#8635; Sync from Fixed Assets</button>
                 <button class="btn-save" onclick="savePropertyTax('nassau_fl')">Save</button>
-                <button class="btn-primary" onclick="printPropertyTax('nassau_fl')">🖨 Print</button>
+                <button class="btn-primary" onclick="printPropertyTax('nassau_fl')">&#128424; Print</button>
               </div>
             </div>
+            <div id="prop-nassau-docs" style="display:none;margin-bottom:16px;"></div>
             <div id="prop-nassau-body"><div class="empty-state"><div class="empty-state-title">Select a company and click "Sync from Fixed Assets"</div></div></div>
           </div>
           <div id="tax-panel-charlton" class="tax-panel">
@@ -2737,11 +2741,13 @@
               <div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">Charlton County GA — Business Personal Property Return</div>
               <div style="font-size:12px;color:var(--text-light);">PT-50P · Due April 1 · Flows from Fixed Assets</div></div>
               <div style="display:flex;gap:8px;">
-                <button class="btn-secondary" onclick="syncPropertyTax('charlton_ga')">↻ Sync from Fixed Assets</button>
+                <button class="btn-secondary" onclick="openPropTaxUpload('charlton_ga')">&#128196; Upload Docs</button>
+                <button class="btn-secondary" onclick="syncPropertyTax('charlton_ga')">&#8635; Sync from Fixed Assets</button>
                 <button class="btn-save" onclick="savePropertyTax('charlton_ga')">Save</button>
-                <button class="btn-primary" onclick="printPropertyTax('charlton_ga')">🖨 Print</button>
+                <button class="btn-primary" onclick="printPropertyTax('charlton_ga')">&#128424; Print</button>
               </div>
             </div>
+            <div id="prop-charlton-docs" style="display:none;margin-bottom:16px;"></div>
             <div id="prop-charlton-body"><div class="empty-state"><div class="empty-state-title">Select a company and click "Sync from Fixed Assets"</div></div></div>
           </div>
 
@@ -11594,6 +11600,10 @@ function showTaxPanel(panelId) {
   document.querySelectorAll('.tax-sidebar-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tax-panel-' + panelId)?.classList.add('active');
   document.getElementById('tax-nav-' + panelId)?.classList.add('active');
+  // Load document badges when a property tax panel is shown
+  if (['duval','nassau','charlton'].includes(panelId)) {
+    refreshPropTaxDocBadge(panelId + (panelId === 'charlton' ? '_ga' : '_fl'));
+  }
 }
 
 // ── FORM LINE RENDERER ──
@@ -12131,6 +12141,12 @@ async function syncPropertyTax(jurisdiction) {
   const totalAccum = (assets||[]).reduce((s,a)=>s+parseFloat(a.accumulated_depreciation||0),0);
   const totalBook  = (assets||[]).reduce((s,a)=>s+parseFloat(a.book_value||0),0);
 
+  // Merge in any OCR-extracted data (from uploaded appraisal notices / prior returns)
+  const ocrData = window['_propTaxOCRData_' + jurisdiction] || {};
+  const ocrAssessedValue = parseFloat(ocrData.assessed_value || 0);
+  const ocrTotalCost     = parseFloat(ocrData.total_original_cost || ocrData.tangible_personal_property_cost || 0);
+  const ocrMillage       = parseFloat(ocrData.millage_rate || 0);
+
   const jurisMap = {
     duval_fl:   { name:'Duval County, FL',    form:'DR-405', state:'FL', millage:8.4,  containerId:'prop-duval-body' },
     nassau_fl:  { name:'Nassau County, FL',   form:'DR-405', state:'FL', millage:9.2,  containerId:'prop-nassau-body' },
@@ -12139,8 +12155,20 @@ async function syncPropertyTax(jurisdiction) {
   const j = jurisMap[jurisdiction];
   if (!j) return;
 
-  const taxableValue = totalBook;
-  const estimatedTax = Math.round(taxableValue * (j.millage / 1000) * 100) / 100;
+  // Use OCR millage if extracted, otherwise default
+  const effectiveMillage = ocrMillage || j.millage;
+  const taxableValue = ocrAssessedValue || totalBook;
+  const estimatedTax = Math.round(taxableValue * (effectiveMillage / 1000) * 100) / 100;
+
+  // Show OCR data banner if available
+  const ocrBanner = Object.keys(ocrData).length > 0
+    ? `<div style="background:var(--teal-light);border:1px solid var(--teal);border-radius:var(--radius);padding:8px 14px;margin-bottom:12px;font-size:12px;display:flex;align-items:center;gap:8px;">
+        <span>&#128269;</span>
+        <span style="color:var(--teal-mid);font-weight:500;">OCR data applied from uploaded documents</span>
+        ${ocrData.parcel_id ? `<span style="color:var(--text-mid);">Parcel: ${ocrData.parcel_id}</span>` : ''}
+        ${ocrData.filing_deadline ? `<span style="color:var(--text-mid);">Due: ${ocrData.filing_deadline}</span>` : ''}
+        <button onclick="window['_propTaxOCRData_${jurisdiction}']=null;syncPropertyTax('${jurisdiction}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:11px;margin-left:auto;">&#215; Clear OCR</button>
+       </div>` : '';
 
   let assetRows = (assets||[]).map(a => `<tr>
     <td>${a.asset_name}</td><td>${a.asset_category||'—'}</td>
@@ -12150,7 +12178,7 @@ async function syncPropertyTax(jurisdiction) {
     <td style="text-align:right;font-family:monospace;">${fmt2(a.book_value)}</td>
   </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:#888;">No active fixed assets found</td></tr>';
 
-  document.getElementById(j.containerId).innerHTML = `
+  document.getElementById(j.containerId).innerHTML = ocrBanner + `
     <div style="border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:20px;">
       <div class="tax-form-line section-header"><div class="tfl-num"></div><div class="tfl-label" style="grid-column:span 3;padding:8px 12px;">${j.form} — ${j.name} · Tax Year ${taxYear}</div></div>
       <div class="tax-form-line"><div class="tfl-num">1</div><div class="tfl-label">Total Original Cost of Tangible Personal Property</div><div class="tfl-amount"><input class="tfl-input" value="${fmt2(totalCost)}" readonly style="background:var(--section-bg);"></div><div></div></div>
@@ -20933,6 +20961,67 @@ function openIncidentResponsePlan() {
     </div>
   </div>
 </div>
+
+<!-- ══ PROPERTY TAX DOCUMENT UPLOAD MODAL ══ -->
+<div class="modal-overlay" id="propTaxUploadModal">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-header">
+      <span class="modal-title" id="propTaxUploadTitle">Upload Property Tax Documents</span>
+      <button class="modal-close" onclick="closeModal('propTaxUploadModal')">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--section-bg);border-radius:var(--radius);padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--text-mid);">
+        Upload appraisal notices, prior-year returns, assessment letters, exemption certificates, or any supporting documents. OCR will extract values and pre-fill the return.
+      </div>
+      <input type="hidden" id="propTaxUploadJurisdiction">
+      <!-- Drop zone -->
+      <div id="propTaxDropZone" style="border:2px dashed var(--border);border-radius:var(--radius-lg);padding:32px;text-align:center;cursor:pointer;transition:border-color 0.2s;margin-bottom:16px;"
+           onclick="document.getElementById('propTaxFileInput').click()"
+           ondragover="event.preventDefault();this.style.borderColor='var(--teal)'"
+           ondragleave="this.style.borderColor='var(--border)'"
+           ondrop="handlePropTaxDrop(event)">
+        <div style="font-size:32px;margin-bottom:8px;">&#128196;</div>
+        <div style="font-size:14px;font-weight:500;color:var(--navy);margin-bottom:4px;">Click to browse or drag files here</div>
+        <div style="font-size:12px;color:var(--text-light);">Accepts PDF, JPG, PNG — appraisal notices, prior returns, assessment letters</div>
+      </div>
+      <input type="file" id="propTaxFileInput" accept=".pdf,.jpg,.jpeg,.png" multiple style="display:none;" onchange="handlePropTaxFileSelect(event)">
+      <!-- Doc type selector -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div>
+          <label class="field-label">Document Type</label>
+          <select class="field-select" id="propTaxDocType">
+            <option value="appraisal_notice">Appraisal Notice</option>
+            <option value="prior_return">Prior Year Return</option>
+            <option value="assessment_letter">Assessment / Tax Bill</option>
+            <option value="exemption_cert">Exemption Certificate</option>
+            <option value="appeal_document">Appeal Document</option>
+            <option value="payment_receipt">Payment Receipt</option>
+            <option value="other">Other Supporting Doc</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Tax Year</label>
+          <select class="field-select" id="propTaxDocYear">
+            <option value="2025">2025</option><option value="2024">2024</option>
+            <option value="2023">2023</option><option value="2022">2022</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="field-label">Notes (optional)</label>
+        <input type="text" class="field-input" id="propTaxDocNotes" placeholder="e.g. Received from county appraiser 3/15/2025">
+      </div>
+      <!-- Uploaded files list -->
+      <div id="propTaxFileList" style="margin-top:16px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('propTaxUploadModal')">Cancel</button>
+      <button class="btn-secondary" onclick="runPropTaxOCR()">&#128269; OCR &amp; Extract</button>
+      <button class="btn-save" onclick="savePropTaxDocs()">&#10003; Attach to Return</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>`);
   win.document.close();
@@ -26881,6 +26970,304 @@ function saveNotificationSettings() {
   });
   localStorage.setItem('clarus_notifications', JSON.stringify(settings));
   showToast('✓ Notification preferences saved');
+}
+
+
+
+// ════════════════════════════════════════════════════════════════════
+//  PROPERTY TAX DOCUMENT UPLOAD
+// ════════════════════════════════════════════════════════════════════
+
+// Staged files waiting to be attached
+let _propTaxStagedFiles = [];
+let _propTaxActiveJurisdiction = null;
+
+const PROP_TAX_JURISDICTION_LABELS = {
+  'duval_fl':    'Duval County FL — DR-405',
+  'nassau_fl':   'Nassau County FL — DR-405',
+  'charlton_ga': 'Charlton County GA — PT-50P',
+};
+
+function openPropTaxUpload(jurisdiction) {
+  _propTaxStagedFiles = [];
+  _propTaxActiveJurisdiction = jurisdiction;
+  document.getElementById('propTaxUploadTitle').textContent =
+    'Upload Documents — ' + (PROP_TAX_JURISDICTION_LABELS[jurisdiction] || jurisdiction);
+  document.getElementById('propTaxUploadJurisdiction').value = jurisdiction;
+  document.getElementById('propTaxFileList').innerHTML = '';
+  document.getElementById('propTaxDocNotes').value = '';
+  document.getElementById('propTaxDropZone').style.borderColor = 'var(--border)';
+  // Load existing docs for this jurisdiction
+  loadPropTaxDocList(jurisdiction);
+  document.getElementById('propTaxUploadModal').classList.add('show');
+}
+
+async function loadPropTaxDocList(jurisdiction) {
+  if (!acctCompanyId) return;
+  try {
+    const { data: docs } = await sb.from('property_tax_docs')
+      .select('*')
+      .eq('company_id', acctCompanyId)
+      .eq('jurisdiction', jurisdiction)
+      .order('created_at', { ascending: false });
+    renderPropTaxDocList(docs || [], false);
+  } catch(e) { console.warn('loadPropTaxDocList:', e.message); }
+}
+
+function renderPropTaxDocList(docs, includeStaged) {
+  const el = document.getElementById('propTaxFileList');
+  if (!el) return;
+  const allDocs = includeStaged
+    ? [..._propTaxStagedFiles.map(f => ({ ...f, staged: true })), ...(docs || [])]
+    : docs;
+
+  if (!allDocs.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--text-light);padding:8px 0;">No documents attached yet</div>';
+    return;
+  }
+
+  const docTypeLabels = {
+    appraisal_notice: 'Appraisal Notice', prior_return: 'Prior Year Return',
+    assessment_letter: 'Assessment / Tax Bill', exemption_cert: 'Exemption Certificate',
+    appeal_document: 'Appeal Document', payment_receipt: 'Payment Receipt', other: 'Supporting Doc'
+  };
+
+  el.innerHTML = '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-light);margin-bottom:8px;">Attached Documents</div>'
+    + allDocs.map((d, i) => `
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius);margin-bottom:6px;">
+        <span style="font-size:20px;">&#128196;</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:500;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.file_name || 'Document'}</div>
+          <div style="font-size:11px;color:var(--text-light);">${docTypeLabels[d.doc_type] || d.doc_type || '—'} · ${d.tax_year || '—'} · ${d.notes || ''}</div>
+        </div>
+        ${d.ocr_data ? '<span style="font-size:10px;background:var(--teal-light);color:var(--teal);padding:2px 8px;border-radius:10px;font-weight:600;">OCR Done</span>' : ''}
+        ${d.staged ? '<span style="font-size:10px;background:var(--gold-pale);color:#7a5c1e;padding:2px 8px;border-radius:10px;">Staged</span>' : ''}
+        ${!d.staged ? `<button onclick="viewPropTaxDoc('${d.id}')" style="background:none;border:1px solid var(--border);padding:3px 8px;border-radius:var(--radius);font-size:11px;cursor:pointer;color:var(--navy);">View</button>` : ''}
+        ${!d.staged ? `<button onclick="deletePropTaxDoc('${d.id}')" style="background:none;border:1px solid var(--error);padding:3px 8px;border-radius:var(--radius);font-size:11px;cursor:pointer;color:var(--error);">&#215;</button>` : ''}
+      </div>`).join('');
+}
+
+function handlePropTaxDrop(event) {
+  event.preventDefault();
+  document.getElementById('propTaxDropZone').style.borderColor = 'var(--border)';
+  const files = Array.from(event.dataTransfer.files);
+  stagePropTaxFiles(files);
+}
+
+function handlePropTaxFileSelect(event) {
+  const files = Array.from(event.target.files || []);
+  stagePropTaxFiles(files);
+  event.target.value = ''; // reset so same file can be re-selected
+}
+
+async function stagePropTaxFiles(files) {
+  const docType = document.getElementById('propTaxDocType')?.value || 'other';
+  const taxYear = document.getElementById('propTaxDocYear')?.value || '2025';
+  const notes   = document.getElementById('propTaxDocNotes')?.value || '';
+
+  for (const file of files) {
+    const base64 = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload  = () => res(r.result.split(',')[1]);
+      r.onerror = () => rej(new Error('Read failed'));
+      r.readAsDataURL(file);
+    });
+    _propTaxStagedFiles.push({
+      id: 'ptdoc-staged-' + Date.now() + '-' + Math.random().toString(36).slice(2,6),
+      file_name: file.name,
+      file_data: base64,
+      mime_type: file.type,
+      doc_type: docType,
+      tax_year: taxYear,
+      notes,
+      jurisdiction: _propTaxActiveJurisdiction,
+    });
+  }
+  renderPropTaxDocList([], true);
+  showToast(`✓ ${files.length} file(s) staged — click "Attach to Return" to save`);
+}
+
+async function savePropTaxDocs() {
+  if (!_propTaxStagedFiles.length) { showToast('No files staged to attach', true); return; }
+  if (!acctCompanyId) { showToast('⚠ Select an entity first', true); return; }
+  showLoading('Attaching documents…');
+  try {
+    for (const doc of _propTaxStagedFiles) {
+      const payload = {
+        id: 'ptdoc-' + Date.now() + '-' + Math.random().toString(36).slice(2,8),
+        company_id: acctCompanyId,
+        jurisdiction: doc.jurisdiction,
+        file_name: doc.file_name,
+        file_data: doc.file_data,
+        mime_type: doc.mime_type,
+        doc_type: doc.doc_type,
+        tax_year: parseInt(doc.tax_year) || 2025,
+        notes: doc.notes || null,
+        created_at: new Date().toISOString(),
+      };
+      await sb.from('property_tax_docs').insert(payload);
+    }
+    hideLoading();
+    const count = _propTaxStagedFiles.length;
+    _propTaxStagedFiles = [];
+    showToast(`✓ ${count} document(s) attached to ${PROP_TAX_JURISDICTION_LABELS[_propTaxActiveJurisdiction] || _propTaxActiveJurisdiction}`);
+    // Refresh list inside modal
+    loadPropTaxDocList(_propTaxActiveJurisdiction);
+    // Refresh doc badge on the return panel
+    refreshPropTaxDocBadge(_propTaxActiveJurisdiction);
+  } catch(e) {
+    hideLoading();
+    showToast('Attach failed: ' + e.message, true);
+  }
+}
+
+async function runPropTaxOCR() {
+  if (!_propTaxStagedFiles.length) { showToast('Stage at least one file first', true); return; }
+  showLoading('Running OCR on staged documents…');
+  try {
+    let extracted = [];
+    for (const doc of _propTaxStagedFiles) {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514', max_tokens: 1500,
+          messages: [{ role: 'user', content: [
+            { type: 'document', source: { type: 'base64', media_type: doc.mime_type || 'application/pdf', data: doc.file_data } },
+            { type: 'text', text: `Extract property tax data from this document. Return JSON ONLY (no markdown) with these fields if present:
+{
+  "doc_type": "appraisal_notice|prior_return|assessment_letter|exemption_cert|other",
+  "tax_year": 0,
+  "parcel_id": "",
+  "property_address": "",
+  "assessed_value": 0,
+  "market_value": 0,
+  "taxable_value": 0,
+  "millage_rate": 0,
+  "tax_amount_due": 0,
+  "exemptions": [{"type":"","amount":0}],
+  "total_original_cost": 0,
+  "tangible_personal_property_cost": 0,
+  "filing_deadline": "",
+  "county": "",
+  "account_number": "",
+  "notes": ""
+}` }
+          ]}]
+        })
+      });
+      const data = await resp.json();
+      const text = (data.content || []).map(c => c.text || '').join('');
+      let parsed = {};
+      try { parsed = JSON.parse(text.replace(/```json|```/g, '').trim()); } catch(e) {}
+      doc.ocr_data = JSON.stringify(parsed);
+      extracted.push({ fileName: doc.file_name, parsed });
+    }
+    hideLoading();
+    // Show summary of what was extracted
+    const summary = extracted.map(e => {
+      const p = e.parsed;
+      return `<div style="padding:8px 12px;background:var(--teal-light);border:1px solid var(--teal);border-radius:var(--radius);margin-bottom:6px;">
+        <div style="font-weight:600;font-size:12px;color:var(--teal-mid);">&#10003; ${e.fileName}</div>
+        ${p.parcel_id ? `<div style="font-size:11px;color:var(--text-mid);">Parcel: ${p.parcel_id}</div>` : ''}
+        ${p.assessed_value ? `<div style="font-size:11px;color:var(--text-mid);">Assessed Value: $${parseFloat(p.assessed_value).toLocaleString()}</div>` : ''}
+        ${p.tax_amount_due ? `<div style="font-size:11px;color:var(--text-mid);">Tax Due: $${parseFloat(p.tax_amount_due).toLocaleString()}</div>` : ''}
+        ${p.millage_rate ? `<div style="font-size:11px;color:var(--text-mid);">Millage Rate: ${p.millage_rate}</div>` : ''}
+        ${p.total_original_cost ? `<div style="font-size:11px;color:var(--text-mid);">Total Cost: $${parseFloat(p.total_original_cost).toLocaleString()}</div>` : ''}
+      </div>`;
+    }).join('');
+    document.getElementById('propTaxFileList').innerHTML =
+      `<div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:8px;">OCR Extraction Results</div>${summary}
+       <div style="font-size:11px;color:var(--text-light);margin-top:8px;">Click "Attach to Return" to save documents. Extracted values will be available when syncing the return.</div>`;
+    // Attempt to pre-fill return fields
+    const firstExtracted = extracted[0]?.parsed;
+    if (firstExtracted) applyPropTaxOCRToReturn(_propTaxActiveJurisdiction, firstExtracted);
+    showToast('✓ OCR complete — review results above');
+  } catch(e) {
+    hideLoading();
+    showToast('OCR error: ' + e.message, true);
+  }
+}
+
+function applyPropTaxOCRToReturn(jurisdiction, parsed) {
+  // Pre-fill millage rate and assessed value fields if they exist in the return
+  if (!parsed) return;
+  const millageInput = document.getElementById(jurisdiction + '-millage');
+  if (millageInput && parsed.millage_rate) {
+    millageInput.value = parsed.millage_rate;
+    millageInput.dispatchEvent(new Event('input'));
+  }
+  if (parsed.total_original_cost || parsed.tangible_personal_property_cost) {
+    // These will be picked up by syncPropertyTax when run
+    window['_propTaxOCRData_' + jurisdiction] = parsed;
+  }
+}
+
+async function refreshPropTaxDocBadge(jurisdiction) {
+  if (!acctCompanyId) return;
+  try {
+    const { data: docs } = await sb.from('property_tax_docs')
+      .select('id').eq('company_id', acctCompanyId).eq('jurisdiction', jurisdiction);
+    const count = (docs || []).length;
+    const suffix = jurisdiction.split('_')[0]; // duval, nassau, charlton
+    const badgeDiv = document.getElementById('prop-' + suffix + '-docs');
+    if (!badgeDiv) return;
+    if (count > 0) {
+      badgeDiv.style.display = 'block';
+      badgeDiv.innerHTML = `
+        <div style="background:var(--teal-light);border:1px solid var(--teal);border-radius:var(--radius);padding:8px 14px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:13px;">&#128196;</span>
+          <span style="font-size:13px;color:var(--teal-mid);font-weight:500;">${count} document${count>1?'s':''} attached</span>
+          <button onclick="openPropTaxUpload('${jurisdiction}')" style="background:none;border:1px solid var(--teal);color:var(--teal);padding:3px 10px;border-radius:var(--radius);cursor:pointer;font-size:12px;margin-left:auto;">Manage Docs</button>
+        </div>`;
+    } else {
+      badgeDiv.style.display = 'none';
+    }
+  } catch(e) { console.warn('refreshPropTaxDocBadge:', e.message); }
+}
+
+async function viewPropTaxDoc(docId) {
+  showLoading('Loading document…');
+  try {
+    const { data: doc } = await sb.from('property_tax_docs')
+      .select('file_name,file_data,mime_type,doc_type,ocr_data').eq('id', docId).single();
+    hideLoading();
+    if (!doc) { showToast('Document not found', true); return; }
+    const w = window.open('', '_blank', 'width=800,height=900');
+    if (doc.mime_type?.startsWith('image/')) {
+      w.document.write(`<html><body style="margin:0;background:#111;display:flex;justify-content:center;">
+        <img src="data:${doc.mime_type};base64,${doc.file_data}" style="max-width:100%;height:auto;">
+        </body></html>`);
+    } else if (doc.mime_type === 'application/pdf') {
+      w.document.write(`<html><body style="margin:0;">
+        <embed src="data:application/pdf;base64,${doc.file_data}" type="application/pdf" width="100%" height="100%">
+        </body></html>`);
+    } else {
+      const ocrData = doc.ocr_data ? JSON.parse(doc.ocr_data) : null;
+      w.document.write(`<html><body style="font-family:sans-serif;padding:20px;">
+        <h2>${doc.doc_type||'Document'}: ${doc.file_name||''}</h2>
+        ${ocrData ? '<h3>Extracted Data:</h3><pre style="background:#f5f5f5;padding:16px;border-radius:8px;">'+JSON.stringify(ocrData,null,2)+'</pre>' : '<p>No preview available</p>'}
+        </body></html>`);
+    }
+  } catch(e) { hideLoading(); showToast('View error: '+e.message, true); }
+}
+
+async function deletePropTaxDoc(docId) {
+  if (!confirm('Remove this document from the return?')) return;
+  showLoading('Removing…');
+  try {
+    await sb.from('property_tax_docs').delete().eq('id', docId);
+    hideLoading();
+    showToast('✓ Document removed');
+    loadPropTaxDocList(_propTaxActiveJurisdiction);
+    refreshPropTaxDocBadge(_propTaxActiveJurisdiction);
+  } catch(e) { hideLoading(); showToast('Delete error: '+e.message, true); }
+}
+
+// Load doc badges when property tax panel becomes active
+async function loadAllPropTaxDocBadges() {
+  const jurisdictions = ['duval_fl', 'nassau_fl', 'charlton_ga'];
+  for (const j of jurisdictions) { await refreshPropTaxDocBadge(j); }
 }
 
 
