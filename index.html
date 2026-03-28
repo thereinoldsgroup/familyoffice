@@ -38,7 +38,7 @@
     --radius: 6px;
     --radius-lg: 10px;
   
-  --page-header-h: 80px;
+  --page-header-h: 60px;
 }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -317,13 +317,13 @@
   #view-ownership, #view-financials, #view-tax { width: 100%; }
   .page-header {
     display: flex; align-items: flex-start; justify-content: space-between;
-    margin-bottom: 20px; padding-bottom: 16px;
+    margin-bottom: 12px; padding-bottom: 10px;
     border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
     background: var(--cream);
     z-index: 20;
-    padding-top: 12px;
+    padding-top: 8px;
     margin-left: -28px;
     margin-right: -28px;
     padding-left: 28px;
@@ -22744,7 +22744,6 @@ function onGlobalEntityChange() {
   // Reload active module
   const ap = document.querySelector('.panel.active');
   if (!ap) return;
-  const pid = ap.id;
   try {
     const map = {
       'view-tax': () => { if(typeof loadTaxModule==='function') loadTaxModule(); },
@@ -22765,8 +22764,8 @@ function onGlobalEntityChange() {
       'view-settings': () => { if(typeof loadSettingsModule==='function') loadSettingsModule(); },
       'view-entity-settings': () => { if(typeof loadEntityInfoPanel==='function') loadEntityInfoPanel(); },
     };
-    if (map[pid]) map[pid]();
-  } catch(e) { console.error('Global entity change reload error:', e); }
+    if (map[ap.id]) map[ap.id]();
+  } catch(e) { console.error('Global entity reload error:', e); }
 }
 
 // ── Rental Profitability Module ──
@@ -26931,11 +26930,12 @@ function openPropTaxUpload(jurisdiction) {
 }
 
 async function loadPropTaxDocList(jurisdiction) {
-  if (!acctCompanyId) return;
+  const _ptCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || acctCompanyId;
+  if (!_ptCompanyId) return;
   try {
     const { data: docs } = await sb.from('property_tax_docs')
       .select('*')
-      .eq('company_id', acctCompanyId)
+      .eq('company_id', _ptCompanyId)
       .eq('jurisdiction', jurisdiction)
       .order('created_at', { ascending: false });
     renderPropTaxDocList(docs || [], false);
@@ -27017,7 +27017,8 @@ async function stagePropTaxFiles(files) {
 
 async function savePropTaxDocs() {
   if (!_propTaxStagedFiles.length) { showToast('No files staged to attach', true); return; }
-  if (!acctCompanyId) { showToast('⚠ Select an entity first', true); return; }
+  const _ptSaveCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || acctCompanyId;
+  if (!_ptSaveCompanyId) { showToast('⚠ Select an entity from the top menu first', true); return; }
   showLoading('Attaching documents…');
   try {
     for (const doc of _propTaxStagedFiles) {
