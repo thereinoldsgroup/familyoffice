@@ -2564,10 +2564,7 @@
 
       <!-- Entity Selector (reuse acct) -->
       <div class="entity-selector" style="margin-bottom:24px;">
-        <span class="entity-selector-label">Entity</span>
-        <select id="taxEntitySelect" onchange="onTaxEntityChange()">
-          <option value="">— Select a company —</option>
-        </select>
+        <span class="entity-selector-label">Tax Year</span>
         <select id="taxYearSelect" onchange="onTaxEntityChange()" style="width:100px;height:34px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:13px;">
           <option value="2026" selected>2026</option>
           <option value="2025">2025</option>
@@ -2825,10 +2822,7 @@
           <div class="page-subtitle">Projects · Tasks · Time · Gantt · Kanban</div>
         </div>
         <div class="page-actions">
-          <select id="pm-entity-select" class="field-select" style="height:34px;width:220px;" onchange="onPMEntityChange()">
-            <option value="">— All companies —</option>
-          </select>
-          <button class="btn-save" onclick="openProjectModal()">+ New Project</button>
+<button class="btn-save" onclick="openProjectModal()">+ New Project</button>
         </div>
       </div><!-- /page-header -->
 
@@ -3000,10 +2994,7 @@
           <div class="page-subtitle">Items · Transactions · Valuation · Cycle Counts · Audit Trail</div>
         </div>
         <div class="page-actions">
-          <select id="inv-entity-select" class="field-select" style="height:34px;width:220px;" onchange="onInvEntityChange()">
-            <option value="">— Select company —</option>
-          </select>
-          <button class="btn-primary" onclick="openReceiveModal()">📥 Receive</button>
+<button class="btn-primary" onclick="openReceiveModal()">📥 Receive</button>
           <button class="btn-save" onclick="openItemModal()">+ New Item</button>
         </div>
       </div>
@@ -3190,10 +3181,7 @@
           <div class="page-subtitle">KPI Dashboard · Budgets · Cash Flow · Forecasting · Scenarios · Variance Analysis</div>
         </div>
         <div class="page-actions">
-          <select id="bud-entity-select" class="field-select" style="height:34px;width:220px;" onchange="onBudEntityChange()">
-            <option value="">— Select company —</option>
-          </select>
-          <select id="bud-year-select" class="field-select" style="height:34px;width:100px;" onchange="onBudEntityChange()">
+<select id="bud-year-select" class="field-select" style="height:34px;width:100px;" onchange="onBudEntityChange()">
             <option value="2025" selected>2025</option>
             <option value="2024">2024</option>
             <option value="2026">2026</option>
@@ -3499,14 +3487,6 @@
         </div>
       </div>
 
-      <!-- ENTITY SELECTOR BAR — same pattern as Accounting panel -->
-      <div style="background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:12px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;">
-        <span style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-light);white-space:nowrap;">Active Entity</span>
-        <select id="ei-entity-sel" class="field-select" style="flex:1;max-width:400px;" onchange="loadEntityInfo()">
-          <option value="">&#8212; Select a company &#8212;</option>
-        </select>
-      </div><!-- /page-header -->
-
       <!-- ACCT-LAYOUT — same flex structure as Accounting panel -->
       <div class="acct-layout">
 
@@ -3523,7 +3503,7 @@
         <div class="acct-content">
           <div id="ei-body">
             <div class="empty-state">
-              <div class="empty-state-title">Select an entity above to begin editing</div>
+              <div class="empty-state-title">Select an entity from the top menu to begin editing</div>
             </div>
           </div>
         </div>
@@ -3881,8 +3861,7 @@
       <div class="page-header">
         <div><div class="page-title">CRM</div><div class="page-subtitle">Contacts · Deals · Pipeline · Activities</div></div>
         <div class="page-actions">
-          <select id="crm-entity-select" class="field-select" style="height:34px;width:220px;" onchange="onCRMEntityChange()"><option value="">— Select company —</option></select>
-          <button class="btn-primary" onclick="openContactModal()">+ Contact</button>
+<button class="btn-primary" onclick="openContactModal()">+ Contact</button>
           <button class="btn-save" onclick="openDealModal()">+ Deal</button>
         </div>
       </div>
@@ -3905,8 +3884,7 @@
       <div class="page-header">
         <div><div class="page-title">Documents</div><div class="page-subtitle">Upload · Organize · Tag · Search</div></div>
         <div class="page-actions">
-          <select id="doc-entity-select" class="field-select" style="height:34px;width:220px;" onchange="onDocEntityChange()"><option value="">— Select company —</option></select>
-          <input type="text" id="doc-search" class="field-input" style="height:34px;width:200px;" placeholder="Search documents…" oninput="filterDocuments()">
+<input type="text" id="doc-search" class="field-input" style="height:34px;width:200px;" placeholder="Search documents…" oninput="filterDocuments()">
           <select id="doc-type-filter" class="field-select" style="height:34px;width:150px;" onchange="filterDocuments()">
             <option value="">All types</option>
             <option value="contract">Contracts</option>
@@ -3930,8 +3908,7 @@
       <div class="page-header">
         <div><div class="page-title">Reports &amp; Automation</div><div class="page-subtitle">Custom Reports · Board Pack · Automation Rules · Alerts</div></div>
         <div class="page-actions">
-          <select id="rpt-entity-select" class="field-select" style="height:34px;width:220px;" onchange="onRptEntityChange()"><option value="">— Select company —</option></select>
-        </div>
+</div>
       </div><!-- /page-header -->
       <div style="display:flex;gap:0;">
         <div class="rpt-sidebar">
@@ -4087,8 +4064,7 @@
       <div class="page-header">
         <div><div class="page-title">Purchasing</div><div class="page-subtitle">Purchase Orders · Receiving · Vendor Spend</div></div>
         <div class="page-actions">
-          <select id="po-entity-select" class="field-select" style="height:34px;width:220px;" onchange="onPOEntityChange()"><option value="">— Select company —</option></select>
-          <button class="btn-save" onclick="openPOModal()">+ New PO</button>
+<button class="btn-save" onclick="openPOModal()">+ New PO</button>
         </div>
       </div>
       <div class="b8-layout">
@@ -4304,10 +4280,7 @@
           <div class="page-subtitle">Revenue · Costs · Margin · Utilization by equipment</div>
         </div>
         <div class="page-actions">
-          <select id="rp-entity-select" class="field-select" style="height:34px;min-width:200px;" onchange="loadRentalProfitModule()">
-            <option value="">— Select rental entity —</option>
-          </select>
-          <select id="rp-period-select" class="field-select" style="height:34px;width:160px;" onchange="renderRentalProfit()">
+<select id="rp-period-select" class="field-select" style="height:34px;width:160px;" onchange="renderRentalProfit()">
             <option value="all">All Time</option>
             <option value="ytd" selected>Year to Date</option>
             <option value="last12">Last 12 Months</option>
@@ -4355,8 +4328,7 @@
       <div class="page-header">
         <div><div class="page-title">Equity &amp; Cap Table</div><div class="page-subtitle">Share Classes · Holders · Transactions · Vesting</div></div>
         <div class="page-actions">
-          <select id="eq-entity-select" class="field-select" style="height:34px;width:220px;" onchange="onEQEntityChange()"><option value="">— Select company —</option></select>
-          <button class="btn-primary" onclick="openEquityClassModal()">+ Share Class</button>
+<button class="btn-primary" onclick="openEquityClassModal()">+ Share Class</button>
           <button class="btn-save" onclick="openCapTableEntryModal()">+ Issue Shares</button>
         </div>
       </div>
@@ -4415,8 +4387,7 @@
       <div class="page-header">
         <div><div class="page-title">Debt &amp; Loans</div><div class="page-subtitle">Loan Accounts · Amortization · Payment Tracking</div></div>
         <div class="page-actions">
-          <select id="debt-entity-select" class="field-select" style="height:34px;width:220px;" onchange="onDebtEntityChange()"><option value="">— Select company —</option></select>
-          <button class="btn-save" onclick="openLoanModal()">+ Add Loan</button>
+<button class="btn-save" onclick="openLoanModal()">+ Add Loan</button>
         </div>
       </div>
       <div class="b8-layout">
@@ -4455,8 +4426,7 @@
       <div class="page-header">
         <div><div class="page-title">HR &amp; Benefits</div><div class="page-subtitle">Benefits · Events · PTO · Headcount</div></div>
         <div class="page-actions">
-          <select id="hr-entity-select" class="field-select" style="height:34px;width:220px;" onchange="onHREntityChange()"><option value="">— Select company —</option></select>
-        </div>
+</div>
       </div>
       <div class="b8-layout">
         <div class="b8-sidebar">
@@ -4756,8 +4726,7 @@
       <div class="page-header">
         <div><div class="page-title">Internal Audit</div><div class="page-subtitle">Anomaly Detection · Fraud Indicators · Vendor Risk · JE Review</div></div>
         <div class="page-actions">
-          <select id="audit-entity-select" class="field-select" style="height:34px;width:200px;" onchange="onAuditEntityChange()"><option value="">— Select entity —</option></select>
-          <select id="audit-period" class="field-select" style="height:34px;width:130px;">
+<select id="audit-period" class="field-select" style="height:34px;width:130px;">
             <option value="90">Last 90 days</option><option value="180">Last 180 days</option><option value="365">Last 12 months</option>
           </select>
           <button class="btn-save" onclick="runInternalAudit()">&#9888; Run Audit</button>
@@ -4820,8 +4789,7 @@
           <div class="page-subtitle">Rental/Lease · Payroll · Tax · Cross-Module · Executive KPIs · Management Agreements</div>
         </div>
         <div class="page-actions">
-          <select id="auto-entity-select" class="field-select" style="height:34px;width:200px;" onchange="onAutoEntityChange()"><option value="">— Select entity —</option></select>
-          <button class="btn-save" onclick="runAllAutomations()">&#9654; Run All Automations</button>
+<button class="btn-save" onclick="runAllAutomations()">&#9654; Run All Automations</button>
         </div>
       </div><!-- /page-header -->
       <div style="display:flex;gap:0;">
@@ -8030,7 +7998,7 @@ function showAcctView(view) {
   if (!acctCompanyId && !acctConsolidated) {
     const transactional = ['invoices','bills','je','gl','payments-in','payments-out','bank','payroll','draws','reconcile','ic','coa'];
     if (transactional.includes(view)) {
-      showToast('⚠ Select an entity above first', true);
+      showToast('⚠ Select an entity from the top menu first', true);
       const sel = document.getElementById('acctEntitySelect');
       if (sel) { sel.focus(); sel.style.outline='2px solid var(--teal)'; setTimeout(()=>sel.style.outline='',2000); }
       return;
@@ -11438,19 +11406,13 @@ async function loadTaxModule() {
   showLoading('Loading tax module…');
   try {
     const { data: companies } = await sb.from('companies').select('id,legal_name,structure,acct_method_tax,suta_state').order('legal_name');
-    const sel = document.getElementById('taxEntitySelect');
-    if (sel) {
-      sel.innerHTML = '<option value="">— Select a company —</option>' +
-        (companies||[]).map(c => `<option value="${c.id}" data-structure="${c.structure||''}">${c.legal_name}</option>`).join('');
-    }
+    taxCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
     taxYear = parseInt(document.getElementById('taxYearSelect')?.value) || new Date().getFullYear();
-    if (companies?.length && !taxCompanyId) {
-      if(sel) sel.value = companies[0].id;
-      taxCompanyId = companies[0].id;
+    if (!taxCompanyId && companies?.length) taxCompanyId = companies[0].id;
+    if (taxCompanyId) {
       await loadTaxEntityData();
-      showTaxDashboard(companies[0]);
-    } else if (taxCompanyId && sel) {
-      sel.value = taxCompanyId;
+      const co = companies?.find(c => c.id === taxCompanyId);
+      if (co) showTaxDashboard(co);
     }
   } catch(e) { console.error('loadTaxModule error:', e); }
   finally { hideLoading(); scrollMainToTop(); }
@@ -11518,16 +11480,14 @@ function showTaxDashboard(company) {
 }
 
 async function onTaxEntityChange() {
-  const sel = document.getElementById('taxEntitySelect');
-  taxCompanyId = sel.value;
-  taxYear = parseInt(document.getElementById('taxYearSelect').value) || 2025;
+  taxCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
+  taxYear = parseInt(document.getElementById('taxYearSelect')?.value) || 2025;
   taxFinancialData = {};
   taxReturnLines = {};
   if (taxCompanyId) {
     await loadTaxEntityData();
-    const company = { legal_name: sel.options[sel.selectedIndex]?.text?.split(' —')[0] || '', structure: sel.options[sel.selectedIndex]?.dataset?.structure || '' };
-    showTaxPanel('1120s');
-    showTaxDashboard(company);
+    const { data: co } = await sb.from('companies').select('id,legal_name,structure').eq('id', taxCompanyId).single();
+    if (co) { showTaxPanel('1120s'); showTaxDashboard(co); }
   }
 }
 
@@ -11679,9 +11639,7 @@ function recalcFormTotals() {
 // ── 1120-S ──
 async function syncReturnFromFinancials(formType) {
   if (!taxCompanyId) {
-    showToast('⚠ Select a company first', true);
-    const sel = document.getElementById('taxEntitySelect');
-    if (sel) { sel.focus(); sel.style.outline='2px solid var(--teal)'; setTimeout(()=>sel.style.outline='',2000); }
+    showToast('⚠ Select an entity from the top menu first', true);
     return;
   }
   // Always reload financial data to ensure it's fresh
@@ -12427,21 +12385,14 @@ function pmStatusPill(s) {
 async function loadPMModule() {
   showLoading('Loading projects…');
   try {
-    const { data: companies } = await sb.from('companies').select('id,legal_name').order('legal_name');
-    const sel = document.getElementById('pm-entity-select');
-    if (sel) {
-      sel.innerHTML = '<option value="">— All companies —</option>' +
-        (companies||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
-      if (companies?.length && !pmCompanyId) { pmCompanyId = companies[0].id; sel.value = pmCompanyId; }
-      else if (pmCompanyId) sel.value = pmCompanyId;
-    }
+    pmCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
     await loadPMData();
   } catch(e) { console.error('loadPMModule error:', e); }
   finally { hideLoading(); scrollMainToTop(); }
 }
 
 async function onPMEntityChange() {
-  pmCompanyId = document.getElementById('pm-entity-select').value || null;
+  pmCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
   await loadPMData();
 }
 
@@ -13725,13 +13676,7 @@ async function loadInvModule() {
   showLoading('Loading inventory…');
   try {
     const { data: companies } = await sb.from('companies').select('id,legal_name').order('legal_name');
-    const sel = document.getElementById('inv-entity-select');
-    if (sel) {
-      sel.innerHTML = '<option value="">— Select company —</option>' +
-        (companies||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
-      if (companies?.length && !invCompanyId) { invCompanyId = companies[0].id; sel.value = invCompanyId; }
-      else if (invCompanyId) sel.value = invCompanyId;
-    }
+    invCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
     const { data: uoms } = await sb.from('units_of_measure').select('*').order('uom_name');
     invUOMs = uoms || [];
     await loadInvData();
@@ -13740,7 +13685,7 @@ async function loadInvModule() {
 }
 
 async function onInvEntityChange() {
-  invCompanyId = document.getElementById('inv-entity-select').value || null;
+  invCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
   await loadInvData();
 }
 
@@ -14538,14 +14483,7 @@ const MONTH_KEYS = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct',
 async function loadBudgetingModule() {
   showLoading('Loading budgeting module…');
   try {
-    const { data: companies } = await sb.from('companies').select('id,legal_name').order('legal_name');
-    const sel = document.getElementById('bud-entity-select');
-    if (sel) {
-      sel.innerHTML = '<option value="">— Select company —</option>' +
-        (companies||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
-      if (companies?.length && !budCompanyId) { budCompanyId = companies[0].id; sel.value = budCompanyId; }
-      else if (budCompanyId) sel.value = budCompanyId;
-    }
+    budCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
     budFiscalYear = parseInt(document.getElementById('bud-year-select')?.value) || new Date().getFullYear();
     await loadBudgetingData();
   } catch(e) { console.error('loadBudgetingModule error:', e); }
@@ -14553,7 +14491,7 @@ async function loadBudgetingModule() {
 }
 
 async function onBudEntityChange() {
-  budCompanyId  = document.getElementById('bud-entity-select')?.value || null;
+  budCompanyId  = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
   budFiscalYear = parseInt(document.getElementById('bud-year-select')?.value) || 2025;
   await loadBudgetingData();
 }
@@ -16177,18 +16115,12 @@ let editingContactId=null, editingDealId=null, editingDocId=null, editingRuleId=
 async function loadCRMModule() {
   showLoading('Loading CRM…');
   try {
-    const { data:cos } = await sb.from('companies').select('id,legal_name').order('legal_name');
-    const sel = document.getElementById('crm-entity-select');
-    if (sel) {
-      sel.innerHTML = '<option value="">— Select company —</option>'+(cos||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
-      if (!crmCompanyId && cos?.length) { crmCompanyId=cos[0].id; sel.value=crmCompanyId; }
-      else if (crmCompanyId) sel.value=crmCompanyId;
-    }
+    crmCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
     await loadCRMData();
   } catch(e) { console.error('loadCRMModule error:', e); }
   finally { hideLoading(); scrollMainToTop(); }
 }
-async function onCRMEntityChange() { crmCompanyId=document.getElementById('crm-entity-select').value||null; await loadCRMData(); }
+async function onCRMEntityChange() { crmCompanyId=window._globalEntityId || document.getElementById('global-entity-select')?.value||null; await loadCRMData(); }
 async function loadCRMData() {
   if (!crmCompanyId) return;
   const [{ data:contacts },{ data:deals }] = await Promise.all([
@@ -16443,18 +16375,12 @@ async function saveActivity() {
 async function loadDocumentsModule() {
   showLoading('Loading documents…');
   try {
-    const { data:cos } = await sb.from('companies').select('id,legal_name').order('legal_name');
-    const sel=document.getElementById('doc-entity-select');
-    if (sel) {
-      sel.innerHTML='<option value="">— Select company —</option>'+(cos||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
-      if (!docCompanyId && cos?.length) { docCompanyId=cos[0].id; sel.value=docCompanyId; }
-      else if (docCompanyId) sel.value=docCompanyId;
-    }
+    docCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
     await loadDocData();
   } catch(e) { console.error('loadDocumentsModule error:', e); }
   finally { hideLoading(); scrollMainToTop(); }
 }
-async function onDocEntityChange() { docCompanyId=document.getElementById('doc-entity-select').value||null; await loadDocData(); }
+async function onDocEntityChange() { docCompanyId=window._globalEntityId || document.getElementById('global-entity-select')?.value||null; await loadDocData(); }
 async function loadDocData() {
   if (!docCompanyId) return;
   const { data:docs } = await sb.from('documents').select('*').eq('company_id',docCompanyId).eq('is_archived',false).order('created_at',{ascending:false});
@@ -16552,13 +16478,7 @@ async function archiveDocument(id) {
 async function loadReportsModule() {
   showLoading('Loading reports…');
   try {
-    const { data:cos } = await sb.from('companies').select('id,legal_name').order('legal_name');
-    const sel=document.getElementById('rpt-entity-select');
-    if (sel) {
-      sel.innerHTML='<option value="">— Select company —</option>'+(cos||[]).map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
-      if (!rptCompanyId && cos?.length) { rptCompanyId=cos[0].id; sel.value=rptCompanyId; }
-      else if (rptCompanyId) sel.value=rptCompanyId;
-    }
+    rptCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
     const now=new Date();
     const df=document.getElementById('rpt-date-from'); if(df) df.value=`${now.getFullYear()}-01-01`;
     const dt=document.getElementById('rpt-date-to');   if(dt) dt.value=now.toISOString().slice(0,10);
@@ -16568,7 +16488,7 @@ async function loadReportsModule() {
   } catch(e) { console.error('loadReportsModule error:', e); }
   finally { hideLoading(); scrollMainToTop(); }
 }
-async function onRptEntityChange() { rptCompanyId=document.getElementById('rpt-entity-select').value||null; }
+async function onRptEntityChange() { rptCompanyId=window._globalEntityId || document.getElementById('global-entity-select')?.value||null; }
 function showRptPanel(panelId) {
   const _m=document.querySelector('.main');if(_m)_m.scrollTop=0;else window.scrollTo(0,0);
   document.querySelectorAll('.rpt-panel').forEach(p=>p.classList.remove('active'));
@@ -18229,13 +18149,12 @@ function showHRPanel(p) {
 async function loadPurchasingModule() {
   showLoading('Loading purchasing…');
   try {
-    await b8InitCompanySelect('po-entity-select','poCompanyId', async (cid) => {
-      poCompanyId=cid; await loadPOData();
-    });
+    poCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
+    if (poCompanyId) { await loadPOData(); }
   } catch(e) { console.error('loadPurchasingModule error:', e); }
   finally { hideLoading(); scrollMainToTop(); }
 }
-async function onPOEntityChange() { poCompanyId=document.getElementById('po-entity-select').value||null; await loadPOData(); }
+async function onPOEntityChange() { poCompanyId=window._globalEntityId || document.getElementById('global-entity-select')?.value||null; await loadPOData(); }
 async function loadPOData() {
   if (!poCompanyId) return;
   const { data } = await sb.from('purchase_orders').select('*, vendors(name)').eq('company_id',poCompanyId).order('order_date',{ascending:false});
@@ -18471,13 +18390,12 @@ function printPO(poId) {
 async function loadEquityModule() {
   showLoading('Loading cap table…');
   try {
-    await b8InitCompanySelect('eq-entity-select','eqCompanyId', async (cid) => {
-      eqCompanyId=cid; await loadEQData();
-    });
+    eqCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
+    if (eqCompanyId) { await loadEQData(); }
   } catch(e) { console.error('loadEquityModule error:', e); }
   finally { hideLoading(); scrollMainToTop(); }
 }
-async function onEQEntityChange() { eqCompanyId=document.getElementById('eq-entity-select').value||null; await loadEQData(); }
+async function onEQEntityChange() { eqCompanyId=window._globalEntityId || document.getElementById('global-entity-select')?.value||null; await loadEQData(); }
 async function loadEQData() {
   if (!eqCompanyId) return;
   const [{ data:classes },{ data:entries }] = await Promise.all([
@@ -18691,13 +18609,12 @@ async function saveCapTableEntry() {
 async function loadDebtModule() {
   showLoading('Loading debt…');
   try {
-    await b8InitCompanySelect('debt-entity-select','debtCompanyId', async (cid) => {
-      debtCompanyId=cid; await loadDebtData();
-    });
+    debtCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
+    if (debtCompanyId) { await loadDebtData(); }
   } catch(e) { console.error('loadDebtModule error:', e); }
   finally { hideLoading(); scrollMainToTop(); }
 }
-async function onDebtEntityChange() { debtCompanyId=document.getElementById('debt-entity-select').value||null; await loadDebtData(); }
+async function onDebtEntityChange() { debtCompanyId=window._globalEntityId || document.getElementById('global-entity-select')?.value||null; await loadDebtData(); }
 async function loadDebtData() {
   if (!debtCompanyId) return;
   const { data } = await sb.from('loan_accounts').select('*').eq('company_id',debtCompanyId).eq('is_active',true).order('loan_name');
@@ -18911,13 +18828,12 @@ async function saveLoan() {
 async function loadHRModule() {
   showLoading('Loading HR…');
   try {
-    await b8InitCompanySelect('hr-entity-select','hrCompanyId', async (cid) => {
-      hrCompanyId=cid; await loadHRData();
-    });
+    hrCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
+    if (hrCompanyId) { await loadHRData(); }
   } catch(e) { console.error('loadHRModule error:', e); }
   finally { hideLoading(); scrollMainToTop(); }
 }
-async function onHREntityChange() { hrCompanyId=document.getElementById('hr-entity-select').value||null; await loadHRData(); }
+async function onHREntityChange() { hrCompanyId=window._globalEntityId || document.getElementById('global-entity-select')?.value||null; await loadHRData(); }
 async function loadHRData() {
   if (!hrCompanyId) return;
   const [{ data:emps },{ data:plans }] = await Promise.all([
@@ -22818,20 +22734,45 @@ function onGlobalEntityChange() {
   const sel = document.getElementById('global-entity-select');
   const id  = sel?.value;
   if (!id) return;
-  // Sync with accounting module if open
+  window._globalEntityId = id;
+
+  // Sync accounting module
   const acctSel = document.getElementById('acctEntitySelect');
   if (acctSel && document.getElementById('view-financials')?.classList.contains('active')) {
     const opt = acctSel.querySelector(`option[value="${id}"]`);
     if (opt) { acctSel.value = id; onEntityChange(); }
   }
-  // Sync with rental module if open
+  // Sync rental module
   const rentSel = document.getElementById('rentals-company-sel');
   if (rentSel && document.getElementById('view-rentals')?.classList.contains('active')) {
     const opt = rentSel.querySelector(`option[value="${id}"]`);
     if (opt) { rentSel.value = id; loadRentals(); }
   }
-  // Store globally for modules to use on open
-  window._globalEntityId = id;
+
+  // Reload whichever module panel is currently active
+  const activePanel = document.querySelector('.panel.active');
+  if (!activePanel) return;
+  const pid = activePanel.id;
+  const reloadMap = {
+    'view-tax-returns': () => { if(typeof loadTaxModule==='function') loadTaxModule(); },
+    'view-budgeting': () => { budCompanyId=id; if(typeof loadBudgetModule==='function') loadBudgetModule(); },
+    'view-equity': () => { eqCompanyId=id; if(typeof loadEQData==='function') loadEQData(); },
+    'view-debt': () => { debtCompanyId=id; if(typeof loadDebtData==='function') loadDebtData(); },
+    'view-projects': () => { pmCompanyId=id; if(typeof loadProjectModule==='function') loadProjectModule(); },
+    'view-inventory': () => { invCompanyId=id; if(typeof loadInvModule==='function') loadInvModule(); },
+    'view-purchasing': () => { poCompanyId=id; if(typeof loadPOData==='function') loadPOData(); },
+    'view-hr': () => { hrCompanyId=id; if(typeof loadHRData==='function') loadHRData(); },
+    'view-crm': () => { crmCompanyId=id; if(typeof loadCRMData==='function') loadCRMData(); },
+    'view-ownership': () => { if(typeof loadOwnershipModule==='function') loadOwnershipModule(); },
+    'view-reports-automation': () => { rptCompanyId=id; if(typeof loadReportsModule==='function') loadReportsModule(); },
+    'view-documents': () => { docCompanyId=id; if(typeof loadDocData==='function') loadDocData(); },
+    'view-audit': () => { auditCompanyId=id; if(typeof loadAuditModule==='function') loadAuditModule(); },
+    'view-automation-center': () => { autoCompanyId=id; if(typeof loadAutomationCenter==='function') loadAutomationCenter(); },
+    'view-scheduling': () => { if(typeof loadSchedulingModule==='function') loadSchedulingModule(); },
+    'view-rental-profit': () => { if(typeof loadRentalProfitModule==='function') loadRentalProfitModule(); },
+    'view-settings': () => { if(typeof loadSettingsModule==='function') loadSettingsModule(); },
+  };
+  if (reloadMap[pid]) reloadMap[pid]();
 }
 
 // ── Rental Profitability Module ──
@@ -22840,26 +22781,7 @@ let rpData = { rentals:[], items:[], companyId:null };
 async function loadRentalProfitModule() {
   showLoading('Loading profitability data…');
   try {
-    // Populate entity selector
-    const sel = document.getElementById('rp-entity-select');
-    if (sel && sel.options.length <= 1) {
-      const { data: cos } = await sb.from('companies').select('id,legal_name')
-        .order('legal_name');
-      // Prefer rental companies but fall back to all
-      let rentalCos = cos || [];
-      try {
-        const { data: rc, error } = await sb.from('companies').select('id,legal_name')
-          .eq('is_rental_company', true).order('legal_name');
-        if (!error && rc?.length) rentalCos = rc;
-      } catch(e) { /* column may not exist yet */ }
-      sel.innerHTML = '<option value="">— Select rental entity —</option>' +
-        rentalCos.map(c=>`<option value="${c.id}">${c.legal_name}</option>`).join('');
-      // Sync with global entity picker
-      const gid = window._globalEntityId || document.getElementById('global-entity-select')?.value;
-      if (gid && sel.querySelector(`option[value="${gid}"]`)) sel.value = gid;
-      else if (rentalCos.length) sel.value = rentalCos[0].id;
-    }
-    const companyId = document.getElementById('rp-entity-select')?.value;
+    const companyId = window._globalEntityId || document.getElementById('global-entity-select')?.value;
     if (!companyId) return;
     rpData.companyId = companyId;
 
@@ -24618,25 +24540,15 @@ onEntityChange = function() {
 //  1. ENTITY INFO (CLIENT ADMIN) — editable company information
 // ─────────────────────────────────────────────────────────────────
 async function loadEntityInfoPanel() {
-  const { data: cos, error } = await sb.from('companies').select('id,legal_name').order('legal_name');
-  const sel = document.getElementById('ei-entity-sel');
-  if (!sel) return;
-  if (error) { showToast('Error loading entities: ' + error.message, true); return; }
-  const list = cos || [];
-  sel.innerHTML = '<option value="">— Select entity to edit —</option>' +
-    list.map(c => `<option value="${c.id}">${c.legal_name}</option>`).join('');
-  if (list.length) {
-    sel.value = list[0].id;
-    await loadEntityInfo();
-  }
+  await loadEntityInfo();
 }
 
 async function loadEntityInfo() {
-  const id = document.getElementById('ei-entity-sel')?.value;
+  const id = window._globalEntityId || document.getElementById('global-entity-select')?.value;
   const body = document.getElementById('ei-body');
   if (!body) return;
   if (!id) {
-    body.innerHTML = '<div class="empty-state"><div class="empty-state-title">Select an entity above to begin editing</div></div>';
+    body.innerHTML = '<div class="empty-state"><div class="empty-state-title">Select an entity from the top menu to begin editing</div></div>';
     return;
   }
   body.innerHTML = '<div class="empty-state"><div class="empty-state-title">Loading\u2026</div></div>';
@@ -24752,7 +24664,7 @@ function showEISection(section) {
 
 
 async function saveEntityInfo() {
-  const id = document.getElementById('ei-entity-sel')?.value;
+  const id = window._globalEntityId || document.getElementById('global-entity-select')?.value;
   if (!id) { showToast('⚠ Select an entity first', true); return; }
   const g = eid => document.getElementById(eid)?.value || '';
   const legalName = g('ei-legal-name');
@@ -25522,12 +25434,12 @@ async function runTrialBalanceWithMapping() {
 //  INTERNAL AUDIT ENGINE
 // ════════════════════════════════════════════════════════════════════
 let auditCompanyId = null;
-function onAuditEntityChange() { auditCompanyId = document.getElementById('audit-entity-select')?.value || null; }
+function onAuditEntityChange() { auditCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null; }
 
 async function loadAuditModule() {
   showLoading('Loading audit module…');
   try {
-    await b8InitCompanySelect('audit-entity-select','auditCompanyId', async (cid) => { auditCompanyId=cid; });
+    auditCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
   } catch(e){} finally { hideLoading(); }
 }
 
@@ -26081,7 +25993,7 @@ async function viewPTDoc(docId) {
 let autoCompanyId = null;
 
 function onAutoEntityChange() {
-  autoCompanyId = document.getElementById('auto-entity-select')?.value || null;
+  autoCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
   if (autoCompanyId) loadAutoOverview();
 }
 
@@ -26102,10 +26014,8 @@ function showAutoPanel(p) {
 async function loadAutomationsModule() {
   showLoading('Loading automations…');
   try {
-    await b8InitCompanySelect('auto-entity-select','autoCompanyId', async (cid) => {
-      autoCompanyId = cid;
-      loadAutoOverview();
-    });
+    autoCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
+    if (autoCompanyId) { loadAutoOverview(); }
   } catch(e) { console.error('loadAutomationsModule error:', e); }
   finally { hideLoading(); }
 }
