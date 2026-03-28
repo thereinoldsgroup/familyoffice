@@ -2558,21 +2558,16 @@
           <div class="page-subtitle">Corporate · Sales Tax · Property Tax · Individual · K-1</div>
         </div>
         <div class="page-actions" id="taxPageActions">
+          <select id="taxYearSelect" onchange="onTaxEntityChange()" class="field-select" style="height:34px;width:100px;">
+            <option value="2026" selected>2026</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+          </select>
           <button class="btn-primary" onclick="openNewReturnModal()">+ New Return</button>
         </div>
       </div>
-
-      <!-- Entity Selector (reuse acct) -->
-      <div class="entity-selector" style="margin-bottom:24px;">
-        <span class="entity-selector-label">Tax Year</span>
-        <select id="taxYearSelect" onchange="onTaxEntityChange()" style="width:100px;height:34px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:13px;">
-          <option value="2026" selected>2026</option>
-          <option value="2025">2025</option>
-          <option value="2024">2024</option>
-          <option value="2023">2023</option>
-          <option value="2022">2022</option>
-        </select>
-      </div><!-- /page-header -->
 
       <div class="tax-layout">
         <!-- Tax Sidebar -->
@@ -13675,7 +13670,6 @@ let editingItemId = null, editingLocId = null;
 async function loadInvModule() {
   showLoading('Loading inventory…');
   try {
-    const { data: companies } = await sb.from('companies').select('id,legal_name').order('legal_name');
     invCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
     const { data: uoms } = await sb.from('units_of_measure').select('*').order('uom_name');
     invUOMs = uoms || [];
@@ -14491,7 +14485,7 @@ async function loadBudgetingModule() {
 }
 
 async function onBudEntityChange() {
-  budCompanyId  = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
+  budCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
   budFiscalYear = parseInt(document.getElementById('bud-year-select')?.value) || 2025;
   await loadBudgetingData();
 }
@@ -22735,44 +22729,44 @@ function onGlobalEntityChange() {
   const id  = sel?.value;
   if (!id) return;
   window._globalEntityId = id;
-
-  // Sync accounting module
+  // Sync accounting
   const acctSel = document.getElementById('acctEntitySelect');
   if (acctSel && document.getElementById('view-financials')?.classList.contains('active')) {
     const opt = acctSel.querySelector(`option[value="${id}"]`);
     if (opt) { acctSel.value = id; onEntityChange(); }
   }
-  // Sync rental module
+  // Sync rentals
   const rentSel = document.getElementById('rentals-company-sel');
   if (rentSel && document.getElementById('view-rentals')?.classList.contains('active')) {
     const opt = rentSel.querySelector(`option[value="${id}"]`);
     if (opt) { rentSel.value = id; loadRentals(); }
   }
-
-  // Reload whichever module panel is currently active
-  const activePanel = document.querySelector('.panel.active');
-  if (!activePanel) return;
-  const pid = activePanel.id;
-  const reloadMap = {
-    'view-tax-returns': () => { if(typeof loadTaxModule==='function') loadTaxModule(); },
-    'view-budgeting': () => { budCompanyId=id; if(typeof loadBudgetModule==='function') loadBudgetModule(); },
-    'view-equity': () => { eqCompanyId=id; if(typeof loadEQData==='function') loadEQData(); },
-    'view-debt': () => { debtCompanyId=id; if(typeof loadDebtData==='function') loadDebtData(); },
-    'view-projects': () => { pmCompanyId=id; if(typeof loadProjectModule==='function') loadProjectModule(); },
-    'view-inventory': () => { invCompanyId=id; if(typeof loadInvModule==='function') loadInvModule(); },
-    'view-purchasing': () => { poCompanyId=id; if(typeof loadPOData==='function') loadPOData(); },
-    'view-hr': () => { hrCompanyId=id; if(typeof loadHRData==='function') loadHRData(); },
-    'view-crm': () => { crmCompanyId=id; if(typeof loadCRMData==='function') loadCRMData(); },
-    'view-ownership': () => { if(typeof loadOwnershipModule==='function') loadOwnershipModule(); },
-    'view-reports-automation': () => { rptCompanyId=id; if(typeof loadReportsModule==='function') loadReportsModule(); },
-    'view-documents': () => { docCompanyId=id; if(typeof loadDocData==='function') loadDocData(); },
-    'view-audit': () => { auditCompanyId=id; if(typeof loadAuditModule==='function') loadAuditModule(); },
-    'view-automation-center': () => { autoCompanyId=id; if(typeof loadAutomationCenter==='function') loadAutomationCenter(); },
-    'view-scheduling': () => { if(typeof loadSchedulingModule==='function') loadSchedulingModule(); },
-    'view-rental-profit': () => { if(typeof loadRentalProfitModule==='function') loadRentalProfitModule(); },
-    'view-settings': () => { if(typeof loadSettingsModule==='function') loadSettingsModule(); },
-  };
-  if (reloadMap[pid]) reloadMap[pid]();
+  // Reload active module
+  const ap = document.querySelector('.panel.active');
+  if (!ap) return;
+  const pid = ap.id;
+  try {
+    const map = {
+      'view-tax': () => { if(typeof loadTaxModule==='function') loadTaxModule(); },
+      'view-budgeting': () => { budCompanyId=id; if(typeof loadBudgetModule==='function') loadBudgetModule(); },
+      'view-equity': () => { eqCompanyId=id; if(typeof loadEQData==='function') loadEQData(); },
+      'view-debt': () => { debtCompanyId=id; if(typeof loadDebtData==='function') loadDebtData(); },
+      'view-projects': () => { pmCompanyId=id; if(typeof loadProjectModule==='function') loadProjectModule(); },
+      'view-inventory': () => { invCompanyId=id; if(typeof loadInvModule==='function') loadInvModule(); },
+      'view-purchasing': () => { poCompanyId=id; if(typeof loadPOData==='function') loadPOData(); },
+      'view-hr': () => { hrCompanyId=id; if(typeof loadHRData==='function') loadHRData(); },
+      'view-crm': () => { crmCompanyId=id; if(typeof loadCRMData==='function') loadCRMData(); },
+      'view-ownership': () => { if(typeof loadOwnershipModule==='function') loadOwnershipModule(); },
+      'view-reports': () => { rptCompanyId=id; if(typeof loadReportsModule==='function') loadReportsModule(); },
+      'view-documents': () => { docCompanyId=id; if(typeof loadDocData==='function') loadDocData(); },
+      'view-audit': () => { auditCompanyId=id; if(typeof loadAuditModule==='function') loadAuditModule(); },
+      'view-automations': () => { autoCompanyId=id; if(typeof loadAutomationCenter==='function') loadAutomationCenter(); },
+      'view-rental-profit': () => { if(typeof loadRentalProfitModule==='function') loadRentalProfitModule(); },
+      'view-settings': () => { if(typeof loadSettingsModule==='function') loadSettingsModule(); },
+      'view-entity-settings': () => { if(typeof loadEntityInfoPanel==='function') loadEntityInfoPanel(); },
+    };
+    if (map[pid]) map[pid]();
+  } catch(e) { console.error('Global entity change reload error:', e); }
 }
 
 // ── Rental Profitability Module ──
