@@ -121,7 +121,6 @@
     overflow-x: hidden;
     flex-shrink: 0;
     transition: width 0.22s cubic-bezier(0.4,0,0.2,1);
-    overflow: hidden;
     position: relative;
   }
   /* ── Batch 16 Side Navigation ── */
@@ -222,15 +221,15 @@
   #nav-collapse-btn {
     position: fixed;
     top: 80px;
-    left: 188px;
-    width: 24px;
-    height: 24px;
+    left: 189px;
+    width: 22px;
+    height: 22px;
     background: var(--navy-mid);
     border: 1px solid rgba(255,255,255,0.18);
     border-radius: 50%;
     color: rgba(255,255,255,0.7);
     cursor: pointer;
-    z-index: 200;
+    z-index: 150;
     font-size: 10px;
     display: flex;
     align-items: center;
@@ -239,6 +238,7 @@
     padding: 0;
     line-height: 1;
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    transform: translateX(-50%);
   }
   #nav-collapse-btn:hover {
     background: var(--teal);
@@ -246,7 +246,7 @@
     border-color: var(--teal);
   }
   #nav-collapse-btn.is-collapsed {
-    left: 42px;
+    left: 54px;
   }
   /* Adjust entity-settings control bar on collapse */
   .sidebar.nav-collapsed ~ main .ei-control-bar {
@@ -317,7 +317,7 @@
   .add-company-btn:hover { background: var(--teal-mid); box-shadow: 0 4px 16px rgba(44,166,164,0.35); transform: translateY(-1px); }
 
   /* ── MAIN ── */
-  .main { flex: 1; height: 100%; overflow-y: auto; overflow-x: hidden; padding: 32px 40px 32px 40px; overflow-anchor: none; min-width: 0; }
+  .main { flex: 1; height: 100%; overflow-y: auto; padding: 32px 40px; overflow-anchor: none; min-width: 0; }
   /* Hide companies sidebar when other modules are active */
   .sidebar-hidden { display: none !important; }
   /* When sidebar hidden, panels take full width */
@@ -453,6 +453,21 @@
   /* ── PANELS ── */
   .panel { display: none !important; overflow-anchor: none; }
   .panel.active { display: block !important; overflow-anchor: none; }
+  /* Entity-settings uses flex column layout — override block for this panel only */
+  #view-entity-settings.active { display: flex !important; flex-direction: column; height: 100%; padding: 0; }
+  #view-entity-settings .ei-scroll-area { flex: 1; overflow-y: auto; min-height: 0; padding: 28px 32px 60px; }
+  #view-entity-settings input,
+  #view-entity-settings select,
+  #view-entity-settings textarea {
+    pointer-events: auto !important;
+    user-select: auto !important;
+    -webkit-user-select: auto !important;
+    cursor: text;
+    position: relative;
+    z-index: 1;
+  }
+  #view-entity-settings select { cursor: pointer; }
+  #view-entity-settings .ei-control-bar { flex-shrink: 0; }
   /* Ensure hidden panels take zero space in all contexts */
   .main { position: relative; }
 
@@ -3468,19 +3483,33 @@
     <!--  ENTITY SETTINGS — standalone full-page editor         -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <div id="view-entity-settings" class="panel">
-      <div style="position:sticky;top:0;z-index:25;background:var(--navy);padding:12px 20px;margin-bottom:20px;border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,0.18);">
-        <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0;overflow:hidden;">
-          <button onclick="pickNav('settings')" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:6px 14px;border-radius:var(--radius);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0;">&#8592; Settings</button>
+      <!-- CONTROL BAR: normal flow, flex-shrink:0, no stacking context -->
+      <div class="ei-control-bar" style="background:var(--navy);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+        <div style="display:flex;align-items:center;gap:16px;min-width:0;flex:1;">
+          <button onclick="pickNav('settings')" style="flex-shrink:0;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;">
+            &#8592; Settings
+          </button>
           <div style="flex-shrink:0;">
-            <div style="color:var(--gold-light);font-size:15px;font-weight:600;font-family:'Playfair Display',serif;">Entity Information</div>
-            <div style="color:rgba(255,255,255,0.55);font-size:11px;">Edit details for the selected entity</div>
+            <div style="color:var(--gold-light);font-size:16px;font-weight:600;font-family:'Playfair Display',serif;line-height:1.2;">Entity Information</div>
+            <div style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:1px;">Select an entity, edit fields, then save</div>
           </div>
-          <select id="ei-entity-sel" onchange="loadEntityInfo()" style="height:34px;padding:0 10px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);color:#fff;border-radius:var(--radius);font-size:13px;font-family:'DM Sans',sans-serif;min-width:160px;max-width:260px;cursor:pointer;flex:1 1 auto;">
-            <option value="" style="background:var(--navy);">&#8212; Select entity &#8212;</option>
+          <select id="ei-entity-sel" onchange="loadEntityInfo()" style="flex:1;max-width:280px;height:36px;padding:0 12px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.08);color:#fff;border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;outline:none;">
+            <option value="" style="background:#1E2A38;">&#8212; Select entity &#8212;</option>
           </select>
         </div>
-        <button id="ei-save-btn" onclick="saveEntityInfo()" style="background:var(--gold);color:var(--navy);border:none;padding:8px 22px;border-radius:var(--radius);font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0;">&#10003; Save Changes</button>
+        <button id="ei-save-btn" onclick="saveEntityInfo()" style="flex-shrink:0;background:#C2A46D;color:#1E2A38;border:none;padding:9px 24px;border-radius:6px;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;letter-spacing:0.01em;">
+          &#10003; Save Changes
+        </button>
       </div>
+      <!-- FORM AREA: independently scrollable, full remaining height -->
+      <div class="ei-scroll-area">
+        <div id="ei-body">
+          <div class="empty-state">
+            <div class="empty-state-title">Select an entity above to begin editing</div>
+          </div>
+        </div>
+      </div>
+    </div>
       <div id="ei-body" style="pointer-events:auto;">
         <div class="empty-state"><div class="empty-state-title">Select an entity above to begin editing</div></div>
       </div>
