@@ -3471,7 +3471,7 @@
       <div class="page-header">
         <div>
           <div class="page-title">Entity Information</div>
-          <div class="page-subtitle">Business Details &middot; Address &middot; Accounting Settings &middot; Key Contact</div>
+          <div class="page-subtitle">Business Details &middot; Address &middot; Accounting &middot; Key Contact &middot; Tax Calendar</div>
         </div>
         <div class="page-actions">
           <button class="btn-secondary" onclick="pickNav('settings')">&#8592; Back to Settings</button>
@@ -3489,6 +3489,8 @@
           <button class="acct-sidebar-btn"         id="ei-nav-address" onclick="showEISection('address')"><span class="acct-icon">&#128205;</span> Address</button>
           <button class="acct-sidebar-btn"         id="ei-nav-acct"    onclick="showEISection('acct')">   <span class="acct-icon">&#128203;</span> Accounting Settings</button>
           <button class="acct-sidebar-btn"         id="ei-nav-contact" onclick="showEISection('contact')"><span class="acct-icon">&#128100;</span> Key Contact</button>
+          <div class="acct-sidebar-section">Tax</div>
+          <button class="acct-sidebar-btn"         id="ei-nav-taxcal"  onclick="showEISection('taxcal')"> <span class="acct-icon">&#128197;</span> Tax Calendar</button>
         </div>
 
         <!-- RIGHT CONTENT -->
@@ -12189,68 +12191,292 @@ function printSalesTaxReturn(state) {
 
 // ── PROPERTY TAX ──
 async function syncPropertyTax(jurisdiction) {
-  if (!taxCompanyId) { showToast('⚠ Select a company first', true); return; }
+  if (!taxCompanyId) { showToast('⚠ Select an entity from the top menu first', true); return; }
   showLoading('Loading fixed assets…');
-  const { data: assets } = await sb.from('fixed_assets')
-    .select('*').eq('company_id', taxCompanyId).eq('status','active');
+  
+  // Load company info + fixed assets in parallel
+  const [{ data: company }, { data: assets }] = await Promise.all([
+    sb.from('companies').select('*').eq('id', taxCompanyId).single(),
+    sb.from('fixed_assets').select('*').eq('company_id', taxCompanyId).eq('status','active')
+  ]);
+  
+  // Try to load tax calendar for account number
+  let taxCalEntry = null;
+  try {
+    const { data: tc } = await sb.from('tax_calendar').select('*')
+      .eq('company_id', taxCompanyId).eq('tax_type', 'Property Tax - ' + jurisdiction.replace('_',' ').replace(/\b\w/g, l => l.toUpperCase()));
+    taxCalEntry = tc?.[0] || null;
+  } catch(e) {}
+  
   hideLoading();
+  
   const fmt2 = v => parseFloat(v||0).toLocaleString('en-US',{minimumFractionDigits:2});
-  const totalCost  = (assets||[]).reduce((s,a)=>s+parseFloat(a.purchase_cost||0),0);
-  const totalAccum = (assets||[]).reduce((s,a)=>s+parseFloat(a.accumulated_depreciation||0),0);
-  const totalBook  = (assets||[]).reduce((s,a)=>s+parseFloat(a.book_value||0),0);
-
-  // Merge in any OCR-extracted data (from uploaded appraisal notices / prior returns)
-  const ocrData = window['_propTaxOCRData_' + jurisdiction] || {};
-  const ocrAssessedValue = parseFloat(ocrData.assessed_value || 0);
-  const ocrTotalCost     = parseFloat(ocrData.total_original_cost || ocrData.tangible_personal_property_cost || 0);
-  const ocrMillage       = parseFloat(ocrData.millage_rate || 0);
-
+  const co = company || {};
+  const acctNum = taxCalEntry?.return_id || '';
+  
   const jurisMap = {
-    duval_fl:   { name:'Duval County, FL',    form:'DR-405', state:'FL', millage:8.4,  containerId:'prop-duval-body' },
-    nassau_fl:  { name:'Nassau County, FL',   form:'DR-405', state:'FL', millage:9.2,  containerId:'prop-nassau-body' },
-    charlton_ga:{ name:'Charlton County, GA', form:'PT-50P', state:'GA', millage:11.5, containerId:'prop-charlton-body' },
+    duval_fl:    { name:'Duval County', state:'FL', appraiser:'Jim Overton, CFA', office:'231 E. Forsyth St, Suite 260, Jacksonville FL 32202', millage:8.4 },
+    nassau_fl:   { name:'Nassau County', state:'FL', appraiser:'Kevin J. Lilly, CFA', office:'96135 Nassau Place, Suite 4, Yulee FL 32097', millage:9.2 },
+    charlton_ga: { name:'Charlton County', state:'GA', appraiser:'Tax Assessor', office:'Folkston, GA 31537', millage:11.5 },
   };
   const j = jurisMap[jurisdiction];
   if (!j) return;
+  
+  // Categorize assets into DR-405 lines
+  const catMap = {
+    'Office Equipment': 10, 'Furniture': 10, 'Office Furniture': 10,
+    'Computer': 11, 'Computers': 11, 'EDP': 11, 'IT Equipment': 11,
+    'Restaurant': 12, 'Store': 12, 'Bar': 12, 'Kitchen': 12,
+    'Machinery': 13, 'Manufacturing': 13, 'Equipment': 13,
+    'Farm': 14, 'Agriculture': 14, 'Dairy': 14, 'Grove': 14,
+    'Medical': 15, 'Dental': 15, 'Laboratory': 15, 'Professional': 15,
+    'Hotel': 16, 'Motel': 16, 'Apartment': 16,
+    'Vehicle': 18, 'Service Station': 18,
+    'Sign': 19, 'Billboard': 19,
+    'Leasehold': 20, 'Improvement': 20,
+    'Pollution': 21,
+    'Leased Out': 22, 'Rented Out': 22,
+    'Supplies': 23,
+    'Solar': 24, 'Renewable': 24, 'Wind': 24,
+  };
+  
+  const lines = {};
+  for (let i = 10; i <= 25; i++) { lines[i] = { cost: 0, fmv: 0, items: [] }; }
+  
+  (assets||[]).forEach(a => {
+    let lineNum = 25; // default: Other
+    const cat = (a.asset_category || a.asset_name || '').toLowerCase();
+    for (const [keyword, num] of Object.entries(catMap)) {
+      if (cat.includes(keyword.toLowerCase())) { lineNum = num; break; }
+    }
+    lines[lineNum].cost += parseFloat(a.purchase_cost || 0);
+    lines[lineNum].fmv += parseFloat(a.book_value || 0);
+    lines[lineNum].items.push(a);
+  });
+  
+  const totalCost = Object.values(lines).reduce((s, l) => s + l.cost, 0);
+  const totalFMV = Object.values(lines).reduce((s, l) => s + l.fmv, 0);
+  const effectiveMillage = j.millage;
+  const estimatedTax = Math.round(totalFMV * (effectiveMillage / 1000) * 100) / 100;
+  
+  // Build the line descriptions
+  const lineDescs = {
+    10: 'Office furniture, office machines, and library',
+    11: 'EDP equipment, computers, and word processors',
+    12: 'Store, bar and lounge, and restaurant furniture, equipment, etc.',
+    13: 'Machinery and manufacturing equipment',
+    14: 'Farm, grove, and dairy equipment',
+    15: 'Professional, medical, dental, and laboratory equipment',
+    16: 'Hotel, motel, and apartment complex',
+    '16a': 'Rental units (stove, refrigerator, furniture, drapes, and appliances)',
+    17: 'Mobile home attachments (carport, utility building, cabana, porch, etc.)',
+    18: 'Service station and bulk plant equipment (underground tanks, lifts, tools)',
+    19: 'Signs (billboard, pole, wall, portable, directional, etc.)',
+    20: 'Leasehold improvements - grouped by type, year of installation, and description',
+    21: 'Pollution control equipment',
+    22: 'Equipment owned by you but rented, leased or held by others',
+    23: 'Supplies not held for resale',
+    24: 'Renewable energy source devices',
+    25: 'Other, specify:',
+  };
 
-  // Use OCR millage if extracted, otherwise default
-  const effectiveMillage = ocrMillage || j.millage;
-  const taxableValue = ocrAssessedValue || totalBook;
-  const estimatedTax = Math.round(taxableValue * (effectiveMillage / 1000) * 100) / 100;
+  const tradeLevel = (co.industry || '').toLowerCase();
+  const isRetail = tradeLevel.includes('retail');
+  const isWholesale = tradeLevel.includes('wholesale');
+  const isMfg = tradeLevel.includes('manufact');
+  const isProf = tradeLevel.includes('professional') || tradeLevel.includes('service');
+  const isAg = tradeLevel.includes('agri');
+  const isRental = tradeLevel.includes('rental') || tradeLevel.includes('leasing');
+  
+  const container = document.getElementById(jurisdiction === 'duval_fl' ? 'prop-duval-body' : jurisdiction === 'nassau_fl' ? 'prop-nassau-body' : 'prop-charlton-body');
+  if (!container) return;
+  
+  // Build DR-405 lines HTML
+  let linesHTML = '';
+  const lineNums = [10,11,12,13,14,15,16,'16a',17,18,19,20,21,22,23,24,25];
+  lineNums.forEach(num => {
+    const desc = lineDescs[num];
+    const data = lines[num] || { cost: 0, fmv: 0 };
+    const numStr = String(num);
+    linesHTML += '<tr>'
+      + '<td style="padding:4px 8px;border:1px solid #999;font-weight:600;text-align:center;width:32px;font-size:11px;">' + numStr + '</td>'
+      + '<td style="padding:4px 8px;border:1px solid #999;font-size:11px;">' + desc + '</td>'
+      + '<td style="padding:4px 6px;border:1px solid #999;text-align:right;"><input class="dr405-input" id="dr405-' + jurisdiction + '-fmv-' + numStr + '" value="' + (data.fmv ? fmt2(data.fmv) : '') + '" style="width:100%;text-align:right;border:none;font-family:monospace;font-size:11px;background:transparent;"></td>'
+      + '<td style="padding:4px 6px;border:1px solid #999;text-align:right;"><input class="dr405-input" id="dr405-' + jurisdiction + '-cost-' + numStr + '" value="' + (data.cost ? fmt2(data.cost) : '') + '" style="width:100%;text-align:right;border:none;font-family:monospace;font-size:11px;background:transparent;"></td>'
+      + '<td style="padding:4px 8px;border:1px solid #999;background:#e8e8e8;"></td>'
+      + '</tr>';
+  });
 
-  // Show OCR data banner if available
-  const ocrBanner = Object.keys(ocrData).length > 0
-    ? `<div style="background:var(--teal-light);border:1px solid var(--teal);border-radius:var(--radius);padding:8px 14px;margin-bottom:12px;font-size:12px;display:flex;align-items:center;gap:8px;">
-        <span>&#128269;</span>
-        <span style="color:var(--teal-mid);font-weight:500;">OCR data applied from uploaded documents</span>
-        ${ocrData.parcel_id ? `<span style="color:var(--text-mid);">Parcel: ${ocrData.parcel_id}</span>` : ''}
-        ${ocrData.filing_deadline ? `<span style="color:var(--text-mid);">Due: ${ocrData.filing_deadline}</span>` : ''}
-        <button onclick="window['_propTaxOCRData_${jurisdiction}']=null;syncPropertyTax('${jurisdiction}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:11px;margin-left:auto;">&#215; Clear OCR</button>
-       </div>` : '';
-
-  let assetRows = (assets||[]).map(a => `<tr>
-    <td>${a.asset_name}</td><td>${a.asset_category||'—'}</td>
-    <td>${a.placed_in_service_date||'—'}</td>
-    <td style="text-align:right;font-family:monospace;">${fmt2(a.purchase_cost)}</td>
-    <td style="text-align:right;font-family:monospace;">${fmt2(a.accumulated_depreciation)}</td>
-    <td style="text-align:right;font-family:monospace;">${fmt2(a.book_value)}</td>
-  </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:#888;">No active fixed assets found</td></tr>';
-
-  document.getElementById(j.containerId).innerHTML = ocrBanner + `
-    <div style="border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:20px;">
-      <div class="tax-form-line section-header"><div class="tfl-num"></div><div class="tfl-label" style="grid-column:span 3;padding:8px 12px;">${j.form} — ${j.name} · Tax Year ${taxYear}</div></div>
-      <div class="tax-form-line"><div class="tfl-num">1</div><div class="tfl-label">Total Original Cost of Tangible Personal Property</div><div class="tfl-amount"><input class="tfl-input" value="${fmt2(totalCost)}" readonly style="background:var(--section-bg);"></div><div></div></div>
-      <div class="tax-form-line"><div class="tfl-num">2</div><div class="tfl-label">Less: Accumulated Depreciation</div><div class="tfl-amount"><input class="tfl-input" value="${fmt2(totalAccum)}" readonly style="background:var(--section-bg);"></div><div></div></div>
-      <div class="tax-form-line subtotal"><div class="tfl-num">3</div><div class="tfl-label">Net Book Value (Taxable Value)</div><div class="tfl-amount"><input class="tfl-input" value="${fmt2(totalBook)}" readonly style="background:var(--section-bg);"></div><div></div></div>
-      <div class="tax-form-line"><div class="tfl-num">4</div><div class="tfl-label">Millage Rate (per $1,000)</div><div class="tfl-amount"><input class="tfl-input" id="${jurisdiction}-millage" value="${j.millage}" oninput="recalcPropertyTax('${jurisdiction}')"></div><div class="tfl-override"><span class="tfl-override-icon">✎</span></div></div>
-      <div class="tax-form-line total"><div class="tfl-num">5</div><div class="tfl-label">Estimated Tax Due</div><div class="tfl-amount"><input class="tfl-input" id="${jurisdiction}-tax" value="${fmt2(estimatedTax)}" readonly style="background:var(--gold-pale);font-weight:700;"></div><div></div></div>
+  container.innerHTML = `
+    <div id="dr405-form-${jurisdiction}" style="font-family:'Times New Roman',Times,serif;max-width:820px;background:#fff;border:2px solid #000;padding:0;">
+      <!-- HEADER -->
+      <div style="display:flex;border-bottom:2px solid #000;">
+        <div style="flex:1;padding:10px 14px;border-right:2px solid #000;font-size:11px;line-height:1.5;">
+          <strong>${j.appraiser}</strong><br>
+          ${j.name} Property Appraiser<br>
+          ${j.office}
+        </div>
+        <div style="flex:1;padding:10px 14px;text-align:center;">
+          <div style="font-size:16px;font-weight:700;letter-spacing:1px;">TANGIBLE PERSONAL PROPERTY TAX RETURN</div>
+          <div style="font-size:10px;margin-top:4px;">DR-405, R. 01/18 &nbsp; Rule 12D-16.002, F.A.C. &nbsp; Eff. 01/18</div>
+          <div style="margin-top:8px;font-size:11px;border:1px solid #000;display:inline-block;padding:4px 12px;">
+            Return to property appraiser by <strong>April 1</strong> to avoid penalty.
+          </div>
+          <div style="margin-top:8px;display:flex;justify-content:center;gap:20px;font-size:12px;">
+            <span><strong>${j.name.split(' ')[0]}</strong></span>
+            <span>County &nbsp; Tax year <strong>${taxYear}</strong></span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- ACCOUNT / NAME / ADDRESS -->
+      <div style="display:flex;border-bottom:1px solid #000;font-size:11px;">
+        <div style="flex:1;padding:6px 10px;border-right:1px solid #000;">
+          <div style="font-size:9px;color:#666;">Account number</div>
+          <input class="dr405-input" id="dr405-${jurisdiction}-acctnum" value="${acctNum}" style="width:100%;border:none;border-bottom:1px solid #999;font-size:12px;font-weight:600;padding:2px 0;background:transparent;">
+        </div>
+        <div style="flex:2;padding:6px 10px;">
+          <div style="font-size:9px;color:#666;">Business name (DBA) and mailing address</div>
+          <div style="font-size:12px;font-weight:500;padding:2px 0;">${co.dba || co.legal_name || ''}</div>
+          <div style="font-size:11px;">${co.prim_addr1 || ''} ${co.prim_addr2 || ''}</div>
+          <div style="font-size:11px;">${co.prim_city || ''}, ${co.prim_state || ''} ${co.prim_zip || ''}</div>
+        </div>
+      </div>
+      
+      <!-- FEIN / NAICS -->
+      <div style="display:flex;border-bottom:1px solid #000;font-size:11px;">
+        <div style="flex:1;padding:4px 10px;border-right:1px solid #000;">
+          <div style="font-size:9px;color:#666;">Federal Employer Identification Number</div>
+          <div style="font-size:12px;font-weight:500;">${co.fein || '—'}</div>
+        </div>
+        <div style="flex:1;padding:4px 10px;">
+          <div style="font-size:9px;color:#666;">NAICS</div>
+          <div style="font-size:12px;font-weight:500;">${co.naics || ''}</div>
+        </div>
+      </div>
+      
+      <!-- BUSINESS INFO ROWS 1-5 -->
+      <div style="border-bottom:1px solid #000;font-size:11px;">
+        <div style="display:flex;">
+          <div style="flex:1;padding:4px 10px;border-right:1px solid #000;">
+            <span style="font-size:9px;color:#666;">1. Owner or person in charge</span><br>
+            <input class="dr405-input" id="dr405-${jurisdiction}-owner" value="${co.contact_name || ''}" style="width:70%;border:none;border-bottom:1px solid #999;font-size:11px;background:transparent;">
+            <span style="font-size:9px;color:#666;margin-left:8px;">Phone</span>
+            <input class="dr405-input" id="dr405-${jurisdiction}-phone" value="${co.contact_phone || ''}" style="width:20%;border:none;border-bottom:1px solid #999;font-size:11px;background:transparent;">
+          </div>
+          <div style="flex:1;padding:4px 10px;">
+            <span style="font-size:9px;color:#666;">6. Type or nature of your business</span><br>
+            <input class="dr405-input" id="dr405-${jurisdiction}-biztype" value="${co.industry || co.industry_type || ''}" style="width:100%;border:none;border-bottom:1px solid #999;font-size:11px;background:transparent;">
+          </div>
+        </div>
+        <div style="display:flex;border-top:1px solid #ccc;">
+          <div style="flex:1;padding:4px 10px;border-right:1px solid #000;">
+            <span style="font-size:9px;color:#666;">2. Physical location (no PO Boxes)</span><br>
+            <input class="dr405-input" id="dr405-${jurisdiction}-location" value="${co.prim_addr1 || ''}, ${co.prim_city || ''} ${co.prim_state || ''} ${co.prim_zip || ''}" style="width:100%;border:none;border-bottom:1px solid #999;font-size:11px;background:transparent;">
+          </div>
+          <div style="flex:1;padding:4px 10px;">
+            <span style="font-size:9px;color:#666;">Trade levels (check all that apply)</span><br>
+            <label style="font-size:10px;margin-right:8px;"><input type="checkbox" ${isRetail ? 'checked' : ''}> Retail</label>
+            <label style="font-size:10px;margin-right:8px;"><input type="checkbox" ${isWholesale ? 'checked' : ''}> Wholesale</label>
+            <label style="font-size:10px;margin-right:8px;"><input type="checkbox" ${isMfg ? 'checked' : ''}> Manufacturing</label>
+            <label style="font-size:10px;margin-right:8px;"><input type="checkbox" ${isProf ? 'checked' : ''}> Service</label>
+            <label style="font-size:10px;margin-right:8px;"><input type="checkbox" ${isAg ? 'checked' : ''}> Agricultural</label>
+            <label style="font-size:10px;margin-right:8px;"><input type="checkbox" ${isRental ? 'checked' : ''}> Leasing/rental</label>
+          </div>
+        </div>
+        <div style="display:flex;border-top:1px solid #ccc;">
+          <div style="flex:1;padding:4px 10px;border-right:1px solid #000;">
+            <span style="font-size:9px;color:#666;">4. Date you began business in this county</span>
+            <input class="dr405-input" id="dr405-${jurisdiction}-startdate" value="" style="width:60%;border:none;border-bottom:1px solid #999;font-size:11px;background:transparent;">
+          </div>
+          <div style="flex:1;padding:4px 10px;">
+            <span style="font-size:9px;color:#666;">7. Did you file a TPP return in this county last year?</span>
+            <label style="font-size:10px;margin-left:8px;"><input type="checkbox"> Yes</label>
+            <label style="font-size:10px;margin-left:4px;"><input type="checkbox"> No</label>
+          </div>
+        </div>
+      </div>
+      
+      <!-- PERSONAL PROPERTY SUMMARY SCHEDULE -->
+      <div style="padding:6px 10px;border-bottom:1px solid #000;font-size:11px;">
+        <strong>Personal Property Summary Schedule</strong> — Enter totals from page 2 or from an attached itemized list or depreciation schedule with original cost and date of acquisition.
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-family:'Times New Roman',Times,serif;">
+        <thead>
+          <tr style="background:#e8e8e8;">
+            <th style="padding:4px 8px;border:1px solid #999;width:32px;font-size:10px;"></th>
+            <th style="padding:4px 8px;border:1px solid #999;text-align:left;font-size:10px;">Description</th>
+            <th style="padding:4px 8px;border:1px solid #999;text-align:center;font-size:10px;width:130px;">Taxpayer's Estimate<br>of Fair Market Value</th>
+            <th style="padding:4px 8px;border:1px solid #999;text-align:center;font-size:10px;width:130px;">Original Installed<br>Cost</th>
+            <th style="padding:4px 8px;border:1px solid #999;text-align:center;font-size:10px;width:100px;">For Property<br>Appraiser Use Only</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${linesHTML}
+          <tr style="background:#e8e8e8;font-weight:700;">
+            <td colspan="2" style="padding:6px 8px;border:1px solid #999;text-align:center;font-size:12px;">TOTAL PERSONAL PROPERTY</td>
+            <td style="padding:6px 6px;border:1px solid #999;text-align:right;font-family:monospace;font-size:12px;">$${fmt2(totalFMV)}</td>
+            <td style="padding:6px 6px;border:1px solid #999;text-align:right;font-family:monospace;font-size:12px;">$${fmt2(totalCost)}</td>
+            <td style="padding:6px 8px;border:1px solid #999;background:#e8e8e8;"></td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <!-- SIGNATURE SECTION -->
+      <div style="padding:8px 10px;border-top:2px solid #000;font-size:10px;line-height:1.6;">
+        <em>I declare I have read this tax return and the accompanying schedules and statements. The facts in them are true.</em>
+      </div>
+      <div style="display:flex;border-top:1px solid #000;">
+        <div style="flex:1;padding:6px 10px;border-right:1px solid #000;font-size:10px;">
+          <div style="font-size:9px;color:#666;">Signature — taxpayer</div>
+          <div style="border-bottom:1px solid #999;height:24px;"></div>
+        </div>
+        <div style="padding:6px 10px;border-right:1px solid #000;font-size:10px;width:160px;">
+          <div style="font-size:9px;color:#666;">Print name</div>
+          <div style="font-size:11px;padding-top:4px;">${co.contact_name || ''}</div>
+        </div>
+        <div style="padding:6px 10px;border-right:1px solid #000;font-size:10px;width:100px;">
+          <div style="font-size:9px;color:#666;">Title</div>
+          <div style="font-size:11px;padding-top:4px;">${co.contact_title || ''}</div>
+        </div>
+        <div style="padding:6px 10px;font-size:10px;width:100px;">
+          <div style="font-size:9px;color:#666;">Date</div>
+          <div style="font-size:11px;padding-top:4px;">${new Date().toLocaleDateString()}</div>
+        </div>
+      </div>
+      
+      <!-- EXEMPTION / TAX DUE -->
+      <div style="display:flex;border-top:2px solid #000;font-size:11px;">
+        <div style="flex:1;padding:6px 10px;border-right:1px solid #000;">
+          <div style="font-size:9px;color:#666;">$25,000 Exemption</div>
+          <label style="font-size:10px;"><input type="checkbox" checked> Apply $25,000 TPP exemption</label>
+        </div>
+        <div style="flex:1;padding:6px 10px;">
+          <div style="font-size:9px;color:#666;">Estimated Tax Calculation</div>
+          <div style="display:flex;gap:16px;margin-top:4px;">
+            <div><span style="font-size:9px;color:#666;">Millage Rate:</span> <input class="dr405-input" id="dr405-${jurisdiction}-millage" value="${effectiveMillage}" style="width:50px;border:none;border-bottom:1px solid #999;font-size:11px;text-align:right;background:transparent;" oninput="recalcDR405('${jurisdiction}')"></div>
+            <div><span style="font-size:9px;color:#666;">Est. Tax Due:</span> <strong id="dr405-${jurisdiction}-taxdue">$${fmt2(estimatedTax)}</strong></div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;">Asset Detail (from Fixed Asset Module)</div>
-    <table class="acct-table"><thead><tr><th>Asset Name</th><th>Category</th><th>In Service</th><th style="text-align:right;">Original Cost</th><th style="text-align:right;">Accum. Depr.</th><th style="text-align:right;">Book Value</th></tr></thead>
-    <tbody>${assetRows}</tbody>
-    <tfoot><tr style="background:var(--gold-pale);font-weight:700;"><td colspan="3">Totals</td><td style="text-align:right;font-family:monospace;">${fmt2(totalCost)}</td><td style="text-align:right;font-family:monospace;">${fmt2(totalAccum)}</td><td style="text-align:right;font-family:monospace;">${fmt2(totalBook)}</td></tr></tfoot>
-    </table>`;
-  showToast('✓ Property tax return populated from fixed assets');
+    
+    <!-- ASSET DETAIL TABLE -->
+    <div style="margin-top:20px;">
+      <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;">Asset Detail (from Fixed Asset Module) — ${(assets||[]).length} active assets</div>
+      <table class="acct-table"><thead><tr><th>Asset Name</th><th>Category</th><th>DR-405 Line</th><th>In Service</th><th style="text-align:right;">Original Cost</th><th style="text-align:right;">Accum. Depr.</th><th style="text-align:right;">Book Value</th></tr></thead>
+      <tbody>${(assets||[]).map(a => {
+        let lineNum = 25;
+        const cat = (a.asset_category || a.asset_name || '').toLowerCase();
+        for (const [keyword, num] of Object.entries(catMap)) {
+          if (cat.includes(keyword.toLowerCase())) { lineNum = num; break; }
+        }
+        return '<tr><td>' + a.asset_name + '</td><td>' + (a.asset_category||'—') + '</td><td style="text-align:center;">' + lineNum + '</td><td>' + (a.placed_in_service_date||'—') + '</td><td style="text-align:right;font-family:monospace;">' + fmt2(a.purchase_cost) + '</td><td style="text-align:right;font-family:monospace;">' + fmt2(a.accumulated_depreciation) + '</td><td style="text-align:right;font-family:monospace;">' + fmt2(a.book_value) + '</td></tr>';
+      }).join('') || '<tr><td colspan="7" style="text-align:center;color:#888;">No active fixed assets found</td></tr>'}</tbody>
+      <tfoot><tr style="background:var(--gold-pale);font-weight:700;"><td colspan="4">Totals</td><td style="text-align:right;font-family:monospace;">${fmt2(totalCost)}</td><td style="text-align:right;font-family:monospace;">${fmt2((assets||[]).reduce((s,a)=>s+parseFloat(a.accumulated_depreciation||0),0))}</td><td style="text-align:right;font-family:monospace;">${fmt2(totalFMV)}</td></tr></tfoot>
+      </table>
+    </div>`;
+  showToast('✓ DR-405 populated from fixed assets — ' + (assets||[]).length + ' assets mapped');
 }
 
 function recalcPropertyTax(jurisdiction) {
@@ -12264,20 +12490,42 @@ function recalcPropertyTax(jurisdiction) {
   taxEl.value = tax.toLocaleString('en-US',{minimumFractionDigits:2});
 }
 
+function recalcDR405(jurisdiction) {
+  const millEl = document.getElementById('dr405-' + jurisdiction + '-millage');
+  const taxEl = document.getElementById('dr405-' + jurisdiction + '-taxdue');
+  if (!millEl || !taxEl) return;
+  // Sum all FMV inputs
+  let totalFMV = 0;
+  const lineNums = [10,11,12,13,14,15,16,'16a',17,18,19,20,21,22,23,24,25];
+  lineNums.forEach(num => {
+    const el = document.getElementById('dr405-' + jurisdiction + '-fmv-' + num);
+    if (el) totalFMV += parseFloat(el.value.replace(/,/g,'')) || 0;
+  });
+  const mill = parseFloat(millEl.value) || 0;
+  const tax = Math.round(totalFMV * (mill / 1000) * 100) / 100;
+  taxEl.textContent = '$' + tax.toLocaleString('en-US', {minimumFractionDigits:2});
+}
+
+
 function savePropertyTax(j) { showToast('✓ Property tax return saved (draft)'); }
 function printPropertyTax(j) {
   const jMap = { duval_fl:'prop-duval-body', nassau_fl:'prop-nassau-body', charlton_ga:'prop-charlton-body' };
-  const content = document.getElementById(jMap[j])?.innerHTML || '';
+  const formEl = document.getElementById('dr405-form-' + j);
+  const formContent = formEl ? formEl.outerHTML : (document.getElementById(jMap[j])?.innerHTML || '');
   const win = window.open('', '_blank');
-  win.document.write(`<!DOCTYPE html><html><head><title>Property Tax Return</title>
-  <style>body{font-family:Arial,sans-serif;font-size:12px;max-width:800px;margin:20px auto;}
-  .tax-form-line{display:grid;grid-template-columns:60px 1fr 200px 40px;border-bottom:1px solid #ddd;padding:6px 0;}
-  .tfl-input{width:100%;text-align:right;border:none;border-bottom:1px solid #000;font-family:monospace;}
-  .section-header{background:#0f1f38;color:#d4b07a;}.total{background:#f5edd9;font-weight:700;}
-  table{width:100%;border-collapse:collapse;margin-top:12px;}th,td{border:1px solid #ddd;padding:6px 10px;}
-  th{background:#0f1f38;color:#d4b07a;}@media print{button{display:none;}}</style></head>
-  <body><button onclick="window.print()" style="padding:7px 16px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:16px;">🖨 Print</button>
-  <h2>Property Tax Return — ${taxYear}</h2>${content}</body></html>`);
+  win.document.write('<!DOCTYPE html><html><head><title>DR-405 — Tangible Personal Property Tax Return</title>'
+    + '<style>'
+    + 'body{font-family:"Times New Roman",Times,serif;max-width:850px;margin:20px auto;font-size:12px;}'
+    + 'table{width:100%;border-collapse:collapse;}th,td{border:1px solid #999;padding:4px 8px;}'
+    + 'input.dr405-input{border:none!important;background:transparent!important;font-family:"Times New Roman",Times,serif;}'
+    + '.acct-table{width:100%;border-collapse:collapse;margin-top:12px;}' 
+    + '.acct-table th{background:#0f1f38;color:#d4b07a;padding:6px 10px;font-size:11px;text-align:left;}'
+    + '.acct-table td{padding:6px 10px;border-bottom:1px solid #ddd;}'
+    + '@media print{button,.no-print{display:none!important;}}'
+    + '</style></head><body>'
+    + '<button onclick="window.print()" class="no-print" style="padding:8px 20px;background:#0f1f38;color:#d4b07a;border:none;border-radius:4px;cursor:pointer;margin-bottom:16px;font-size:13px;">Print DR-405</button>'
+    + formContent
+    + '</body></html>');
   win.document.close();
 }
 
@@ -24634,6 +24882,13 @@ function renderEISection(section, c) {
       + fld('Phone',        'ei-contact-phone', c.contact_phone, 'tel')
       + fld('Email',        'ei-contact-email', c.contact_email, 'email', '', true)
       + '</div>';
+  } else if (section === 'taxcal') {
+    html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">'
+      + '<div class="page-title" style="font-size:18px;">Tax Calendar</div>'
+      + '<button class="btn-primary" onclick="addTaxCalendarRow()" style="height:32px;font-size:13px;">+ Add Filing</button>'
+      + '</div>'
+      + '<div id="ei-taxcal-body"><div style="color:var(--text-light);font-size:13px;">Loading...</div></div>';
+    setTimeout(function() { loadTaxCalendar(); }, 50);
   }
 
   body.innerHTML = html;
@@ -24642,7 +24897,7 @@ function renderEISection(section, c) {
 function showEISection(section) {
   window._eiActiveSection = section;
   // Update sidebar nav active state
-  ['basic','address','acct','contact'].forEach(function(s) {
+  ['basic','address','acct','contact','taxcal'].forEach(function(s) {
     var btn = document.getElementById('ei-nav-' + s);
     if (btn) btn.classList.toggle('active', s === section);
   });
@@ -27248,6 +27503,182 @@ initApp();
 document.addEventListener('DOMContentLoaded', restoreSideNavState);
 // Also run immediately in case DOMContentLoaded already fired
 restoreSideNavState();
+
+
+// ═══════════════════════════════════════════════
+// TAX CALENDAR (Entity Settings)
+// ═══════════════════════════════════════════════
+async function loadTaxCalendar() {
+  const companyId = window._globalEntityId || document.getElementById('global-entity-select')?.value;
+  const body = document.getElementById('ei-taxcal-body');
+  if (!body) return;
+  if (!companyId) { body.innerHTML = '<div class="empty-state"><div class="empty-state-title">Select an entity from the top menu</div></div>'; return; }
+  try {
+    const { data, error } = await sb.from('tax_calendar').select('*').eq('company_id', companyId).order('tax_type');
+    if (error) throw error;
+    renderTaxCalendar(data || []);
+  } catch(e) {
+    // Table might not exist yet
+    console.warn('tax_calendar:', e.message);
+    body.innerHTML = '<div style="color:var(--text-light);font-size:13px;padding:12px 0;">Tax Calendar table not yet created in database. <button class=\"btn-secondary\" onclick=\"createTaxCalendarTable()\">Create Table</button></div>';
+    renderTaxCalendar([]);
+  }
+}
+
+function renderTaxCalendar(entries) {
+  const body = document.getElementById('ei-taxcal-body');
+  if (!body) return;
+  if (!entries.length) {
+    body.innerHTML = '<div class="empty-state"><div class="empty-state-title">No tax filings configured</div><div style="font-size:13px;color:var(--text-light);margin-top:4px;">Click "+ Add Filing" to set up tax returns for this entity</div></div>';
+    return;
+  }
+  let rows = entries.map((e, i) => `<tr>
+    <td>${e.tax_type || '—'}</td>
+    <td style="font-family:monospace;">${e.return_id || '—'}</td>
+    <td>${e.filing_frequency || '—'}</td>
+    <td>${e.payment_method || '—'}</td>
+    <td style="font-family:monospace;font-size:11px;">${e.entity_tax_id || '—'}</td>
+    <td style="font-size:11px;">${e.user_id || '—'}</td>
+    <td style="font-size:11px;">${e.access_code || '—'}</td>
+    <td style="font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${(e.notes||'').replace(/"/g,'&quot;')}">${e.notes || ''}</td>
+    <td style="white-space:nowrap;">
+      <button onclick="editTaxCalRow('${e.id}')" style="background:none;border:1px solid var(--border);padding:3px 8px;border-radius:var(--radius);font-size:11px;cursor:pointer;color:var(--navy);">Edit</button>
+      <button onclick="deleteTaxCalRow('${e.id}')" style="background:none;border:1px solid var(--error);padding:3px 8px;border-radius:var(--radius);font-size:11px;cursor:pointer;color:var(--error);">×</button>
+    </td>
+  </tr>`).join('');
+  
+  body.innerHTML = `<table class="acct-table" style="font-size:12px;">
+    <thead><tr><th>Tax Type</th><th>Return ID / Acct #</th><th>Filing Freq.</th><th>Payment Method</th><th>Entity Tax ID</th><th>User ID</th><th>Access Code</th><th>Notes</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function addTaxCalendarRow() {
+  const companyId = window._globalEntityId || document.getElementById('global-entity-select')?.value;
+  if (!companyId) { showToast('Select an entity first', true); return; }
+  openTaxCalModal(null, companyId);
+}
+
+function editTaxCalRow(id) {
+  openTaxCalModal(id);
+}
+
+async function deleteTaxCalRow(id) {
+  if (!confirm('Delete this tax calendar entry?')) return;
+  try {
+    await sb.from('tax_calendar').delete().eq('id', id);
+    showToast('Deleted');
+    loadTaxCalendar();
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+function openTaxCalModal(id, companyId) {
+  // Build a simple modal form
+  const existing = id ? null : {}; // will load if editing
+  const taxTypes = [
+    'Federal Income Tax','State Income Tax','Sales Tax - FL','Sales Tax - GA',
+    'Property Tax - Nassau FL','Property Tax - Duval FL','Property Tax - Charlton GA',
+    'Payroll Tax - Federal','Payroll Tax - State','Franchise Tax','Excise Tax','Other'
+  ];
+  const freqOpts = ['Annual','Quarterly','Monthly','Semi-Annual','As Needed'];
+  const payOpts = ['ACH/EFT','Check','Online Portal','Wire','Credit Card','Other'];
+  
+  const typeOpts = taxTypes.map(t => '<option value="' + t + '">' + t + '</option>').join('');
+  const freqOptHtml = freqOpts.map(f => '<option value="' + f + '">' + f + '</option>').join('');
+  const payOptHtml = payOpts.map(p => '<option value="' + p + '">' + p + '</option>').join('');
+  
+  // Create modal dynamically
+  let modal = document.getElementById('taxCalModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'taxCalModal';
+    modal.className = 'modal-overlay';
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = `<div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <span class="modal-title">${id ? 'Edit' : 'Add'} Tax Filing</span>
+      <button class="modal-close" onclick="closeModal('taxCalModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field-group col-span-2"><label class="field-label">Tax Type *</label>
+          <select class="field-select" id="tc-tax-type">${typeOpts}</select></div>
+        <div class="field-group"><label class="field-label">Return ID / Account #</label>
+          <input class="field-input" id="tc-return-id" placeholder="e.g. 12-34567"></div>
+        <div class="field-group"><label class="field-label">Filing Frequency</label>
+          <select class="field-select" id="tc-frequency">${freqOptHtml}</select></div>
+        <div class="field-group"><label class="field-label">Payment Method</label>
+          <select class="field-select" id="tc-payment">${payOptHtml}</select></div>
+        <div class="field-group"><label class="field-label">Entity Tax ID</label>
+          <input class="field-input" id="tc-entity-tax-id" placeholder="State/local tax ID"></div>
+        <div class="field-group"><label class="field-label">Portal User ID</label>
+          <input class="field-input" id="tc-user-id" placeholder="Login username"></div>
+        <div class="field-group"><label class="field-label">Password</label>
+          <input class="field-input" id="tc-password" type="password" placeholder="••••••"></div>
+        <div class="field-group"><label class="field-label">Access Code</label>
+          <input class="field-input" id="tc-access-code" placeholder="PIN or access code"></div>
+        <div class="field-group col-span-2"><label class="field-label">Notes</label>
+          <input class="field-input" id="tc-notes" placeholder="Filing notes, deadlines, contacts"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('taxCalModal')">Cancel</button>
+      <button class="btn-save" onclick="saveTaxCalEntry('${id||''}','${companyId||''}')">Save</button>
+    </div>
+  </div>`;
+  modal.classList.add('show');
+  
+  // If editing, load existing data
+  if (id) { loadTaxCalEntry(id); }
+}
+
+async function loadTaxCalEntry(id) {
+  try {
+    const { data } = await sb.from('tax_calendar').select('*').eq('id', id).single();
+    if (!data) return;
+    document.getElementById('tc-tax-type').value = data.tax_type || '';
+    document.getElementById('tc-return-id').value = data.return_id || '';
+    document.getElementById('tc-frequency').value = data.filing_frequency || '';
+    document.getElementById('tc-payment').value = data.payment_method || '';
+    document.getElementById('tc-entity-tax-id').value = data.entity_tax_id || '';
+    document.getElementById('tc-user-id').value = data.user_id || '';
+    document.getElementById('tc-password').value = data.password || '';
+    document.getElementById('tc-access-code').value = data.access_code || '';
+    document.getElementById('tc-notes').value = data.notes || '';
+  } catch(e) { console.warn('loadTaxCalEntry:', e.message); }
+}
+
+async function saveTaxCalEntry(id, companyId) {
+  const cid = companyId || window._globalEntityId || document.getElementById('global-entity-select')?.value;
+  if (!cid) { showToast('Select an entity first', true); return; }
+  const g = eid => document.getElementById(eid)?.value || '';
+  const entry = {
+    company_id: cid,
+    tax_type: g('tc-tax-type'),
+    return_id: g('tc-return-id'),
+    filing_frequency: g('tc-frequency'),
+    payment_method: g('tc-payment'),
+    entity_tax_id: g('tc-entity-tax-id'),
+    user_id: g('tc-user-id'),
+    password: g('tc-password'),
+    access_code: g('tc-access-code'),
+    notes: g('tc-notes'),
+  };
+  if (!entry.tax_type) { showToast('Tax Type is required', true); return; }
+  try {
+    if (id) {
+      await sb.from('tax_calendar').update(entry).eq('id', id);
+    } else {
+      entry.id = crypto.randomUUID();
+      await sb.from('tax_calendar').insert(entry);
+    }
+    closeModal('taxCalModal');
+    showToast('✓ Tax calendar entry saved');
+    loadTaxCalendar();
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
 </script>
 </body>
 </html>
