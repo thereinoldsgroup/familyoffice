@@ -38,7 +38,7 @@
     --radius: 6px;
     --radius-lg: 10px;
   
-  --page-header-h: 80px;
+  --page-header-h: 56px;
 }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -54,7 +54,7 @@
 
   /* ── TOPBAR ── */
   .topbar {
-    background: var(--navy);
+    background: linear-gradient(135deg, var(--navy) 0%, #162030 100%);
     color: var(--gold-light);
     display: flex;
     align-items: center;
@@ -66,7 +66,8 @@
     left: 0;
     right: 0;
     z-index: 100;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.25);
+    box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+    border-bottom: 1px solid rgba(194,164,109,0.15);
   }
   .topbar-brand { display: flex; align-items: center; gap: 14px; }
   .topbar-logo {
@@ -117,6 +118,7 @@
     flex-shrink: 0;
     transition: width 0.22s cubic-bezier(0.4,0,0.2,1);
     position: relative;
+    border-right: 1px solid rgba(255,255,255,0.06);
   }
   /* ── Batch 16 Side Navigation ── */
   .sidenav { display:flex; flex-direction:column; gap:1px; padding:0 8px; }
@@ -306,7 +308,7 @@
   .add-company-btn:hover { background: var(--teal-mid); box-shadow: 0 4px 16px rgba(44,166,164,0.35); transform: translateY(-1px); }
 
   /* ── MAIN ── */
-  .main { flex: 1; height: 100%; overflow-y: auto; padding: 24px 28px; overflow-anchor: none; min-width: 0; }
+  .main { flex: 1; height: 100%; overflow-y: auto; padding: 20px 28px; overflow-anchor: none; min-width: 0; background: var(--cream); }
   /* Hide companies sidebar when other modules are active */
   .sidebar-hidden { display: none !important; }
   /* Tax layout */
@@ -314,29 +316,32 @@
   /* Ownership and Financials panels also use full width */
   #view-ownership, #view-financials, #view-tax { width: 100%; }
   .page-header {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    margin-bottom: 20px; padding-bottom: 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px; padding-bottom: 10px;
     border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
     background: var(--cream);
     z-index: 20;
-    padding-top: 12px;
+    padding-top: 10px;
     margin-left: -28px;
     margin-right: -28px;
     padding-left: 28px;
     padding-right: 28px;
   }
-  .page-title { font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 600; color: var(--navy); line-height: 1.2; }
-  .page-subtitle { font-size: 13px; color: var(--text-light); margin-top: 4px; }
-  .page-actions { display: flex; gap: 10px; align-items: center; }
+  .page-title { font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 600; color: var(--navy); line-height: 1.2; letter-spacing: -0.02em; }
+  .page-subtitle { font-size: 12px; color: var(--text-light); margin-top: 2px; letter-spacing: 0.02em; }
+  .page-actions { display: flex; gap: 8px; align-items: center; }
 
-  .btn-primary { padding: 9px 22px; background: var(--navy); color: #fff; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
-  .btn-primary:hover { background: var(--navy-mid); }
-  .btn-secondary { padding: 9px 22px; background: var(--white); color: var(--navy); border: 1px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; transition: all 0.2s; }
-  .btn-secondary:hover { background: var(--gold-pale); border-color: var(--gold); }
-  .btn-save { padding: 9px 22px; background: var(--teal); color: #fff; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(44,166,164,0.25); }
-  .btn-save:hover { background: var(--teal-mid); box-shadow: 0 4px 16px rgba(44,166,164,0.35); transform: translateY(-1px); }
+  .btn-primary { padding: 8px 20px; background: var(--navy); color: #fff; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.18s ease; letter-spacing: 0.01em; }
+  .btn-primary:hover { background: var(--navy-mid); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-secondary { padding: 8px 20px; background: var(--white); color: var(--navy); border: 1px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; transition: all 0.18s ease; }
+  .btn-secondary:hover { background: var(--gold-pale); border-color: var(--gold); transform: translateY(-1px); }
+  .btn-secondary:active { transform: translateY(0); }
+  .btn-save { padding: 8px 20px; background: var(--teal); color: #fff; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.18s ease; box-shadow: 0 2px 8px rgba(44,166,164,0.2); }
+  .btn-save:hover { background: var(--teal-mid); box-shadow: 0 4px 12px rgba(44,166,164,0.3); transform: translateY(-1px); }
+  .btn-save:active { transform: translateY(0); box-shadow: 0 1px 4px rgba(44,166,164,0.2); }
   .btn-save:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
   .btn-danger { padding: 9px 22px; background: transparent; color: var(--error); border: 1px solid var(--error); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; transition: all 0.2s; }
   .btn-danger:hover { background: rgba(192,57,43,0.08); }
@@ -373,15 +378,15 @@
   .field-label { font-size: 12px; font-weight: 500; color: var(--text-mid); letter-spacing: 0.02em; }
   .field-label.required::after { content: ' *'; color: var(--gold); }
   .field-input, .field-select, .field-textarea {
-    height: 36px; padding: 0 12px;
+    height: 38px; padding: 0 12px;
     border: 1px solid var(--border); border-radius: var(--radius);
     font-family: 'DM Sans', sans-serif; font-size: 13.5px;
     color: var(--text-dark); background: var(--input-bg);
     transition: border-color 0.15s, box-shadow 0.15s; width: 100%;
   }
   .field-input:focus, .field-select:focus, .field-textarea:focus {
-    outline: none; border-color: var(--gold);
-    box-shadow: 0 0 0 3px rgba(184,150,90,0.12);
+    outline: none; border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(44,166,164,0.1);
   }
   .field-input::placeholder { color: var(--text-light); }
   .field-textarea { height: auto; min-height: 80px; padding: 10px 12px; resize: vertical; line-height: 1.5; }
@@ -438,8 +443,8 @@
   .tbl-btn-edit:hover { background: var(--navy-mid); }
   .tbl-btn-del { background: transparent; border: 1px solid rgba(192,57,43,0.4) !important; color: #e07060; }
   .tbl-btn-del:hover { background: rgba(192,57,43,0.1); }
-  .empty-state { padding: 48px; text-align: center; color: var(--text-light); }
-  .empty-state-title { font-family: 'Inter', sans-serif; font-size: 20px; color: var(--navy); margin-bottom: 8px; }
+  .empty-state { padding: 48px; text-align: center; color: var(--text-light); border: 1px dashed var(--border); border-radius: var(--radius-lg); background: rgba(244,246,248,0.5); margin: 8px 0; }
+  .empty-state-title { font-family: 'Inter', sans-serif; font-size: 18px; color: var(--navy); margin-bottom: 8px; font-weight: 500; }
 
   /* ── PANELS ── */
   .panel { display: none !important; overflow-anchor: none; }
@@ -512,7 +517,7 @@
   /* Modal */
   .modal-overlay { position: fixed; inset: 0; background: rgba(15,31,56,0.55); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
   .modal-overlay.show { display: flex; }
-  .modal { background: var(--white); border-radius: var(--radius-lg); width: 100%; max-width: 560px; box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto; }
+  .modal { background: var(--white); border-radius: 12px; width: 100%; max-width: 560px; box-shadow: 0 20px 60px rgba(30,42,56,0.2), 0 0 0 1px rgba(30,42,56,0.05); max-height: 90vh; overflow-y: auto; }
   .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--white); z-index: 1; }
   .modal-title { font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 600; color: var(--navy); }
   .modal-close { background: none; border: none; font-size: 22px; color: var(--text-light); cursor: pointer; line-height: 1; padding: 0; }
@@ -539,7 +544,7 @@
   .acct-sidebar-btn:hover { background: var(--gold-pale); color: var(--navy); }
   .acct-sidebar-btn.active { color: var(--teal-mid); font-weight: 500; background: var(--teal-light); border-left-color: var(--teal); }
   .acct-sidebar-btn .acct-icon { width: 22px; text-align: center; font-size: 14px; }
-  .acct-content { flex: 1; padding-left: 20px; min-width: 0; }
+  .acct-content { flex: 1; position: relative; z-index: 5; padding-left: 20px; min-width: 0; }
 
   
   
@@ -667,7 +672,7 @@
   .b8-sidebar-btn { display:flex; align-items:center; gap:9px; padding:9px 16px; font-size:13px; color:var(--text-mid); cursor:pointer; border:none; background:none; width:100%; text-align:left; font-family:'DM Sans',sans-serif; border-left:3px solid transparent; transition:all 0.15s; }
   .b8-sidebar-btn:hover { background:var(--gold-pale); color:var(--navy); }
   .b8-sidebar-btn.active { color:var(--navy); font-weight:500; background:var(--gold-pale); border-left-color:var(--gold); }
-  .b8-content { flex:1; padding-left:28px; min-width:0; }
+  .b8-content { flex:1; position:relative; z-index:5; padding-left:28px; min-width:0; }
   .b8-panel { display:none; }
   .b8-panel.active { display:block; }
   /* PO status */
@@ -725,7 +730,7 @@
   .rpt-sidebar-btn { display:flex; align-items:center; gap:9px; padding:9px 16px; font-size:13px; color:var(--text-mid); cursor:pointer; border:none; background:none; width:100%; text-align:left; font-family:'DM Sans',sans-serif; border-left:3px solid transparent; transition:all 0.15s; }
   .rpt-sidebar-btn:hover { background:var(--gold-pale); color:var(--navy); }
   .rpt-sidebar-btn.active { color:var(--navy); font-weight:500; background:var(--gold-pale); border-left-color:var(--gold); }
-  .rpt-content { flex:1; padding-left:28px; min-width:0; }
+  .rpt-content { flex:1; position:relative; z-index:5; padding-left:28px; min-width:0; }
   .rpt-panel { display:none; }
   .rpt-panel.active { display:block; }
   /* Report builder */
@@ -782,7 +787,7 @@
   .bud-sidebar-btn { display:flex; align-items:center; gap:9px; padding:9px 16px; font-size:13px; color:var(--text-mid); cursor:pointer; border:none; background:none; width:100%; text-align:left; font-family:'DM Sans',sans-serif; border-left:3px solid transparent; transition:all 0.15s; }
   .bud-sidebar-btn:hover { background:var(--gold-pale); color:var(--navy); }
   .bud-sidebar-btn.active { color:var(--navy); font-weight:500; background:var(--gold-pale); border-left-color:var(--gold); }
-  .bud-content { flex:1; padding-left:28px; min-width:0; }
+  .bud-content { flex:1; position:relative; z-index:5; padding-left:28px; min-width:0; }
   .bud-panel { display:none; }
   .bud-panel.active { display:block; }
   /* KPI cards */
@@ -821,7 +826,7 @@
   .inv-sidebar-btn { display:flex; align-items:center; gap:9px; padding:9px 16px; font-size:13px; color:var(--text-mid); cursor:pointer; border:none; background:none; width:100%; text-align:left; font-family:'DM Sans',sans-serif; border-left:3px solid transparent; transition:all 0.15s; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .inv-sidebar-btn:hover { background:var(--gold-pale); color:var(--navy); }
   .inv-sidebar-btn.active { color:var(--navy); font-weight:500; background:var(--gold-pale); border-left-color:var(--gold); }
-  .inv-content { flex:1; padding-left:28px; min-width:0; }
+  .inv-content { flex:1; position:relative; z-index:5; padding-left:28px; min-width:0; }
   .inv-panel { display:none; }
   .inv-panel.active { display:block; }
   /* Item type badges */
@@ -846,7 +851,7 @@
   .pm-sidebar-btn { display:flex; align-items:center; gap:9px; padding:9px 16px; font-size:13px; color:var(--text-mid); cursor:pointer; border:none; background:none; width:100%; text-align:left; font-family:'DM Sans',sans-serif; border-left:3px solid transparent; transition:all 0.15s; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .pm-sidebar-btn:hover { background:var(--gold-pale); color:var(--navy); }
   .pm-sidebar-btn.active { color:var(--navy); font-weight:500; background:var(--gold-pale); border-left-color:var(--gold); }
-  .pm-content { flex:1; padding-left:28px; min-width:0; }
+  .pm-content { flex:1; position:relative; z-index:5; padding-left:28px; min-width:0; }
   .pm-panel { display:none; }
   .pm-panel.active { display:block; }
 
@@ -1120,6 +1125,7 @@
         <div class="sidenav-children" id="snc-accounting">
           <button class="sidenav-child" id="nav-financials"  onclick="pickNav('financials')">Financials &amp; GL</button>
           <button class="sidenav-child" id="nav-tax"         onclick="pickNav('tax')">Tax Returns</button>
+          <button class="sidenav-child" id="nav-personal-tax" onclick="pickNav('personal-tax')">Personal Tax (1040)</button>
           <button class="sidenav-child" id="nav-budgeting"   onclick="pickNav('budgeting')">Budgeting</button>
           <button class="sidenav-child" id="nav-equity"      onclick="pickNav('equity')">Equity &amp; Cap Table</button>
           <button class="sidenav-child" id="nav-debt"        onclick="pickNav('debt')">Debt &amp; Loans</button>
@@ -1162,7 +1168,6 @@
           <button class="sidenav-child" id="nav-reports"     onclick="pickNav('reports')">Reports &amp; Automation</button>
           <button class="sidenav-child" id="nav-documents"   onclick="pickNav('documents')">Documents</button>
           <button class="sidenav-child" id="nav-audit"       onclick="pickNav('audit')">Internal Audit</button>
-          <button class="sidenav-child" id="nav-personal-tax" onclick="pickNav('personal-tax')">Personal Tax (1040)</button>
           <button class="sidenav-child" id="nav-automations" onclick="pickNav('automations')">Automation Center</button>
         </div>
       </div>
@@ -3471,7 +3476,7 @@
       <div class="page-header">
         <div>
           <div class="page-title">Entity Information</div>
-          <div class="page-subtitle">Business Details &middot; Address &middot; Accounting &middot; Key Contact &middot; Tax Calendar</div>
+          <div class="page-subtitle">Business Details &middot; Address &middot; Accounting &middot; Contact &middot; Tax Calendar</div>
         </div>
         <div class="page-actions">
           <button class="btn-secondary" onclick="pickNav('settings')">&#8592; Back to Settings</button>
@@ -4799,7 +4804,7 @@
           <button class="set-sidebar-btn" id="auto-nav-mgmt"         onclick="showAutoPanel('mgmt')"><span>&#128196;</span> Mgmt Agreements</button>
           <button class="set-sidebar-btn" id="auto-nav-notifications" onclick="showAutoPanel('notifications')"><span>&#128276;</span> Notifications</button>
         </div>
-        <div style="flex:1;min-width:0;padding-left:24px;">
+        <div style="flex:1;min-width:0;padding-left:24px;position:relative;z-index:5;">
           <div id="auto-panel-overview"      class="set-panel active"><div id="auto-overview-body"><div class="empty-state"><div class="empty-state-title">Select an entity to view automation status</div></div></div></div>
           <div id="auto-panel-rental"        class="set-panel"><div id="auto-rental-body"><div class="empty-state"><div class="empty-state-title">Rental / Lease Automations</div></div></div></div>
           <div id="auto-panel-payroll"       class="set-panel"><div id="auto-payroll-body"><div class="empty-state"><div class="empty-state-title">Payroll Automations</div></div></div></div>
@@ -21281,7 +21286,7 @@ switchModule = function(module) {
   if (navItem) navItem.classList.add('active');
   // Open the correct group
   const sideGroupMap = {
-    financials:'accounting', tax:'accounting', budgeting:'accounting', equity:'accounting', debt:'accounting',
+    financials:'accounting', tax:'accounting', 'personal-tax':'accounting', budgeting:'accounting', equity:'accounting', debt:'accounting',
     projects:'operations', inventory:'operations', purchasing:'operations',
     hr:'people', crm:'people', ownership:'people',
     reports:'intel', documents:'intel',
