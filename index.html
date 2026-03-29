@@ -8230,7 +8230,8 @@ async function saveAccount() {
   const name = document.getElementById('acct-name').value.trim();
   const type = document.getElementById('acct-type').value;
   if (!name || !type) { showToast('⚠ Account name and type are required', true); return; }
-  if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
+  const _hrCid = hrCompanyId || window._globalEntityId || document.getElementById('global-entity-select')?.value || acctCompanyId;
+  if (!_hrCid) { showToast('⚠ Select an entity from the top menu first', true); return; }
   showLoading('Saving…');
   try {
   const record = {
@@ -8296,7 +8297,8 @@ async function loadJEList() {
 }
 
 function openJEModal() {
-  if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
+  const _hrCid = hrCompanyId || window._globalEntityId || document.getElementById('global-entity-select')?.value || acctCompanyId;
+  if (!_hrCid) { showToast('⚠ Select an entity from the top menu first', true); return; }
   editingJEId = null;
   document.getElementById('jeModalTitle').textContent = 'New Journal Entry';
   document.getElementById('je-date').value = new Date().toISOString().slice(0,10);
@@ -9330,7 +9332,8 @@ async function loadReconcileView() {
 }
 
 function openNewReconcileModal() {
-  if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
+  const _hrCid = hrCompanyId || window._globalEntityId || document.getElementById('global-entity-select')?.value || acctCompanyId;
+  if (!_hrCid) { showToast('⚠ Select an entity from the top menu first', true); return; }
   const bankAccts = acctAccounts.filter(a => a.account_type==='Asset' && a.account_subtype==='Current Asset');
   document.getElementById('recon-account').innerHTML = '<option value="">— Select account —</option>' + bankAccts.map(a=>`<option value="${a.id}">${a.account_number} — ${a.account_name}</option>`).join('');
   document.getElementById('recon-stmt-date').value   = new Date().toISOString().slice(0,10);
@@ -9733,7 +9736,8 @@ async function loadPayroll() {
 let payrollEmployeeCache = {}; // empId -> { employee, deductions }
 
 async function openPayrollModal() {
-  if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
+  const _hrCid = hrCompanyId || window._globalEntityId || document.getElementById('global-entity-select')?.value || acctCompanyId;
+  if (!_hrCid) { showToast('⚠ Select an entity from the top menu first', true); return; }
   document.getElementById('payrollModalTitle').textContent = 'New Payroll Run';
   document.getElementById('pr-start').value   = '';
   document.getElementById('pr-end').value     = '';
@@ -10735,7 +10739,9 @@ async function loadEmployees() {
 
 // ── OPEN / EDIT EMPLOYEE MODAL ──
 function openEmployeeModal(id = null) {
-  if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
+  // Use HR company or fall back to global entity
+  const _hrCid = hrCompanyId || window._globalEntityId || document.getElementById('global-entity-select')?.value || acctCompanyId;
+  if (!_hrCid) { showToast('⚠ Select an entity from the top menu first', true); return; }
   editingEmployeeId = id;
   empDeductionRows  = [];
   document.getElementById('employeeModalTitle').textContent = id ? 'Edit Employee' : 'Add Employee';
@@ -16456,7 +16462,10 @@ async function loadCRMModule() {
 }
 async function onCRMEntityChange() { crmCompanyId=window._globalEntityId || document.getElementById('global-entity-select')?.value||null; await loadCRMData(); }
 async function loadCRMData() {
-  if (!crmCompanyId) return;
+  if (!crmCompanyId) {
+    document.getElementById('crm-pipeline-body').innerHTML = '<div class="empty-state"><div class="empty-state-title">Select an entity from the top menu</div><div style="font-size:13px;color:var(--text-light);margin-top:4px;">Then use + Contact and + Deal buttons to build your CRM pipeline.</div></div>';
+    return;
+  }
   const [{ data:contacts },{ data:deals }] = await Promise.all([
     sb.from('crm_contacts').select('*').eq('company_id',crmCompanyId).order('last_name'),
     sb.from('crm_deals').select('*, crm_contacts(first_name,last_name)').eq('company_id',crmCompanyId).order('deal_value',{ascending:false}),
@@ -22265,7 +22274,8 @@ async function sendInvoiceEmail() {
 }
 
 async function sendInvoiceReminders() {
-  if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
+  const _hrCid = hrCompanyId || window._globalEntityId || document.getElementById('global-entity-select')?.value || acctCompanyId;
+  if (!_hrCid) { showToast('⚠ Select an entity from the top menu first', true); return; }
   showLoading('Scanning for overdue invoices…');
   const today = new Date().toISOString().slice(0, 10);
   const { data: overdue } = await sb.from('invoices')
@@ -22452,6 +22462,8 @@ openItemModal = async function(id=null) {
 async function loadRentalsModule() {
   const sel = document.getElementById('rentals-company-sel');
   if (!sel) return;
+  // Sync with global entity
+  const gid = window._globalEntityId || document.getElementById('global-entity-select')?.value;
   let companies = [];
   try {
     // Try filtering by is_rental_company (requires SQL migration to be run)
@@ -22471,7 +22483,14 @@ async function loadRentalsModule() {
   }
   sel.innerHTML = '<option value="">— Select rental entity —</option>' +
     companies.map(c => `<option value="${c.id}">${c.legal_name}</option>`).join('');
-  if (companies.length === 1) {
+  // Auto-select: global entity first, then single company
+  if (gid && sel.querySelector(`option[value="${gid}"]`)) {
+    sel.value = gid;
+    loadRentals();
+  } else if (companies.length === 1) {
+    sel.value = companies[0].id;
+    loadRentals();
+  } else if (companies.length > 0 && !sel.value) {
     sel.value = companies[0].id;
     loadRentals();
   }
@@ -23708,7 +23727,8 @@ let _mcData = {};           // month-end close cached data
 // ─────────────────────────────────────────────
 
 async function loadUnmatchedTransactions() {
-  if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
+  const _hrCid = hrCompanyId || window._globalEntityId || document.getElementById('global-entity-select')?.value || acctCompanyId;
+  if (!_hrCid) { showToast('⚠ Select an entity from the top menu first', true); return; }
   const body = document.getElementById('ai-match-body');
   const stats = document.getElementById('ai-match-stats');
   if (!body) return;
@@ -23794,7 +23814,8 @@ function renderAIMatchTable() {
 }
 
 async function runAITransactionMatch() {
-  if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
+  const _hrCid = hrCompanyId || window._globalEntityId || document.getElementById('global-entity-select')?.value || acctCompanyId;
+  if (!_hrCid) { showToast('⚠ Select an entity from the top menu first', true); return; }
   if (!_unmatchedTxns.length) await loadUnmatchedTransactions();
   if (!_unmatchedTxns.length) { showToast('No unmatched transactions found', true); return; }
 
@@ -23961,7 +23982,8 @@ function dismissAIMatch(txnId) {
 // ─────────────────────────────────────────────
 
 async function postMonthlyDepreciation(yearMonth) {
-  if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
+  const _hrCid = hrCompanyId || window._globalEntityId || document.getElementById('global-entity-select')?.value || acctCompanyId;
+  if (!_hrCid) { showToast('⚠ Select an entity from the top menu first', true); return; }
   showLoading('Posting depreciation…');
   try {
     const [yr, mo] = yearMonth.split('-').map(Number);
@@ -24041,7 +24063,8 @@ async function initMonthClose() {
 }
 
 async function runMonthEndClose() {
-  if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
+  const _hrCid = hrCompanyId || window._globalEntityId || document.getElementById('global-entity-select')?.value || acctCompanyId;
+  if (!_hrCid) { showToast('⚠ Select an entity from the top menu first', true); return; }
   const yearMonth = document.getElementById('mc-month-sel')?.value;
   if (!yearMonth) { showToast('⚠ Select a month', true); return; }
   const [yr, mo] = yearMonth.split('-').map(Number);
@@ -25442,7 +25465,8 @@ async function confirmPlanSelect() {
 //  YEAR-END CLOSE — GAAP Closing Entries
 // ════════════════════════════════════════════════════════
 async function runYearEndClose() {
-  if (!acctCompanyId) { showToast('⚠ Select a company first', true); return; }
+  const _hrCid = hrCompanyId || window._globalEntityId || document.getElementById('global-entity-select')?.value || acctCompanyId;
+  if (!_hrCid) { showToast('⚠ Select an entity from the top menu first', true); return; }
   const year = prompt('Close fiscal year (enter year, e.g. 2025):', new Date().getFullYear() - 1);
   if (!year || isNaN(parseInt(year))) return;
   const yr = parseInt(year);
@@ -25686,10 +25710,12 @@ let auditCompanyId = null;
 function onAuditEntityChange() { auditCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null; }
 
 async function loadAuditModule() {
-  showLoading('Loading audit module…');
-  try {
-    auditCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
-  } catch(e){} finally { hideLoading(); }
+  auditCompanyId = window._globalEntityId || document.getElementById('global-entity-select')?.value || null;
+  if (auditCompanyId) {
+    document.getElementById('audit-body').innerHTML = '<div class="empty-state"><div class="empty-state-title">Ready to Audit</div><div style="font-size:13px;color:var(--text-light);margin-top:4px;">Select a period and click <strong>Run Audit</strong> to scan for anomalies, fraud indicators, and compliance risks.</div></div>';
+  } else {
+    document.getElementById('audit-body').innerHTML = '<div class="empty-state"><div class="empty-state-title">Select an entity from the top menu</div><div style="font-size:13px;color:var(--text-light);margin-top:4px;">The audit engine will scan journal entries, vendor activity, and payment patterns for risk indicators.</div></div>';
+  }
 }
 
 async function runInternalAudit() {
@@ -25799,6 +25825,220 @@ async function runInternalAudit() {
       items: noDescJEs.slice(0,5).map(j=>`JE ${j.reference_number||j.id} — ${j.entry_date}`)
     });
 
+
+    // ═══════════════════════════════════════════════════════
+    // TIER 2 TESTS — Competitive Differentiators
+    // ═══════════════════════════════════════════════════════
+
+    // ── TEST 7: Benford's Law Analysis ──
+    // First digit of naturally occurring amounts follows logarithmic distribution
+    // Deviation suggests fabricated or manipulated amounts
+    const allAmounts = allJes.flatMap(j => {
+      try {
+        const lines = typeof j.lines === 'string' ? JSON.parse(j.lines) : (j.lines || []);
+        return lines.map(l => Math.abs(parseFloat(l.debit || l.credit || 0))).filter(a => a >= 10);
+      } catch(e) { return []; }
+    });
+    if (allAmounts.length >= 50) {
+      const firstDigitCounts = Array(10).fill(0);
+      allAmounts.forEach(a => {
+        const d = parseInt(String(a).replace(/[^1-9]/,'').charAt(0));
+        if (d >= 1 && d <= 9) firstDigitCounts[d]++;
+      });
+      const total = firstDigitCounts.reduce((s,c) => s + c, 0);
+      // Benford's expected distribution
+      const benford = [0, 0.301, 0.176, 0.125, 0.097, 0.079, 0.067, 0.058, 0.051, 0.046];
+      let maxDeviation = 0, deviatingDigit = 0;
+      const deviations = [];
+      for (let d = 1; d <= 9; d++) {
+        const observed = total > 0 ? firstDigitCounts[d] / total : 0;
+        const expected = benford[d];
+        const dev = Math.abs(observed - expected);
+        if (dev > 0.05) { // More than 5% deviation
+          deviations.push({ digit: d, observed: (observed*100).toFixed(1), expected: (expected*100).toFixed(1), deviation: (dev*100).toFixed(1) });
+        }
+        if (dev > maxDeviation) { maxDeviation = dev; deviatingDigit = d; }
+      }
+      if (deviations.length > 0) {
+        findings.push({
+          severity: maxDeviation > 0.10 ? 'high' : 'medium',
+          category: "Benford's Law",
+          count: deviations.length,
+          title: `${deviations.length} digit${deviations.length>1?'s':''} deviate from Benford's Law distribution`,
+          detail: "Benford's Law states that in naturally occurring numbers, digit 1 appears ~30% of the time, digit 9 ~5%. Significant deviation may indicate fabricated amounts. Analyzed " + allAmounts.length + " transaction amounts.",
+          items: deviations.map(d => `Digit ${d.digit}: observed ${d.observed}% vs expected ${d.expected}% (${d.deviation}% deviation)`)
+        });
+      }
+    }
+
+    // ── TEST 8: Ghost Vendor Detection ──
+    // Vendors with personal email domains, no address, or names matching employees
+    const allEmployees = [];
+    try {
+      const { data: emps } = await sb.from('employees').select('first_name,last_name').eq('company_id', auditCompanyId);
+      if (emps) allEmployees.push(...emps);
+    } catch(e) {}
+    const empNames = new Set(allEmployees.map(e => (e.first_name + ' ' + e.last_name).toLowerCase()));
+    const personalDomains = ['gmail.com','yahoo.com','hotmail.com','outlook.com','aol.com','icloud.com','me.com','protonmail.com','mail.com'];
+    const ghostFlags = [];
+    allVendors.forEach(v => {
+      const flags = [];
+      const email = (v.email || '').toLowerCase();
+      const name = (v.name || '').toLowerCase();
+      if (email && personalDomains.some(d => email.endsWith(d))) flags.push('Personal email domain');
+      if (!v.address && !v.city && !v.state) flags.push('No address on file');
+      if (empNames.has(name)) flags.push('Name matches an employee');
+      const vendCreated = new Date(v.created_at);
+      const vendBills = allBills.filter(b => b.vendor_id === v.id);
+      if (vendBills.length > 0) {
+        const firstBill = new Date(vendBills[0].bill_date);
+        if ((firstBill - vendCreated) / 86400000 <= 7) flags.push('Billed within 7 days of creation');
+      }
+      if (flags.length >= 2) ghostFlags.push({ vendor: v.name, flags });
+    });
+    if (ghostFlags.length) {
+      findings.push({
+        severity: 'high', category: 'Ghost Vendor Risk', count: ghostFlags.length,
+        title: `${ghostFlags.length} vendor${ghostFlags.length>1?'s':''} flagged as potential ghost vendors`,
+        detail: 'Ghost vendors have multiple red flags: personal email domains, no address, names matching employees, or immediate billing after creation. Each may indicate fictitious vendor fraud.',
+        items: ghostFlags.slice(0,5).map(g => `${g.vendor}: ${g.flags.join(', ')}`)
+      });
+    }
+
+    // ── TEST 9: Dormant Account Reactivation ──
+    // GL accounts with no activity for 180+ days that suddenly have entries
+    const acctActivity = {};
+    allJes.forEach(j => {
+      try {
+        const lines = typeof j.lines === 'string' ? JSON.parse(j.lines) : (j.lines || []);
+        lines.forEach(l => {
+          const aid = l.account_id || l.accountId;
+          if (!aid) return;
+          if (!acctActivity[aid]) acctActivity[aid] = [];
+          acctActivity[aid].push(new Date(j.entry_date));
+        });
+      } catch(e) {}
+    });
+    const dormantReactivated = [];
+    const _acctMap2 = {};
+    allAccts.forEach(a => _acctMap2[a.id] = a);
+    Object.entries(acctActivity).forEach(([aid, dates]) => {
+      if (dates.length < 2) return;
+      dates.sort((a,b) => a - b);
+      for (let i = 1; i < dates.length; i++) {
+        const gap = (dates[i] - dates[i-1]) / 86400000;
+        if (gap >= 180) {
+          const acct = _acctMap2[aid];
+          if (acct) dormantReactivated.push({ name: acct.account_name, number: acct.account_number, gap: Math.round(gap), reactivated: dates[i].toISOString().slice(0,10) });
+          break;
+        }
+      }
+    });
+    if (dormantReactivated.length) {
+      findings.push({
+        severity: 'medium', category: 'Dormant Account', count: dormantReactivated.length,
+        title: `${dormantReactivated.length} dormant account${dormantReactivated.length>1?'s':''} reactivated`,
+        detail: 'Accounts with no activity for 180+ days that suddenly received entries. Dormant accounts are sometimes used to conceal unauthorized transactions.',
+        items: dormantReactivated.slice(0,5).map(d => `${d.number || ''} ${d.name} — ${d.gap} days dormant, reactivated ${d.reactivated}`)
+      });
+    }
+
+    // ── TEST 10: Vendor Payment Velocity Anomalies ──
+    // Payments significantly above a vendor's historical average
+    const vendorPayments = {};
+    allBills.forEach(b => {
+      if (!b.vendor_id || !b.total) return;
+      if (!vendorPayments[b.vendor_id]) vendorPayments[b.vendor_id] = [];
+      vendorPayments[b.vendor_id].push(parseFloat(b.total));
+    });
+    const velocityAlerts = [];
+    Object.entries(vendorPayments).forEach(([vid, amounts]) => {
+      if (amounts.length < 4) return; // Need history to detect anomalies
+      const mean = amounts.reduce((s,a) => s+a, 0) / amounts.length;
+      const stdDev = Math.sqrt(amounts.reduce((s,a) => s + Math.pow(a - mean, 2), 0) / amounts.length);
+      if (stdDev === 0) return;
+      amounts.forEach(amt => {
+        const zScore = (amt - mean) / stdDev;
+        if (zScore > 2.5 && amt > 1000) { // More than 2.5 standard deviations above mean
+          const v = allVendors.find(vv => vv.id === vid);
+          velocityAlerts.push({ vendor: v?.name || vid, amount: amt, mean: mean, zScore: zScore.toFixed(1) });
+        }
+      });
+    });
+    if (velocityAlerts.length) {
+      const fmt2 = v => '$' + parseFloat(v).toLocaleString('en-US', {minimumFractionDigits:2});
+      findings.push({
+        severity: 'high', category: 'Payment Velocity', count: velocityAlerts.length,
+        title: `${velocityAlerts.length} payment${velocityAlerts.length>1?'s':''} significantly above vendor's historical average`,
+        detail: 'Payments more than 2.5 standard deviations above a vendor\\\'s mean payment amount. May indicate unauthorized payments or invoice manipulation.',
+        items: velocityAlerts.slice(0,5).map(v => `${v.vendor}: ${fmt2(v.amount)} (avg ${fmt2(v.mean)}, ${v.zScore}σ above mean)`)
+      });
+    }
+
+    // ── TEST 11: Journal Entry Source Analysis ──
+    // Flag manual JEs that credit liability or equity accounts above threshold
+    const manualJEs = allJes.filter(j => j.entry_type === 'manual' || !j.entry_type);
+    const liabilityEquityAcctIds = new Set(allAccts.filter(a => ['Liability','Equity'].includes(a.account_type)).map(a => a.id));
+    const riskyManualJEs = [];
+    manualJEs.forEach(j => {
+      try {
+        const lines = typeof j.lines === 'string' ? JSON.parse(j.lines) : (j.lines || []);
+        const hasRiskyCredit = lines.some(l => {
+          const aid = l.account_id || l.accountId;
+          const credit = parseFloat(l.credit || 0);
+          return liabilityEquityAcctIds.has(aid) && credit >= 5000;
+        });
+        if (hasRiskyCredit) riskyManualJEs.push(j);
+      } catch(e) {}
+    });
+    if (riskyManualJEs.length) {
+      findings.push({
+        severity: 'high', category: 'Manual JE Risk', count: riskyManualJEs.length,
+        title: `${riskyManualJEs.length} manual JE${riskyManualJEs.length>1?'s':''} crediting liability/equity accounts (≥$5,000)`,
+        detail: 'Manual journal entries that credit liability or equity accounts above $5,000 are the highest-risk entries. They can be used to hide embezzlement, create fictitious liabilities, or manipulate equity balances. Per GAAS AU-C 240, these require heightened scrutiny.',
+        items: riskyManualJEs.slice(0,5).map(j => `JE ${j.reference_number||j.id} — ${j.entry_date} — ${j.description||'No description'}`)
+      });
+    }
+
+    // ── TEST 12: Duplicate Payment Detection (enhanced) ──
+    // Check for same vendor + similar amount + close dates (within 5 days)
+    const dupPaymentAlerts = [];
+    const billsByVendor = {};
+    allBills.forEach(b => {
+      if (!b.vendor_id) return;
+      if (!billsByVendor[b.vendor_id]) billsByVendor[b.vendor_id] = [];
+      billsByVendor[b.vendor_id].push(b);
+    });
+    Object.entries(billsByVendor).forEach(([vid, bills]) => {
+      for (let i = 0; i < bills.length; i++) {
+        for (let j = i + 1; j < bills.length; j++) {
+          const a = bills[i], b = bills[j];
+          const amtA = parseFloat(a.total||0), amtB = parseFloat(b.total||0);
+          if (amtA === 0 || amtB === 0) continue;
+          const amtDiff = Math.abs(amtA - amtB) / Math.max(amtA, amtB);
+          const dateA = new Date(a.bill_date), dateB = new Date(b.bill_date);
+          const daysDiff = Math.abs((dateA - dateB) / 86400000);
+          if (amtDiff < 0.02 && daysDiff <= 5 && amtA >= 100) { // Within 2% amount and 5 days
+            const v = allVendors.find(vv => vv.id === vid);
+            dupPaymentAlerts.push({
+              vendor: v?.name || vid,
+              amt1: amtA, date1: a.bill_date,
+              amt2: amtB, date2: b.bill_date
+            });
+          }
+        }
+      }
+    });
+    if (dupPaymentAlerts.length) {
+      const fmt2 = v => '$' + parseFloat(v).toLocaleString('en-US', {minimumFractionDigits:2});
+      findings.push({
+        severity: 'medium', category: 'Duplicate Payment', count: dupPaymentAlerts.length,
+        title: `${dupPaymentAlerts.length} potential duplicate payment${dupPaymentAlerts.length>1?'s':''} detected`,
+        detail: 'Bills to the same vendor with nearly identical amounts within 5 days of each other. May indicate duplicate data entry or intentional double-payment fraud.',
+        items: dupPaymentAlerts.slice(0,5).map(d => `${d.vendor}: ${fmt2(d.amt1)} on ${d.date1} vs ${fmt2(d.amt2)} on ${d.date2}`)
+      });
+    }
+
     // ── RENDER FINDINGS ──
     const sevColor = {high:'var(--error)', medium:'var(--gold)', low:'var(--teal)'};
     const sevBg    = {high:'#fef2f2', medium:'#fffbeb', low:'#f0fdfa'};
@@ -25808,10 +26048,15 @@ async function runInternalAudit() {
       const highCount = findings.filter(f=>f.severity==='high').length;
       const medCount  = findings.filter(f=>f.severity==='medium').length;
       const lowCount  = findings.filter(f=>f.severity==='low').length;
-      body.innerHTML = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">'
-        + `<div class="kpi-card" style="border-top-color:var(--error);"><div class="kpi-label">High Risk</div><div class="kpi-value" style="color:var(--error);">${highCount}</div></div>`
-        + `<div class="kpi-card" style="border-top-color:var(--gold);"><div class="kpi-label">Medium Risk</div><div class="kpi-value" style="color:var(--gold);">${medCount}</div></div>`
-        + `<div class="kpi-card" style="border-top-color:var(--teal);"><div class="kpi-label">Low Risk</div><div class="kpi-value" style="color:var(--teal);">${lowCount}</div></div>`
+      // Calculate risk score (0-100)
+      const riskScore = Math.min(100, highCount * 25 + medCount * 10 + lowCount * 3);
+      const riskColor = riskScore >= 70 ? 'var(--error)' : riskScore >= 40 ? 'var(--gold)' : 'var(--teal)';
+      const riskLabel = riskScore >= 70 ? 'HIGH RISK' : riskScore >= 40 ? 'ELEVATED' : 'LOW RISK';
+      body.innerHTML = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">'
+        + `<div class="kpi-card" style="border-top:3px solid ${riskColor};"><div class="kpi-label">Risk Score</div><div class="kpi-value" style="color:${riskColor};font-size:32px;">${riskScore}</div><div style="font-size:10px;font-weight:600;letter-spacing:.08em;color:${riskColor};">${riskLabel}</div></div>`
+        + `<div class="kpi-card" style="border-top:3px solid var(--error);"><div class="kpi-label">High Risk</div><div class="kpi-value" style="color:var(--error);">${highCount}</div></div>`
+        + `<div class="kpi-card" style="border-top:3px solid var(--gold);"><div class="kpi-label">Medium Risk</div><div class="kpi-value" style="color:var(--gold);">${medCount}</div></div>`
+        + `<div class="kpi-card" style="border-top:3px solid var(--teal);"><div class="kpi-label">Low Risk</div><div class="kpi-value" style="color:var(--teal);">${lowCount}</div></div>`
         + '</div>'
         + findings.map(f=>`
           <div style="background:${sevBg[f.severity]};border:1px solid ${sevColor[f.severity]};border-left:4px solid ${sevColor[f.severity]};border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:12px;">
